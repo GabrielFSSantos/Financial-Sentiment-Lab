@@ -1,0 +1,135 @@
+# ============================================================
+# AMBIENTE VIRTUAL PYTHON
+# ============================================================
+
+venv/
+.venv/
+env/
+ENV/
+
+
+# ============================================================
+# CACHE E ARQUIVOS GERADOS PELO PYTHON
+# ============================================================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+
+# ============================================================
+# ARQUIVOS DE AMBIENTE E CONFIGURAÇÕES LOCAIS
+# ============================================================
+
+.env
+.env.*
+!.env.example
+
+
+# ============================================================
+# MODELOS E PESOS TREINADOS
+#
+# Evita enviar arquivos grandes de modelos para o Git.
+# ============================================================
+
+FinBERT-PT-BR/
+
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+
+
+# ============================================================
+# DADOS DE ENTRADA
+#
+# Os arquivos utilizados nos experimentos não são enviados
+# automaticamente ao repositório.
+#
+# O .gitkeep permite manter a pasta dados/ no Git.
+# ============================================================
+
+dados/*
+!dados/.gitkeep
+!dados/exemplo.csv
+
+
+# ============================================================
+# RESULTADOS DOS EXPERIMENTOS
+#
+# Resultados gerados pelo código não são versionados.
+#
+# O .gitkeep permite manter a pasta resultados/ no Git.
+# ============================================================
+
+resultados/*
+!resultados/.gitkeep
+
+
+# ============================================================
+# LOGS DE EXECUÇÃO LOCAL E SLURM
+# ============================================================
+
+logs/*
+!logs/.gitkeep
+
+*.out
+*.err
+slurm-*.out
+
+
+# ============================================================
+# JUPYTER NOTEBOOK
+# ============================================================
+
+.ipynb_checkpoints/
+
+
+# ============================================================
+# ARQUIVOS DE EDITORES E IDEs
+# ============================================================
+
+.vscode/
+.idea/
+
+*.swp
+*.swo
+
+
+# ============================================================
+# ARQUIVOS DO SISTEMA OPERACIONAL
+# ============================================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# ============================================================
+# ARQUIVOS TEMPORÁRIOS
+# ============================================================
+
+*.tmp
+*.temp
+*.bak
+*.log
+*~
+
+
+# ============================================================
+# COBERTURA E BUILD
+# ============================================================
+
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+build/
+dist/
+*.egg-info/
