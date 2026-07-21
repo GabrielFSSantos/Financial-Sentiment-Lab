@@ -1,0 +1,335 @@
+# ============================================================
+# CONFIGURAÇÃO GERAL DO EXPERIMENTO
+# ============================================================
+#
+# Este arquivo controla somente:
+#
+# - identificação do experimento;
+# - ambiente de execução;
+# - comportamento da pipeline;
+# - caminhos gerais;
+# - saídas;
+# - métricas;
+# - agregações;
+# - reprodutibilidade;
+# - validações iniciais.
+#
+# A configuração dos modelos pertence a:
+#
+#   configs/models.yaml
+#
+# A configuração dos datasets pertence a:
+#
+#   configs/datasets.yaml
+#
+# A configuração do SDumont pertence a:
+#
+#   configs/sdumont.env
+#
+# Na execução padrão, a pipeline processa:
+#
+#   todos os modelos com enabled: true
+#       ×
+#   todos os datasets com enabled: true
+#
+# Modelos e datasets específicos podem ser informados
+# temporariamente por --model e --dataset.
+# ============================================================
+
+schema_version: "2.0"
+
+
+# ============================================================
+# IDENTIFICAÇÃO DO EXPERIMENTO
+# ============================================================
+
+experiment:
+  # Nome legível registrado nos metadados.
+  name: financial_sentiment
+
+  # Descrição geral da execução.
+  description: >-
+    Análise de sentimentos em notícias do mercado financeiro
+    brasileiro com modelos de Processamento de Linguagem Natural.
+
+  # Identificador manual da execução.
+  #
+  # Use null para gerar automaticamente:
+  #
+  #   <run_id_prefix>_<AAAAMMDD>_<HHMMSS>
+  run_id: null
+
+  # Prefixo utilizado na geração automática do run_id.
+  run_id_prefix: financial_sentiment
+
+  # Semente aplicada ao Python, NumPy e PyTorch.
+  random_seed: 42
+
+  # Fuso horário usado nas datas e nos metadados.
+  timezone: America/Sao_Paulo
+
+
+# ============================================================
+# EXECUÇÃO
+# ============================================================
+
+execution:
+  # Ambiente em que o comando principal será executado.
+  #
+  # Valores:
+  #
+  #   local
+  #   sdumont
+  environment: local
+
+  # Quando true, valida configurações, modelos, datasets e
+  # caminhos, mas não executa inferência.
+  dry_run: false
+
+  # Nível das mensagens registradas.
+  #
+  # Valores usuais:
+  #
+  #   DEBUG
+  #   INFO
+  #   WARNING
+  #   ERROR
+  log_level: INFO
+
+  # Quando true, interrompe no primeiro erro.
+  #
+  # Quando false, registra o erro e tenta continuar com
+  # as outras combinações modelo × dataset.
+  fail_fast: true
+
+  # Salva cada combinação concluída imediatamente.
+  #
+  # Isso preserva resultados já produzidos caso uma combinação
+  # posterior apresente erro.
+  save_partial_results: true
+
+  # Permite substituir uma execução que possua o mesmo run_id.
+  overwrite_existing_run: false
+
+  # Descarrega o modelo depois de cada combinação para liberar
+  # memória RAM e memória da GPU.
+  unload_model_after_combination: true
+
+
+# ============================================================
+# ARQUIVOS DE CONFIGURAÇÃO
+# ============================================================
+
+configuration_files:
+  models: configs/models.yaml
+  datasets: configs/datasets.yaml
+  sdumont: configs/sdumont.env
+
+
+# ============================================================
+# CAMINHOS GERAIS
+# ============================================================
+
+paths:
+  # Estrutura criada automaticamente:
+  #
+  # outputs/<run_id>/
+  # ├── summary.json
+  # ├── resolved_config.yaml
+  # └── models/
+  #     └── <modelo>/
+  #         └── <dataset>/
+  output_root: outputs
+
+  # Logs locais e logs gerais da execução.
+  log_root: logs
+
+  # Arquivos temporários da pipeline.
+  temp_root: .tmp
+
+
+# ============================================================
+# SAÍDAS
+# ============================================================
+
+outputs:
+  # Arquivo com uma linha para cada notícia.
+  save_predictions: true
+
+  # Métricas de classificação e desempenho.
+  save_metrics: true
+
+  # Agregações temporais.
+  save_aggregates: true
+
+  # Metadados de cada combinação.
+  save_metadata: true
+
+  # Resumo geral de todas as combinações do experimento.
+  save_experiment_summary: true
+
+  # Configuração final após aplicação de valores padrão e
+  # argumentos temporários da linha de comando.
+  save_resolved_config: true
+
+  # Formato dos arquivos tabulares.
+  tabular_format: csv
+
+  # Codificação dos arquivos CSV.
+  encoding: utf-8
+
+  # Separador dos arquivos CSV.
+  delimiter: ","
+
+  # Quantidade de casas decimais ao salvar números.
+  float_precision: 8
+
+
+# ============================================================
+# MÉTRICAS DE CLASSIFICAÇÃO
+# ============================================================
+
+classification_metrics:
+  enabled: true
+
+  # Ordem utilizada nas métricas e na matriz de confusão.
+  labels:
+    - NEGATIVE
+    - NEUTRAL
+    - POSITIVE
+
+  # Valor utilizado quando não é possível calcular uma divisão
+  # de precision ou recall.
+  zero_division: 0
+
+  # Permite executar datasets que não possuem true_label.
+  #
+  # Nesse caso, são produzidas previsões e métricas de
+  # desempenho, mas não métricas supervisionadas.
+  allow_unlabeled_datasets: true
+
+  # Métricas detalhadas por classe.
+  save_per_class_metrics: true
+
+  # Matriz de confusão.
+  save_confusion_matrix: true
+
+  # Distribuição das classes verdadeiras e previstas.
+  save_class_distribution: true
+
+
+# ============================================================
+# MÉTRICAS COMPUTACIONAIS
+# ============================================================
+
+performance_metrics:
+  enabled: true
+
+  # Tempo necessário para carregar o modelo.
+  measure_load_time: true
+
+  # Tempo utilizado somente na inferência.
+  measure_inference_time: true
+
+  # Tempo total da combinação.
+  measure_total_time: true
+
+  # Quantidade de textos processados por segundo.
+  measure_throughput: true
+
+  # Pico de memória da GPU, quando CUDA estiver disponível.
+  measure_gpu_memory: true
+
+
+# ============================================================
+# AGREGAÇÕES
+# ============================================================
+
+aggregation:
+  enabled: true
+
+  # Coluna numérica utilizada nas agregações.
+  sentiment_column: continuous_sentiment
+
+  # Quantidade mínima de notícias necessária para manter
+  # um grupo no arquivo final.
+  minimum_news_per_group: 1
+
+  # Quando faltarem colunas necessárias para um nível, esse nível
+  # será ignorado e o motivo será registrado no log.
+  skip_level_when_columns_missing: true
+
+  # Níveis de agregação executados.
+  levels:
+    - company_day
+    - sector_day
+    - market_day
+
+  # Estatísticas calculadas sobre continuous_sentiment.
+  statistics:
+    - mean
+    - median
+    - sum
+    - count
+
+  # Adiciona quantidade de notícias positivas, negativas e neutras.
+  include_class_counts: true
+
+  # Adiciona a confiança média das previsões.
+  include_mean_confidence: true
+
+
+# ============================================================
+# REPRODUTIBILIDADE
+# ============================================================
+
+reproducibility:
+  # Configura PYTHONHASHSEED.
+  set_python_hash_seed: true
+
+  # Aplica a semente ao NumPy.
+  seed_numpy: true
+
+  # Aplica a semente ao PyTorch.
+  seed_torch: true
+
+  # Pode reduzir o desempenho, mas aumenta a repetibilidade.
+  deterministic_torch: false
+
+  # Permite que o PyTorch otimize operações CUDA para tamanhos
+  # de entrada recorrentes.
+  cudnn_benchmark: true
+
+
+# ============================================================
+# VALIDAÇÕES ANTES DA INFERÊNCIA
+# ============================================================
+
+preflight_checks:
+  enabled: true
+
+  # Valida experiment.yaml, models.yaml e datasets.yaml.
+  validate_configuration_files: true
+
+  # Exige pelo menos um modelo ativo ou informado por --model.
+  require_at_least_one_enabled_model: true
+
+  # Exige pelo menos um dataset ativo ou informado por --dataset.
+  require_at_least_one_enabled_dataset: true
+
+  # Confirma a existência dos pesos e arquivos dos modelos.
+  validate_model_files: true
+
+  # Confirma a existência dos arquivos dos datasets.
+  validate_dataset_files: true
+
+  # Confirma que o diretório de saída pode ser criado ou escrito.
+  validate_output_directory: true
+
+  # Confirma a existência da coluna de texto e de outras colunas
+  # obrigatórias definidas no dataset.
+  validate_required_dataset_columns: true
+
+  # Confirma que as classes do modelo podem ser convertidas para
+  # NEGATIVE, NEUTRAL e POSITIVE.
+  validate_label_mapping: true

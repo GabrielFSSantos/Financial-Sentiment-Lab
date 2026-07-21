@@ -1,0 +1,249 @@
+# ============================================================
+# CONFIGURAÇÃO DOS DATASETS
+# ============================================================
+#
+# Este arquivo é a única fonte de configuração dos datasets.
+#
+# Na execução padrão, a pipeline seleciona todos os datasets com:
+#
+#   enabled: true
+#
+# Cada dataset ativo será executado com todos os modelos ativos
+# definidos em configs/models.yaml.
+#
+# Uma execução pode selecionar temporariamente datasets específicos:
+#
+#   ./scripts/run_experiment.sh --dataset noticias_exemplo
+#
+# Todos os caminhos são relativos à raiz do projeto.
+# ============================================================
+
+schema_version: "2.0"
+
+
+# ============================================================
+# VALORES PADRÃO
+# ============================================================
+#
+# Estes valores são aplicados aos datasets que não definirem uma
+# configuração própria.
+# ============================================================
+
+defaults:
+  # Formato padrão dos arquivos.
+  format: csv
+
+  # Configurações padrão de leitura.
+  reader:
+    encoding: utf-8
+    delimiter: ","
+    quotechar: '"'
+    header: 0
+    low_memory: false
+    skip_blank_lines: true
+    on_bad_lines: error
+
+  # Regras padrão de validação e limpeza.
+  validation:
+    strip_text: true
+    drop_empty_texts: true
+    fail_on_duplicate_ids: true
+    preserve_extra_columns: true
+
+  # Configuração padrão para datasets sem rótulos.
+  labels:
+    available: false
+    normalize_case: true
+    strip_whitespace: true
+    mapping: {}
+
+  # Configuração padrão para datasets sem data.
+  dates:
+    available: false
+    format: null
+    dayfirst: false
+    fail_on_invalid: true
+    output_format: "%Y-%m-%d"
+
+
+# ============================================================
+# DATASETS
+# ============================================================
+
+datasets:
+
+  # ----------------------------------------------------------
+  # NOTÍCIAS FINANCEIRAS DE EXEMPLO
+  # ----------------------------------------------------------
+  #
+  # Dataset pequeno utilizado para validar:
+  #
+  # - carregamento e padronização;
+  # - inferência dos modelos;
+  # - métricas de classificação;
+  # - métricas computacionais;
+  # - agregações por empresa, setor e mercado.
+  #
+  # Ele serve para testes técnicos da pipeline e não deve ser
+  # utilizado isoladamente para conclusões científicas.
+  # ----------------------------------------------------------
+
+  noticias_exemplo:
+    # Participa das execuções padrão.
+    enabled: true
+
+    # Ordem de execução entre os datasets ativos.
+    order: 1
+
+    # Identificador usado nos resultados e metadados.
+    dataset_name: noticias_exemplo
+
+    # Nome legível usado em relatórios.
+    display_name: Notícias financeiras de exemplo
+
+    # Arquivo de entrada.
+    path: datasets/raw/noticias_exemplo/noticias.csv
+
+    # Formato do arquivo.
+    format: csv
+
+    # --------------------------------------------------------
+    # MAPEAMENTO DAS COLUNAS
+    # --------------------------------------------------------
+    #
+    # À esquerda está o nome padronizado usado pela pipeline.
+    #
+    # À direita está o nome real da coluna no arquivo.
+    #
+    # Use null quando a informação não existir no dataset.
+    # --------------------------------------------------------
+
+    columns:
+      # Identificador único da notícia.
+      news_id: id
+
+      # Texto enviado ao modelo.
+      text: noticia
+
+      # Data de publicação.
+      date: data
+
+      # Empresa relacionada.
+      company: empresa
+
+      # Setor econômico.
+      sector: setor
+
+      # Código do ativo.
+      ticker: ticker
+
+      # Título da notícia.
+      title: titulo
+
+      # Rótulo verdadeiro usado nas métricas supervisionadas.
+      true_label: sentimento
+
+      # Fonte da notícia.
+      source: fonte
+
+      # Endereço original da notícia.
+      url: url
+
+    # --------------------------------------------------------
+    # CAMPOS INTERNOS OBRIGATÓRIOS
+    # --------------------------------------------------------
+    #
+    # O loader usa o mapeamento acima para encontrar as colunas
+    # correspondentes no arquivo original.
+    # --------------------------------------------------------
+
+    required_fields:
+      - news_id
+      - text
+
+    # --------------------------------------------------------
+    # RÓTULOS VERDADEIROS
+    # --------------------------------------------------------
+
+    labels:
+      # Informa que o dataset possui rótulos verdadeiros.
+      available: true
+
+      # Converte os valores originais para minúsculas antes
+      # de aplicar o mapeamento.
+      normalize_case: true
+
+      # Remove espaços antes e depois do rótulo.
+      strip_whitespace: true
+
+      # Converte os rótulos originais para as classes oficiais.
+      mapping:
+        positivo: POSITIVE
+        positiva: POSITIVE
+        positive: POSITIVE
+
+        negativo: NEGATIVE
+        negativa: NEGATIVE
+        negative: NEGATIVE
+
+        neutro: NEUTRAL
+        neutra: NEUTRAL
+        neutral: NEUTRAL
+
+    # --------------------------------------------------------
+    # DATAS
+    # --------------------------------------------------------
+
+    dates:
+      # Informa que o dataset possui data.
+      available: true
+
+      # Formato esperado no arquivo original.
+      format: "%Y-%m-%d"
+
+      # false porque o formato utilizado é ano-mês-dia.
+      dayfirst: false
+
+      # Interrompe a execução ao encontrar uma data inválida.
+      fail_on_invalid: true
+
+      # Formato padronizado usado nas previsões e agregações.
+      output_format: "%Y-%m-%d"
+
+    # --------------------------------------------------------
+    # VALIDAÇÕES ESPECÍFICAS
+    # --------------------------------------------------------
+
+    validation:
+      # Remove espaços antes e depois do texto.
+      strip_text: true
+
+      # Remove linhas cujo texto esteja vazio.
+      drop_empty_texts: true
+
+      # IDs duplicados interrompem a execução.
+      fail_on_duplicate_ids: true
+
+      # Mantém colunas adicionais que não foram mapeadas.
+      preserve_extra_columns: true
+
+    # --------------------------------------------------------
+    # METADADOS DESCRITIVOS
+    # --------------------------------------------------------
+    #
+    # Estes campos não alteram diretamente o carregamento.
+    # Eles são registrados nos metadados da execução.
+    # --------------------------------------------------------
+
+    metadata:
+      language: pt-BR
+      domain: financial
+      market: Brazilian
+      country: Brazil
+      split: test
+      source_type: synthetic
+
+      description: >-
+        Dataset pequeno de notícias financeiras utilizado para
+        validar o carregamento, a inferência, as métricas e as
+        agregações da pipeline em ambiente local e no SDumont.

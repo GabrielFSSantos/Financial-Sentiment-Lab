@@ -1,135 +1,387 @@
-# ============================================================
-# AMBIENTE VIRTUAL PYTHON
-# ============================================================
+# ==============================================================================
+# FINANCIAL SENTIMENT LAB
+# ==============================================================================
+#
+# Regras gerais:
+#
+# - arquivos de código, configuração pública e documentação são versionados;
+# - credenciais e configurações privadas nunca são versionadas;
+# - ambientes Python, caches, logs, resultados e arquivos temporários ficam
+#   somente no ambiente local ou no Scratch;
+# - pesos de modelos e datasets grandes não são enviados ao Git;
+# - o dataset de exemplo permanece versionado para permitir testes locais.
+# ==============================================================================
+
+
+# ==============================================================================
+# SISTEMA OPERACIONAL
+# ==============================================================================
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100/
+.Trashes/
+.fseventsd/
+
+Thumbs.db
+Thumbs.db:encryptable
+Desktop.ini
+$RECYCLE.BIN/
+
+
+# ==============================================================================
+# EDITORES E IDEs
+# ==============================================================================
+
+.vscode/
+.idea/
+*.code-workspace
+
+*.swp
+*.swo
+*.swn
+*~
+.#*
+\#*\#
+
+.project
+.pydevproject
+.settings/
+.classpath
+
+
+# ==============================================================================
+# PYTHON — AMBIENTES VIRTUAIS
+# ==============================================================================
 
 venv/
 .venv/
 env/
+.env/
 ENV/
+env.bak/
+venv.bak/
+
+.python_venv/
+.virtualenv/
 
 
-# ============================================================
-# CACHE E ARQUIVOS GERADOS PELO PYTHON
-# ============================================================
+# ==============================================================================
+# PYTHON — CACHE E ARQUIVOS COMPILADOS
+# ==============================================================================
 
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.pyd
+
+.pytype/
+.pyre/
+.pyright/
+.pyrightcache/
+
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.tox/
+.nox/
 
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
+.cache/
 
 
-# ============================================================
-# ARQUIVOS DE AMBIENTE E CONFIGURAÇÕES LOCAIS
-# ============================================================
+# ==============================================================================
+# COBERTURA, TESTES E PROFILING
+# ==============================================================================
+
+.coverage
+.coverage.*
+coverage.xml
+coverage.json
+htmlcov/
+
+.pytest_cache/
+test-results/
+junit.xml
+
+*.prof
+*.lprof
+*.pstats
+
+
+# ==============================================================================
+# BUILD, EMPACOTAMENTO E INSTALAÇÃO
+# ==============================================================================
+
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+pip-wheel-metadata/
+
+
+# ==============================================================================
+# NOTEBOOKS
+# ==============================================================================
+
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+
+# ==============================================================================
+# VARIÁVEIS DE AMBIENTE, SEGREDOS E ACESSO
+# ==============================================================================
 
 .env
 .env.*
 !.env.example
 
+*.secret
+*.secrets
+secrets/
+credentials/
+credentials.json
 
-# ============================================================
-# MODELOS E PESOS TREINADOS
-#
-# Evita enviar arquivos grandes de modelos para o Git.
-# ============================================================
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
 
-FinBERT-PT-BR/
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
 
+known_hosts
+known_hosts.old
+
+
+# ==============================================================================
+# CONFIGURAÇÃO PRIVADA DO SANTOS DUMONT
+# ==============================================================================
+
+configs/sdumont.env
+
+# O modelo público precisa permanecer versionado.
+!configs/sdumont.env.example
+
+
+# ==============================================================================
+# ARQUIVOS TEMPORÁRIOS E ESTADO DE EXECUÇÃO
+# ==============================================================================
+
+.tmp/
+tmp/
+temp/
+
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+*.rej
+
+*.pid
+*.pid.lock
+*.lock
+
+# Arquivos de estado criados pelos scripts do SDumont.
+submission*.env
+job-state*.env
+
+
+# ==============================================================================
+# LOGS
+# ==============================================================================
+
+logs/
+*.log
+
+slurm-*.out
+slurm-*.err
+*.out
+*.err
+
+# Permite preservar o diretório no repositório, caso exista.
+!logs/.gitkeep
+
+
+# ==============================================================================
+# RESULTADOS DA PIPELINE
+# ==============================================================================
+
+outputs/
+
+# Permite preservar o diretório vazio no repositório, caso exista.
+!outputs/.gitkeep
+
+
+# ==============================================================================
+# MODELOS E PESOS
+# ==============================================================================
+
+model_store/
+
+# Arquivos leves de documentação podem ser versionados.
+!model_store/.gitkeep
+!model_store/README.md
+
+# Pesos e artefatos comuns de modelos.
 *.bin
 *.safetensors
 *.pt
 *.pth
 *.ckpt
+*.onnx
+*.h5
+*.hdf5
+*.pb
+*.tflite
+
+# Arquivos grandes de tokenizadores/modelos gerados localmente.
+tokenizer.json
+special_tokens_map.json
+tokenizer_config.json
+added_tokens.json
+generation_config.json
 
 
-# ============================================================
-# DADOS DE ENTRADA
-#
-# Os arquivos utilizados nos experimentos não são enviados
-# automaticamente ao repositório.
-#
-# O .gitkeep permite manter a pasta dados/ no Git.
-# ============================================================
+# ==============================================================================
+# DATASETS
+# ==============================================================================
 
-dados/*
-!dados/.gitkeep
-!dados/exemplo.csv
+# Dados processados são sempre regeneráveis.
+datasets/processed/
 
+# Mantém arquivos de marcação/documentação, caso existam.
+!datasets/processed/.gitkeep
+!datasets/processed/README.md
 
-# ============================================================
-# RESULTADOS DOS EXPERIMENTOS
-#
-# Resultados gerados pelo código não são versionados.
-#
-# O .gitkeep permite manter a pasta resultados/ no Git.
-# ============================================================
+# Por padrão, dados brutos não são versionados.
+datasets/raw/**
 
-resultados/*
-!resultados/.gitkeep
+# Mantém a estrutura e o dataset pequeno usado nos testes locais.
+!datasets/raw/.gitkeep
+!datasets/raw/README.md
+!datasets/raw/noticias_exemplo/
+!datasets/raw/noticias_exemplo/noticias.csv
+!datasets/raw/noticias_exemplo/README.md
 
+# Formatos frequentemente grandes.
+*.parquet
+*.feather
+*.arrow
+*.orc
+*.avro
 
-# ============================================================
-# LOGS DE EXECUÇÃO LOCAL E SLURM
-# ============================================================
+*.sqlite
+*.sqlite3
+*.db
 
-logs/*
-!logs/.gitkeep
-
-*.out
-*.err
-slurm-*.out
-
-
-# ============================================================
-# JUPYTER NOTEBOOK
-# ============================================================
-
-.ipynb_checkpoints/
+*.npy
+*.npz
+*.pkl
+*.pickle
+*.joblib
 
 
-# ============================================================
-# ARQUIVOS DE EDITORES E IDEs
-# ============================================================
+# ==============================================================================
+# CACHE DE BIBLIOTECAS E FRAMEWORKS
+# ==============================================================================
 
-.vscode/
-.idea/
+.cache/
+.huggingface/
+huggingface/
+transformers_cache/
 
-*.swp
-*.swo
+torch_cache/
+torch_extensions/
 
+wandb/
+mlruns/
+lightning_logs/
+runs/
 
-# ============================================================
-# ARQUIVOS DO SISTEMA OPERACIONAL
-# ============================================================
-
-.DS_Store
-Thumbs.db
-desktop.ini
-
-
-# ============================================================
-# ARQUIVOS TEMPORÁRIOS
-# ============================================================
-
-*.tmp
-*.temp
-*.bak
-*.log
-*~
+tensorboard/
+events.out.tfevents.*
 
 
-# ============================================================
-# COBERTURA E BUILD
-# ============================================================
+# ==============================================================================
+# ARQUIVOS DE TRANSFERÊNCIA E ARQUIVAMENTO
+# ==============================================================================
 
-htmlcov/
-.coverage
-.coverage.*
-coverage.xml
+*.tar
+*.tar.gz
+*.tgz
+*.tar.bz2
+*.tbz2
+*.tar.xz
+*.txz
+*.zip
+*.7z
+*.rar
 
-build/
-dist/
-*.egg-info/
+*.part
+*.partial
+*.download
+
+
+# ==============================================================================
+# FERRAMENTAS E RELATÓRIOS LOCAIS
+# ==============================================================================
+
+shellcheck-report.*
+ruff-report.*
+pyright-report.*
+mypy-report.*
+
+validation-report.*
+diagnostic-report.*
+diagnostico_*
+
+VALIDATION.local.txt
+
+
+# ==============================================================================
+# ARQUIVOS GERADOS POR FERRAMENTAS DE DOCUMENTAÇÃO
+# ==============================================================================
+
+site/
+docs/_build/
+docs/build/
+.mkdocs_cache/
+
+
+# ==============================================================================
+# EXCEÇÕES GERAIS
+# ==============================================================================
+
+# Arquivos públicos e exemplos devem continuar versionáveis.
+!*.example
+!*.example.*
+!README.md
+!requirements.txt

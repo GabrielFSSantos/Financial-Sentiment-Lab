@@ -1,0 +1,167 @@
+# ============================================================
+# CONFIGURAÇÃO DOS MODELOS
+# ============================================================
+#
+# Este arquivo é a única fonte de configuração dos modelos.
+#
+# Na execução padrão, a pipeline seleciona todos os modelos com:
+#
+#   enabled: true
+#
+# Cada modelo ativo será executado para todos os datasets ativos
+# definidos em configs/datasets.yaml.
+#
+# Uma execução pode selecionar temporariamente modelos específicos:
+#
+#   ./scripts/run_experiment.sh --model finbert_ptbr
+#
+# Os caminhos são relativos à raiz do projeto.
+# ============================================================
+
+schema_version: "2.0"
+
+
+# ============================================================
+# VALORES PADRÃO
+# ============================================================
+#
+# Estes valores são aplicados aos modelos que não definirem uma
+# configuração própria.
+#
+# Um modelo pode sobrescrever somente o valor necessário dentro
+# de sua seção parameters, loading ou validation.
+# ============================================================
+
+defaults:
+  parameters:
+    # Quantidade de textos processados em cada lote.
+    batch_size: 32
+
+    # Quantidade máxima de tokens por texto.
+    max_length: 512
+
+    # Dispositivo utilizado na inferência.
+    #
+    # Valores:
+    #
+    #   auto  -> usa GPU quando disponível; caso contrário, CPU
+    #   cpu   -> força execução em CPU
+    #   cuda  -> exige uma GPU CUDA
+    device: auto
+
+  loading:
+    # Usa somente os arquivos disponíveis em model_store.
+    local_files_only: true
+
+    # Impede a execução de código remoto fornecido pelo modelo.
+    trust_remote_code: false
+
+    # Prefere a implementação rápida do tokenizer.
+    use_fast_tokenizer: true
+
+  validation:
+    # Exige que model_dir exista.
+    require_model_directory: true
+
+    # Exige todos os arquivos declarados em files.required.
+    require_required_files: true
+
+    # Valida o mapeamento entre as classes originais e as classes
+    # padronizadas da pipeline.
+    validate_label_mapping: true
+
+
+# ============================================================
+# MODELOS
+# ============================================================
+
+models:
+
+  # ----------------------------------------------------------
+  # FINBERT-PT-BR
+  # ----------------------------------------------------------
+
+  finbert_ptbr:
+    # Define se o modelo participa das execuções padrão.
+    enabled: true
+
+    # Ordem de execução entre os modelos ativos.
+    order: 1
+
+    # Identificador usado nos resultados e metadados.
+    model_name: finbert_ptbr
+
+    # Nome legível usado em relatórios.
+    display_name: FinBERT-PT-BR
+
+    # Classe Python responsável por validar, carregar e executar
+    # o modelo.
+    #
+    # Formato:
+    #
+    #   pacote.modulo.Classe
+    adapter: models.finbert_ptbr.FinBertPtBrModel
+
+    # Diretório contendo configuração, tokenizer e pesos.
+    model_dir: model_store/FinBERT-PT-BR
+
+    # Este modelo utiliza os valores definidos em defaults:
+    #
+    #   batch_size: 32
+    #   max_length: 512
+    #   device: auto
+    #
+    # Para sobrescrever algum valor somente neste modelo, use:
+    #
+    # parameters:
+    #   batch_size: 16
+    #   max_length: 256
+    #   device: cuda
+
+    # Arquivos necessários para executar o modelo.
+    files:
+      required:
+        - config.json
+        - pytorch_model.bin
+        - tokenizer.json
+        - tokenizer_config.json
+        - special_tokens_map.json
+        - vocab.txt
+
+    # Mapeamento original das classes do modelo.
+    #
+    # O config.json do FinBERT-PT-BR utiliza:
+    #
+    #   0 -> POSITIVE
+    #   1 -> NEGATIVE
+    #   2 -> NEUTRAL
+    labels:
+      id2label:
+        0: POSITIVE
+        1: NEGATIVE
+        2: NEUTRAL
+
+      # Classes padronizadas usadas em toda a pipeline.
+      canonical:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+
+      # Configuração do sentimento contínuo.
+      continuous_sentiment:
+        positive_label: POSITIVE
+        negative_label: NEGATIVE
+        formula: "prob_positive - prob_negative"
+
+    # Informações registradas nos metadados dos resultados.
+    metadata:
+      family: BERT
+      architecture: BertForSequenceClassification
+      language: pt-BR
+      domain: financial
+      task: sentiment_classification
+      framework: pytorch
+
+      returns_probabilities: true
+      supports_batching: true
+      supports_cuda: true
