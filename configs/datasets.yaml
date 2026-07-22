@@ -90,7 +90,7 @@ datasets:
 
   noticias_exemplo:
     # Participa das execuções padrão.
-    enabled: true
+    enabled: false
 
     # Ordem de execução entre os datasets ativos.
     order: 1
@@ -247,3 +247,62 @@ datasets:
         Dataset pequeno de notícias financeiras utilizado para
         validar o carregamento, a inferência, as métricas e as
         agregações da pipeline em ambiente local e no SDumont.
+
+  # ----------------------------------------------------------
+  # PT-BR FINANCIAL NEWS DATASET
+  # ----------------------------------------------------------
+
+  ptbr_financial_news_dataset:
+    enabled: true
+    order: 2
+    dataset_name: ptbr_financial_news_dataset
+    display_name: PT-BR Financial News Dataset
+    path: datasets/raw/ptbr_financial_news_dataset/ptbr_financial_news_dataset.jsonl
+    format: jsonl
+
+    columns:
+      news_id: url
+      text: sentiment_text
+      date: published_at
+      company: null
+      sector: null
+      ticker: null
+      title: title
+      true_label: null
+      source: source
+      url: url
+
+    required_fields:
+      - news_id
+      - text
+
+    labels:
+      available: false
+      normalize_case: true
+      strip_whitespace: true
+      mapping: {}
+
+    dates:
+      available: true
+      format: ISO8601
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+
+    validation:
+      strip_text: true
+      drop_empty_texts: true
+      fail_on_duplicate_ids: true
+      preserve_extra_columns: true
+
+    metadata:
+      language: pt-BR
+      domain: financial_news
+      market: Brazilian
+      country: Brazil
+      split: inference
+      source_type: real_news
+      description: >-
+        Notícias financeiras brasileiras publicadas entre 2016 e 2025,
+        sem rótulos verdadeiros de sentimento, destinadas à inferência
+        e à construção de indicadores agregados.

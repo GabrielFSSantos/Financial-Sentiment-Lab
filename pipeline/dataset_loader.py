@@ -64,7 +64,7 @@ OPTIONAL_TEXT_FIELDS: tuple[str, ...] = (
     "url",
 )
 
-SUPPORTED_FORMATS: frozenset[str] = frozenset({"csv"})
+SUPPORTED_FORMATS: frozenset[str] = frozenset({"csv", "jsonl"})
 
 
 class DatasetError(RuntimeError):
@@ -211,7 +211,7 @@ class DatasetLoader:
         """Lê apenas o cabeçalho e retorna as colunas originais."""
 
         self.validate_file(configuration)
-        dataframe = self._read_csv(configuration, nrows=0)
+        dataframe = self._read_dataset(configuration, nrows=0)
         columns = tuple(str(column) for column in dataframe.columns)
         self._validate_source_columns(configuration, columns)
         return columns
@@ -221,7 +221,7 @@ class DatasetLoader:
 
         self.validate_file(configuration)
 
-        source = self._read_csv(configuration)
+        source = self._read_dataset(configuration)
         original_columns = tuple(str(column) for column in source.columns)
         original_row_count = len(source)
 
@@ -232,11 +232,16 @@ class DatasetLoader:
 
         self._validate_source_columns(configuration, original_columns)
 
-        # Número lógico da linha no CSV. Com header=0, a primeira linha de
-        # dados corresponde à linha 2 do arquivo.
-        header = int(configuration.reader.get("header", 0))
+        # Número lógico da linha no arquivo de origem. No CSV com header=0,
+        # a primeira linha de dados é a 2; no JSONL, cada objeto ocupa sua
+        # própria linha e o primeiro registro está na linha 1.
+        header = (
+            int(configuration.reader.get("header", 0)) + 1
+            if configuration.format == "csv"
+            else 0
+        )
         source_row_number = pd.Series(
-            range(header + 2, header + 2 + original_row_count),
+            range(header + 1, header + 1 + original_row_count),
             index=source.index,
             dtype="Int64",
         )
@@ -331,6 +336,21 @@ class DatasetLoader:
 
         return tuple(self.load(configuration) for configuration in configurations)
 
+    def _read_dataset(
+        self,
+        configuration: DatasetConfiguration,
+        *,
+        nrows: int | None = None,
+    ) -> pd.DataFrame:
+        if configuration.format == "csv":
+            return self._read_csv(configuration, nrows=nrows)
+        if configuration.format == "jsonl":
+            return self._read_jsonl(configuration, nrows=nrows)
+        raise DatasetValidationError(
+            f"Formato não suportado no dataset {configuration.key!r}: "
+            f"{configuration.format!r}."
+        )
+
     def _read_csv(
         self,
         configuration: DatasetConfiguration,
@@ -365,6 +385,45 @@ class DatasetLoader:
                 f"encoding={kwargs['encoding']!r}: {error}"
             ) from error
         except (OSError, ValueError, pd.errors.ParserError) as error:
+            raise DatasetFileError(
+                f"Falha ao ler o dataset {configuration.key!r} em "
+                f"{configuration.path}: {error}"
+            ) from error
+
+        dataframe.columns = [str(column).strip() for column in dataframe.columns]
+
+        if len(set(dataframe.columns)) != len(dataframe.columns):
+            duplicates = _duplicates(dataframe.columns)
+            raise DatasetValidationError(
+                f"O dataset {configuration.key!r} possui nomes de colunas "
+                f"duplicados: {duplicates}."
+            )
+
+        return dataframe
+
+    def _read_jsonl(
+        self,
+        configuration: DatasetConfiguration,
+        *,
+        nrows: int | None = None,
+    ) -> pd.DataFrame:
+        encoding = configuration.reader.get("encoding", "utf-8")
+
+        try:
+            dataframe = pd.read_json(
+                configuration.path,
+                lines=True,
+                encoding=encoding,
+                nrows=nrows,
+                dtype=False,
+                convert_dates=False,
+            )
+        except UnicodeDecodeError as error:
+            raise DatasetFileError(
+                f"Não foi possível decodificar o dataset "
+                f"{configuration.key!r} com encoding={encoding!r}: {error}"
+            ) from error
+        except (OSError, ValueError) as error:
             raise DatasetFileError(
                 f"Falha ao ler o dataset {configuration.key!r} em "
                 f"{configuration.path}: {error}"
