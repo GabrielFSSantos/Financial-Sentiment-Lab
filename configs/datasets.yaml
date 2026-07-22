@@ -90,7 +90,7 @@ datasets:
 
   noticias_exemplo:
     # Participa das execuções padrão.
-    enabled: false
+    enabled: true
 
     # Ordem de execução entre os datasets ativos.
     order: 1
@@ -253,7 +253,7 @@ datasets:
   # ----------------------------------------------------------
 
   ptbr_financial_news_dataset:
-    enabled: true
+    enabled: false
     order: 2
     dataset_name: ptbr_financial_news_dataset
     display_name: PT-BR Financial News Dataset

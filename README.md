@@ -315,6 +315,26 @@ models:
         0: POSITIVE
         1: NEGATIVE
         2: NEUTRAL
+
+  pt_br_financial_sentiment_analysis:
+    enabled: true
+    order: 2
+    model_name: pt_br_financial_sentiment_analysis
+    display_name: PT-BR Financial Sentiment Analysis
+    adapter: >-
+      models.pt_br_financial_sentiment_analysis.PtBrFinancialSentimentAnalysisModel
+    model_dir: model_store/pt-br-financial-sentiment-analysis
+
+    parameters:
+      checkpoint_directories:
+        - seed-789
+        - seed-123
+        - seed-456
+
+    loading:
+      local_files_only: true
+      trust_remote_code: false
+      use_safetensors: true
 ```
 
 Ativação:
@@ -341,15 +361,26 @@ sigmoid
 model_config
 ```
 
+O modelo `pt_br_financial_sentiment_analysis` reproduz o ensemble
+publicado: carrega os checkpoints `seed-789`, `seed-123` e `seed-456`,
+calcula a média dos logits e aplica `softmax` ao resultado. Os pesos
+`model.safetensors` precisam estar materializados; ponteiros Git LFS não
+são aceitos como pesos válidos.
+
 Diretório esperado:
 
 ```text
 model_store/
-└── FinBERT-PT-BR/
-    ├── config.json
-    ├── tokenizer.json
-    ├── vocab.txt
-    └── pytorch_model.bin
+├── FinBERT-PT-BR/
+│   ├── config.json
+│   ├── tokenizer.json
+│   ├── vocab.txt
+│   └── pytorch_model.bin
+└── pt-br-financial-sentiment-analysis/
+    ├── training_strategy.json
+    ├── seed-123/
+    ├── seed-456/
+    └── seed-789/
 ```
 
 ---
@@ -827,11 +858,13 @@ financial-sentiment-lab/
 │       └── run_experiment.srm
 ├── logs/
 ├── model_store/
-│   └── FinBERT-PT-BR/
+│   ├── FinBERT-PT-BR/
+│   └── pt-br-financial-sentiment-analysis/
 ├── models/
 │   ├── __init__.py
 │   ├── base_model.py
-│   └── finbert_ptbr.py
+│   ├── finbert_ptbr.py
+│   └── pt_br_financial_sentiment_analysis.py
 ├── outputs/
 ├── pipeline/
 │   ├── __init__.py

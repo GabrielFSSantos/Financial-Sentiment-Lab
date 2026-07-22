@@ -165,3 +165,95 @@ models:
       returns_probabilities: true
       supports_batching: true
       supports_cuda: true
+
+
+  # ----------------------------------------------------------
+  # PT-BR FINANCIAL SENTIMENT ANALYSIS
+  # ----------------------------------------------------------
+
+  pt_br_financial_sentiment_analysis:
+    # Ensemble fine-tuned a partir do FinBERT-PT-BR. A inferência
+    # reproduz a model card: média dos logits dos três checkpoints.
+    enabled: true
+    order: 2
+
+    model_name: pt_br_financial_sentiment_analysis
+    display_name: PT-BR Financial Sentiment Analysis
+
+    adapter: >-
+      models.pt_br_financial_sentiment_analysis.PtBrFinancialSentimentAnalysisModel
+    model_dir: model_store/pt-br-financial-sentiment-analysis
+
+    parameters:
+      checkpoint_directories:
+        - seed-789
+        - seed-123
+        - seed-456
+
+    loading:
+      # O repositório publica os três pesos nesse formato.
+      use_safetensors: true
+
+    validation:
+      # Os tokenizers publicados são idênticos; a validação impede
+      # que checkpoints incompatíveis sejam combinados por engano.
+      validate_identical_tokenizers: true
+
+      # Uma clonagem sem Git LFS deixa arquivos de 134 bytes no lugar
+      # dos pesos. O adaptador falha cedo e informa essa condição.
+      reject_git_lfs_pointers: true
+
+    files:
+      required:
+        - training_strategy.json
+        - seed-789/config.json
+        - seed-789/model.safetensors
+        - seed-789/tokenizer.json
+        - seed-789/tokenizer_config.json
+        - seed-789/special_tokens_map.json
+        - seed-789/vocab.txt
+        - seed-123/config.json
+        - seed-123/model.safetensors
+        - seed-123/tokenizer.json
+        - seed-123/tokenizer_config.json
+        - seed-123/special_tokens_map.json
+        - seed-123/vocab.txt
+        - seed-456/config.json
+        - seed-456/model.safetensors
+        - seed-456/tokenizer.json
+        - seed-456/tokenizer_config.json
+        - seed-456/special_tokens_map.json
+        - seed-456/vocab.txt
+
+    labels:
+      id2label:
+        0: POSITIVE
+        1: NEGATIVE
+        2: NEUTRAL
+
+      canonical:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+
+      continuous_sentiment:
+        positive_label: POSITIVE
+        negative_label: NEGATIVE
+        formula: "prob_positive - prob_negative"
+
+    metadata:
+      family: BERT
+      base_model: lucas-leme/FinBERT-PT-BR
+      architecture: BertForSequenceClassification
+      language: pt-BR
+      domain: financial
+      task: sentiment_classification
+      framework: pytorch
+
+      source: lucasalmda/pt-br-financial-sentiment-analysis
+      ensemble: true
+      ensemble_method: mean_raw_logits
+      checkpoint_count: 3
+      returns_probabilities: true
+      supports_batching: true
+      supports_cuda: true
