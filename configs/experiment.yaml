@@ -2,13 +2,13 @@
 # CONFIGURAÇÃO GERAL DO EXPERIMENTO
 # ============================================================
 #
-# Este arquivo controla somente:
+# Este arquivo controla:
 #
 # - identificação do experimento;
-# - ambiente de execução;
-# - comportamento da pipeline;
+# - ambiente em que a pipeline está sendo executada;
+# - comportamento da execução;
 # - caminhos gerais;
-# - saídas;
+# - arquivos de saída;
 # - métricas;
 # - agregações;
 # - reprodutibilidade;
@@ -22,17 +22,13 @@
 #
 #   configs/datasets.yaml
 #
-# A configuração do SDumont pertence a:
-#
-#   configs/sdumont.env
-#
 # Na execução padrão, a pipeline processa:
 #
 #   todos os modelos com enabled: true
 #       ×
 #   todos os datasets com enabled: true
 #
-# Modelos e datasets específicos podem ser informados
+# Modelos e datasets específicos podem ser selecionados
 # temporariamente por --model e --dataset.
 # ============================================================
 
@@ -44,10 +40,10 @@ schema_version: "2.0"
 # ============================================================
 
 experiment:
-  # Nome legível registrado nos metadados.
+  # Nome registrado nos metadados da execução.
   name: financial_sentiment
 
-  # Descrição geral da execução.
+  # Descrição geral do experimento.
   description: >-
     Análise de sentimentos em notícias do mercado financeiro
     brasileiro com modelos de Processamento de Linguagem Natural.
@@ -65,7 +61,7 @@ experiment:
   # Semente aplicada ao Python, NumPy e PyTorch.
   random_seed: 42
 
-  # Fuso horário usado nas datas e nos metadados.
+  # Fuso horário utilizado nas datas e nos metadados.
   timezone: America/Sao_Paulo
 
 
@@ -74,7 +70,7 @@ experiment:
 # ============================================================
 
 execution:
-  # Ambiente em que o comando principal será executado.
+  # Identifica o ambiente em que a pipeline está sendo executada.
   #
   # Valores:
   #
@@ -83,7 +79,7 @@ execution:
   environment: local
 
   # Quando true, valida configurações, modelos, datasets e
-  # caminhos, mas não executa inferência.
+  # caminhos, mas não executa a inferência.
   dry_run: false
 
   # Nível das mensagens registradas.
@@ -96,10 +92,10 @@ execution:
   #   ERROR
   log_level: INFO
 
-  # Quando true, interrompe no primeiro erro.
+  # Quando true, interrompe a execução no primeiro erro.
   #
-  # Quando false, registra o erro e tenta continuar com
-  # as outras combinações modelo × dataset.
+  # Quando false, registra o erro e tenta continuar com as
+  # demais combinações modelo × dataset.
   fail_fast: true
 
   # Salva cada combinação concluída imediatamente.
@@ -108,7 +104,7 @@ execution:
   # posterior apresente erro.
   save_partial_results: true
 
-  # Permite substituir uma execução que possua o mesmo run_id.
+  # Permite substituir uma execução com o mesmo run_id.
   overwrite_existing_run: false
 
   # Descarrega o modelo depois de cada combinação para liberar
@@ -123,7 +119,6 @@ execution:
 configuration_files:
   models: configs/models.yaml
   datasets: configs/datasets.yaml
-  sdumont: configs/sdumont.env
 
 
 # ============================================================
@@ -141,7 +136,7 @@ paths:
   #         └── <dataset>/
   output_root: outputs
 
-  # Logs locais e logs gerais da execução.
+  # Logs gerais da execução.
   log_root: logs
 
   # Arquivos temporários da pipeline.
@@ -153,7 +148,7 @@ paths:
 # ============================================================
 
 outputs:
-  # Arquivo com uma linha para cada notícia.
+  # Arquivo com uma linha para cada notícia processada.
   save_predictions: true
 
   # Métricas de classificação e desempenho.
@@ -162,13 +157,13 @@ outputs:
   # Agregações temporais.
   save_aggregates: true
 
-  # Metadados de cada combinação.
+  # Metadados de cada combinação modelo × dataset.
   save_metadata: true
 
   # Resumo geral de todas as combinações do experimento.
   save_experiment_summary: true
 
-  # Configuração final após aplicação de valores padrão e
+  # Configuração final após aplicação dos valores padrão e
   # argumentos temporários da linha de comando.
   save_resolved_config: true
 
@@ -181,7 +176,7 @@ outputs:
   # Separador dos arquivos CSV.
   delimiter: ","
 
-  # Quantidade de casas decimais ao salvar números.
+  # Quantidade de casas decimais utilizadas nos resultados.
   float_precision: 8
 
 
@@ -198,14 +193,14 @@ classification_metrics:
     - NEUTRAL
     - POSITIVE
 
-  # Valor utilizado quando não é possível calcular uma divisão
-  # de precision ou recall.
+  # Valor utilizado quando uma divisão de precision ou recall
+  # não pode ser calculada.
   zero_division: 0
 
-  # Permite executar datasets que não possuem true_label.
+  # Permite processar datasets sem true_label.
   #
-  # Nesse caso, são produzidas previsões e métricas de
-  # desempenho, mas não métricas supervisionadas.
+  # Nesses casos, são produzidas previsões e métricas
+  # computacionais, mas não métricas supervisionadas.
   allow_unlabeled_datasets: true
 
   # Métricas detalhadas por classe.
@@ -231,7 +226,7 @@ performance_metrics:
   # Tempo utilizado somente na inferência.
   measure_inference_time: true
 
-  # Tempo total da combinação.
+  # Tempo total da combinação modelo × dataset.
   measure_total_time: true
 
   # Quantidade de textos processados por segundo.
@@ -255,8 +250,8 @@ aggregation:
   # um grupo no arquivo final.
   minimum_news_per_group: 1
 
-  # Quando faltarem colunas necessárias para um nível, esse nível
-  # será ignorado e o motivo será registrado no log.
+  # Quando faltarem colunas necessárias para determinado nível,
+  # ele será ignorado e o motivo será registrado no log.
   skip_level_when_columns_missing: true
 
   # Níveis de agregação executados.
@@ -272,7 +267,8 @@ aggregation:
     - sum
     - count
 
-  # Adiciona quantidade de notícias positivas, negativas e neutras.
+  # Adiciona a quantidade de notícias positivas, negativas
+  # e neutras.
   include_class_counts: true
 
   # Adiciona a confiança média das previsões.
@@ -311,10 +307,12 @@ preflight_checks:
   # Valida experiment.yaml, models.yaml e datasets.yaml.
   validate_configuration_files: true
 
-  # Exige pelo menos um modelo ativo ou informado por --model.
+  # Exige pelo menos um modelo habilitado ou informado
+  # por --model.
   require_at_least_one_enabled_model: true
 
-  # Exige pelo menos um dataset ativo ou informado por --dataset.
+  # Exige pelo menos um dataset habilitado ou informado
+  # por --dataset.
   require_at_least_one_enabled_dataset: true
 
   # Confirma a existência dos pesos e arquivos dos modelos.
@@ -323,13 +321,14 @@ preflight_checks:
   # Confirma a existência dos arquivos dos datasets.
   validate_dataset_files: true
 
-  # Confirma que o diretório de saída pode ser criado ou escrito.
+  # Confirma que o diretório de saída pode ser criado
+  # ou escrito.
   validate_output_directory: true
 
-  # Confirma a existência da coluna de texto e de outras colunas
-  # obrigatórias definidas no dataset.
+  # Confirma a existência da coluna de texto e das demais
+  # colunas obrigatórias definidas no dataset.
   validate_required_dataset_columns: true
 
-  # Confirma que as classes do modelo podem ser convertidas para
-  # NEGATIVE, NEUTRAL e POSITIVE.
+  # Confirma que as classes dos modelos podem ser convertidas
+  # para NEGATIVE, NEUTRAL e POSITIVE.
   validate_label_mapping: true
