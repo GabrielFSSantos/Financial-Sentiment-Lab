@@ -76,7 +76,7 @@ Requisitos: Linux ou WSL, Python 3.10+, pesos em `model_store/` (para inferênci
 | `run_experiment.sh --model X --dataset Y` | Restringe combinações desta execução |
 | `run_experiment.sh --run-id ID` | Nomeia a pasta em `outputs/` |
 
-**Validação sem inferência:** use `./scripts/audit_project.sh` — não há `--dry-run` em `run_experiment.sh`.
+**Validação sem inferência:** use `./scripts/audit_project.sh`.
 
 **Recriar o venv:** `./scripts/setup_env.sh --recreate` (nota avançada; evite no SDumont sem necessidade).
 
@@ -267,10 +267,6 @@ datasets:
 4. Valide com `./scripts/audit_project.sh --smoke`.
 
 Dimensões extras do ITI (`magnitude`, `relevance`, …) podem vir de `ModelPrediction.extra` no adaptador; se ausentes, usa `temporal_index.defaults` em `experiment.yaml`.
-
-### Fora do escopo desta base
-
-LLM-as-Judge, RAG, multi-agent e validação com preços de mercado ficam para etapas futuras (pasta `analysis/` ou scripts separados). A base atual cobre classificação + ITI determinístico + incerteza por divergência entre modelos.
 
 ---
 
