@@ -25,7 +25,7 @@ Por padrão, a pipeline executa **modelos com `enabled: true` × datasets com `e
 
 ## Objetivo
 
-O projeto busca construir um indicador contínuo de sentimento informacional para empresas, setores e o mercado financeiro brasileiro.
+O projeto busca construir o **Índice Temporal Informacional (ITI)**: séries diárias persistentes de impacto informacional por empresa, setor e mercado. A classificação de sentimento é etapa intermediária; o produto final são os arquivos em `outputs/{run_id}/indices/`.
 
 Fluxo científico:
 
@@ -50,7 +50,7 @@ Interpretação: próximo de **-1** → negativo; **0** → equilíbrio; **+1** 
 Fluxo da pipeline:
 
 ```text
-configurações → preflight → modelos × datasets → inferência → métricas → agregações → outputs/{run_id}/
+configurações → preflight → modelos × datasets (mesmo language) → inferência → ITI → outputs/{run_id}/
 ```
 
 ---
@@ -115,12 +115,14 @@ Três YAMLs controlam o experimento. Os comentários dentro de cada arquivo são
 
 | Arquivo | Controla |
 |---|---|
-| `configs/experiment.yaml` | `run_id`, ambiente (`local`/`sdumont`), logs, caminhos, saídas, agregação, métricas |
-| `configs/models.yaml` | Modelos, adaptadores, pesos em `model_store/`, batch, device, mapeamento de labels |
-| `configs/datasets.yaml` | Datasets, caminhos, colunas, validação, formatos CSV/JSONL |
+| `configs/experiment.yaml` | `run_id`, ambiente, ITI (`temporal_index`), compatibilidade de idioma, agregação, métricas |
+| `configs/models.yaml` | Modelos, **`language`**, adaptadores, pesos, batch, device |
+| `configs/datasets.yaml` | Datasets, **`language`**, caminhos, colunas, formatos |
 
 Campos que você altera com frequência:
 
+- **`language: pt` ou `en`** — modelo só roda com dataset do mesmo idioma (`compatibility.require_language_match`);
+- **`temporal_index.enabled`** — liga/desliga geração do ITI (fórmulas em `pipeline/temporal_index.py`);
 - **`enabled: true/false`** — inclui ou exclui modelo/dataset da matriz;
 - **`execution.environment`** — registrado nos resultados (`local` ou `sdumont`);
 - **`execution.log_level`** — nível de log (substitui flags removidas da CLI);
@@ -139,21 +141,30 @@ Cada execução grava artefatos em `outputs/{run_id}/` e log em `logs/{run_id}.l
 outputs/{run_id}/
 ├── summary.json
 ├── resolved_config.yaml
-└── models/{model}/{dataset}/
-    ├── predictions.csv
-    ├── classification_metrics.csv
-    ├── aggregates.csv
-    ├── execution_metrics.csv
-    └── metadata.json
+├── models/{model}/{dataset}/     # previsões e métricas
+└── indices/{model}/{dataset}/    # ITI por combinação
+    ├── news_impact.csv
+    ├── iti_daily.csv
+    ├── iti_sector_daily.csv
+    ├── iti_market_daily.csv
+    └── iti_weekly.csv / iti_monthly.csv / iti_quarterly.csv
+```
+
+Quando ≥2 modelos rodam o mesmo dataset, também:
+
+```text
+outputs/{run_id}/indices/merged/{dataset}/
+├── disagreement_by_news.csv
+└── iti_uncertainty_daily.csv
 ```
 
 | Artefato | Conteúdo |
 |---|---|
-| `predictions.csv` | Previsão por notícia (`predicted_label`, probabilidades, `continuous_sentiment`) |
-| `classification_metrics.csv` | Accuracy, F1, matriz de confusão (se houver labels) |
-| `aggregates.csv` | Agregações `company_day`, `sector_day`, `market_day` |
-| `execution_metrics.csv` | Tempo, throughput, memória GPU, device |
-| `summary.json` | Status de todas as combinações modelo×dataset |
+| `predictions.csv` | Previsão por notícia (`continuous_sentiment`, `confidence`) |
+| `news_impact.csv` | Dimensões `d,m,r,c,e,h,q,u` e impactos `I_n`, `R_n` por notícia |
+| `iti_daily.csv` | Série recursiva por empresa (`iti_liquido`, `iti_risco`, `impacto_dia`) |
+| `iti_uncertainty_daily.csv` | Divergência entre modelos (sem LLM-as-Judge) |
+| `summary.json` | Status das combinações + `skipped_combinations` por idioma |
 
 Níveis de agregação configurados em `experiment.yaml` → `aggregation.levels`.
 
@@ -229,7 +240,7 @@ Mensagens aparecem em `job_financial_JOB_ID.out` e em `logs/{run_id}.log`. Recur
 ### Adicionar um dataset
 
 1. Coloque o arquivo em `datasets/raw/novo_dataset/` (CSV ou JSONL).
-2. Cadastre em `configs/datasets.yaml` com `enabled: true`, `path`, `columns` e `required_fields`.
+2. Cadastre em `configs/datasets.yaml` com `enabled: true`, **`language`**, `path`, `columns` e `required_fields`.
 3. Rode `./scripts/audit_project.sh` e depois `./scripts/run_experiment.sh --dataset novo_dataset`.
 
 Exemplo mínimo (detalhes e validações nos comentários do YAML):
@@ -238,6 +249,7 @@ Exemplo mínimo (detalhes e validações nos comentários do YAML):
 datasets:
   novo_dataset:
     enabled: true
+    language: pt
     path: datasets/raw/novo_dataset/noticias.csv
     format: csv
     columns:
@@ -251,10 +263,14 @@ datasets:
 
 1. Crie o adaptador em `models/novo_modelo.py` implementando `models/base_model.py`.
 2. Coloque pesos e tokenizer em `model_store/Novo-Modelo/`.
-3. Cadastre em `configs/models.yaml` com `adapter`, `model_dir`, `files.required` e `labels`.
+3. Cadastre em `configs/models.yaml` com **`language`**, `adapter`, `model_dir`, `files.required` e `labels`.
 4. Valide com `./scripts/audit_project.sh --smoke`.
 
-O adaptador deve retornar `ModelPrediction` na mesma ordem dos textos recebidos.
+Dimensões extras do ITI (`magnitude`, `relevance`, …) podem vir de `ModelPrediction.extra` no adaptador; se ausentes, usa `temporal_index.defaults` em `experiment.yaml`.
+
+### Fora do escopo desta base
+
+LLM-as-Judge, RAG, multi-agent e validação com preços de mercado ficam para etapas futuras (pasta `analysis/` ou scripts separados). A base atual cobre classificação + ITI determinístico + incerteza por divergência entre modelos.
 
 ---
 
@@ -281,4 +297,5 @@ financial-sentiment-lab/
 | `pipeline/dataset_loader.py` | Lê e valida datasets |
 | `pipeline/registry.py` | Instancia adaptadores |
 | `scripts/run_service.sh` | Runtime Python (`python -m pipeline.runner`) |
+| `pipeline/temporal_index.py` | ITI, resample e incerteza multi-modelo |
 | `scripts/audit_project.sh` | Única porta de validação pré-execução |

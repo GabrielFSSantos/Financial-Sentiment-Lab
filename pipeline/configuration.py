@@ -39,6 +39,7 @@ SUPPORTED_SCHEMA_VERSION = "2.0"
 SUPPORTED_ENVIRONMENTS = {"local", "sdumont"}
 SUPPORTED_DATASET_FORMATS = {"csv", "jsonl"}
 SUPPORTED_DEVICES = {"auto", "cpu", "cuda"}
+SUPPORTED_LANGUAGES = {"pt", "en"}
 SUPPORTED_AGGREGATION_LEVELS = {
     "company_day",
     "sector_day",
@@ -97,6 +98,7 @@ class ModelConfiguration:
     order: int
     model_name: str
     display_name: str
+    language: str
     adapter: str
     model_dir: Path
     parameters: dict[str, Any]
@@ -120,6 +122,7 @@ class DatasetConfiguration:
     order: int
     dataset_name: str
     display_name: str
+    language: str
     path: Path
     format: str
     reader: dict[str, Any]
@@ -143,6 +146,20 @@ class ExperimentCombination:
     model_key: str
     dataset_key: str
     combination_id: str
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class SkippedCombination:
+    """Combinação modelo×dataset excluída antes da execução."""
+
+    model_key: str
+    dataset_key: str
+    reason: str
+    model_language: str
+    dataset_language: str
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -173,6 +190,26 @@ class ResolvedPaths:
             / _sanitize_identifier(dataset_key, "dataset_key")
         )
 
+    def indices_root(
+        self,
+        model_key: str,
+        dataset_key: str,
+    ) -> Path:
+        return (
+            self.run_root
+            / "indices"
+            / _sanitize_identifier(model_key, "model_key")
+            / _sanitize_identifier(dataset_key, "dataset_key")
+        )
+
+    def merged_indices_root(self, dataset_key: str) -> Path:
+        return (
+            self.run_root
+            / "indices"
+            / "merged"
+            / _sanitize_identifier(dataset_key, "dataset_key")
+        )
+
     def to_dict(self) -> dict[str, str]:
         return {
             key: str(value)
@@ -194,12 +231,15 @@ class ResolvedConfiguration:
     classification_metrics: dict[str, Any]
     performance_metrics: dict[str, Any]
     aggregation: dict[str, Any]
+    compatibility: dict[str, Any]
+    temporal_index: dict[str, Any]
     reproducibility: dict[str, Any]
     preflight_checks: dict[str, Any]
     paths: ResolvedPaths
     models: tuple[ModelConfiguration, ...]
     datasets: tuple[DatasetConfiguration, ...]
     combinations: tuple[ExperimentCombination, ...]
+    skipped_combinations: tuple[SkippedCombination, ...]
     source_files: dict[str, dict[str, Any]] = field(repr=False)
 
     @property
@@ -244,6 +284,8 @@ class ResolvedConfiguration:
                 self.performance_metrics
             ),
             "aggregation": to_serializable(self.aggregation),
+            "compatibility": to_serializable(self.compatibility),
+            "temporal_index": to_serializable(self.temporal_index),
             "reproducibility": to_serializable(self.reproducibility),
             "preflight_checks": to_serializable(self.preflight_checks),
             "paths": self.paths.to_dict(),
@@ -258,6 +300,10 @@ class ResolvedConfiguration:
             "combinations": [
                 combination.to_dict()
                 for combination in self.combinations
+            ],
+            "skipped_combinations": [
+                skipped.to_dict()
+                for skipped in self.skipped_combinations
             ],
             "configuration_sources": {
                 "experiment": str(self.paths.experiment_config),
@@ -329,6 +375,18 @@ def _require_string(
         )
 
     return normalized
+
+
+def _require_language(value: Any, location: str) -> str:
+    language = _require_string(value, location).lower()
+
+    if language not in SUPPORTED_LANGUAGES:
+        supported = ", ".join(sorted(SUPPORTED_LANGUAGES))
+        raise ConfigurationError(
+            f"{location} precisa ser um idioma suportado: {supported}."
+        )
+
+    return language
 
 
 def _require_boolean(
@@ -582,9 +640,22 @@ class ConfigurationLoader:
             run_id=run_id,
         )
 
-        combinations = self._build_combinations(
+        combinations, skipped_combinations = self._build_combinations(
             selected_models,
             selected_datasets,
+            require_language_match=_require_boolean(
+                _require_mapping(
+                    experiment_config.get(
+                        "compatibility",
+                        {"require_language_match": True},
+                    ),
+                    "compatibility",
+                ).get(
+                    "require_language_match",
+                    True,
+                ),
+                "compatibility.require_language_match",
+            ),
         )
 
         resolved = ResolvedConfiguration(
@@ -618,6 +689,24 @@ class ConfigurationLoader:
                     "aggregation",
                 )
             ),
+            compatibility=copy.deepcopy(
+                _require_mapping(
+                    experiment_config.get(
+                        "compatibility",
+                        {"require_language_match": True},
+                    ),
+                    "compatibility",
+                )
+            ),
+            temporal_index=copy.deepcopy(
+                _require_mapping(
+                    experiment_config.get(
+                        "temporal_index",
+                        {"enabled": False},
+                    ),
+                    "temporal_index",
+                )
+            ),
             reproducibility=copy.deepcopy(
                 _require_mapping(
                     experiment_config["reproducibility"],
@@ -634,6 +723,7 @@ class ConfigurationLoader:
             models=tuple(selected_models),
             datasets=tuple(selected_datasets),
             combinations=tuple(combinations),
+            skipped_combinations=tuple(skipped_combinations),
             source_files={
                 "experiment": copy.deepcopy(experiment_config),
                 "models": copy.deepcopy(models_config),
@@ -884,6 +974,10 @@ class ConfigurationLoader:
                 merged.get("display_name"),
                 f"models.{model_key}.display_name",
             )
+            language = _require_language(
+                merged.get("language"),
+                f"models.{model_key}.language",
+            )
             adapter = _require_string(
                 merged.get("adapter"),
                 f"models.{model_key}.adapter",
@@ -979,6 +1073,7 @@ class ConfigurationLoader:
                     order=order,
                     model_name=model_name,
                     display_name=display_name,
+                    language=language,
                     adapter=adapter,
                     model_dir=model_dir,
                     parameters=parameters,
@@ -1100,6 +1195,10 @@ class ConfigurationLoader:
                 merged.get("display_name"),
                 f"datasets.{dataset_key}.display_name",
             )
+            language = _require_language(
+                merged.get("language"),
+                f"datasets.{dataset_key}.language",
+            )
             dataset_path = _resolve_path(
                 self.project_root,
                 _require_string(
@@ -1205,6 +1304,7 @@ class ConfigurationLoader:
                     order=order,
                     dataset_name=dataset_name,
                     display_name=display_name,
+                    language=language,
                     path=dataset_path,
                     format=dataset_format,
                     reader=reader,
@@ -1569,12 +1669,30 @@ class ConfigurationLoader:
         self,
         models: Sequence[ModelConfiguration],
         datasets: Sequence[DatasetConfiguration],
-    ) -> list[ExperimentCombination]:
+        *,
+        require_language_match: bool,
+    ) -> tuple[list[ExperimentCombination], list[SkippedCombination]]:
         combinations: list[ExperimentCombination] = []
+        skipped: list[SkippedCombination] = []
         index = 0
 
         for model in models:
             for dataset in datasets:
+                if (
+                    require_language_match
+                    and model.language != dataset.language
+                ):
+                    skipped.append(
+                        SkippedCombination(
+                            model_key=model.key,
+                            dataset_key=dataset.key,
+                            reason="language_mismatch",
+                            model_language=model.language,
+                            dataset_language=dataset.language,
+                        )
+                    )
+                    continue
+
                 combinations.append(
                     ExperimentCombination(
                         index=index,
@@ -1587,13 +1705,24 @@ class ConfigurationLoader:
                 )
                 index += 1
 
-        return combinations
+        return combinations, skipped
 
     def _validate_resolved_configuration(
         self,
         config: ResolvedConfiguration,
     ) -> None:
         if not config.combinations:
+            if config.skipped_combinations:
+                skipped_summary = ", ".join(
+                    f"{item.model_key}×{item.dataset_key}"
+                    for item in config.skipped_combinations
+                )
+                raise ConfigurationError(
+                    "A matriz modelo × dataset ficou vazia após o "
+                    f"filtro de idioma. Combinações ignoradas: "
+                    f"{skipped_summary}."
+                )
+
             raise ConfigurationError(
                 "A matriz modelo × dataset ficou vazia."
             )

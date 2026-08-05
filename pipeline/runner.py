@@ -76,6 +76,11 @@ from pipeline.output_schema import (
     StandardizedPredictions,
 )
 from pipeline.results import ResultsManager
+from pipeline.temporal_index import (
+    TemporalIndexBuilder,
+    TemporalIndexError,
+    merge_uncertainty_across_models,
+)
 
 if TYPE_CHECKING:
     from pipeline.registry import ModelRegistry, RegisteredModel
@@ -176,6 +181,9 @@ class ExperimentRunner:
         self.aggregator = SentimentAggregator(
             configuration.aggregation
         )
+        self.temporal_index_builder = TemporalIndexBuilder(
+            configuration
+        )
 
         self._registry: ModelRegistry | None = None
         self._interrupted = False
@@ -228,6 +236,19 @@ class ExperimentRunner:
                 "Combinações: %d",
                 len(self.configuration.combinations),
             )
+            if self.configuration.skipped_combinations:
+                self.logger.info(
+                    "Combinações ignoradas por idioma: %d",
+                    len(self.configuration.skipped_combinations),
+                )
+                for skipped in self.configuration.skipped_combinations:
+                    self.logger.info(
+                        "  %s × %s (%s ≠ %s)",
+                        skipped.model_key,
+                        skipped.dataset_key,
+                        skipped.model_language,
+                        skipped.dataset_language,
+                    )
 
             _configure_reproducibility(
                 self.configuration,
@@ -258,6 +279,7 @@ class ExperimentRunner:
                 )
 
             self._execute_combinations()
+            uncertainty_outputs = self._merge_uncertainty_indices()
 
             failed = sum(
                 result.status == "failed"
@@ -283,6 +305,7 @@ class ExperimentRunner:
                     "preflight": preflight.to_dict(),
                     "runtime": runtime_metadata,
                     "repository": repository_metadata,
+                    "uncertainty_indices": uncertainty_outputs,
                     "runner": {
                         "exit_code": exit_code,
                         "successful_combinations": sum(
@@ -447,6 +470,48 @@ class ExperimentRunner:
                 )
                 break
 
+    def _merge_uncertainty_indices(self) -> dict[str, dict[str, str]]:
+        if not self.temporal_index_builder.enabled:
+            return {}
+
+        files_by_dataset: dict[str, list[Path]] = {}
+
+        for result in self._combination_results:
+            if result.status != "success":
+                continue
+
+            news_impact_path = (
+                self.configuration.paths.indices_root(
+                    result.model_key,
+                    result.dataset_key,
+                )
+                / "news_impact.csv"
+            )
+            if not news_impact_path.is_file():
+                continue
+
+            files_by_dataset.setdefault(
+                result.dataset_key,
+                [],
+            ).append(news_impact_path)
+
+        merge_results = merge_uncertainty_across_models(
+            configuration=self.configuration,
+            news_impact_files=files_by_dataset,
+        )
+
+        outputs: dict[str, dict[str, str]] = {}
+        for merge_result in merge_results:
+            saved = self.results.save_uncertainty_merge(merge_result)
+            outputs[merge_result.dataset_key] = saved
+            self.logger.info(
+                "Incerteza consolidada para dataset %s em %s.",
+                merge_result.dataset_key,
+                saved.get("iti_uncertainty_daily"),
+            )
+
+        return outputs
+
     def _execute_combination(
         self,
         combination: ExperimentCombination,
@@ -585,6 +650,23 @@ class ExperimentRunner:
                     self.classification_calculator.labels
                 ),
             )
+
+            if self.temporal_index_builder.enabled:
+                try:
+                    index_artifacts = self.temporal_index_builder.build(
+                        combination=combination,
+                        predictions=standardized.dataframe,
+                    )
+                    self.results.save_temporal_index(
+                        combination,
+                        index_artifacts,
+                    )
+                except TemporalIndexError as error:
+                    self.logger.warning(
+                        "ITI não gerado para %s: %s",
+                        combination.combination_id,
+                        error,
+                    )
 
             duration = perf_counter() - started_counter
             warnings = deduplicate(

@@ -39,6 +39,11 @@ from pipeline.configuration import (
     ExperimentCombination,
     ResolvedConfiguration,
 )
+from pipeline.temporal_index import (
+    RESAMPLE_OUTPUT_NAMES,
+    TemporalIndexArtifacts,
+    UncertaintyMergeResult,
+)
 
 
 FINAL_STATUSES = {"success", "failed", "skipped"}
@@ -61,6 +66,23 @@ class CombinationOutputPaths:
     execution_metrics: Path
     aggregates: Path
     metadata: Path
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            key: str(value)
+            for key, value in asdict(self).items()
+        }
+
+
+@dataclass(frozen=True)
+class IndexOutputPaths:
+    """Caminhos dos arquivos de índice temporal."""
+
+    root: Path
+    news_impact: Path
+    iti_daily: Path
+    iti_sector_daily: Path
+    iti_market_daily: Path
 
     def to_dict(self) -> dict[str, str]:
         return {
@@ -193,6 +215,23 @@ class ResultsManager:
             execution_metrics=root / "execution_metrics.csv",
             aggregates=root / "aggregates.csv",
             metadata=root / "metadata.json",
+        )
+
+    def index_paths(
+        self,
+        combination: ExperimentCombination,
+    ) -> IndexOutputPaths:
+        self._validate_combination(combination)
+        root = self.paths.indices_root(
+            combination.model_key,
+            combination.dataset_key,
+        )
+        return IndexOutputPaths(
+            root=root,
+            news_impact=root / "news_impact.csv",
+            iti_daily=root / "iti_daily.csv",
+            iti_sector_daily=root / "iti_sector_daily.csv",
+            iti_market_daily=root / "iti_market_daily.csv",
         )
 
     # ================================================================
@@ -487,6 +526,66 @@ class ResultsManager:
 
         return outputs
 
+    def save_temporal_index(
+        self,
+        combination: ExperimentCombination,
+        artifacts: TemporalIndexArtifacts,
+    ) -> dict[str, str]:
+        """Salva os artefatos do ITI de uma combinação."""
+
+        if not self.write_enabled:
+            return {}
+
+        paths = self.index_paths(combination)
+        outputs: dict[str, str] = {}
+        mapping = {
+            "news_impact": (paths.news_impact, artifacts.news_impact),
+            "iti_daily": (paths.iti_daily, artifacts.iti_daily),
+            "iti_sector_daily": (
+                paths.iti_sector_daily,
+                artifacts.iti_sector_daily,
+            ),
+            "iti_market_daily": (
+                paths.iti_market_daily,
+                artifacts.iti_market_daily,
+            ),
+        }
+
+        for name, (path, frame) in mapping.items():
+            self._write_csv(path, frame)
+            outputs[name] = str(path)
+            self._register_file(combination, name, path)
+
+        for frequency, frame in artifacts.resampled.items():
+            filename = RESAMPLE_OUTPUT_NAMES[frequency]
+            path = paths.root / filename
+            self._write_csv(path, frame)
+            outputs[filename.removesuffix(".csv")] = str(path)
+            self._register_file(combination, filename, path)
+
+        return outputs
+
+    def save_uncertainty_merge(
+        self,
+        result: UncertaintyMergeResult,
+    ) -> dict[str, str]:
+        """Salva séries de incerteza consolidadas entre modelos."""
+
+        if not self.write_enabled:
+            return {}
+
+        root = self.paths.merged_indices_root(result.dataset_key)
+        disagreement_path = root / "disagreement_by_news.csv"
+        uncertainty_path = root / "iti_uncertainty_daily.csv"
+
+        self._write_csv(disagreement_path, result.disagreement_daily)
+        self._write_csv(uncertainty_path, result.iti_uncertainty_daily)
+
+        return {
+            "disagreement_by_news": str(disagreement_path),
+            "iti_uncertainty_daily": str(uncertainty_path),
+        }
+
     # ================================================================
     # RESUMO DO EXPERIMENTO
     # ================================================================
@@ -514,6 +613,10 @@ class ResultsManager:
             "finished_at": self._finished_at,
             "selected_models": list(self.config.model_keys),
             "selected_datasets": list(self.config.dataset_keys),
+            "skipped_combinations": [
+                skipped.to_dict()
+                for skipped in self.config.skipped_combinations
+            ],
             "total_combinations": len(records),
             "combination_counts": counts,
             "combinations": [record.to_dict() for record in records],

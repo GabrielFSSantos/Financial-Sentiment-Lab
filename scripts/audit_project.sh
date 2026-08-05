@@ -125,10 +125,10 @@ EXPECTED_FILES=(
     datasets/raw/noticias_exemplo/noticias.csv
     scripts/setup_env.sh scripts/run_service.sh scripts/run_experiment.sh scripts/audit_project.sh
     jobs/sdumont/run_experiment.srm
-    pipeline/common.py pipeline/configuration.py pipeline/runner.py
+    pipeline/common.py pipeline/configuration.py pipeline/runner.py pipeline/temporal_index.py
     models/sentiment.py models/base_model.py models/finbert_ptbr.py
     models/pt_br_financial_sentiment_analysis.py
-    tests/conftest.py tests/test_sentiment.py tests/test_configuration.py
+    tests/conftest.py tests/test_sentiment.py tests/test_configuration.py tests/test_compatibility.py tests/test_temporal_index.py
 )
 
 for relative_path in "${EXPECTED_FILES[@]}"; do

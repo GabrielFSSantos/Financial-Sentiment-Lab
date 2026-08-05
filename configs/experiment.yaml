@@ -298,6 +298,51 @@ reproducibility:
 
 
 # ============================================================
+# COMPATIBILIDADE MODELO × DATASET
+# ============================================================
+
+compatibility:
+  # Quando true, só executa combinações com o mesmo language em
+  # models.yaml e datasets.yaml (ex.: pt com pt, en com en).
+  require_language_match: true
+
+
+# ============================================================
+# ÍNDICE TEMPORAL INFORMACIONAL (ITI)
+# ============================================================
+#
+# Transforma previsões em séries temporais persistentes por empresa,
+# setor e mercado. Fórmulas detalhadas em pipeline/temporal_index.py.
+#
+# Dimensões extras (magnitude, relevância, etc.) podem vir de
+# ModelPrediction.extra; caso ausentes, usa temporal_index.defaults.
+
+temporal_index:
+  enabled: true
+  alpha: 0.85
+  initial_value: 0.0
+
+  defaults:
+    magnitude: 1.0
+    relevance: 1.0
+    event_weight: 1.0
+    horizon: 1.0
+    risk: 1.0
+    novelty: 1.0
+
+  resample:
+    enabled: true
+    frequencies:
+      - weekly
+      - monthly
+      - quarterly
+
+  uncertainty:
+    enabled: true
+    min_models: 2
+
+
+# ============================================================
 # VALIDAÇÕES ANTES DA INFERÊNCIA
 # ============================================================
 
