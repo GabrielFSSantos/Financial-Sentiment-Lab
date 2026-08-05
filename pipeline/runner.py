@@ -1192,92 +1192,37 @@ def build_argument_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
-        "--project-root",
-        type=Path,
-        default=None,
-        help=(
-            "Raiz do projeto. Por padrão, é inferida a partir do "
-            "pacote pipeline."
-        ),
-    )
-    parser.add_argument(
-        "--experiment-config",
-        type=Path,
-        default=Path(DEFAULT_EXPERIMENT_CONFIG),
-        help="Caminho de configs/experiment.yaml.",
-    )
-    parser.add_argument(
         "--model",
         dest="model_keys",
         action="append",
         default=None,
-        help=(
-            "Seleciona temporariamente um modelo. Pode ser usado "
-            "várias vezes."
-        ),
+        help="Seleciona temporariamente um modelo.",
     )
     parser.add_argument(
         "--dataset",
         dest="dataset_keys",
         action="append",
         default=None,
-        help=(
-            "Seleciona temporariamente um dataset. Pode ser usado "
-            "várias vezes."
-        ),
+        help="Seleciona temporariamente um dataset.",
     )
     parser.add_argument(
         "--environment",
         choices=("local", "sdumont"),
         default=None,
-        help=(
-            "Sobrescreve temporariamente execution.environment. "
-            "Normalmente o ambiente vem do YAML."
-        ),
+        help="Sobrescreve execution.environment.",
     )
-
-    dry_run_group = parser.add_mutually_exclusive_group()
-    dry_run_group.add_argument(
+    parser.add_argument(
         "--dry-run",
         dest="dry_run",
         action="store_true",
-        help="Valida tudo sem executar inferência.",
+        help="Valida tudo sem executar inferência (uso interno do audit).",
     )
-    dry_run_group.add_argument(
-        "--no-dry-run",
-        dest="dry_run",
-        action="store_false",
-        help="Força a execução real, sobrescrevendo o YAML.",
-    )
-    parser.set_defaults(dry_run=None)
-
     parser.add_argument(
         "--run-id",
         default=None,
-        help="Sobrescreve temporariamente experiment.run_id.",
+        help="Sobrescreve experiment.run_id.",
     )
-    parser.add_argument(
-        "--log-level",
-        choices=(
-            "DEBUG",
-            "INFO",
-            "WARNING",
-            "ERROR",
-            "CRITICAL",
-        ),
-        default=None,
-        help="Sobrescreve temporariamente execution.log_level.",
-    )
-    parser.add_argument(
-        "--traceback",
-        action="store_true",
-        help="Exibe tracebacks completos nos erros.",
-    )
-    parser.add_argument(
-        "--print-summary-json",
-        action="store_true",
-        help="Imprime o resumo final em JSON no stdout.",
-    )
+    parser.set_defaults(dry_run=None)
     return parser
 
 
@@ -1287,26 +1232,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     try:
         outcome = run_experiment(
-            project_root=arguments.project_root,
-            experiment_config=arguments.experiment_config,
             model_keys=arguments.model_keys,
             dataset_keys=arguments.dataset_keys,
             environment=arguments.environment,
             dry_run=arguments.dry_run,
             run_id=arguments.run_id,
-            log_level=arguments.log_level,
-            show_tracebacks=arguments.traceback,
         )
-
-        if arguments.print_summary_json:
-            print(
-                json.dumps(
-                    outcome.summary,
-                    ensure_ascii=False,
-                    indent=2,
-                    default=str,
-                )
-            )
 
         return outcome.exit_code
 
@@ -1324,8 +1255,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"Erro de configuração/preflight: {error}",
             file=sys.stderr,
         )
-        if arguments.traceback:
-            traceback_module.print_exc()
         return EXIT_CONFIGURATION_ERROR
     except Exception as error:
         print(
@@ -1333,8 +1262,6 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"{type(error).__name__}: {error}",
             file=sys.stderr,
         )
-        if arguments.traceback:
-            traceback_module.print_exc()
         return EXIT_EXECUTION_ERROR
 
 

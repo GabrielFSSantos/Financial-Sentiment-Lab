@@ -1,26 +1,19 @@
 #!/usr/bin/env bash
 
-# Ponto de entrada do projeto.
+# Ponto de entrada do experimento.
 #
-# Responsabilidades:
-#   1. preparar o ambiente, quando necessário;
-#   2. ativar o venv;
-#   3. chamar scripts/run_service.sh.
-#
-# Todos os argumentos não relacionados ao ambiente são enviados
-# diretamente para pipeline.runner.
+#   ./scripts/run_experiment.sh
+#   ./scripts/run_experiment.sh --skip-setup
+#   ./scripts/run_experiment.sh --model finbert_ptbr --dataset noticias_exemplo
+#   ./scripts/run_experiment.sh --run-id meu_experimento
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd -P)"
-
-VENV_DIR="${VENV_DIR:-${PROJECT_ROOT}/venv}"
-PYTHON_BASE="${PYTHON_BASE:-${PYTHON_BIN:-python3}}"
-REQUIREMENTS_FILE="${REQUIREMENTS_FILE:-${PROJECT_ROOT}/requirements.txt}"
+VENV_DIR="${PROJECT_ROOT}/venv"
 
 SKIP_SETUP=false
-SETUP_ARGS=()
 RUNNER_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -29,70 +22,32 @@ while [[ $# -gt 0 ]]; do
             SKIP_SETUP=true
             shift
             ;;
-
-        --force-setup)
-            SETUP_ARGS+=("--force")
-            shift
+        --dry-run)
+            printf 'Use ./scripts/audit_project.sh para validação sem inferência.\n' >&2
+            exit 1
             ;;
-
-        --recreate-env)
-            SETUP_ARGS+=("--recreate")
-            shift
-            ;;
-
-        --venv-dir)
-            VENV_DIR="$2"
-            shift 2
-            ;;
-
-        --python)
-            PYTHON_BASE="$2"
-            shift 2
-            ;;
-
-        --requirements)
-            REQUIREMENTS_FILE="$2"
-            shift 2
-            ;;
-
         -h|--help)
             cat <<'HELP'
 Uso:
-  ./scripts/run_experiment.sh [opções do ambiente] [opções da pipeline]
+  ./scripts/run_experiment.sh [opções] [-- argumentos do runner]
 
-Opções do ambiente:
-  --skip-setup
-  --force-setup
-  --recreate-env
-  --venv-dir CAMINHO
-  --python EXECUTÁVEL
-  --requirements ARQUIVO
-  -h, --help
+Opções:
+  --skip-setup   Não recria o venv (usado no job Slurm)
+  -h, --help     Mostra esta ajuda
 
-As demais opções são enviadas diretamente para pipeline.runner.
-
-Exemplos:
-  ./scripts/run_experiment.sh
-
-  ./scripts/run_experiment.sh --dry-run
-
-  ./scripts/run_experiment.sh \
-      --model finbert_ptbr \
-      --dataset noticias_exemplo
-
-  ./scripts/run_experiment.sh \
-      --environment sdumont \
-      --skip-setup
+Argumentos repassados ao runner:
+  --model CHAVE
+  --dataset CHAVE
+  --run-id ID
+  --environment local|sdumont
 HELP
             exit 0
             ;;
-
         --)
             shift
             RUNNER_ARGS+=("$@")
             break
             ;;
-
         *)
             RUNNER_ARGS+=("$1")
             shift
@@ -100,34 +55,19 @@ HELP
     esac
 done
 
-if [[ "${VENV_DIR}" != /* ]]; then
-    VENV_DIR="${PROJECT_ROOT}/${VENV_DIR}"
-fi
-
-if [[ "${REQUIREMENTS_FILE}" != /* ]]; then
-    REQUIREMENTS_FILE="${PROJECT_ROOT}/${REQUIREMENTS_FILE}"
-fi
-
-if [[ "${SKIP_SETUP}" == false ]]; then
-    "${PROJECT_ROOT}/scripts/setup_env.sh" \
-        --venv-dir "${VENV_DIR}" \
-        --python "${PYTHON_BASE}" \
-        --requirements "${REQUIREMENTS_FILE}" \
-        "${SETUP_ARGS[@]}"
+if [[ "${SKIP_SETUP}" == false && ! -f "${VENV_DIR}/bin/activate" ]]; then
+    "${PROJECT_ROOT}/scripts/setup_env.sh"
 fi
 
 if [[ -f "${VENV_DIR}/bin/activate" ]]; then
     # shellcheck disable=SC1091
     source "${VENV_DIR}/bin/activate"
-
 elif [[ -z "${VIRTUAL_ENV:-}" ]]; then
-    printf 'Ambiente virtual não encontrado: %s\n' \
-        "${VENV_DIR}" >&2
+    printf 'Ambiente virtual não encontrado: %s\n' "${VENV_DIR}" >&2
     exit 1
 fi
 
 export VENV_DIR
 export PYTHON_BIN="${VIRTUAL_ENV:-${VENV_DIR}}/bin/python"
 
-exec "${PROJECT_ROOT}/scripts/run_service.sh" \
-    "${RUNNER_ARGS[@]}"
+exec "${PROJECT_ROOT}/scripts/run_service.sh" "${RUNNER_ARGS[@]}"

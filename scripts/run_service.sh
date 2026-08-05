@@ -48,5 +48,4 @@ printf 'Executando com Python: %s\n' \
 
 exec "${PYTHON_EXECUTABLE}" \
     -m pipeline.runner \
-    --project-root "${PROJECT_ROOT}" \
     "$@"
