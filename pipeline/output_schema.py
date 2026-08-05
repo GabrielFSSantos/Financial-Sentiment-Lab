@@ -38,19 +38,25 @@ from typing import Any, Iterable, Literal, Mapping, Sequence, cast
 import numpy as np
 import pandas as pd
 
+from pipeline.common import (
+    CANONICAL_LABELS,
+    column_series,
+    is_missing_scalar,
+    numeric_series,
+    to_serializable,
+)
 from pipeline.configuration import (
     ExperimentCombination,
     ModelConfiguration,
     ResolvedConfiguration,
 )
 from pipeline.dataset_loader import LoadedDataset
-
-
-CANONICAL_LABELS: tuple[str, ...] = (
-    "NEGATIVE",
-    "NEUTRAL",
-    "POSITIVE",
+from models.sentiment import (
+    LABEL_ALIASES,
+    calculate_continuous_sentiment,
+    normalize_sentiment_label,
 )
+
 
 PROBABILITY_COLUMNS: tuple[str, ...] = (
     "prob_negative",
@@ -111,21 +117,6 @@ OUTPUT_COLUMNS: tuple[str, ...] = (
     *MODEL_EXECUTION_COLUMNS,
 )
 
-LABEL_ALIASES: dict[str, str] = {
-    "NEGATIVE": "NEGATIVE",
-    "NEGATIVO": "NEGATIVE",
-    "NEGATIVA": "NEGATIVE",
-    "NEG": "NEGATIVE",
-    "NEUTRAL": "NEUTRAL",
-    "NEUTRO": "NEUTRAL",
-    "NEUTRA": "NEUTRAL",
-    "NEU": "NEUTRAL",
-    "POSITIVE": "POSITIVE",
-    "POSITIVO": "POSITIVE",
-    "POSITIVA": "POSITIVE",
-    "POS": "POSITIVE",
-}
-
 DIRECT_PROBABILITY_ALIASES: dict[str, tuple[str, ...]] = {
     "POSITIVE": (
         "prob_positive",
@@ -184,98 +175,6 @@ METADATA_FIELD_ALIASES: tuple[str, ...] = (
 )
 
 _SAFE_COLUMN_PATTERN = re.compile(r"[^A-Za-z0-9_]+")
-
-
-def _is_missing_scalar(value: object) -> bool:
-    """Retorna ``True`` somente para valores escalares ausentes.
-
-    A implementação evita ``pandas.isna`` sobre ``Any``, pois as
-    sobrecargas do Pylance 2026.2.1 não aceitam objetos arbitrários.
-    Coleções, classes e objetos desconhecidos nunca são tratados como
-    ausentes por esta função.
-    """
-
-    if value is None or value is pd.NA or value is pd.NaT:
-        return True
-
-    if isinstance(value, type):
-        return False
-
-    if isinstance(value, float):
-        return math.isnan(value)
-
-    if isinstance(value, np.floating):
-        return bool(np.isnan(value))
-
-    if isinstance(value, np.datetime64):
-        return bool(np.isnat(value))
-
-    if isinstance(value, np.timedelta64):
-        return bool(np.isnat(value))
-
-    return False
-
-
-def normalize_sentiment_label(value: Any) -> str | None:
-    """Converte rótulos comuns para NEGATIVE, NEUTRAL ou POSITIVE.
-
-    ``None`` e valores ausentes continuam nulos. Valores desconhecidos
-    geram ``ValueError`` para impedir classes silenciosamente incorretas.
-    """
-
-    if _is_missing_scalar(value):
-        return None
-
-    normalized = str(value).strip().upper()
-    if not normalized:
-        return None
-
-    canonical = LABEL_ALIASES.get(normalized)
-    if canonical is None:
-        raise ValueError(
-            f"Rótulo de sentimento não reconhecido: {value!r}. "
-            "Valores esperados: NEGATIVE, NEUTRAL ou POSITIVE."
-        )
-
-    return canonical
-
-
-def calculate_continuous_sentiment(
-    prob_positive: float | None,
-    prob_negative: float | None,
-) -> float | None:
-    """Calcula ``prob_positive - prob_negative``.
-
-    A função permanece pública para compatibilidade com os adaptadores
-    de modelo durante a refatoração do projeto.
-    """
-
-    if prob_positive is None or prob_negative is None:
-        return None
-
-    if (
-        _is_missing_scalar(prob_positive)
-        or _is_missing_scalar(prob_negative)
-    ):
-        return None
-
-    positive = float(prob_positive)
-    negative = float(prob_negative)
-
-    for field_name, probability in (
-        ("prob_positive", positive),
-        ("prob_negative", negative),
-    ):
-        if not math.isfinite(probability):
-            raise ValueError(
-                f"{field_name} precisa ser finito."
-            )
-        if not 0.0 <= probability <= 1.0:
-            raise ValueError(
-                f"{field_name} precisa estar entre 0 e 1."
-            )
-
-    return positive - negative
 
 
 class OutputSchemaError(RuntimeError):
@@ -710,8 +609,8 @@ class OutputSchemaBuilder:
             - probability_array[:, negative_index]
         )
 
-        actual_continuous_series = _numeric_series(
-            _column_series(
+        actual_continuous_series = numeric_series(
+            column_series(
                 dataframe,
                 "continuous_sentiment",
             ),
@@ -740,8 +639,8 @@ class OutputSchemaBuilder:
             )
 
         expected_confidence = probability_array.max(axis=1)
-        actual_confidence_series = _numeric_series(
-            _column_series(dataframe, "confidence"),
+        actual_confidence_series = numeric_series(
+            column_series(dataframe, "confidence"),
             errors="coerce",
         )
         actual_confidence = (
@@ -777,7 +676,7 @@ class OutputSchemaBuilder:
         if bool(duplicate_key.any()):
             duplicate_frame = dataframe.loc[duplicate_key]
             duplicate_ids = (
-                _column_series(
+                column_series(
                     cast(pd.DataFrame, duplicate_frame),
                     "news_id",
                 )
@@ -794,8 +693,8 @@ class OutputSchemaBuilder:
             len(dataframe),
             dtype=np.float64,
         )
-        actual_indices = _numeric_series(
-            _column_series(dataframe, "prediction_index"),
+        actual_indices = numeric_series(
+            column_series(dataframe, "prediction_index"),
             errors="coerce",
         ).to_numpy(dtype=np.float64)
 
@@ -1405,12 +1304,12 @@ class OutputSchemaBuilder:
 
         if isinstance(value, Mapping):
             return {
-                str(key): _to_serializable(item)
+                str(key): to_serializable(item)
                 for key, item in value.items()
             }
 
         return {
-            "value": _to_serializable(value)
+            "value": to_serializable(value)
         }
 
     def _prediction_frame(
@@ -1485,8 +1384,8 @@ class OutputSchemaBuilder:
             "processing_time_ms",
         ]
         for column in numeric_columns:
-            frame[column] = _numeric_series(
-                _column_series(frame, column),
+            frame[column] = numeric_series(
+                column_series(frame, column),
                 errors="coerce",
             ).astype("Float64")
 
@@ -1602,20 +1501,20 @@ class OutputSchemaBuilder:
         probability_rows_normalized: int,
         prediction_metadata_rows: int,
     ) -> PredictionSchemaStatistics:
-        counts = _column_series(
+        counts = column_series(
             dataframe,
             "predicted_label",
         ).value_counts()
 
-        sentiment = _numeric_series(
-            _column_series(
+        sentiment = numeric_series(
+            column_series(
                 dataframe,
                 "continuous_sentiment",
             ),
             errors="raise",
         ).to_numpy(dtype=np.float64)
-        confidence = _numeric_series(
-            _column_series(dataframe, "confidence"),
+        confidence = numeric_series(
+            column_series(dataframe, "confidence"),
             errors="raise",
         ).to_numpy(dtype=np.float64)
 
@@ -1720,133 +1619,6 @@ class OutputSchemaBuilder:
             )
 
 
-def build_prediction_output(
-    *,
-    run_id: str,
-    environment: str,
-    combination: ExperimentCombination,
-    model_configuration: ModelConfiguration,
-    loaded_dataset: LoadedDataset,
-    predictions: Iterable[Any],
-    device_used: str | None = None,
-    builder: OutputSchemaBuilder | None = None,
-) -> StandardizedPredictions:
-    """Atalho para padronizar a saída de uma combinação."""
-
-    active_builder = builder or OutputSchemaBuilder()
-    return active_builder.build(
-        run_id=run_id,
-        environment=environment,
-        combination=combination,
-        model_configuration=model_configuration,
-        loaded_dataset=loaded_dataset,
-        predictions=predictions,
-        device_used=device_used,
-    )
-
-
-def build_prediction_output_from_configuration(
-    *,
-    configuration: ResolvedConfiguration,
-    combination: ExperimentCombination,
-    loaded_dataset: LoadedDataset,
-    predictions: Iterable[Any],
-    device_used: str | None = None,
-    builder: OutputSchemaBuilder | None = None,
-) -> StandardizedPredictions:
-    """Atalho usando uma ``ResolvedConfiguration``."""
-
-    active_builder = builder or OutputSchemaBuilder()
-    return active_builder.build_from_resolved_configuration(
-        configuration=configuration,
-        combination=combination,
-        loaded_dataset=loaded_dataset,
-        predictions=predictions,
-        device_used=device_used,
-    )
-
-
-def validate_prediction_output(
-    dataframe: pd.DataFrame,
-    *,
-    builder: OutputSchemaBuilder | None = None,
-) -> None:
-    """Valida um DataFrame de previsões já existente."""
-
-    active_builder = builder or OutputSchemaBuilder()
-    active_builder.validate_output_dataframe(dataframe)
-
-
-def _to_serializable(value: Any) -> Any:
-    if value is None or value is pd.NA:
-        return None
-
-    if isinstance(value, Path):
-        return str(value)
-
-    if isinstance(value, (datetime, date)):
-        return value.isoformat()
-
-    if isinstance(value, np.generic):
-        return value.item()
-
-    if isinstance(value, pd.Timestamp):
-        return value.isoformat()
-
-    if isinstance(value, Mapping):
-        return {
-            str(key): _to_serializable(item)
-            for key, item in value.items()
-        }
-
-    if isinstance(value, (list, tuple, set, frozenset)):
-        return [
-            _to_serializable(item)
-            for item in value
-        ]
-
-    if (
-        not isinstance(value, type)
-        and is_dataclass(value)
-    ):
-        return _to_serializable(
-            asdict(cast(Any, value))
-        )
-
-    if _is_missing_scalar(value):
-        return None
-
-    if isinstance(value, (str, int, float, bool)):
-        return value
-
-    return str(value)
-
-
-def _column_series(
-    dataframe: pd.DataFrame,
-    column: str,
-) -> pd.Series:
-    value = dataframe[column]
-    if isinstance(value, pd.DataFrame):
-        raise OutputDataFrameValidationError(
-            f"A coluna {column!r} aparece mais de uma vez."
-        )
-    return cast(pd.Series, value)
-
-
-def _numeric_series(
-    series: pd.Series,
-    *,
-    errors: Literal["raise", "coerce"] = "coerce",
-) -> pd.Series:
-    converted = pd.to_numeric(series, errors=errors)
-    if not isinstance(converted, pd.Series):
-        raise OutputDataFrameValidationError(
-            "A conversão numérica não retornou uma Series."
-        )
-    return converted
-
-
 def _series_count(
     counts: pd.Series,
     label: str,
@@ -1871,9 +1643,6 @@ __all__ = [
     "PredictionSchemaStatistics",
     "PredictionValidationError",
     "StandardizedPredictions",
-    "build_prediction_output",
     "calculate_continuous_sentiment",
-    "build_prediction_output_from_configuration",
     "normalize_sentiment_label",
-    "validate_prediction_output",
 ]

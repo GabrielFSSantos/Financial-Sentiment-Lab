@@ -5,7 +5,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --partition=sequana_gpu_dev
 #SBATCH --job-name=financial
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=30
 #SBATCH --gres=gpu:1
 #SBATCH --mem=32G
 #SBATCH --time=00:20:00
@@ -18,13 +18,22 @@ WORKING_DIR="/scratch/ufsj/hpc4agents-br/iago.oliveira3/financial-sentiment-lab"
 
 cd "${WORKING_DIR}" || exit 1
 
+printf 'Início do job: %s\n' "$(date '+%Y-%m-%d %H:%M:%S')"
+printf 'Job Slurm: %s\n' "${SLURM_JOB_ID:-desconhecido}"
+printf 'Saída do Slurm: %s/job_financial_%s.out\n' \
+    "${WORKING_DIR}" "${SLURM_JOB_ID:-JOB_ID}"
+printf 'Logs da pipeline: %s/logs/<run_id>.log\n' "${WORKING_DIR}"
+printf 'Progresso por combinação modelo×dataset aparece abaixo.\n'
+
 
 # Mostra o nó utilizado
+printf 'Nó de execução: '
 scontrol show hostnames "${SLURM_NODELIST}"
 
 
 # Carrega os módulos do ambiente
 module purge
+# module load python/3.10
 module load cuda/12.6_sequana
 module load anaconda3/2024.02_sequana
 

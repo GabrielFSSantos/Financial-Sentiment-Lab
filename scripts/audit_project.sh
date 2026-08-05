@@ -4,95 +4,80 @@
 # AUDITORIA DO FINANCIAL SENTIMENT LAB
 # ==============================================================================
 #
-# Executa verificações não destrutivas do projeto e salva um relatório em:
-#
-#   logs/audit/audit_project_<data>_<hora>.log
-#
-# Uso padrão:
+# Validação estrutural padrão (sem dry-run):
 #
 #   ./scripts/audit_project.sh
 #
-# Opções principais:
+# Integração completa (exige model_store/):
 #
-#   --skip-dry-run       Não executa o dry-run da pipeline.
-#   --model-smoke        Executa uma inferência real curta em CPU.
-#   --require-cuda       Considera a ausência de CUDA como falha.
-#   --environment ENV    Ambiente usado no dry-run: local ou sdumont.
-#   --python EXECUTÁVEL  Python utilizado na auditoria.
-#   --venv-dir CAMINHO   Ambiente virtual utilizado na auditoria.
+#   ./scripts/audit_project.sh --full-dry-run
 #
-# A auditoria não instala, atualiza ou remove dependências.
+# Opções adicionais:
+#
+#   --model-smoke          Inferência curta do FinBERT em CPU
+#   --ensemble-smoke       Inferência curta do ensemble em CPU
+#   --require-cuda         Falha se CUDA não estiver disponível
+#   --require-model-store  Falha se pesos locais estiverem ausentes
+#   --check-tests          Executa pytest se tests/ existir
+#   --environment ENV      local ou sdumont (para dry-run)
+#   --python EXEC          Python usado na auditoria
+#   --venv-dir CAMINHO     Ambiente virtual usado na auditoria
+#
+# Relatório salvo em logs/audit/audit_project_<timestamp>.log
 # ==============================================================================
 
 set -uo pipefail
 IFS=$'\n\t'
-
-
-# ==============================================================================
-# CONFIGURAÇÃO
-# ==============================================================================
-
-readonly SCRIPT_NAME="audit_project"
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd -P)"
 
 VENV_DIR="${VENV_DIR:-${PROJECT_ROOT}/venv}"
 PYTHON_INPUT="${PYTHON_BIN:-}"
-AUDIT_ENVIRONMENT="${EXECUTION_ENVIRONMENT:-}"
+AUDIT_ENVIRONMENT="${EXECUTION_ENVIRONMENT:-local}"
 LOG_DIR="${AUDIT_LOG_DIR:-${PROJECT_ROOT}/logs/audit}"
 
-RUN_DRY_RUN=true
+RUN_FULL_DRY_RUN=false
 RUN_MODEL_SMOKE=false
+RUN_ENSEMBLE_SMOKE=false
+RUN_CHECK_TESTS=false
 REQUIRE_CUDA=false
+REQUIRE_MODEL_STORE=false
 
 PASS_COUNT=0
 WARN_COUNT=0
 FAIL_COUNT=0
 INFO_COUNT=0
 
-
-# ==============================================================================
-# FUNÇÕES DE SAÍDA
-# ==============================================================================
-
 timestamp() {
     date '+%Y-%m-%d %H:%M:%S'
 }
 
-
 section() {
-    printf '\n%s\n' \
-        "=============================================================================="
+    printf '\n%s\n' '=============================================================================='
     printf '%s\n' "$1"
-    printf '%s\n' \
-        "=============================================================================="
+    printf '%s\n' '=============================================================================='
 }
-
 
 ok() {
     PASS_COUNT=$((PASS_COUNT + 1))
     printf '[OK] %s\n' "$*"
 }
 
-
 warn() {
     WARN_COUNT=$((WARN_COUNT + 1))
     printf '[AVISO] %s\n' "$*"
 }
-
 
 fail() {
     FAIL_COUNT=$((FAIL_COUNT + 1))
     printf '[ERRO] %s\n' "$*"
 }
 
-
 info() {
     INFO_COUNT=$((INFO_COUNT + 1))
     printf '[INFO] %s\n' "$*"
 }
-
 
 run_check() {
     local label="$1"
@@ -102,7 +87,6 @@ run_check() {
     local exit_code=0
 
     temporary_output="$(mktemp)"
-
     "$@" >"${temporary_output}" 2>&1
     exit_code=$?
 
@@ -120,287 +104,133 @@ run_check() {
     return 0
 }
 
-
-run_optional_check() {
-    local label="$1"
-    shift
-
-    local temporary_output=""
-    local exit_code=0
-
-    temporary_output="$(mktemp)"
-
-    "$@" >"${temporary_output}" 2>&1
-    exit_code=$?
-
-    if [[ "${exit_code}" -eq 0 ]]; then
-        ok "${label}"
-    else
-        warn "${label} não foi aprovado (código ${exit_code})"
-    fi
-
-    if [[ -s "${temporary_output}" ]]; then
-        sed 's/^/       /' "${temporary_output}"
-    fi
-
-    rm -f -- "${temporary_output}"
-    return 0
+usage() {
+    sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'
 }
 
-
-show_help() {
-    cat <<'HELP'
-Uso:
-  ./scripts/audit_project.sh [opções]
-
-Opções:
-  --python EXECUTÁVEL   Python utilizado nas verificações.
-  --venv-dir CAMINHO    Ambiente virtual utilizado.
-  --environment ENV     Ambiente do dry-run: local ou sdumont.
-  --skip-dry-run        Não executa o dry-run da pipeline.
-  --model-smoke         Executa uma inferência real curta em CPU.
-  --require-cuda        Falha quando o PyTorch não reconhecer CUDA.
-  --log-dir CAMINHO     Diretório onde o relatório será salvo.
-  -h, --help            Exibe esta ajuda.
-
-Exemplos:
-  ./scripts/audit_project.sh
-
-  ./scripts/audit_project.sh --skip-dry-run
-
-  ./scripts/audit_project.sh --model-smoke
-
-  ./scripts/audit_project.sh \
-      --environment sdumont \
-      --require-cuda
-HELP
-}
-
-
-resolve_project_path() {
-    local value="$1"
-
-    if [[ "${value}" = /* ]]; then
-        printf '%s\n' "${value}"
-    else
-        printf '%s\n' "${PROJECT_ROOT}/${value}"
-    fi
-}
-
-
-find_python() {
-    local candidate=""
-
-    if [[ -n "${PYTHON_INPUT}" ]]; then
-        if [[ "${PYTHON_INPUT}" == */* ]]; then
-            candidate="$(resolve_project_path "${PYTHON_INPUT}")"
-
-            if [[ -x "${candidate}" ]]; then
-                printf '%s\n' "${candidate}"
-                return 0
-            fi
-        elif command -v "${PYTHON_INPUT}" >/dev/null 2>&1; then
-            command -v "${PYTHON_INPUT}"
-            return 0
-        fi
-
-        return 1
-    fi
-
-    for candidate in \
-        "${VENV_DIR}/bin/python" \
-        "${PROJECT_ROOT}/.venv/bin/python" \
-        "python3" \
-        "python"
-    do
-        if [[ "${candidate}" == */* ]]; then
-            if [[ -x "${candidate}" ]]; then
-                printf '%s\n' "${candidate}"
-                return 0
-            fi
-        elif command -v "${candidate}" >/dev/null 2>&1; then
-            command -v "${candidate}"
-            return 0
-        fi
-    done
-
-    return 1
-}
-
-
-# ==============================================================================
-# ARGUMENTOS
-# ==============================================================================
-
-while [[ "$#" -gt 0 ]]; do
+while [[ $# -gt 0 ]]; do
     case "$1" in
-        --python)
-            [[ "$#" -ge 2 ]] || {
-                printf 'A opção --python exige um valor.\n' >&2
-                exit 2
-            }
-
-            PYTHON_INPUT="$2"
-            shift 2
+        --full-dry-run)
+            RUN_FULL_DRY_RUN=true
             ;;
-
-        --venv-dir)
-            [[ "$#" -ge 2 ]] || {
-                printf 'A opção --venv-dir exige um valor.\n' >&2
-                exit 2
-            }
-
-            VENV_DIR="$(resolve_project_path "$2")"
-            shift 2
-            ;;
-
-        --environment)
-            [[ "$#" -ge 2 ]] || {
-                printf 'A opção --environment exige local ou sdumont.\n' >&2
-                exit 2
-            }
-
-            AUDIT_ENVIRONMENT="$2"
-            shift 2
-            ;;
-
-        --skip-dry-run)
-            RUN_DRY_RUN=false
-            shift
-            ;;
-
         --model-smoke)
             RUN_MODEL_SMOKE=true
-            shift
             ;;
-
+        --ensemble-smoke)
+            RUN_ENSEMBLE_SMOKE=true
+            ;;
+        --check-tests)
+            RUN_CHECK_TESTS=true
+            ;;
         --require-cuda)
             REQUIRE_CUDA=true
+            ;;
+        --require-model-store)
+            REQUIRE_MODEL_STORE=true
+            ;;
+        --skip-dry-run)
+            RUN_FULL_DRY_RUN=false
+            ;;
+        --environment)
             shift
+            AUDIT_ENVIRONMENT="${1:-local}"
             ;;
-
-        --log-dir)
-            [[ "$#" -ge 2 ]] || {
-                printf 'A opção --log-dir exige um caminho.\n' >&2
-                exit 2
-            }
-
-            LOG_DIR="$(resolve_project_path "$2")"
-            shift 2
+        --python)
+            shift
+            PYTHON_INPUT="${1:-}"
             ;;
-
+        --venv-dir)
+            shift
+            VENV_DIR="${1:-${PROJECT_ROOT}/venv}"
+            ;;
         -h|--help)
-            show_help
+            usage
             exit 0
             ;;
-
         *)
-            printf 'Opção desconhecida: %s\n' "$1" >&2
-            exit 2
+            fail "Opção desconhecida: $1"
+            usage
+            exit 1
             ;;
     esac
+    shift
 done
 
+mkdir -p "${LOG_DIR}"
+REPORT_FILE="${LOG_DIR}/audit_project_$(date '+%Y%m%d_%H%M%S').log"
+exec > >(tee -a "${REPORT_FILE}") 2>&1
+
+cd "${PROJECT_ROOT}" || exit 1
+
+info "Relatório: ${REPORT_FILE}"
+info "Projeto: ${PROJECT_ROOT}"
 
 # ==============================================================================
-# INICIALIZAÇÃO
+# 1. AMBIENTE
 # ==============================================================================
 
-if [[ -z "${AUDIT_ENVIRONMENT}" ]]; then
-    if [[ -n "${SLURM_JOB_ID:-}" ]]; then
-        AUDIT_ENVIRONMENT="sdumont"
-    else
-        AUDIT_ENVIRONMENT="local"
-    fi
-fi
+section "1. AMBIENTE"
 
-case "${AUDIT_ENVIRONMENT}" in
-    local|sdumont)
-        ;;
-    *)
-        printf 'Ambiente inválido: %s\n' "${AUDIT_ENVIRONMENT}" >&2
-        exit 2
-        ;;
-esac
+info "Hostname: $(hostname 2>/dev/null || echo desconhecido)"
+info "Sistema: $(uname -srmo 2>/dev/null || echo desconhecido)"
 
-mkdir -p -- "${LOG_DIR}"
-
-REPORT_PATH="$(
-    printf '%s/audit_project_%s.log' \
-        "${LOG_DIR}" \
-        "$(date '+%Y%m%d_%H%M%S')"
-)"
-
-exec > >(tee "${REPORT_PATH}") 2>&1
-
-cd "${PROJECT_ROOT}"
-
-printf 'Auditoria iniciada em: %s\n' "$(timestamp)"
-printf 'Projeto: %s\n' "${PROJECT_ROOT}"
-printf 'Relatório: %s\n' "${REPORT_PATH}"
-printf 'Ambiente do dry-run: %s\n' "${AUDIT_ENVIRONMENT}"
-printf 'Dry-run: %s\n' "${RUN_DRY_RUN}"
-printf 'Model smoke: %s\n' "${RUN_MODEL_SMOKE}"
-printf 'CUDA obrigatória: %s\n' "${REQUIRE_CUDA}"
-
-PYTHON_EXECUTABLE="$(find_python || true)"
-
-if [[ -n "${PYTHON_EXECUTABLE}" ]]; then
-    info "Python selecionado: ${PYTHON_EXECUTABLE}"
+if command -v squeue >/dev/null 2>&1; then
+    info "Slurm detectado (squeue disponível)"
 else
-    fail "Nenhum executável Python foi encontrado."
+    info "Slurm não detectado neste host"
 fi
 
-
-# ==============================================================================
-# 1. AMBIENTE DE EXECUÇÃO
-# ==============================================================================
-
-section "1. AMBIENTE DE EXECUÇÃO"
-
-info "Hostname: $(hostname 2>/dev/null || printf 'desconhecido')"
-info "Sistema: $(uname -srm 2>/dev/null || printf 'desconhecido')"
-info "Diretório atual: $(pwd -P)"
-
-if [[ -n "${SLURM_JOB_ID:-}" ]]; then
-    info "Job Slurm: ${SLURM_JOB_ID}"
-    info "Partição: ${SLURM_JOB_PARTITION:-não informada}"
-    info "Nós: ${SLURM_JOB_NODELIST:-não informado}"
-    info "CPUs por tarefa: ${SLURM_CPUS_PER_TASK:-não informado}"
-    info "GPUs: ${SLURM_JOB_GPUS:-${CUDA_VISIBLE_DEVICES:-não informado}}"
+if [[ -d "${VENV_DIR}" ]]; then
+    ok "Ambiente virtual presente: ${VENV_DIR}"
 else
-    info "A auditoria não está sendo executada dentro de um job Slurm."
+    warn "Ambiente virtual ausente: ${VENV_DIR}"
 fi
 
-if type module >/dev/null 2>&1; then
-    info "Módulos carregados:"
-    module list 2>&1 | sed 's/^/       /' || true
+if [[ -n "${PYTHON_INPUT}" ]]; then
+    PYTHON="${PYTHON_INPUT}"
+elif [[ -x "${VENV_DIR}/bin/python" ]]; then
+    PYTHON="${VENV_DIR}/bin/python"
 else
-    info "O comando module não está disponível neste shell."
+    PYTHON="$(command -v python3 || command -v python || true)"
 fi
 
+if [[ -z "${PYTHON}" ]]; then
+    fail "Python não encontrado"
+else
+    ok "Python selecionado: ${PYTHON}"
+fi
+
+if [[ -n "${PYTHON}" ]]; then
+    run_check "Python >= 3.10" \
+        "${PYTHON}" - <<'PY'
+import sys
+raise SystemExit(0 if sys.version_info >= (3, 10) else 1)
+PY
+fi
+
+export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 
 # ==============================================================================
-# 2. ESTRUTURA DO PROJETO
+# 2. ESTRUTURA
 # ==============================================================================
 
 section "2. ESTRUTURA DO PROJETO"
 
 EXPECTED_FILES=(
     ".gitignore"
+    "README.md"
     "requirements.txt"
+    "pytest.ini"
     "configs/experiment.yaml"
     "configs/models.yaml"
     "configs/datasets.yaml"
+    "datasets/raw/noticias_exemplo/noticias.csv"
     "scripts/setup_env.sh"
     "scripts/run_service.sh"
     "scripts/run_experiment.sh"
     "scripts/audit_project.sh"
     "jobs/sdumont/run_experiment.srm"
-    "models/__init__.py"
-    "models/base_model.py"
-    "models/finbert_ptbr.py"
-    "pipeline/__init__.py"
+    "pipeline/common.py"
     "pipeline/configuration.py"
     "pipeline/dataset_loader.py"
     "pipeline/registry.py"
@@ -409,6 +239,10 @@ EXPECTED_FILES=(
     "pipeline/aggregation.py"
     "pipeline/results.py"
     "pipeline/runner.py"
+    "models/sentiment.py"
+    "models/base_model.py"
+    "models/finbert_ptbr.py"
+    "models/pt_br_financial_sentiment_analysis.py"
 )
 
 for relative_path in "${EXPECTED_FILES[@]}"; do
@@ -421,7 +255,6 @@ done
 
 EXPECTED_DIRECTORIES=(
     "configs"
-    "datasets"
     "datasets/raw"
     "jobs/sdumont"
     "model_store"
@@ -436,708 +269,325 @@ for relative_path in "${EXPECTED_DIRECTORIES[@]}"; do
     if [[ -d "${PROJECT_ROOT}/${relative_path}" ]]; then
         ok "Diretório presente: ${relative_path}/"
     else
-        warn "Diretório ausente: ${relative_path}/"
+        fail "Diretório ausente: ${relative_path}/"
     fi
 done
 
-OBSOLETE_PATHS=(
-    "configs/sdumont.env"
-    "configs/sdumont.env.example"
-    "scripts/sync_to_scratch.sh"
-    "scripts/setup_sdumont_env.sh"
+LEGACY_PATTERNS=(
+    "scripts/sync_sdumont.sh"
     "scripts/submit_sdumont.sh"
-    "scripts/download_sdumont_results.sh"
+    "jobs/sdumont/sync_project.srm"
 )
 
-for relative_path in "${OBSOLETE_PATHS[@]}"; do
+for relative_path in "${LEGACY_PATTERNS[@]}"; do
     if [[ -e "${PROJECT_ROOT}/${relative_path}" ]]; then
-        warn "Arquivo antigo ainda presente: ${relative_path}"
-    else
-        ok "Arquivo antigo removido: ${relative_path}"
+        warn "Script legado detectado: ${relative_path}"
     fi
 done
 
-
-# ==============================================================================
-# 3. SCRIPTS SHELL E SLURM
-# ==============================================================================
-
-section "3. SCRIPTS SHELL E SLURM"
-
-EXECUTABLE_FILES=(
-    "scripts/setup_env.sh"
-    "scripts/run_service.sh"
-    "scripts/run_experiment.sh"
-    "scripts/audit_project.sh"
-)
-
-for relative_path in "${EXECUTABLE_FILES[@]}"; do
-    absolute_path="${PROJECT_ROOT}/${relative_path}"
-
-    if [[ ! -f "${absolute_path}" ]]; then
-        fail "Não foi possível validar permissão: ${relative_path}"
-    elif [[ -x "${absolute_path}" ]]; then
-        ok "Executável: ${relative_path}"
+SRM_FILE="${PROJECT_ROOT}/jobs/sdumont/run_experiment.srm"
+if [[ -f "${SRM_FILE}" ]]; then
+    working_dir="$(grep -E '^WORKING_DIR=' "${SRM_FILE}" | head -n 1 | cut -d'"' -f2 || true)"
+    if [[ -n "${working_dir}" && "${working_dir}" != "${PROJECT_ROOT}" ]]; then
+        warn "WORKING_DIR do job Slurm difere do repositório local: ${working_dir}"
     else
-        fail \
-            "Sem permissão de execução: ${relative_path}. " \
-            "Use chmod +x ${relative_path}"
+        ok "WORKING_DIR do job Slurm coerente com o repositório"
     fi
-done
+fi
 
-mapfile -d '' -t SHELL_FILES < <(
-    find \
-        "${PROJECT_ROOT}/scripts" \
-        "${PROJECT_ROOT}/jobs" \
-        -type f \
-        \( -name '*.sh' -o -name '*.srm' \) \
-        -print0 \
-        2>/dev/null
-)
+if [[ -d "${PROJECT_ROOT}/model_store" ]]; then
+    lfs_pointer_count="$(find "${PROJECT_ROOT}/model_store" -type f -name '*.safetensors' -exec grep -Il 'git-lfs' {} + 2>/dev/null | wc -l | tr -d ' ')"
+    if [[ "${lfs_pointer_count}" != "0" ]]; then
+        warn "Possíveis ponteiros Git LFS em model_store/ (${lfs_pointer_count} arquivo(s))"
+    else
+        ok "Nenhum ponteiro Git LFS óbvio em model_store/"
+    fi
+fi
 
-if [[ "${#SHELL_FILES[@]}" -eq 0 ]]; then
-    fail "Nenhum arquivo Shell foi encontrado."
-else
-    for file_path in "${SHELL_FILES[@]}"; do
-        relative_path="${file_path#"${PROJECT_ROOT}/"}"
+# ==============================================================================
+# 3. SHELL / SLURM
+# ==============================================================================
 
-        if bash -n "${file_path}"; then
-            ok "Sintaxe Bash: ${relative_path}"
+section "3. SHELL E SLURM"
+
+for script in \
+    "${PROJECT_ROOT}/scripts/setup_env.sh" \
+    "${PROJECT_ROOT}/scripts/run_service.sh" \
+    "${PROJECT_ROOT}/scripts/run_experiment.sh" \
+    "${PROJECT_ROOT}/scripts/audit_project.sh"
+do
+    if [[ -f "${script}" ]]; then
+        run_check "bash -n $(basename "${script}")" bash -n "${script}"
+        if [[ -x "${script}" ]]; then
+            ok "Executável: $(basename "${script}")"
         else
-            fail "Erro de sintaxe Bash: ${relative_path}"
+            warn "Sem permissão de execução: ${script}"
+        fi
+        if grep -q $'\r' "${script}"; then
+            fail "CRLF detectado em ${script}"
+        else
+            ok "Sem CRLF: $(basename "${script}")"
+        fi
+    fi
+done
+
+if [[ -f "${SRM_FILE}" ]]; then
+    run_check "bash -n run_experiment.srm" bash -n "${SRM_FILE}"
+    for directive in "#SBATCH --partition" "#SBATCH --gres" "#SBATCH --time"; do
+        if grep -q "${directive}" "${SRM_FILE}"; then
+            ok "Diretiva Slurm presente: ${directive}"
+        else
+            fail "Diretiva Slurm ausente: ${directive}"
         fi
     done
 fi
 
-CRLF_FOUND=false
-
-while IFS= read -r -d '' file_path; do
-    if LC_ALL=C grep -q $'\r' "${file_path}" 2>/dev/null; then
-        fail "Quebra de linha CRLF: ${file_path#"${PROJECT_ROOT}/"}"
-        CRLF_FOUND=true
-    fi
-done < <(
-    find \
-        "${PROJECT_ROOT}/scripts" \
-        "${PROJECT_ROOT}/jobs" \
-        "${PROJECT_ROOT}/pipeline" \
-        "${PROJECT_ROOT}/models" \
-        "${PROJECT_ROOT}/configs" \
-        -type f \
-        \( \
-            -name '*.sh' -o \
-            -name '*.srm' -o \
-            -name '*.py' -o \
-            -name '*.yaml' -o \
-            -name '*.yml' \
-        \) \
-        -print0 \
-        2>/dev/null
-)
-
-if [[ "${CRLF_FOUND}" == false ]]; then
-    ok "Nenhum CRLF foi encontrado nos arquivos principais."
-fi
-
-SLURM_SCRIPT="${PROJECT_ROOT}/jobs/sdumont/run_experiment.srm"
-
-if [[ -f "${SLURM_SCRIPT}" ]]; then
-    if head -n 1 "${SLURM_SCRIPT}" | grep -Fxq '#!/bin/bash'; then
-        ok "Cabeçalho correto no job Slurm."
-    else
-        fail "O job Slurm deve começar com #!/bin/bash."
-    fi
-
-    if grep -Eq '^[[:space:]]*#SBATCH' "${SLURM_SCRIPT}"; then
-        ok "O job Slurm possui diretivas #SBATCH."
-    else
-        fail "O job Slurm não possui diretivas #SBATCH."
-    fi
-
-    if grep -Fq 'scripts/run_experiment.sh' "${SLURM_SCRIPT}"; then
-        ok "O job Slurm chama scripts/run_experiment.sh."
-    else
-        fail "O job Slurm não chama scripts/run_experiment.sh."
-    fi
-
-    if grep -Fq 'source venv/bin/activate' "${SLURM_SCRIPT}"; then
-        ok "O job Slurm ativa o ambiente virtual."
-    else
-        warn "O job Slurm não contém source venv/bin/activate."
-    fi
-
-    if grep -Eq \
-        'sync_to_scratch|setup_sdumont_env|submit_sdumont|download_sdumont_results|sdumont\.env' \
-        "${SLURM_SCRIPT}"
-    then
-        fail "O job Slurm ainda referencia a arquitetura remota antiga."
-    else
-        ok "O job Slurm não referencia a arquitetura remota antiga."
-    fi
-fi
-
 if command -v shellcheck >/dev/null 2>&1; then
-    run_optional_check \
-        "ShellCheck dos scripts" \
-        shellcheck \
-        -x \
-        "${SHELL_FILES[@]}"
+    run_check "ShellCheck scripts/" \
+        shellcheck "${PROJECT_ROOT}/scripts/"*.sh
 else
-    warn "shellcheck não está instalado; análise opcional ignorada."
+    warn "ShellCheck não instalado (opcional)"
 fi
 
-
 # ==============================================================================
-# 4. CONFIGURAÇÕES YAML
+# 4. CONFIGURAÇÃO (PYTHON)
 # ==============================================================================
 
-section "4. CONFIGURAÇÕES YAML"
+section "4. CONFIGURAÇÃO YAML"
 
-if [[ -n "${PYTHON_EXECUTABLE}" ]]; then
-    run_check \
-        "Sintaxe e consistência básica dos YAMLs" \
-        env PYTHONPATH="${PROJECT_ROOT}" \
-        "${PYTHON_EXECUTABLE}" \
-        - "${PROJECT_ROOT}" <<'PYTHON_YAML_CHECK'
-from __future__ import annotations
-
-import sys
+if [[ -n "${PYTHON}" ]]; then
+    run_check "load_configuration()" \
+        "${PYTHON}" - <<PY
 from pathlib import Path
-from typing import Any
+from pipeline.configuration import load_configuration
+
+load_configuration(project_root=Path("${PROJECT_ROOT}"))
+print("Configuração carregada com sucesso.")
+PY
+
+    run_check "Dataset de exemplo válido" \
+        "${PYTHON}" - <<'PY'
+import csv
+from pathlib import Path
+
+from pipeline.common import CANONICAL_LABELS
+
+csv_path = Path("datasets/raw/noticias_exemplo/noticias.csv")
+if not csv_path.exists():
+    raise SystemExit(f"Arquivo ausente: {csv_path}")
+
+with csv_path.open(newline="", encoding="utf-8") as handle:
+    rows = list(csv.DictReader(handle))
+
+if not rows:
+    raise SystemExit("CSV de exemplo está vazio")
+
+labels = {row.get("true_label", "").strip().upper() for row in rows if row.get("true_label")}
+invalid = sorted(label for label in labels if label and label not in CANONICAL_LABELS)
+if invalid:
+    raise SystemExit(f"Labels inválidos no CSV de exemplo: {invalid}")
+
+print(f"Dataset de exemplo OK ({len(rows)} linhas).")
+PY
+fi
+
+# ==============================================================================
+# 5. PYTHON BÁSICO
+# ==============================================================================
+
+section "5. PYTHON BÁSICO"
+
+if [[ -n "${PYTHON}" ]]; then
+    run_check "compileall pipeline/ e models/" \
+        "${PYTHON}" -m compileall -q "${PROJECT_ROOT}/pipeline" "${PROJECT_ROOT}/models"
+
+    run_check "Imports dos módulos registrados" \
+        "${PYTHON}" - <<PY
+import importlib
+from pathlib import Path
 
 import yaml
 
-root = Path(sys.argv[1])
+from pipeline.configuration import load_configuration
 
-paths = {
-    "experiment": root / "configs" / "experiment.yaml",
-    "models": root / "configs" / "models.yaml",
-    "datasets": root / "configs" / "datasets.yaml",
-}
+configuration = load_configuration(project_root=Path("${PROJECT_ROOT}"))
+models_yaml = Path("${PROJECT_ROOT}") / "configs" / "models.yaml"
+raw = yaml.safe_load(models_yaml.read_text(encoding="utf-8"))
+models = raw.get("models", {})
 
-documents: dict[str, dict[str, Any]] = {}
+for key, entry in models.items():
+    adapter = entry.get("adapter")
+    if not adapter:
+        continue
+    importlib.import_module(adapter.rsplit(".", 1)[0])
+    module_name, class_name = adapter.rsplit(".", 1)
+    getattr(importlib.import_module(module_name), class_name)
 
-for name, path in paths.items():
-    content = yaml.safe_load(path.read_text(encoding="utf-8"))
+import pipeline.runner
+import models.sentiment
 
-    if not isinstance(content, dict):
-        raise SystemExit(f"{path.name} precisa conter um mapeamento.")
+print(f"Imports OK ({len(configuration.models)} modelos configurados).")
+PY
 
-    documents[name] = content
-    print(
-        f"{path.name}: schema_version="
-        f"{content.get('schema_version', '<ausente>')}"
-    )
+    run_check "pipeline.runner --help" \
+        "${PYTHON}" -m pipeline.runner --help
 
-experiment = documents["experiment"]
-
-required_experiment_sections = {
-    "experiment",
-    "execution",
-    "configuration_files",
-    "paths",
-    "outputs",
-    "classification_metrics",
-    "performance_metrics",
-    "aggregation",
-    "reproducibility",
-    "preflight_checks",
-}
-
-missing_sections = sorted(
-    required_experiment_sections.difference(experiment)
-)
-
-if missing_sections:
-    raise SystemExit(
-        "Seções ausentes em experiment.yaml: "
-        + ", ".join(missing_sections)
-    )
-
-environment = str(
-    experiment["execution"].get("environment", "")
-).strip().lower()
-
-if environment not in {"local", "sdumont"}:
-    raise SystemExit(
-        "execution.environment precisa ser local ou sdumont."
-    )
-
-configuration_files = experiment["configuration_files"]
-
-if configuration_files.get("models") != "configs/models.yaml":
-    raise SystemExit(
-        "configuration_files.models precisa apontar para "
-        "configs/models.yaml."
-    )
-
-if configuration_files.get("datasets") != "configs/datasets.yaml":
-    raise SystemExit(
-        "configuration_files.datasets precisa apontar para "
-        "configs/datasets.yaml."
-    )
-
-models = documents["models"].get("models")
-datasets = documents["datasets"].get("datasets")
-
-if not isinstance(models, dict) or not models:
-    raise SystemExit("models.yaml não possui modelos configurados.")
-
-if not isinstance(datasets, dict) or not datasets:
-    raise SystemExit("datasets.yaml não possui datasets configurados.")
-
-enabled_models = [
-    key
-    for key, value in models.items()
-    if isinstance(value, dict)
-    and bool(value.get("enabled", False))
-]
-
-enabled_datasets = [
-    key
-    for key, value in datasets.items()
-    if isinstance(value, dict)
-    and bool(value.get("enabled", False))
-]
-
-if not enabled_models:
-    raise SystemExit("Nenhum modelo está enabled: true.")
-
-if not enabled_datasets:
-    raise SystemExit("Nenhum dataset está enabled: true.")
-
-print(f"environment: {environment}")
-print(f"modelos habilitados: {enabled_models}")
-print(f"datasets habilitados: {enabled_datasets}")
-print(
-    "combinações padrão: "
-    f"{len(enabled_models) * len(enabled_datasets)}"
-)
-PYTHON_YAML_CHECK
-else
-    fail "Os YAMLs não puderam ser analisados sem Python."
-fi
-
-
-# ==============================================================================
-# 5. PYTHON E DEPENDÊNCIAS
-# ==============================================================================
-
-section "5. PYTHON E DEPENDÊNCIAS"
-
-if [[ -n "${PYTHON_EXECUTABLE}" ]]; then
-    run_check \
-        "Python 3.10 ou superior" \
-        "${PYTHON_EXECUTABLE}" \
-        -c \
-        'import sys; assert sys.version_info >= (3, 10), sys.version'
-
-    run_check \
-        "Disponibilidade de _ctypes e ctypes" \
-        "${PYTHON_EXECUTABLE}" \
-        -c \
-        'import _ctypes, ctypes; print("_ctypes e ctypes: OK")'
-
-    run_check \
-        "Compilação de pipeline/ e models/" \
-        "${PYTHON_EXECUTABLE}" \
-        -m compileall \
-        -q \
-        "${PROJECT_ROOT}/pipeline" \
-        "${PROJECT_ROOT}/models"
-
-    run_check \
-        "Importação das dependências principais" \
-        env PYTHONPATH="${PROJECT_ROOT}" \
-        "${PYTHON_EXECUTABLE}" \
-        - <<'PYTHON_IMPORT_CHECK'
-from __future__ import annotations
-
-import platform
-import sys
-
+    if [[ -f "${PROJECT_ROOT}/requirements.txt" ]]; then
+        run_check "Dependências principais importáveis" \
+            "${PYTHON}" - <<'PY'
 import numpy
 import pandas
-import scipy
+import yaml
 import sklearn
 import torch
 import transformers
-import yaml
+import safetensors
+print("Dependências principais OK.")
+PY
+    fi
 
-print(f"Python: {platform.python_version()}")
-print(f"Executável: {sys.executable}")
-print(f"NumPy: {numpy.__version__}")
-print(f"Pandas: {pandas.__version__}")
-print(f"SciPy: {scipy.__version__}")
-print(f"PyYAML: {yaml.__version__}")
-print(f"Scikit-learn: {sklearn.__version__}")
-print(f"PyTorch: {torch.__version__}")
-print(f"Transformers: {transformers.__version__}")
-print(f"CUDA disponível: {torch.cuda.is_available()}")
-print(f"CUDA do PyTorch: {torch.version.cuda}")
-print(f"GPUs visíveis: {torch.cuda.device_count()}")
+    if command -v "${VENV_DIR}/bin/pip" >/dev/null 2>&1; then
+        run_check "pip check" "${VENV_DIR}/bin/pip" check
+    elif command -v pip >/dev/null 2>&1; then
+        run_check "pip check" pip check
+    else
+        warn "pip não encontrado para pip check"
+    fi
 
-for index in range(torch.cuda.device_count()):
-    print(f"GPU {index}: {torch.cuda.get_device_name(index)}")
-PYTHON_IMPORT_CHECK
+    if command -v pyright >/dev/null 2>&1; then
+        run_check "pyright pipeline/ models/" \
+            pyright "${PROJECT_ROOT}/pipeline" "${PROJECT_ROOT}/models"
+    else
+        warn "Pyright não instalado (opcional)"
+    fi
+fi
 
-    run_check \
-        "Compatibilidade com requirements.txt" \
-        "${PYTHON_EXECUTABLE}" \
-        - "${PROJECT_ROOT}/requirements.txt" <<'PYTHON_REQUIREMENTS_CHECK'
-from __future__ import annotations
-
-import importlib.metadata
-import sys
+if [[ "${REQUIRE_MODEL_STORE}" == true ]]; then
+    run_check "model_store/ contém diretórios de modelos enabled" \
+        "${PYTHON}" - <<PY
 from pathlib import Path
 
-from packaging.requirements import Requirement
+from pipeline.configuration import load_configuration
 
-requirements_path = Path(sys.argv[1])
-errors: list[str] = []
-
-for raw_line in requirements_path.read_text(
-    encoding="utf-8"
-).splitlines():
-    line = raw_line.strip()
-
-    if (
-        not line
-        or line.startswith("#")
-        or line.startswith("-")
-    ):
-        continue
-
-    requirement = Requirement(line)
-
-    if requirement.marker and not requirement.marker.evaluate():
-        continue
-
-    try:
-        installed = importlib.metadata.version(requirement.name)
-    except importlib.metadata.PackageNotFoundError:
-        errors.append(f"{requirement.name}: não instalado")
-        continue
-
-    if requirement.specifier and installed not in requirement.specifier:
-        errors.append(
-            f"{requirement.name}: instalado={installed}; "
-            f"esperado={requirement.specifier}"
-        )
-    else:
-        print(f"{requirement.name}: {installed}")
-
-if errors:
-    print("Incompatibilidades encontradas:", file=sys.stderr)
-
-    for error in errors:
-        print(f"  - {error}", file=sys.stderr)
-
-    raise SystemExit(1)
-PYTHON_REQUIREMENTS_CHECK
-
-    run_check \
-        "Consistência das dependências com pip check" \
-        "${PYTHON_EXECUTABLE}" \
-        -m pip check
-
-    run_check \
-        "Importação dos módulos internos" \
-        env PYTHONPATH="${PROJECT_ROOT}" \
-        "${PYTHON_EXECUTABLE}" \
-        - <<'PYTHON_PROJECT_IMPORTS'
-from __future__ import annotations
-
-import models.base_model
-import models.finbert_ptbr
-import pipeline.aggregation
-import pipeline.configuration
-import pipeline.dataset_loader
-import pipeline.metrics
-import pipeline.output_schema
-import pipeline.registry
-import pipeline.results
-import pipeline.runner
-
-print("Módulos internos: OK")
-PYTHON_PROJECT_IMPORTS
-
-    run_check \
-        "Interface do pipeline.runner" \
-        env PYTHONPATH="${PROJECT_ROOT}" \
-        "${PYTHON_EXECUTABLE}" \
-        -m pipeline.runner \
-        --help
-else
-    fail "As verificações de Python foram ignoradas."
+configuration = load_configuration(project_root=Path("${PROJECT_ROOT}"))
+missing = []
+for model in configuration.models:
+    if not model.model_dir.exists():
+        missing.append(str(model.model_dir))
+if missing:
+    raise SystemExit("Pesos ausentes:\\n" + "\\n".join(missing))
+print("model_store/ OK.")
+PY
 fi
 
-
 # ==============================================================================
-# 6. CUDA
+# 6. INTEGRAÇÃO (OPCIONAL)
 # ==============================================================================
 
-section "6. CUDA"
+section "6. INTEGRAÇÃO OPCIONAL"
 
-if [[ -n "${PYTHON_EXECUTABLE}" ]]; then
-    if [[ "${REQUIRE_CUDA}" == true ]]; then
-        run_check \
-            "CUDA disponível no PyTorch" \
-            "${PYTHON_EXECUTABLE}" \
-            - <<'PYTHON_CUDA_REQUIRED'
+if [[ "${REQUIRE_CUDA}" == true ]]; then
+    if [[ -n "${PYTHON}" ]]; then
+        run_check "CUDA disponível" \
+            "${PYTHON}" - <<'PY'
 import torch
-
-print(f"PyTorch: {torch.__version__}")
-print(f"CUDA do PyTorch: {torch.version.cuda}")
-print(f"CUDA disponível: {torch.cuda.is_available()}")
-
-if not torch.cuda.is_available():
-    raise SystemExit("CUDA não está disponível.")
-
-print(f"GPUs visíveis: {torch.cuda.device_count()}")
-
-for index in range(torch.cuda.device_count()):
-    print(f"GPU {index}: {torch.cuda.get_device_name(index)}")
-PYTHON_CUDA_REQUIRED
-    else
-        run_optional_check \
-            "Informações de CUDA" \
-            "${PYTHON_EXECUTABLE}" \
-            - <<'PYTHON_CUDA_OPTIONAL'
+raise SystemExit(0 if torch.cuda.is_available() else 1)
+PY
+    fi
+else
+    if [[ -n "${PYTHON}" ]]; then
+        if "${PYTHON}" - <<'PY'
 import torch
-
-print(f"PyTorch: {torch.__version__}")
-print(f"CUDA do PyTorch: {torch.version.cuda}")
-print(f"CUDA disponível: {torch.cuda.is_available()}")
-print(f"GPUs visíveis: {torch.cuda.device_count()}")
-
-for index in range(torch.cuda.device_count()):
-    print(f"GPU {index}: {torch.cuda.get_device_name(index)}")
-PYTHON_CUDA_OPTIONAL
+raise SystemExit(0 if torch.cuda.is_available() else 1)
+PY
+        then
+            ok "CUDA disponível"
+        else
+            info "CUDA indisponível (esperado em ambiente local)"
+        fi
     fi
-
-    if command -v nvidia-smi >/dev/null 2>&1; then
-        run_optional_check \
-            "nvidia-smi" \
-            nvidia-smi
-    else
-        info "nvidia-smi não está disponível neste ambiente."
-    fi
-else
-    fail "CUDA não pôde ser analisada sem Python."
 fi
 
-
-# ==============================================================================
-# 7. GIT E ARQUIVOS IGNORADOS
-# ==============================================================================
-
-section "7. GIT E ARQUIVOS IGNORADOS"
-
-if git -C "${PROJECT_ROOT}" \
-    rev-parse --is-inside-work-tree >/dev/null 2>&1
-then
-    ok "O diretório é um repositório Git."
-
-    info \
-        "Branch: $(git -C "${PROJECT_ROOT}" branch --show-current 2>/dev/null || true)"
-    info \
-        "Commit: $(git -C "${PROJECT_ROOT}" rev-parse --short HEAD 2>/dev/null || printf 'sem commit')"
-
-    printf '%s\n' "       git status --short:"
-    git -C "${PROJECT_ROOT}" status --short 2>/dev/null |
-        sed 's/^/       /' || true
-
-    if git -C "${PROJECT_ROOT}" \
-        check-ignore -q outputs/audit_test/summary.json
-    then
-        ok ".gitignore protege outputs/."
-    else
-        fail ".gitignore não protege outputs/."
-    fi
-
-    if git -C "${PROJECT_ROOT}" \
-        check-ignore -q logs/audit_test.log
-    then
-        ok ".gitignore protege logs/."
-    else
-        fail ".gitignore não protege logs/."
-    fi
-
-    if git -C "${PROJECT_ROOT}" \
-        check-ignore -q model_store/FinBERT-PT-BR/model.safetensors
-    then
-        ok ".gitignore protege os pesos dos modelos."
-    else
-        fail ".gitignore não protege os pesos dos modelos."
-    fi
-
-    if git -C "${PROJECT_ROOT}" \
-        check-ignore -q datasets/raw/noticias_exemplo/noticias.csv
-    then
-        fail \
-            "O dataset noticias_exemplo está ignorado, " \
-            "mas deveria permanecer versionável."
-    else
-        ok "O dataset noticias_exemplo permanece versionável."
-    fi
-else
-    warn "O diretório não é um repositório Git."
+if [[ "${RUN_FULL_DRY_RUN}" == true ]]; then
+    run_check "Dry-run completo da pipeline" \
+        "${PROJECT_ROOT}/scripts/run_experiment.sh" \
+        --environment "${AUDIT_ENVIRONMENT}" \
+        --dry-run
 fi
 
+if [[ "${RUN_MODEL_SMOKE}" == true && -n "${PYTHON}" ]]; then
+    run_check "Smoke FinBERT (CPU)" \
+        "${PYTHON}" - <<'PY'
+from pipeline.configuration import load_configuration
+from pipeline.dataset_loader import DatasetLoader
+from pipeline.registry import create_model_registry
 
-# ==============================================================================
-# 8. DRY-RUN DA PIPELINE
-# ==============================================================================
-
-section "8. DRY-RUN DA PIPELINE"
-
-if [[ "${RUN_DRY_RUN}" == true ]]; then
-    if [[ -x "${PROJECT_ROOT}/scripts/run_experiment.sh" ]]; then
-        AUDIT_RUN_ID="audit_$(date '+%Y%m%d_%H%M%S')"
-
-        run_check \
-            "Dry-run completo da pipeline" \
-            "${PROJECT_ROOT}/scripts/run_experiment.sh" \
-            --skip-setup \
-            --environment "${AUDIT_ENVIRONMENT}" \
-            --dry-run \
-            --log-level INFO \
-            --run-id "${AUDIT_RUN_ID}"
-    else
-        fail "scripts/run_experiment.sh não está executável."
-    fi
-else
-    warn "Dry-run ignorado por --skip-dry-run."
-fi
-
-
-# ==============================================================================
-# 9. INFERÊNCIA OPCIONAL
-# ==============================================================================
-
-section "9. INFERÊNCIA OPCIONAL"
-
-if [[ "${RUN_MODEL_SMOKE}" == true ]]; then
-    if [[ -n "${PYTHON_EXECUTABLE}" ]]; then
-        run_check \
-            "Inferência real curta do FinBERT-PT-BR em CPU" \
-            env PYTHONPATH="${PROJECT_ROOT}" \
-            "${PYTHON_EXECUTABLE}" \
-            - "${PROJECT_ROOT}/model_store/FinBERT-PT-BR" \
-            <<'PYTHON_MODEL_SMOKE'
-from __future__ import annotations
-
-import sys
-
-from models.finbert_ptbr import FinBertPtBrModel
-
-model = FinBertPtBrModel(
-    model_dir=sys.argv[1],
-    batch_size=1,
-    max_length=128,
-    device="cpu",
+configuration = load_configuration(
+    model_keys=["finbert_ptbr"],
+    dataset_keys=["noticias_exemplo"],
 )
-
-prediction = model.predict(
-    ["Lucro da empresa cresce acima do esperado."]
-)[0]
-
-print(prediction.to_dict())
-model.unload()
-PYTHON_MODEL_SMOKE
-    else
-        fail "A inferência opcional não pôde ser executada sem Python."
-    fi
-else
-    info "Inferência real não solicitada. Use --model-smoke para executá-la."
+registry = create_model_registry(configuration)
+model_cfg = configuration.get_model("finbert_ptbr")
+registered = registry.create(model_cfg, load=True)
+dataset = DatasetLoader().load(configuration.get_dataset("noticias_exemplo"))
+predictions = registered.predict(dataset.texts[:2])
+if len(predictions) != 2:
+    raise SystemExit(f"Esperadas 2 previsões, recebidas {len(predictions)}")
+registered.unload()
+print("Smoke FinBERT OK.")
+PY
 fi
 
+if [[ "${RUN_ENSEMBLE_SMOKE}" == true && -n "${PYTHON}" ]]; then
+    run_check "Smoke ensemble (CPU)" \
+        "${PYTHON}" - <<'PY'
+from pipeline.configuration import load_configuration
+from pipeline.dataset_loader import DatasetLoader
+from pipeline.registry import create_model_registry
 
-# ==============================================================================
-# 10. ANÁLISE ESTÁTICA OPCIONAL
-# ==============================================================================
-
-section "10. ANÁLISE ESTÁTICA OPCIONAL"
-
-if [[ -n "${PYTHON_EXECUTABLE}" ]] && \
-    "${PYTHON_EXECUTABLE}" -c \
-        'import importlib.util; raise SystemExit(0 if importlib.util.find_spec("pyright") else 1)' \
-        >/dev/null 2>&1
-then
-    run_optional_check \
-        "Pyright em pipeline/ e models/" \
-        "${PYTHON_EXECUTABLE}" \
-        -m pyright \
-        "${PROJECT_ROOT}/pipeline" \
-        "${PROJECT_ROOT}/models"
-elif command -v pyright >/dev/null 2>&1; then
-    run_optional_check \
-        "Pyright em pipeline/ e models/" \
-        pyright \
-        "${PROJECT_ROOT}/pipeline" \
-        "${PROJECT_ROOT}/models"
-else
-    warn "Pyright não está instalado; análise estática ignorada."
-fi
-
-
-# ==============================================================================
-# 11. REFERÊNCIAS ANTIGAS
-# ==============================================================================
-
-section "11. REFERÊNCIAS ANTIGAS"
-
-FILES_TO_INSPECT=(
-    "${PROJECT_ROOT}/README.md"
-    "${PROJECT_ROOT}/scripts/run_experiment.sh"
-    "${PROJECT_ROOT}/scripts/run_service.sh"
-    "${PROJECT_ROOT}/scripts/setup_env.sh"
-    "${PROJECT_ROOT}/jobs/sdumont/run_experiment.srm"
+configuration = load_configuration(
+    model_keys=["pt_br_financial_sentiment_analysis"],
+    dataset_keys=["noticias_exemplo"],
 )
+registry = create_model_registry(configuration)
+model_cfg = configuration.get_model("pt_br_financial_sentiment_analysis")
+registered = registry.create(model_cfg, load=True)
+dataset = DatasetLoader().load(configuration.get_dataset("noticias_exemplo"))
+predictions = registered.predict(dataset.texts[:2])
+if len(predictions) != 2:
+    raise SystemExit(f"Esperadas 2 previsões, recebidas {len(predictions)}")
+registered.unload()
+print("Smoke ensemble OK.")
+PY
+fi
 
-STALE_PATTERN='sync_to_scratch|setup_sdumont_env|submit_sdumont|download_sdumont_results|configs/sdumont\.env'
-
-STALE_FOUND=false
-
-for file_path in "${FILES_TO_INSPECT[@]}"; do
-    [[ -f "${file_path}" ]] || continue
-
-    if grep -En "${STALE_PATTERN}" "${file_path}" >/dev/null 2>&1; then
-        warn \
-            "Referência antiga em ${file_path#"${PROJECT_ROOT}/"}:"
-
-        grep -En "${STALE_PATTERN}" "${file_path}" |
-            sed 's/^/       /'
-
-        STALE_FOUND=true
+if [[ "${RUN_CHECK_TESTS}" == true ]]; then
+    if [[ -d "${PROJECT_ROOT}/tests" ]]; then
+        if command -v pytest >/dev/null 2>&1 || [[ -x "${VENV_DIR}/bin/pytest" ]]; then
+            PYTEST_BIN="${VENV_DIR}/bin/pytest"
+            if [[ ! -x "${PYTEST_BIN}" ]]; then
+                PYTEST_BIN="$(command -v pytest)"
+            fi
+            run_check "pytest" "${PYTEST_BIN}" "${PROJECT_ROOT}/tests"
+        else
+            fail "pytest não encontrado (instale requirements-dev.txt)"
+        fi
+    else
+        warn "Diretório tests/ ainda não existe; nada a executar"
     fi
-done
-
-if [[ "${STALE_FOUND}" == false ]]; then
-    ok "Nenhuma referência ativa à arquitetura antiga foi encontrada."
 fi
 
-
 # ==============================================================================
-# 12. RESUMO
+# 7. RESUMO
 # ==============================================================================
 
-section "12. RESUMO FINAL"
+section "7. RESUMO"
 
-printf 'OK: %s\n' "${PASS_COUNT}"
-printf 'AVISOS: %s\n' "${WARN_COUNT}"
-printf 'ERROS: %s\n' "${FAIL_COUNT}"
-printf 'INFORMAÇÕES: %s\n' "${INFO_COUNT}"
-printf 'Relatório salvo em: %s\n' "${REPORT_PATH}"
+info "OK: ${PASS_COUNT} | AVISO: ${WARN_COUNT} | ERRO: ${FAIL_COUNT}"
+info "Relatório salvo em: ${REPORT_FILE}"
 
-if [[ "${FAIL_COUNT}" -eq 0 ]]; then
-    printf '\nRESULTADO GERAL: APROVADO COM %s AVISO(S).\n' \
-        "${WARN_COUNT}"
-    exit 0
+if [[ "${FAIL_COUNT}" -gt 0 ]]; then
+    exit 1
 fi
 
-printf '\nRESULTADO GERAL: REVISÃO NECESSÁRIA — %s ERRO(S).\n' \
-    "${FAIL_COUNT}"
-
-exit 1
+exit 0

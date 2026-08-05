@@ -23,11 +23,14 @@ from typing import Any, Literal, Mapping, Sequence, cast
 import numpy as np
 import pandas as pd
 
-from pipeline.configuration import ResolvedConfiguration
-from pipeline.output_schema import (
+from pipeline.common import (
     CANONICAL_LABELS,
-    StandardizedPredictions,
+    column_series,
+    deduplicate,
+    numeric_series,
 )
+from pipeline.configuration import ResolvedConfiguration
+from pipeline.output_schema import StandardizedPredictions
 
 
 IDENTITY_COLUMNS: tuple[str, ...] = (
@@ -359,7 +362,7 @@ class SentimentAggregator:
             generated_levels=tuple(generated_levels),
             skipped_levels=skipped_levels,
             level_summaries=tuple(summaries),
-            warnings=tuple(_deduplicate(warnings)),
+            warnings=tuple(deduplicate(warnings)),
         )
 
     def _validate_input(
@@ -405,8 +408,8 @@ class SentimentAggregator:
     ) -> pd.DataFrame:
         working = dataframe.copy()
 
-        sentiment = _numeric_series(
-            _column_series(working, self.sentiment_column),
+        sentiment = numeric_series(
+            column_series(working, self.sentiment_column),
             errors="coerce",
         )
         sentiment_array = sentiment.to_numpy(dtype=np.float64)
@@ -440,7 +443,7 @@ class SentimentAggregator:
 
         if "date" in working.columns:
             parsed_dates = pd.to_datetime(
-                _column_series(working, "date"),
+                column_series(working, "date"),
                 errors="coerce",
             )
             parsed_date_series = cast(pd.Series, parsed_dates)
@@ -452,12 +455,12 @@ class SentimentAggregator:
         for column in ("company", "sector", "ticker"):
             if column in working.columns:
                 working[column] = _clean_dimension(
-                    _column_series(working, column)
+                    column_series(working, column)
                 )
 
         if self.include_class_counts:
             labels = (
-                _column_series(working, "predicted_label")
+                column_series(working, "predicted_label")
                 .astype("string")
                 .str.strip()
                 .str.upper()
@@ -494,8 +497,8 @@ class SentimentAggregator:
             )
 
         if self.include_mean_confidence:
-            confidence = _numeric_series(
-                _column_series(working, "confidence"),
+            confidence = numeric_series(
+                column_series(working, "confidence"),
                 errors="coerce",
             )
             confidence_array = confidence.to_numpy(
@@ -819,7 +822,7 @@ class SentimentAggregator:
 
         output = dataframe.copy()
         output["_level_order"] = (
-            _column_series(output, "aggregation_level")
+            column_series(output, "aggregation_level")
             .map(
                 lambda value: level_order.get(
                     str(value),
@@ -850,181 +853,12 @@ class SentimentAggregator:
         return output
 
 
-def aggregate_predictions(
-    predictions: StandardizedPredictions | pd.DataFrame,
-    *,
-    settings: Mapping[str, Any] | None = None,
-) -> AggregationResult:
-    """Atalho para calcular as agregações."""
-
-    return SentimentAggregator(
-        settings
-    ).aggregate(predictions)
-
-
-def aggregate_predictions_from_configuration(
-    predictions: StandardizedPredictions | pd.DataFrame,
-    configuration: ResolvedConfiguration,
-) -> AggregationResult:
-    """Agrega usando ``configuration.aggregation``."""
-
-    return aggregate_predictions(
-        predictions,
-        settings=configuration.aggregation,
-    )
-
-
 def empty_aggregates() -> pd.DataFrame:
     """Retorna uma tabela vazia com o schema oficial."""
 
     return pd.DataFrame(
         columns=pd.Index(AGGREGATE_COLUMNS)
     )
-
-
-def validate_aggregates(
-    dataframe: pd.DataFrame,
-) -> None:
-    """Valida um DataFrame de agregações já existente."""
-
-    if not isinstance(dataframe, pd.DataFrame):
-        raise AggregationInputError(
-            "aggregates precisa ser um pandas.DataFrame."
-        )
-
-    missing = [
-        column
-        for column in AGGREGATE_COLUMNS
-        if column not in dataframe.columns
-    ]
-    if missing:
-        raise AggregationInputError(
-            f"A tabela de agregações não possui colunas "
-            f"obrigatórias: {missing}."
-        )
-
-    if dataframe.empty:
-        return
-
-    duplicated_columns = dataframe.columns[
-        dataframe.columns.duplicated()
-    ].tolist()
-    if duplicated_columns:
-        raise AggregationInputError(
-            f"A tabela possui colunas duplicadas: "
-            f"{duplicated_columns}."
-        )
-
-    levels = set(
-        dataframe["aggregation_level"]
-        .dropna()
-        .astype(str)
-        .unique()
-    )
-    invalid_levels = levels - set(SUPPORTED_LEVELS)
-    if invalid_levels:
-        raise AggregationInputError(
-            f"Níveis de agregação inválidos: "
-            f"{sorted(invalid_levels)}."
-        )
-
-    news_count = _numeric_series(
-        _column_series(dataframe, "news_count"),
-        errors="coerce",
-    )
-    news_count_array = news_count.to_numpy(dtype=np.float64)
-
-    if (
-        not np.isfinite(news_count_array).all()
-        or bool((news_count_array < 1.0).any())
-    ):
-        raise AggregationInputError(
-            "news_count precisa conter inteiros positivos."
-        )
-
-    if not np.allclose(
-        news_count_array,
-        np.round(news_count_array),
-        atol=0.0,
-        rtol=0.0,
-    ):
-        raise AggregationInputError(
-            "news_count precisa conter valores inteiros."
-        )
-
-    duplicated_groups = dataframe.duplicated(
-        subset=[
-            "run_id",
-            "model_key",
-            "dataset_key",
-            "aggregation_level",
-            "group_key",
-        ],
-        keep=False,
-    )
-    if bool(duplicated_groups.any()):
-        duplicate_series = _column_series(
-            dataframe.loc[duplicated_groups],
-            "group_key",
-        )
-        keys = (
-            duplicate_series.astype(str)
-            .drop_duplicates()
-            .tolist()[:20]
-        )
-        raise AggregationInputError(
-            "Foram encontrados grupos duplicados: "
-            f"{keys}."
-        )
-
-    for column in ("sentiment_mean", "sentiment_median"):
-        values = _numeric_series(
-            _column_series(dataframe, column),
-            errors="coerce",
-        )
-        values_array = values.to_numpy(dtype=np.float64)
-        present_array = np.isfinite(values_array)
-
-        if bool(present_array.any()):
-            selected = values_array[present_array]
-            if (
-                bool((selected < -1.0 - 1e-6).any())
-                or bool((selected > 1.0 + 1e-6).any())
-            ):
-                raise AggregationInputError(
-                    f"{column} precisa ficar no intervalo "
-                    "[-1, 1]."
-                )
-
-    class_count_columns = (
-        "positive_count",
-        "negative_count",
-        "neutral_count",
-    )
-    has_any_class_counts = all(
-        bool(_column_series(dataframe, column).notna().any())
-        for column in class_count_columns
-    )
-
-    if has_any_class_counts:
-        counts = dataframe.loc[
-            :,
-            list(class_count_columns),
-        ].apply(pd.to_numeric, errors="coerce")
-        counts_frame = cast(pd.DataFrame, counts)
-        counts_array = counts_frame.to_numpy(dtype=np.float64)
-        rows_with_counts = np.isfinite(counts_array).all(axis=1)
-
-        if bool(rows_with_counts.any()):
-            count_sums = counts_array[
-                rows_with_counts
-            ].sum(axis=1)
-            expected = news_count_array[rows_with_counts]
-            if not np.array_equal(count_sums, expected):
-                raise AggregationInputError(
-                    "A soma das contagens de classe precisa ser "
-                    "igual a news_count."
-                )
 
 
 def _prediction_dataframe(
@@ -1210,31 +1044,6 @@ def _non_empty_string(
     return normalized
 
 
-def _column_series(
-    dataframe: pd.DataFrame,
-    column: str,
-) -> pd.Series:
-    value = dataframe[column]
-    if isinstance(value, pd.DataFrame):
-        raise AggregationInputError(
-            f"A coluna {column!r} aparece mais de uma vez."
-        )
-    return cast(pd.Series, value)
-
-
-def _numeric_series(
-    series: pd.Series,
-    *,
-    errors: Literal["raise", "coerce"] = "coerce",
-) -> pd.Series:
-    converted = pd.to_numeric(series, errors=errors)
-    if not isinstance(converted, pd.Series):
-        raise AggregationInputError(
-            "A conversão numérica não retornou uma Series."
-        )
-    return converted
-
-
 def _clean_dimension(
     series: pd.Series,
 ) -> pd.Series:
@@ -1311,8 +1120,8 @@ def _ensure_aggregate_columns(
         "neutral_count",
     )
     for column in integer_columns:
-        output[column] = _numeric_series(
-            _column_series(output, column),
+        output[column] = numeric_series(
+            column_series(output, column),
             errors="coerce",
         ).astype("Int64")
 
@@ -1326,8 +1135,8 @@ def _ensure_aggregate_columns(
         "neutral_percentage",
     )
     for column in float_columns:
-        output[column] = _numeric_series(
-            _column_series(output, column),
+        output[column] = numeric_series(
+            column_series(output, column),
             errors="coerce",
         ).astype("Float64")
 
@@ -1356,20 +1165,6 @@ def _ensure_aggregate_columns(
     return output
 
 
-def _deduplicate(
-    values: Sequence[str],
-) -> list[str]:
-    result: list[str] = []
-    seen: set[str] = set()
-
-    for value in values:
-        if value not in seen:
-            seen.add(value)
-            result.append(value)
-
-    return result
-
-
 __all__ = [
     "AGGREGATE_COLUMNS",
     "IDENTITY_COLUMNS",
@@ -1383,8 +1178,5 @@ __all__ = [
     "AggregationLevelSummary",
     "AggregationResult",
     "SentimentAggregator",
-    "aggregate_predictions",
-    "aggregate_predictions_from_configuration",
     "empty_aggregates",
-    "validate_aggregates",
 ]

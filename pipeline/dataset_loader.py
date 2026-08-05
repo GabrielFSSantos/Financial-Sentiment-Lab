@@ -17,14 +17,9 @@ from typing import Any, Iterable, Mapping, Sequence, cast
 
 import pandas as pd
 
+from pipeline.common import CANONICAL_LABELS
 from pipeline.configuration import DatasetConfiguration
 
-
-CANONICAL_LABELS: tuple[str, ...] = (
-    "NEGATIVE",
-    "NEUTRAL",
-    "POSITIVE",
-)
 
 CONFIGURABLE_FIELDS: tuple[str, ...] = (
     "news_id",
@@ -327,14 +322,6 @@ class DatasetLoader:
             extra_columns=extra_columns,
             warnings=warnings,
         )
-
-    def load_many(
-        self,
-        configurations: Iterable[DatasetConfiguration],
-    ) -> tuple[LoadedDataset, ...]:
-        """Carrega vários datasets preservando a ordem recebida."""
-
-        return tuple(self.load(configuration) for configuration in configurations)
 
     def _read_dataset(
         self,
@@ -806,26 +793,6 @@ class DatasetLoader:
         return tuple(warnings)
 
 
-def load_dataset(
-    configuration: DatasetConfiguration,
-    *,
-    copy_dataframe: bool = False,
-) -> LoadedDataset:
-    """Atalho para carregar um único dataset."""
-
-    return DatasetLoader(copy_dataframe=copy_dataframe).load(configuration)
-
-
-def load_datasets(
-    configurations: Iterable[DatasetConfiguration],
-    *,
-    copy_dataframe: bool = False,
-) -> tuple[LoadedDataset, ...]:
-    """Atalho para carregar vários datasets."""
-
-    return DatasetLoader(copy_dataframe=copy_dataframe).load_many(configurations)
-
-
 def _duplicates(values: Sequence[str]) -> list[str]:
     seen: set[str] = set()
     duplicates: list[str] = []
@@ -848,6 +815,4 @@ __all__ = [
     "DatasetValidationError",
     "LoadedDataset",
     "STANDARD_COLUMNS",
-    "load_dataset",
-    "load_datasets",
 ]

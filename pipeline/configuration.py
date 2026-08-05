@@ -32,12 +32,13 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import yaml
 
+from pipeline.common import CANONICAL_LABELS, to_serializable
+
 
 SUPPORTED_SCHEMA_VERSION = "2.0"
 SUPPORTED_ENVIRONMENTS = {"local", "sdumont"}
 SUPPORTED_DATASET_FORMATS = {"csv", "jsonl"}
 SUPPORTED_DEVICES = {"auto", "cpu", "cuda"}
-CANONICAL_LABELS = ("NEGATIVE", "NEUTRAL", "POSITIVE")
 SUPPORTED_AGGREGATION_LEVELS = {
     "company_day",
     "sector_day",
@@ -107,7 +108,7 @@ class ModelConfiguration:
     raw: dict[str, Any] = field(repr=False)
 
     def to_dict(self) -> dict[str, Any]:
-        return _to_serializable(asdict(self))
+        return to_serializable(asdict(self))
 
 
 @dataclass(frozen=True)
@@ -131,7 +132,7 @@ class DatasetConfiguration:
     raw: dict[str, Any] = field(repr=False)
 
     def to_dict(self) -> dict[str, Any]:
-        return _to_serializable(asdict(self))
+        return to_serializable(asdict(self))
 
 
 @dataclass(frozen=True)
@@ -155,7 +156,6 @@ class ResolvedPaths:
     experiment_config: Path
     models_config: Path
     datasets_config: Path
-    sdumont_config: Path
     output_root: Path
     run_root: Path
     models_output_root: Path
@@ -234,18 +234,18 @@ class ResolvedConfiguration:
             "run_id": self.run_id,
             "environment": self.environment,
             "dry_run": self.dry_run,
-            "experiment": _to_serializable(self.experiment),
-            "execution": _to_serializable(self.execution),
-            "outputs": _to_serializable(self.outputs),
-            "classification_metrics": _to_serializable(
+            "experiment": to_serializable(self.experiment),
+            "execution": to_serializable(self.execution),
+            "outputs": to_serializable(self.outputs),
+            "classification_metrics": to_serializable(
                 self.classification_metrics
             ),
-            "performance_metrics": _to_serializable(
+            "performance_metrics": to_serializable(
                 self.performance_metrics
             ),
-            "aggregation": _to_serializable(self.aggregation),
-            "reproducibility": _to_serializable(self.reproducibility),
-            "preflight_checks": _to_serializable(self.preflight_checks),
+            "aggregation": to_serializable(self.aggregation),
+            "reproducibility": to_serializable(self.reproducibility),
+            "preflight_checks": to_serializable(self.preflight_checks),
             "paths": self.paths.to_dict(),
             "selected_models": [
                 model.to_dict()
@@ -263,34 +263,8 @@ class ResolvedConfiguration:
                 "experiment": str(self.paths.experiment_config),
                 "models": str(self.paths.models_config),
                 "datasets": str(self.paths.datasets_config),
-                "sdumont": str(self.paths.sdumont_config),
             },
         }
-
-
-def _to_serializable(value: Any) -> Any:
-    if isinstance(value, Path):
-        return str(value)
-
-    if not isinstance(value, type) and is_dataclass(value):
-        return _to_serializable(asdict(cast(Any, value)))
-
-    if isinstance(value, Mapping):
-        return {
-            str(key): _to_serializable(item)
-            for key, item in value.items()
-        }
-
-    if isinstance(value, tuple):
-        return [_to_serializable(item) for item in value]
-
-    if isinstance(value, list):
-        return [_to_serializable(item) for item in value]
-
-    if isinstance(value, set):
-        return sorted(_to_serializable(item) for item in value)
-
-    return value
 
 
 def _deep_merge(
@@ -562,17 +536,6 @@ class ConfigurationLoader:
                 "configuration_files.datasets",
             ),
         )
-        sdumont_config_path = _resolve_path(
-            self.project_root,
-            _require_string(
-                config_files.get(
-                    "sdumont",
-                    "configs/sdumont.env",
-                ),
-                "configuration_files.sdumont",
-            ),
-        )
-
         models_config = _load_yaml_file(models_config_path)
         datasets_config = _load_yaml_file(datasets_config_path)
 
@@ -616,7 +579,6 @@ class ConfigurationLoader:
             experiment_config=experiment_config,
             models_config_path=models_config_path,
             datasets_config_path=datasets_config_path,
-            sdumont_config_path=sdumont_config_path,
             run_id=run_id,
         )
 
@@ -1562,7 +1524,6 @@ class ConfigurationLoader:
         experiment_config: Mapping[str, Any],
         models_config_path: Path,
         datasets_config_path: Path,
-        sdumont_config_path: Path,
         run_id: str,
     ) -> ResolvedPaths:
         paths = _require_mapping(
@@ -1597,7 +1558,6 @@ class ConfigurationLoader:
             experiment_config=self.experiment_config_path,
             models_config=models_config_path,
             datasets_config=datasets_config_path,
-            sdumont_config=sdumont_config_path,
             output_root=output_root,
             run_root=run_root,
             models_output_root=run_root / "models",
@@ -1637,13 +1597,6 @@ class ConfigurationLoader:
             raise ConfigurationError(
                 "A matriz modelo × dataset ficou vazia."
             )
-
-        if config.environment == "sdumont":
-            if not config.paths.sdumont_config.is_file():
-                raise ConfigurationError(
-                    "O ambiente sdumont foi selecionado, mas o arquivo "
-                    f"não existe: {config.paths.sdumont_config}"
-                )
 
         checks = config.preflight_checks
 

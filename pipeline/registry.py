@@ -23,12 +23,12 @@ from __future__ import annotations
 import copy
 import importlib
 import inspect
-from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Mapping, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 from models.base_model import BaseSentimentModel, ModelPrediction
+from pipeline.common import to_serializable
 from pipeline.configuration import (
     ModelConfiguration,
     ResolvedConfiguration,
@@ -103,10 +103,16 @@ class RegisteredModel:
     def device_name(self) -> str:
         return self.instance.device_name
 
-    def load(self) -> None:
+    def load(
+        self,
+        *,
+        skip_file_validation: bool = False,
+    ) -> None:
         """Carrega tokenizer e pesos caso ainda não estejam carregados."""
 
-        self.instance.load()
+        self.instance.load(
+            skip_file_validation=skip_file_validation
+        )
 
     def predict(
         self,
@@ -125,7 +131,7 @@ class RegisteredModel:
         """Combina configuração, adaptador e informações de execução."""
 
         constructor_arguments = {
-            key: _to_serializable(value)
+            key: to_serializable(value)
             for key, value in self.constructor_arguments.items()
             if key not in {
                 "model_configuration",
@@ -149,7 +155,7 @@ class RegisteredModel:
                 self.configuration.metadata
             ),
             "constructor_arguments": constructor_arguments,
-            "runtime": _to_serializable(
+            "runtime": to_serializable(
                 self.instance.get_metadata()
             ),
         }
@@ -638,29 +644,6 @@ class ModelRegistry:
         self._instances[configuration.key] = registered
         return registered
 
-    def create_all(
-        self,
-        *,
-        load: bool = False,
-        validate_declared_files: bool = True,
-        validate_adapter_files: bool = True,
-    ) -> tuple[RegisteredModel, ...]:
-        """Cria todos os modelos na ordem da configuração."""
-
-        return tuple(
-            self.create(
-                configuration,
-                load=load,
-                validate_declared_files=(
-                    validate_declared_files
-                ),
-                validate_adapter_files=(
-                    validate_adapter_files
-                ),
-            )
-            for configuration in self.configurations
-        )
-
     def get_instance(
         self,
         key: str,
@@ -704,35 +687,6 @@ class ModelRegistry:
 
             if remove_instances:
                 del self._instances[key]
-
-    @contextmanager
-    def managed(
-        self,
-        model: str | ModelConfiguration,
-        *,
-        parameter_overrides: Mapping[str, Any] | None = None,
-        load: bool = True,
-        remove_instance_on_exit: bool = True,
-    ) -> Iterator[RegisteredModel]:
-        """Cria um modelo e garante a liberação ao sair do bloco."""
-
-        registered = self.create(
-            model,
-            parameter_overrides=parameter_overrides,
-            load=load,
-            replace_existing=bool(parameter_overrides),
-        )
-
-        try:
-            yield registered
-        finally:
-            registered.unload()
-
-            if remove_instance_on_exit:
-                self._instances.pop(
-                    registered.key,
-                    None,
-                )
 
     def metadata(self) -> dict[str, Any]:
         """Resume configurações e estado atual do registry."""
@@ -945,47 +899,6 @@ def create_model_registry(
         )
 
     return ModelRegistry(configuration)
-
-
-def create_model(
-    configuration: ModelConfiguration,
-    *,
-    parameter_overrides: Mapping[str, Any] | None = None,
-    load: bool = False,
-) -> RegisteredModel:
-    """Atalho para criar um único modelo."""
-
-    registry = ModelRegistry([configuration])
-    return registry.create(
-        configuration.key,
-        parameter_overrides=parameter_overrides,
-        load=load,
-    )
-
-
-def _to_serializable(value: Any) -> Any:
-    if isinstance(value, Path):
-        return str(value)
-
-    if isinstance(value, Mapping):
-        return {
-            str(key): _to_serializable(item)
-            for key, item in value.items()
-        }
-
-    if isinstance(value, (list, tuple, set, frozenset)):
-        return [
-            _to_serializable(item)
-            for item in value
-        ]
-
-    if isinstance(value, type):
-        return (
-            f"{value.__module__}."
-            f"{value.__name__}"
-        )
-
-    return value
 
 
 __all__ = [

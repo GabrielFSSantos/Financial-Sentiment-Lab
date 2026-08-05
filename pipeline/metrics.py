@@ -46,10 +46,8 @@ from pipeline.configuration import (
     ResolvedConfiguration,
 )
 from pipeline.dataset_loader import LoadedDataset
-from pipeline.output_schema import (
-    CANONICAL_LABELS,
-    StandardizedPredictions,
-)
+from pipeline.common import CANONICAL_LABELS, resolve_timezone
+from pipeline.output_schema import StandardizedPredictions
 
 
 IDENTITY_COLUMNS: tuple[str, ...] = (
@@ -222,29 +220,6 @@ class PerformanceSnapshot:
             for phase in self.phases
         ]
         return payload
-
-
-@dataclass(frozen=True)
-class MetricsBundle:
-    """Saídas de métricas prontas para o ``ResultsManager``."""
-
-    classification_metrics: pd.DataFrame
-    per_class_metrics: pd.DataFrame
-    confusion_matrix: pd.DataFrame
-    class_distribution: pd.DataFrame
-    execution_metrics: pd.DataFrame
-    metadata: dict[str, Any]
-
-    def save_arguments(self) -> dict[str, Any]:
-        """Retorna os nomes aceitos por ``save_combination_results``."""
-
-        return {
-            "classification_metrics": self.classification_metrics,
-            "per_class_metrics": self.per_class_metrics,
-            "confusion_matrix": self.confusion_matrix,
-            "class_distribution": self.class_distribution,
-            "execution_metrics": self.execution_metrics,
-        }
 
 
 class ClassificationMetricsCalculator:
@@ -737,7 +712,7 @@ class CombinationPerformanceMonitor:
             self.settings.get("measure_gpu_memory", True)
         )
 
-        self.timezone = _resolve_timezone(timezone_name)
+        self.timezone = resolve_timezone(timezone_name)
         self.device = _normalize_device(device)
         self._phases: list[PhaseMeasurement] = []
         self._active_phase: str | None = None
@@ -1106,76 +1081,6 @@ class CombinationPerformanceMonitor:
         if not values:
             return None
         return float(sum(values))
-
-
-def calculate_classification_metrics(
-    predictions: StandardizedPredictions | pd.DataFrame,
-    *,
-    settings: Mapping[str, Any] | None = None,
-) -> ClassificationMetricsResult:
-    """Atalho para calcular métricas supervisionadas."""
-
-    return ClassificationMetricsCalculator(
-        settings
-    ).calculate(predictions)
-
-
-def calculate_classification_metrics_from_configuration(
-    predictions: StandardizedPredictions | pd.DataFrame,
-    configuration: ResolvedConfiguration,
-) -> ClassificationMetricsResult:
-    """Calcula métricas usando ``configuration.classification_metrics``."""
-
-    return calculate_classification_metrics(
-        predictions,
-        settings=configuration.classification_metrics,
-    )
-
-
-def build_metrics_bundle(
-    *,
-    standardized_predictions: StandardizedPredictions,
-    configuration: ResolvedConfiguration,
-    performance_monitor: CombinationPerformanceMonitor,
-    status: str = "success",
-    error: BaseException | str | None = None,
-    device_type: str | None = None,
-    device_name: str | None = None,
-) -> MetricsBundle:
-    """Calcula todos os arquivos de métricas de uma combinação."""
-
-    classification = (
-        calculate_classification_metrics_from_configuration(
-            standardized_predictions,
-            configuration,
-        )
-    )
-
-    execution = performance_monitor.build_execution_metrics(
-        configuration=configuration,
-        combination=standardized_predictions.combination,
-        model_configuration=(
-            standardized_predictions.model_configuration
-        ),
-        loaded_dataset=standardized_predictions.dataset,
-        status=status,
-        error=error,
-        device_type=device_type,
-        device_name=device_name,
-        num_valid_texts=standardized_predictions.row_count,
-    )
-
-    return MetricsBundle(
-        classification_metrics=classification.summary,
-        per_class_metrics=classification.per_class,
-        confusion_matrix=classification.confusion_matrix,
-        class_distribution=classification.class_distribution,
-        execution_metrics=execution,
-        metadata={
-            "classification": classification.metadata(),
-            "performance": performance_monitor.snapshot.to_dict(),
-        },
-    )
 
 
 def build_error_execution_metrics(
@@ -1609,13 +1514,6 @@ def _device_name(device: torch.device) -> str:
     )
 
 
-def _resolve_timezone(name: str) -> ZoneInfo:
-    try:
-        return ZoneInfo(str(name))
-    except ZoneInfoNotFoundError:
-        return ZoneInfo("UTC")
-
-
 def _non_negative_integer(
     value: Any,
     field_name: str,
@@ -1658,16 +1556,12 @@ __all__ = [
     "ClassificationMetricsError",
     "ClassificationMetricsResult",
     "CombinationPerformanceMonitor",
-    "MetricsBundle",
     "MetricsConfigurationError",
     "MetricsError",
     "PerformanceMetricsError",
     "PerformanceSnapshot",
     "PhaseMeasurement",
     "build_error_execution_metrics",
-    "build_metrics_bundle",
-    "calculate_classification_metrics",
-    "calculate_classification_metrics_from_configuration",
     "collect_runtime_metadata",
     "collect_slurm_metadata",
     "empty_class_distribution",

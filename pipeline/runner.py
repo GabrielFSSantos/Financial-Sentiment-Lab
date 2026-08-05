@@ -41,7 +41,6 @@ from datetime import datetime
 from pathlib import Path
 from time import perf_counter
 from typing import TYPE_CHECKING, Any, Mapping, Sequence
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import numpy as np
 import pandas as pd
@@ -51,6 +50,7 @@ from pipeline.aggregation import (
     AggregationResult,
     SentimentAggregator,
 )
+from pipeline.common import deduplicate, now_iso
 from pipeline.configuration import (
     ConfigurationError,
     DatasetConfiguration,
@@ -68,6 +68,7 @@ from pipeline.metrics import (
     ClassificationMetricsResult,
     CombinationPerformanceMonitor,
     EXECUTION_METRICS_COLUMNS,
+    build_error_execution_metrics,
     collect_runtime_metadata,
 )
 from pipeline.output_schema import (
@@ -262,6 +263,15 @@ class ExperimentRunner:
                 result.status == "failed"
                 for result in self._combination_results
             )
+            successful = sum(
+                result.status == "success"
+                for result in self._combination_results
+            )
+            skipped = sum(
+                result.status == "skipped"
+                for result in self._combination_results
+            )
+            total_combinations = len(self.configuration.combinations)
             exit_code = (
                 EXIT_EXECUTION_ERROR
                 if failed
@@ -290,13 +300,27 @@ class ExperimentRunner:
 
             if failed:
                 self.logger.error(
-                    "Experimento finalizado com %d combinação(ões) "
-                    "com falha.",
+                    "Experimento concluído: %s, %d sucesso, %d falha(s), "
+                    "%d ignorada(s).",
+                    _format_combination_progress(
+                        total_combinations,
+                        total_combinations,
+                    ),
+                    successful,
                     failed,
+                    skipped,
                 )
             else:
                 self.logger.info(
-                    "Experimento finalizado com sucesso."
+                    "Experimento concluído: %s, %d sucesso, %d falha(s), "
+                    "%d ignorada(s).",
+                    _format_combination_progress(
+                        total_combinations,
+                        total_combinations,
+                    ),
+                    successful,
+                    failed,
+                    skipped,
                 )
 
             return RunnerOutcome(
@@ -339,7 +363,7 @@ class ExperimentRunner:
         """Valida configurações, adaptadores, arquivos e datasets."""
 
         started_counter = perf_counter()
-        started_at = _now_iso(self.configuration)
+        started_at = _experiment_now_iso(self.configuration)
         self.logger.info("Executando verificações de preflight.")
 
         try:
@@ -374,22 +398,12 @@ class ExperimentRunner:
 
                 dataset_reports.append(dataset_report)
 
-            # A criação dessas classes já valida níveis, estatísticas,
-            # labels e opções das seções correspondentes.
-            ClassificationMetricsCalculator(
-                self.configuration.classification_metrics
-            )
-            SentimentAggregator(
-                self.configuration.aggregation
-            )
-            OutputSchemaBuilder()
-
         except Exception as error:
             raise PreflightError(
                 f"Falha nas verificações de preflight: {error}"
             ) from error
 
-        finished_at = _now_iso(self.configuration)
+        finished_at = _experiment_now_iso(self.configuration)
         duration = perf_counter() - started_counter
         preflight_report = PreflightReport(
             model_reports=tuple(model_reports),
@@ -460,10 +474,15 @@ class ExperimentRunner:
         classification: ClassificationMetricsResult | None = None
         aggregation: AggregationResult | None = None
 
+        total_combinations = len(self.configuration.combinations)
+        combination_number = combination.index + 1
+
         self.logger.info(
-            "[%d/%d] Executando %s × %s.",
-            combination.index + 1,
-            len(self.configuration.combinations),
+            "Progresso geral: %s — iniciando %s × %s.",
+            _format_combination_progress(
+                combination_number,
+                total_combinations,
+            ),
             combination.model_key,
             combination.dataset_key,
         )
@@ -500,7 +519,7 @@ class ExperimentRunner:
             )
 
             with monitor.measure_load():
-                registered_model.load()
+                registered_model.load(skip_file_validation=True)
 
             self._raise_if_interrupted()
             with monitor.measure_inference(
@@ -568,7 +587,7 @@ class ExperimentRunner:
             )
 
             duration = perf_counter() - started_counter
-            warnings = _deduplicate(
+            warnings = deduplicate(
                 [
                     *loaded_dataset.warnings,
                     *standardized.warnings,
@@ -604,10 +623,16 @@ class ExperimentRunner:
             )
 
             self.logger.info(
-                "Combinação %s concluída: %d linha(s), %.3f s.",
-                combination.combination_id,
-                standardized.row_count,
+                "Progresso geral: %s — %s × %s concluída em %.3f s "
+                "(%d linha(s)).",
+                _format_combination_progress(
+                    combination_number,
+                    total_combinations,
+                ),
+                combination.model_key,
+                combination.dataset_key,
                 duration,
+                standardized.row_count,
             )
 
             return CombinationRunResult(
@@ -668,6 +693,17 @@ class ExperimentRunner:
                     if registered_model is not None
                     else None
                 ),
+            )
+
+            self.logger.error(
+                "Progresso geral: %s — %s × %s falhou em %.3f s.",
+                _format_combination_progress(
+                    combination_number,
+                    total_combinations,
+                ),
+                combination.model_key,
+                combination.dataset_key,
+                duration,
             )
 
             return CombinationRunResult(
@@ -802,18 +838,14 @@ class ExperimentRunner:
         monitor: CombinationPerformanceMonitor | None,
         error: BaseException,
     ) -> pd.DataFrame:
-        if (
-            loaded_dataset is not None
-            and monitor is not None
-            and _monitor_has_snapshot(monitor)
-        ):
-            return monitor.build_execution_metrics(
+        if loaded_dataset is not None:
+            return build_error_execution_metrics(
                 configuration=self.configuration,
                 combination=combination,
                 model_configuration=model_configuration,
                 loaded_dataset=loaded_dataset,
-                status="failed",
                 error=error,
+                performance_monitor=monitor,
                 device_type=(
                     registered_model.device_type
                     if registered_model is not None
@@ -824,19 +856,9 @@ class ExperimentRunner:
                     if registered_model is not None
                     else None
                 ),
-                num_valid_texts=(
-                    loaded_dataset.statistics.valid_row_count
-                ),
             )
 
-        snapshot = (
-            monitor.snapshot
-            if monitor is not None
-            and _monitor_has_snapshot(monitor)
-            else None
-        )
-        now = _now_iso(self.configuration)
-
+        timestamp = _experiment_now_iso(self.configuration)
         row = {
             "run_id": self.configuration.run_id,
             "environment": self.configuration.environment,
@@ -849,80 +871,19 @@ class ExperimentRunner:
             "status": "failed",
             "error_type": type(error).__name__,
             "error_message": str(error),
-            "started_at": (
-                snapshot.started_at if snapshot else now
-            ),
-            "finished_at": (
-                snapshot.finished_at if snapshot else now
-            ),
-            "load_time_seconds": (
-                snapshot.load_time_seconds if snapshot else pd.NA
-            ),
-            "inference_time_seconds": (
-                snapshot.inference_time_seconds
-                if snapshot
-                else pd.NA
-            ),
-            "total_time_seconds": (
-                snapshot.total_time_seconds if snapshot else pd.NA
-            ),
-            "texts_per_second": (
-                snapshot.texts_per_second if snapshot else pd.NA
-            ),
-            "peak_gpu_memory_mb": (
-                snapshot.peak_gpu_memory_mb if snapshot else pd.NA
-            ),
-            "device_type": (
-                registered_model.device_type
-                if registered_model is not None
-                else str(
-                    model_configuration.parameters.get(
-                        "device",
-                        "unknown",
-                    )
+            "started_at": timestamp,
+            "finished_at": timestamp,
+            "device_type": str(
+                model_configuration.parameters.get(
+                    "device",
+                    "unknown",
                 )
-            ),
-            "device_name": (
-                registered_model.device_name
-                if registered_model is not None
-                else pd.NA
             ),
             "batch_size": int(
                 model_configuration.parameters["batch_size"]
             ),
             "max_length": int(
                 model_configuration.parameters["max_length"]
-            ),
-            "num_rows": (
-                loaded_dataset.statistics.original_row_count
-                if loaded_dataset is not None
-                else pd.NA
-            ),
-            "num_valid_texts": (
-                loaded_dataset.statistics.valid_row_count
-                if loaded_dataset is not None
-                else pd.NA
-            ),
-            "hostname": os.uname().nodename
-            if hasattr(os, "uname")
-            else os.getenv("COMPUTERNAME", "unknown"),
-            "process_id": os.getpid(),
-            "python_version": (
-                f"{sys.version_info.major}."
-                f"{sys.version_info.minor}."
-                f"{sys.version_info.micro}"
-            ),
-            "torch_version": torch.__version__,
-            "cuda_available": bool(torch.cuda.is_available()),
-            "torch_cuda_version": torch.version.cuda,
-            "slurm_job_id": os.getenv("SLURM_JOB_ID", pd.NA),
-            "slurm_array_job_id": os.getenv(
-                "SLURM_ARRAY_JOB_ID",
-                pd.NA,
-            ),
-            "slurm_array_task_id": os.getenv(
-                "SLURM_ARRAY_TASK_ID",
-                pd.NA,
             ),
         }
 
@@ -1541,35 +1502,28 @@ def _release_python_and_cuda_memory() -> None:
             pass
 
 
-def _now_iso(
+def _format_combination_progress(
+    current: int,
+    total: int,
+) -> str:
+    if total <= 0:
+        return "0/0 combinações (0%)"
+
+    percentage = int(round(100 * current / total))
+    return f"{current}/{total} combinações ({percentage}%)"
+
+
+def _experiment_now_iso(
     configuration: ResolvedConfiguration,
 ) -> str:
-    timezone_name = str(
-        configuration.experiment.get(
-            "timezone",
-            "UTC",
+    return now_iso(
+        timezone_name=str(
+            configuration.experiment.get(
+                "timezone",
+                "UTC",
+            )
         )
     )
-    try:
-        timezone = ZoneInfo(timezone_name)
-    except ZoneInfoNotFoundError:
-        timezone = ZoneInfo("UTC")
-    return datetime.now(timezone).isoformat()
-
-
-def _deduplicate(
-    values: Sequence[str],
-) -> list[str]:
-    result: list[str] = []
-    seen: set[str] = set()
-
-    for value in values:
-        normalized = str(value).strip()
-        if normalized and normalized not in seen:
-            seen.add(normalized)
-            result.append(normalized)
-
-    return result
 
 
 __all__ = [

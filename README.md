@@ -808,6 +808,16 @@ Acompanhar a saída:
 tail -f job_financial_JOB_ID.out
 ```
 
+Durante a execução, a pipeline registra o progresso por combinação **modelo × dataset**, por exemplo:
+
+```text
+Progresso geral: 1/4 combinações (25%) — iniciando finbert_ptbr × noticias_exemplo
+Progresso geral: 1/4 combinações (25%) — finbert_ptbr × noticias_exemplo concluída em 12.3 s
+Experimento concluído: 4/4 combinações (100%), 4 sucesso, 0 falha(s), 0 ignorada(s).
+```
+
+Essas mensagens aparecem em `job_financial_JOB_ID.out` (Slurm) e também em `logs/{run_id}.log` (pipeline).
+
 Acompanhar erros:
 
 ```bash
@@ -848,63 +858,46 @@ Para uma execução maior, ajuste a partição, o tempo, a memória e os recurso
 
 ## 10. Auditoria
 
-O script:
+Validação estrutural padrão:
 
 ```bash
 ./scripts/audit_project.sh
 ```
 
-verifica:
+Verifica estrutura do projeto, scripts shell, configuração YAML via `load_configuration()`, imports dos adaptadores registrados, `compileall` e dependências principais.
 
-```text
-estrutura do projeto
-permissões
-sintaxe Bash
-configurações YAML
-Python e _ctypes
-dependências e versões
-imports internos
-CUDA
-Git e .gitignore
-dry-run da pipeline
-referências desatualizadas
+Integração completa (exige `model_store/`):
+
+```bash
+./scripts/audit_project.sh --full-dry-run
 ```
+
+Inferência curta em CPU:
+
+```bash
+./scripts/audit_project.sh --model-smoke
+./scripts/audit_project.sh --ensemble-smoke
+```
+
+Antes de submeter job no SDumont:
+
+```bash
+./scripts/audit_project.sh --require-model-store --require-cuda --environment sdumont
+```
+
+Quando existir a suíte de testes:
+
+```bash
+./scripts/audit_project.sh --check-tests
+```
+
+Sem o diretório `tests/`, `--check-tests` emite apenas um aviso informativo.
 
 O relatório é salvo em:
 
 ```text
 logs/audit/audit_project_<data>_<hora>.log
 ```
-
-A auditoria executa o dry-run da pipeline por padrão.
-
-### Auditar sem dry-run
-
-```bash
-./scripts/audit_project.sh --skip-dry-run
-```
-
-### Executar uma inferência curta em CPU
-
-```bash
-./scripts/audit_project.sh --model-smoke
-```
-
-### Exigir CUDA
-
-```bash
-./scripts/audit_project.sh --require-cuda
-```
-
-### Auditar no contexto do SDumont
-
-```bash
-./scripts/audit_project.sh \
-  --environment sdumont \
-  --require-cuda
-```
-
-O `--dry-run` é implementado pelo `pipeline.runner`. A auditoria apenas o utiliza como uma de suas verificações.
 
 ---
 

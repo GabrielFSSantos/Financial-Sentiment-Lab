@@ -28,16 +28,10 @@ from typing import Any, Sequence
 
 import torch
 
-from pipeline.output_schema import (
+from models.sentiment import (
+    CANONICAL_SENTIMENT_LABELS,
     calculate_continuous_sentiment,
     normalize_sentiment_label,
-)
-
-
-CANONICAL_SENTIMENT_LABELS: tuple[str, ...] = (
-    "NEGATIVE",
-    "NEUTRAL",
-    "POSITIVE",
 )
 
 
@@ -396,13 +390,18 @@ class BaseSentimentModel(ABC):
         self.model = None
         self.tokenizer = None
 
-    def load(self) -> None:
+    def load(
+        self,
+        *,
+        skip_file_validation: bool = False,
+    ) -> None:
         """Valida e carrega o modelo somente uma vez."""
 
         if self._loaded:
             return
 
-        self.validate_model_files()
+        if not skip_file_validation:
+            self.validate_model_files()
         started_at = perf_counter()
 
         try:
