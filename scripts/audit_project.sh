@@ -84,6 +84,8 @@ cd "${PROJECT_ROOT}" || exit 1
 info "Relatório: ${REPORT_FILE}"
 info "Projeto: ${PROJECT_ROOT}"
 
+mkdir -p "${PROJECT_ROOT}/outputs" "${PROJECT_ROOT}/logs"
+
 section "1. AMBIENTE"
 
 if [[ -d "${VENV_DIR}" ]]; then

@@ -281,10 +281,12 @@ models:
       required:
         - config.json
         - pytorch_model.bin
-        - tokenizer.json
+        - vocab.txt
         - tokenizer_config.json
         - special_tokens_map.json
-        - vocab.txt
+
+    loading:
+      use_fast_tokenizer: false
 
     labels:
       id2label:
@@ -339,10 +341,10 @@ models:
       required:
         - config.json
         - pytorch_model.bin
-        - tokenizer.json
-        - tokenizer_config.json
-        - special_tokens_map.json
         - vocab.txt
+
+    loading:
+      use_fast_tokenizer: false
 
     labels:
       id2label:

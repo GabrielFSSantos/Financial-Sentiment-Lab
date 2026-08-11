@@ -14,6 +14,8 @@ import transformers
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
+    BertForSequenceClassification,
+    BertTokenizer,
 )
 
 from models.base_model import (
@@ -466,7 +468,11 @@ class FinBertHfModel(BaseSentimentModel):
             else ""
         )
 
-        if self.strict_model_type and model_type != "bert":
+        if (
+            self.strict_model_type
+            and model_type
+            and model_type != "bert"
+        ):
             raise ModelConfigurationError(
                 "O modelo informado não está configurado como BERT. "
                 f"model_type encontrado: {model_type!r}."
@@ -668,6 +674,37 @@ class FinBertHfModel(BaseSentimentModel):
 
         return "softmax"
 
+    def _get_model_config_data(self) -> dict[str, Any]:
+        """Retorna config.json em memória ou lê do disco."""
+
+        if self.model_config_data:
+            return self.model_config_data
+
+        config_path = self.model_dir / "config.json"
+        if not config_path.is_file():
+            return {}
+
+        return self._read_json_object(
+            config_path,
+            description="config.json",
+        )
+
+    def _uses_legacy_bert_config(self) -> bool:
+        """Checkpoints antigos sem model_type no config.json."""
+
+        config_data = self._get_model_config_data()
+        model_type = config_data.get("model_type")
+        if model_type is not None and str(model_type).strip():
+            return False
+
+        architectures = config_data.get("architectures") or []
+        architecture_names = {
+            str(name).strip()
+            for name in architectures
+            if str(name).strip()
+        }
+        return "BertForSequenceClassification" in architecture_names
+
     def _load_model(self) -> None:
         """Carrega tokenizer e pesos usando somente arquivos locais."""
 
@@ -687,20 +724,30 @@ class FinBertHfModel(BaseSentimentModel):
             )
 
         try:
-            tokenizer = AutoTokenizer.from_pretrained(
-                str(self.model_dir),
-                **tokenizer_arguments,
-            )
-            model = (
-                AutoModelForSequenceClassification.from_pretrained(
+            if self._uses_legacy_bert_config():
+                tokenizer = BertTokenizer.from_pretrained(
+                    str(self.model_dir),
+                    local_files_only=self.local_files_only,
+                )
+                model = BertForSequenceClassification.from_pretrained(
                     str(self.model_dir),
                     **model_arguments,
                 )
-            )
+            else:
+                tokenizer = AutoTokenizer.from_pretrained(
+                    str(self.model_dir),
+                    **tokenizer_arguments,
+                )
+                model = (
+                    AutoModelForSequenceClassification.from_pretrained(
+                        str(self.model_dir),
+                        **model_arguments,
+                    )
+                )
         except Exception as error:
             raise ModelLoadingError(
-                "Falha ao carregar os arquivos locais do "
-                f"FinBERT-PT-BR em {self.model_dir}: {error}"
+                "Falha ao carregar os arquivos locais do modelo "
+                f"{self.model_name!r} em {self.model_dir}: {error}"
             ) from error
 
         loaded_id2label_value = getattr(
@@ -763,8 +810,8 @@ class FinBertHfModel(BaseSentimentModel):
             model.eval()
         except Exception as error:
             raise ModelLoadingError(
-                "Não foi possível mover o FinBERT-PT-BR para "
-                f"{self.device}: {error}"
+                "Não foi possível mover o modelo "
+                f"{self.model_name!r} para {self.device}: {error}"
             ) from error
 
         self.tokenizer = tokenizer

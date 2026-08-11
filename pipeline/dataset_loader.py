@@ -217,10 +217,12 @@ class DatasetLoader:
         self,
         configuration: DatasetConfiguration,
     ) -> tuple[str, ...]:
-        """Lê apenas o cabeçalho e retorna as colunas originais."""
+        """Lê o cabeçalho (e aplica text_compose, se houver)."""
 
         self.validate_file(configuration)
         dataframe = self._read_dataset(configuration, nrows=0)
+        if configuration.text_compose is not None:
+            dataframe = self._apply_text_compose(configuration, dataframe)
         columns = tuple(str(column) for column in dataframe.columns)
         self._validate_source_columns(configuration, columns)
         return columns

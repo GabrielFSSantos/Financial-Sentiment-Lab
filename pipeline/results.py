@@ -180,6 +180,7 @@ class ResultsManager:
                     )
                 shutil.rmtree(run_root)
 
+            self.paths.output_root.mkdir(parents=True, exist_ok=True)
             self.paths.models_output_root.mkdir(
                 parents=True,
                 exist_ok=True,
