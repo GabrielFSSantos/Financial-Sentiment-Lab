@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Adaptador compartilhado para checkpoints FinBERT locais (Hugging Face)."""
 
 from __future__ import annotations
@@ -277,14 +275,14 @@ class FinBertHfModel(BaseSentimentModel):
 
         if not self.model_dir.exists():
             raise FileNotFoundError(
-                "Pasta do FinBERT-PT-BR não encontrada: "
+                f"Pasta do modelo {self.model_name!r} não encontrada: "
                 f"{self.model_dir}"
             )
 
         if not self.model_dir.is_dir():
             raise NotADirectoryError(
-                "O caminho configurado para o FinBERT-PT-BR não é "
-                f"uma pasta: {self.model_dir}"
+                f"O caminho configurado para o modelo "
+                f"{self.model_name!r} não é uma pasta: {self.model_dir}"
             )
 
         config_path = self.model_dir / "config.json"
@@ -585,8 +583,8 @@ class FinBertHfModel(BaseSentimentModel):
 
         if set(normalized_labels.values()) != EXPECTED_LABELS:
             raise ModelConfigurationError(
-                "O FinBERT-PT-BR precisa possuir exatamente as "
-                "classes POSITIVE, NEGATIVE e NEUTRAL. "
+                f"O modelo {self.model_name!r} precisa possuir "
+                "exatamente as classes POSITIVE, NEGATIVE e NEUTRAL. "
                 f"Mapeamento encontrado em {source}: "
                 f"{normalized_labels}."
             )
@@ -1248,7 +1246,7 @@ class FinBertHfModel(BaseSentimentModel):
         self.tokenizer = None
 
     def get_metadata(self) -> dict[str, Any]:
-        """Retorna metadados gerais e específicos do FinBERT-PT-BR."""
+        """Retorna metadados gerais e específicos do checkpoint FinBERT."""
 
         metadata = super().get_metadata()
 
@@ -1283,6 +1281,7 @@ class FinBertHfModel(BaseSentimentModel):
             )
 
         configured_model_key = None
+        model_language: str | None = None
 
         if self.model_configuration is not None:
             configured_model_key = getattr(
@@ -1290,13 +1289,20 @@ class FinBertHfModel(BaseSentimentModel):
                 "key",
                 None,
             )
+            configured_language = self.model_configuration.metadata.get(
+                "language"
+            )
+            if configured_language is not None:
+                model_language = str(configured_language)
+            else:
+                model_language = self.model_configuration.language
 
         metadata.update(
             {
                 "configured_model_key": configured_model_key,
                 "model_family": "BERT",
                 "model_domain": "financial",
-                "model_language": "pt-BR",
+                "model_language": model_language,
                 "task": "sentiment_classification",
                 "configured_probability_function": (
                     self.probability_function

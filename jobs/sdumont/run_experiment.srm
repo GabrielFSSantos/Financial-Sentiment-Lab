@@ -13,7 +13,7 @@
 #SBATCH --error=job_financial_%j.err
 
 
-# Diretório do projeto no Scratch
+# Diretório do projeto no Scratch (data/, model_store/, outputs/ relativos a ele).
 WORKING_DIR="/scratch/ufsj/hpc4agents-br/iago.oliveira3/financial-sentiment-lab"
 
 cd "${WORKING_DIR}" || exit 1

@@ -1,25 +1,10 @@
-# Configuração dos datasets (schema 2.0).
-# Seleciona datasets com enabled: true; paths relativos à raiz do projeto.
+# Datasets (schema 2.0). enabled: true entra na matriz; paths relativos à raiz.
 
 schema_version: "2.0"
 
-
-# ============================================================
-# VALORES PADRÃO
-# ============================================================
-#
-# Estes valores são aplicados aos datasets que não definirem uma
-# configuração própria.
-# ============================================================
-
 defaults:
-  # Idioma do dataset (ISO 639-1). Só combina com modelos do mesmo idioma.
   language: pt
-
-  # Formato padrão dos arquivos.
   format: csv
-
-  # Configurações padrão de leitura.
   reader:
     encoding: utf-8
     delimiter: ","
@@ -28,206 +13,72 @@ defaults:
     low_memory: false
     skip_blank_lines: true
     on_bad_lines: error
-
-  # Regras padrão de validação e limpeza.
   validation:
     strip_text: true
     drop_empty_texts: true
     fail_on_duplicate_ids: true
     preserve_extra_columns: true
-
-  # Configuração padrão para datasets sem rótulos.
   labels:
     available: false
     normalize_case: true
     strip_whitespace: true
     mapping: {}
-
-  # Configuração padrão para datasets sem data.
   dates:
     available: false
     format: null
     dayfirst: false
     fail_on_invalid: true
     output_format: "%Y-%m-%d"
-
-  # max = todas as linhas; inteiro >= 1 limita leitura e fetch amostrado.
   limits:
+    # max = todas as linhas; inteiro >= 1 limita leitura e fetch amostrado
     max_rows: 200
-
-
-# ============================================================
-# DATASETS
-# ============================================================
 
 datasets:
 
-  # ----------------------------------------------------------
-  # NOTÍCIAS FINANCEIRAS DE EXEMPLO
-  # ----------------------------------------------------------
-  #
-  # Dataset pequeno utilizado para validar:
-  #
-  # - carregamento e padronização;
-  # - inferência dos modelos;
-  # - métricas de classificação;
-  # - métricas computacionais;
-  # - agregações por empresa, setor e mercado.
-  #
-  # Ele serve para testes técnicos da pipeline e não deve ser
-  # utilizado isoladamente para conclusões científicas.
-  # ----------------------------------------------------------
-
+  # Exemplo PT com rótulos — validação técnica da pipeline
   noticias_exemplo:
-    # Participa das execuções padrão.
     enabled: true
-
-    # Ordem de execução entre os datasets ativos.
     order: 1
-
-    # Identificador usado nos resultados e metadados.
     dataset_name: noticias_exemplo
-
-    # Nome legível usado em relatórios.
     display_name: Notícias financeiras de exemplo
-
-    # Arquivo de entrada.
     path: data/noticias_exemplo/noticias.csv
-
-    # Formato do arquivo.
     format: csv
-
     limits:
       max_rows: max
-
-    # --------------------------------------------------------
-    # MAPEAMENTO DAS COLUNAS
-    # --------------------------------------------------------
-    #
-    # À esquerda está o nome padronizado usado pela pipeline.
-    #
-    # À direita está o nome real da coluna no arquivo.
-    #
-    # Use null quando a informação não existir no dataset.
-    # --------------------------------------------------------
-
     columns:
-      # Identificador único da notícia.
       news_id: id
-
-      # Texto enviado ao modelo.
       text: noticia
-
-      # Data de publicação.
       date: data
-
-      # Empresa relacionada.
       company: empresa
-
-      # Setor econômico.
       sector: setor
-
-      # Código do ativo.
       ticker: ticker
-
-      # Título da notícia.
       title: titulo
-
-      # Rótulo verdadeiro usado nas métricas supervisionadas.
       true_label: sentimento
-
-      # Fonte da notícia.
       source: fonte
-
-      # Endereço original da notícia.
       url: url
-
-    # --------------------------------------------------------
-    # CAMPOS INTERNOS OBRIGATÓRIOS
-    # --------------------------------------------------------
-    #
-    # O loader usa o mapeamento acima para encontrar as colunas
-    # correspondentes no arquivo original.
-    # --------------------------------------------------------
-
     required_fields:
       - news_id
       - text
-
-    # --------------------------------------------------------
-    # RÓTULOS VERDADEIROS
-    # --------------------------------------------------------
-
     labels:
-      # Informa que o dataset possui rótulos verdadeiros.
       available: true
-
-      # Converte os valores originais para minúsculas antes
-      # de aplicar o mapeamento.
       normalize_case: true
-
-      # Remove espaços antes e depois do rótulo.
       strip_whitespace: true
-
-      # Converte os rótulos originais para as classes oficiais.
       mapping:
         positivo: POSITIVE
         positiva: POSITIVE
         positive: POSITIVE
-
         negativo: NEGATIVE
         negativa: NEGATIVE
         negative: NEGATIVE
-
         neutro: NEUTRAL
         neutra: NEUTRAL
         neutral: NEUTRAL
-
-    # --------------------------------------------------------
-    # DATAS
-    # --------------------------------------------------------
-
     dates:
-      # Informa que o dataset possui data.
       available: true
-
-      # Formato esperado no arquivo original.
       format: "%Y-%m-%d"
-
-      # false porque o formato utilizado é ano-mês-dia.
       dayfirst: false
-
-      # Interrompe a execução ao encontrar uma data inválida.
       fail_on_invalid: true
-
-      # Formato padronizado usado nas previsões e agregações.
       output_format: "%Y-%m-%d"
-
-    # --------------------------------------------------------
-    # VALIDAÇÕES ESPECÍFICAS
-    # --------------------------------------------------------
-
-    validation:
-      # Remove espaços antes e depois do texto.
-      strip_text: true
-
-      # Remove linhas cujo texto esteja vazio.
-      drop_empty_texts: true
-
-      # IDs duplicados interrompem a execução.
-      fail_on_duplicate_ids: true
-
-      # Mantém colunas adicionais que não foram mapeadas.
-      preserve_extra_columns: true
-
-    # --------------------------------------------------------
-    # METADADOS DESCRITIVOS
-    # --------------------------------------------------------
-    #
-    # Estes campos não alteram diretamente o carregamento.
-    # Eles são registrados nos metadados da execução.
-    # --------------------------------------------------------
-
     metadata:
       language: pt-BR
       domain: financial
@@ -235,15 +86,9 @@ datasets:
       country: Brazil
       split: test
       source_type: synthetic
-
       description: >-
-        Dataset pequeno de notícias financeiras utilizado para
-        validar o carregamento, a inferência, as métricas e as
-        agregações da pipeline em ambiente local e no SDumont.
-
-  # ----------------------------------------------------------
-  # PT-BR FINANCIAL NEWS DATASET
-  # ----------------------------------------------------------
+        Dataset pequeno para validar carregamento, inferência, métricas e
+        agregações da pipeline.
 
   ptbr_financial_news_dataset:
     enabled: true
@@ -252,7 +97,6 @@ datasets:
     display_name: PT-BR Financial News Dataset
     path: data/ptbr_financial_news_dataset/ptbr_financial_news_dataset.jsonl
     format: jsonl
-
     source:
       provider: huggingface_dataset
       repo_id: lucasalmda/pt-br-financial-news-dataset
@@ -262,7 +106,6 @@ datasets:
       data_files: financial_news_br.jsonl
       materialize_format: jsonl
       local_path: data/ptbr_financial_news_dataset/ptbr_financial_news_dataset.jsonl
-
     columns:
       news_id: url
       text: sentiment_text
@@ -274,30 +117,17 @@ datasets:
       true_label: null
       source: source
       url: url
-
     required_fields:
       - news_id
       - text
-
     labels:
       available: false
-      normalize_case: true
-      strip_whitespace: true
-      mapping: {}
-
     dates:
       available: true
       format: ISO8601
       dayfirst: false
       fail_on_invalid: true
       output_format: "%Y-%m-%d"
-
-    validation:
-      strip_text: true
-      drop_empty_texts: true
-      fail_on_duplicate_ids: true
-      preserve_extra_columns: true
-
     metadata:
       language: pt-BR
       domain: financial_news
@@ -306,28 +136,19 @@ datasets:
       split: inference
       source_type: real_news
       description: >-
-        Notícias financeiras brasileiras publicadas entre 2016 e 2025,
-        sem rótulos verdadeiros de sentimento, destinadas à inferência
-        e à construção de indicadores agregados.
-
-
-  # ----------------------------------------------------------
-  # ENGLISH NEWS EXAMPLE
-  # ----------------------------------------------------------
+        Notícias financeiras brasileiras (2016–2025), sem rótulos de
+        sentimento.
 
   news_example_en:
     enabled: true
     order: 3
     language: en
-
     dataset_name: news_example_en
     display_name: English financial news example
     path: data/news_example_en/news.csv
     format: csv
-
     limits:
       max_rows: max
-
     columns:
       news_id: id
       text: news_text
@@ -339,11 +160,9 @@ datasets:
       true_label: sentiment
       source: source
       url: url
-
     required_fields:
       - news_id
       - text
-
     labels:
       available: true
       normalize_case: true
@@ -352,20 +171,12 @@ datasets:
         positive: POSITIVE
         negative: NEGATIVE
         neutral: NEUTRAL
-
     dates:
       available: true
       format: "%Y-%m-%d"
       dayfirst: false
       fail_on_invalid: true
       output_format: "%Y-%m-%d"
-
-    validation:
-      strip_text: true
-      drop_empty_texts: true
-      fail_on_duplicate_ids: true
-      preserve_extra_columns: true
-
     metadata:
       language: en
       domain: financial
@@ -373,25 +184,16 @@ datasets:
       country: United States
       split: test
       source_type: synthetic
-      description: >-
-        Small English financial news dataset for pipeline validation,
-        metrics and aggregations.
-
-
-  # ----------------------------------------------------------
-  # EN FINANCIAL NEWS DATASET (FNSPID NASDAQ)
-  # ----------------------------------------------------------
+      description: Exemplo EN com rótulos para validação da pipeline.
 
   en_financial_news_dataset:
     enabled: true
     order: 4
     language: en
-
     dataset_name: en_financial_news_dataset
     display_name: EN Financial News Dataset (FNSPID Nasdaq)
     path: data/en_financial_news_dataset/nasdaq_exteral_data.csv
     format: csv
-
     source:
       provider: huggingface_dataset
       repo_id: Zihan1004/FNSPID
@@ -401,14 +203,12 @@ datasets:
       data_files: Stock_news/nasdaq_exteral_data.csv
       materialize_format: csv
       local_path: data/en_financial_news_dataset/nasdaq_exteral_data.csv
-
     text_compose:
       template: "Title: {title}\nBody: {body}"
       fields:
         title: Article_title
         body: Article
       skip_if_all_empty: true
-
     columns:
       news_id: Url
       text: null
@@ -420,30 +220,17 @@ datasets:
       true_label: null
       source: Publisher
       url: Url
-
     required_fields:
       - news_id
       - text
-
     labels:
       available: false
-      normalize_case: true
-      strip_whitespace: true
-      mapping: {}
-
     dates:
       available: true
       format: null
       dayfirst: false
       fail_on_invalid: true
       output_format: "%Y-%m-%d"
-
-    validation:
-      strip_text: true
-      drop_empty_texts: true
-      fail_on_duplicate_ids: true
-      preserve_extra_columns: true
-
     metadata:
       language: en
       domain: financial_news
@@ -454,5 +241,5 @@ datasets:
       size_gb: 23
       citation: "FNSPID (Dong et al., 2024)"
       description: >-
-        Nasdaq news slice from FNSPID for temporal informational index
-        experiments. Full file is ~23 GB; use limits.max_rows for pilots.
+        Fatia Nasdaq do FNSPID (~23 GB completo). Use limits.max_rows em
+        pilotos.

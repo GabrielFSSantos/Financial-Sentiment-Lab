@@ -1,22 +1,4 @@
-"""Registro, validação e criação dinâmica dos modelos.
-
-Este módulo recebe configurações já resolvidas por
-``pipeline.configuration``. Ele não lê arquivos YAML e não escolhe quais
-modelos participarão do experimento.
-
-Responsabilidades:
-
-- registrar os modelos selecionados;
-- importar dinamicamente os adaptadores;
-- validar o contrato com ``BaseSentimentModel``;
-- validar os arquivos locais declarados em ``models.yaml``;
-- montar e validar os argumentos do construtor;
-- criar instâncias sem carregar os pesos antecipadamente;
-- carregar, reutilizar e liberar modelos quando solicitado;
-- fornecer metadados padronizados ao runner.
-
-A seleção dos modelos permanece centralizada em ``configs/models.yaml``.
-"""
+"""Registro, validação e instanciação dos adaptadores de modelos."""
 
 from __future__ import annotations
 
@@ -445,8 +427,6 @@ class ModelRegistry:
         )
         parameters = signature.parameters
 
-        # Adaptadores futuros podem optar por receber a configuração
-        # completa ou apenas as seções de carregamento e validação.
         if "model_configuration" in parameters:
             arguments["model_configuration"] = configuration
 

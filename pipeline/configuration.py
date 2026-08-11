@@ -1,24 +1,4 @@
-"""Carregamento, validação e resolução das configurações do projeto.
-
-Este módulo centraliza a configuração da pipeline. Ele:
-
-- lê ``experiment.yaml``, ``models.yaml`` e ``datasets.yaml``;
-- rejeita chaves YAML duplicadas;
-- aplica os valores padrão de modelos e datasets;
-- seleciona todos os modelos e datasets ativos;
-- aplica seleções temporárias recebidas pela linha de comando;
-- monta a matriz cartesiana ``modelo × dataset``;
-- resolve o ambiente, o ``run_id`` e os caminhos do experimento;
-- produz uma configuração serializável para metadados.
-
-A seleção permanente fica exclusivamente em:
-
-- ``configs/models.yaml``: ``enabled: true`` para modelos;
-- ``configs/datasets.yaml``: ``enabled: true`` para datasets.
-
-As opções ``--model`` e ``--dataset`` apenas substituem temporariamente
-essa seleção durante uma execução.
-"""
+"""Carregamento, validação e resolução das configurações YAML."""
 
 from __future__ import annotations
 

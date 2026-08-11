@@ -1,116 +1,36 @@
-# Configuração dos modelos (schema 2.0).
-# Seleciona modelos com enabled: true; paths relativos à raiz do projeto.
+# Modelos (schema 2.0). enabled: true entra na matriz; paths relativos à raiz.
 
 schema_version: "2.0"
 
-
-# ============================================================
-# VALORES PADRÃO
-# ============================================================
-#
-# Estes valores são aplicados aos modelos que não definirem uma
-# configuração própria.
-#
-# Um modelo pode sobrescrever somente o valor necessário dentro
-# de sua seção parameters, loading ou validation.
-# ============================================================
-
 defaults:
-  # Idioma do modelo (ISO 639-1). Só combina com datasets do mesmo idioma.
   language: pt
-
   parameters:
-    # Quantidade de textos processados em cada lote.
     batch_size: 32
-
-    # Quantidade máxima de tokens por texto.
     max_length: 512
-
-    # Dispositivo utilizado na inferência.
-    #
-    # Valores:
-    #
-    #   auto  -> usa GPU quando disponível; caso contrário, CPU
-    #   cpu   -> força execução em CPU
-    #   cuda  -> exige uma GPU CUDA
-    device: auto
-
+    device: auto  # auto | cpu | cuda
   loading:
-    # Usa somente os arquivos disponíveis em model_store.
     local_files_only: true
-
-    # Impede a execução de código remoto fornecido pelo modelo.
     trust_remote_code: false
-
-    # Prefere a implementação rápida do tokenizer.
     use_fast_tokenizer: true
-
   validation:
-    # Exige que model_dir exista.
     require_model_directory: true
-
-    # Exige todos os arquivos declarados em files.required.
     require_required_files: true
-
-    # Valida o mapeamento entre as classes originais e as classes
-    # padronizadas da pipeline.
     validate_label_mapping: true
-
-
-# ============================================================
-# MODELOS
-# ============================================================
 
 models:
 
-  # ----------------------------------------------------------
-  # FINBERT-PT-BR
-  # ----------------------------------------------------------
-
   finbert_ptbr:
-    # Define se o modelo participa das execuções padrão.
     enabled: true
-
-    # Ordem de execução entre os modelos ativos.
     order: 1
-
-    # Identificador usado nos resultados e metadados.
     model_name: finbert_ptbr
-
-    # Nome legível usado em relatórios.
     display_name: FinBERT-PT-BR
-
-    # Classe Python responsável por validar, carregar e executar
-    # o modelo.
-    #
-    # Formato:
-    #
-    #   pacote.modulo.Classe
     adapter: models.bert.finbert_ptbr.FinBertPtBrModel
-
-    # Diretório contendo configuração, tokenizer e pesos.
     model_dir: model_store/FinBERT-PT-BR
-
     source:
       provider: huggingface_hub
       repo_id: lucas-leme/FinBERT-PT-BR
       revision: main
       local_dir: model_store/FinBERT-PT-BR
-
-    # Este modelo utiliza os valores definidos em defaults:
-    #
-    #   batch_size: 32
-    #   max_length: 512
-    #   device: auto
-    #
-    # Para sobrescrever algum valor somente neste modelo, use:
-    #
-    # parameters:
-    #   batch_size: 16
-    #   max_length: 256
-    #   device: cuda
-
-    # Arquivos necessários para executar o modelo.
     files:
       required:
         - config.json
@@ -119,33 +39,19 @@ models:
         - tokenizer_config.json
         - special_tokens_map.json
         - vocab.txt
-
-    # Mapeamento original das classes do modelo.
-    #
-    # O config.json do FinBERT-PT-BR utiliza:
-    #
-    #   0 -> POSITIVE
-    #   1 -> NEGATIVE
-    #   2 -> NEUTRAL
     labels:
       id2label:
         0: POSITIVE
         1: NEGATIVE
         2: NEUTRAL
-
-      # Classes padronizadas usadas em toda a pipeline.
       canonical:
         positive: POSITIVE
         negative: NEGATIVE
         neutral: NEUTRAL
-
-      # Configuração do sentimento contínuo.
       continuous_sentiment:
         positive_label: POSITIVE
         negative_label: NEGATIVE
         formula: "prob_positive - prob_negative"
-
-    # Informações registradas nos metadados dos resultados.
     metadata:
       family: BERT
       architecture: BertForSequenceClassification
@@ -153,54 +59,33 @@ models:
       domain: financial
       task: sentiment_classification
       framework: pytorch
-
       returns_probabilities: true
       supports_batching: true
       supports_cuda: true
 
-
-  # ----------------------------------------------------------
-  # PT-BR FINANCIAL SENTIMENT ANALYSIS
-  # ----------------------------------------------------------
-
   pt_br_financial_sentiment_analysis:
-    # Ensemble fine-tuned a partir do FinBERT-PT-BR. A inferência
-    # reproduz a model card: média dos logits dos três checkpoints.
     enabled: true
     order: 2
-
     model_name: pt_br_financial_sentiment_analysis
     display_name: PT-BR Financial Sentiment Analysis
-
     adapter: >-
       models.bert.pt_br_financial_sentiment_analysis.PtBrFinancialSentimentAnalysisModel
     model_dir: model_store/pt-br-financial-sentiment-analysis
-
     source:
       provider: huggingface_hub
       repo_id: lucasalmda/pt-br-financial-sentiment-analysis
       revision: main
       local_dir: model_store/pt-br-financial-sentiment-analysis
-
     parameters:
       checkpoint_directories:
         - seed-789
         - seed-123
         - seed-456
-
     loading:
-      # O repositório publica os três pesos nesse formato.
       use_safetensors: true
-
     validation:
-      # Os tokenizers publicados são idênticos; a validação impede
-      # que checkpoints incompatíveis sejam combinados por engano.
       validate_identical_tokenizers: true
-
-      # Uma clonagem sem Git LFS deixa arquivos de 134 bytes no lugar
-      # dos pesos. O adaptador falha cedo e informa essa condição.
       reject_git_lfs_pointers: true
-
     files:
       required:
         - training_strategy.json
@@ -222,23 +107,19 @@ models:
         - seed-456/tokenizer_config.json
         - seed-456/special_tokens_map.json
         - seed-456/vocab.txt
-
     labels:
       id2label:
         0: POSITIVE
         1: NEGATIVE
         2: NEUTRAL
-
       canonical:
         positive: POSITIVE
         negative: NEGATIVE
         neutral: NEUTRAL
-
       continuous_sentiment:
         positive_label: POSITIVE
         negative_label: NEGATIVE
         formula: "prob_positive - prob_negative"
-
     metadata:
       family: BERT
       base_model: lucas-leme/FinBERT-PT-BR
@@ -247,7 +128,6 @@ models:
       domain: financial
       task: sentiment_classification
       framework: pytorch
-
       source: lucasalmda/pt-br-financial-sentiment-analysis
       ensemble: true
       ensemble_method: mean_raw_logits
@@ -256,27 +136,19 @@ models:
       supports_batching: true
       supports_cuda: true
 
-
-  # ----------------------------------------------------------
-  # FINBERT (EN)
-  # ----------------------------------------------------------
-
   finbert_en:
     enabled: true
     order: 3
     language: en
-
     model_name: finbert_en
     display_name: FinBERT (EN)
     adapter: models.bert.finbert_en.FinBertEnModel
     model_dir: model_store/FinBERT-EN
-
     source:
       provider: huggingface_hub
       repo_id: ProsusAI/finbert
       revision: main
       local_dir: model_store/FinBERT-EN
-
     files:
       required:
         - config.json
@@ -284,26 +156,21 @@ models:
         - vocab.txt
         - tokenizer_config.json
         - special_tokens_map.json
-
     loading:
       use_fast_tokenizer: false
-
     labels:
       id2label:
         0: POSITIVE
         1: NEGATIVE
         2: NEUTRAL
-
       canonical:
         positive: POSITIVE
         negative: NEGATIVE
         neutral: NEUTRAL
-
       continuous_sentiment:
         positive_label: POSITIVE
         negative_label: NEGATIVE
         formula: "prob_positive - prob_negative"
-
     metadata:
       family: BERT
       architecture: BertForSequenceClassification
@@ -316,52 +183,39 @@ models:
       supports_batching: true
       supports_cuda: true
 
-
-  # ----------------------------------------------------------
-  # FINBERT-TONE (EN)
-  # ----------------------------------------------------------
-
   finbert_tone_en:
     enabled: true
     order: 4
     language: en
-
     model_name: finbert_tone_en
     display_name: FinBERT-Tone (EN)
     adapter: models.bert.finbert_tone_en.FinBertToneEnModel
     model_dir: model_store/FinBERT-Tone-EN
-
     source:
       provider: huggingface_hub
       repo_id: yiyanghkust/finbert-tone
       revision: main
       local_dir: model_store/FinBERT-Tone-EN
-
     files:
       required:
         - config.json
         - pytorch_model.bin
         - vocab.txt
-
     loading:
       use_fast_tokenizer: false
-
     labels:
       id2label:
         0: NEUTRAL
         1: POSITIVE
         2: NEGATIVE
-
       canonical:
         positive: POSITIVE
         negative: NEGATIVE
         neutral: NEUTRAL
-
       continuous_sentiment:
         positive_label: POSITIVE
         negative_label: NEGATIVE
         formula: "prob_positive - prob_negative"
-
     metadata:
       family: BERT
       architecture: BertForSequenceClassification

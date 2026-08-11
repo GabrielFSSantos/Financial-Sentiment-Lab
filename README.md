@@ -11,7 +11,7 @@ Modelos, datasets e parâmetros são definidos em YAML.
 sbatch jobs/sdumont/run_experiment.srm  # HPC
 ```
 
-Por padrão: **4 combinações** (2 modelos PT × `noticias_exemplo` + 2 modelos EN × `news_example_en`).
+Por padrão: **8 combinações** (4 modelos × 4 datasets, filtradas por idioma PT/EN).
 
 ---
 
@@ -41,7 +41,7 @@ O `run_experiment.sh` **não baixa** modelos nem datasets. Se faltar peso ou arq
 
 Em [`configs/datasets.yaml`](configs/datasets.yaml):
 
-- **Padrão:** `2000` linhas
+- **Padrão:** `200` linhas (ajuste em `configs/datasets.yaml` para pilotos maiores)
 - **`max`:** todas as linhas (exemplos versionados)
 - Inteiro maior que o dataset disponível lê todas as linhas existentes
 - Fetch completo quando `max`; fetch amostrado quando inteiro (via streaming no Hub)

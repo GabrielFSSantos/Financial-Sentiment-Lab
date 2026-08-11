@@ -1,27 +1,4 @@
-"""Orquestração central da pipeline de sentimento financeiro.
-
-Este módulo é o ponto de entrada Python do experimento. Ele coordena:
-
-1. carregamento e resolução das configurações;
-2. validações de preflight;
-3. execução da matriz modelo × dataset;
-4. carregamento dos datasets;
-5. criação, carregamento e inferência dos modelos;
-6. padronização das previsões;
-7. métricas de classificação e desempenho;
-8. agregações temporais;
-9. gravação dos resultados e do resumo final;
-10. liberação de memória entre combinações.
-
-O comando público do projeto continuará sendo ``scripts/run_experiment.sh``.
-Esse script chamará internamente:
-
-    python -m pipeline.runner
-
-Quando ``execution.environment`` for ``sdumont``, este módulo representa a
-execução que ocorre dentro do job Slurm. Sincronização, SSH e submissão ficam
-sob responsabilidade dos scripts da pasta ``scripts/``.
-"""
+"""Orquestração da pipeline de sentimento financeiro."""
 
 from __future__ import annotations
 
@@ -219,6 +196,13 @@ class ExperimentRunner:
         )
 
         try:
+            if repository_metadata.get("dirty"):
+                self.logger.warning(
+                    "O repositório Git possui alterações não commitadas. "
+                    "Para reprodutibilidade, execute com working tree limpa "
+                    "antes de rodadas de produção ou publicação."
+                )
+
             self.logger.info(
                 "Iniciando experimento %s em %s.",
                 self.configuration.run_id,
@@ -413,8 +397,6 @@ class ExperimentRunner:
                     "valid": True,
                 }
 
-                # Dry-run faz uma validação completa do conteúdo, sem
-                # executar inferência nem criar outputs.
                 if self.configuration.dry_run:
                     loaded = self.dataset_loader.load(dataset)
                     dataset_report["load"] = loaded.metadata()
@@ -576,6 +558,7 @@ class ExperimentRunner:
             )
 
             self._raise_if_interrupted()
+            # Arquivos já validados no preflight; evita I/O repetida.
             registered_model = self.registry.create(
                 model_configuration,
                 load=False,
