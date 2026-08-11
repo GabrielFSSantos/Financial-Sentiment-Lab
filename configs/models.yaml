@@ -1,22 +1,5 @@
-# ============================================================
-# CONFIGURAÇÃO DOS MODELOS
-# ============================================================
-#
-# Este arquivo é a única fonte de configuração dos modelos.
-#
-# Na execução padrão, a pipeline seleciona todos os modelos com:
-#
-#   enabled: true
-#
-# Cada modelo ativo será executado para todos os datasets ativos
-# definidos em configs/datasets.yaml.
-#
-# Uma execução pode selecionar temporariamente modelos específicos:
-#
-#   ./scripts/run_experiment.sh --model finbert_ptbr
-#
-# Os caminhos são relativos à raiz do projeto.
-# ============================================================
+# Configuração dos modelos (schema 2.0).
+# Seleciona modelos com enabled: true; paths relativos à raiz do projeto.
 
 schema_version: "2.0"
 
@@ -103,10 +86,16 @@ models:
     # Formato:
     #
     #   pacote.modulo.Classe
-    adapter: models.finbert_ptbr.FinBertPtBrModel
+    adapter: models.bert.finbert_ptbr.FinBertPtBrModel
 
     # Diretório contendo configuração, tokenizer e pesos.
     model_dir: model_store/FinBERT-PT-BR
+
+    source:
+      provider: huggingface_hub
+      repo_id: lucas-leme/FinBERT-PT-BR
+      revision: main
+      local_dir: model_store/FinBERT-PT-BR
 
     # Este modelo utiliza os valores definidos em defaults:
     #
@@ -184,8 +173,14 @@ models:
     display_name: PT-BR Financial Sentiment Analysis
 
     adapter: >-
-      models.pt_br_financial_sentiment_analysis.PtBrFinancialSentimentAnalysisModel
+      models.bert.pt_br_financial_sentiment_analysis.PtBrFinancialSentimentAnalysisModel
     model_dir: model_store/pt-br-financial-sentiment-analysis
+
+    source:
+      provider: huggingface_hub
+      repo_id: lucasalmda/pt-br-financial-sentiment-analysis
+      revision: main
+      local_dir: model_store/pt-br-financial-sentiment-analysis
 
     parameters:
       checkpoint_directories:
@@ -257,6 +252,122 @@ models:
       ensemble: true
       ensemble_method: mean_raw_logits
       checkpoint_count: 3
+      returns_probabilities: true
+      supports_batching: true
+      supports_cuda: true
+
+
+  # ----------------------------------------------------------
+  # FINBERT (EN)
+  # ----------------------------------------------------------
+
+  finbert_en:
+    enabled: true
+    order: 3
+    language: en
+
+    model_name: finbert_en
+    display_name: FinBERT (EN)
+    adapter: models.bert.finbert_en.FinBertEnModel
+    model_dir: model_store/FinBERT-EN
+
+    source:
+      provider: huggingface_hub
+      repo_id: ProsusAI/finbert
+      revision: main
+      local_dir: model_store/FinBERT-EN
+
+    files:
+      required:
+        - config.json
+        - pytorch_model.bin
+        - tokenizer.json
+        - tokenizer_config.json
+        - special_tokens_map.json
+        - vocab.txt
+
+    labels:
+      id2label:
+        0: POSITIVE
+        1: NEGATIVE
+        2: NEUTRAL
+
+      canonical:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+
+      continuous_sentiment:
+        positive_label: POSITIVE
+        negative_label: NEGATIVE
+        formula: "prob_positive - prob_negative"
+
+    metadata:
+      family: BERT
+      architecture: BertForSequenceClassification
+      language: en
+      domain: financial
+      task: sentiment_classification
+      framework: pytorch
+      source: ProsusAI/finbert
+      returns_probabilities: true
+      supports_batching: true
+      supports_cuda: true
+
+
+  # ----------------------------------------------------------
+  # FINBERT-TONE (EN)
+  # ----------------------------------------------------------
+
+  finbert_tone_en:
+    enabled: true
+    order: 4
+    language: en
+
+    model_name: finbert_tone_en
+    display_name: FinBERT-Tone (EN)
+    adapter: models.bert.finbert_tone_en.FinBertToneEnModel
+    model_dir: model_store/FinBERT-Tone-EN
+
+    source:
+      provider: huggingface_hub
+      repo_id: yiyanghkust/finbert-tone
+      revision: main
+      local_dir: model_store/FinBERT-Tone-EN
+
+    files:
+      required:
+        - config.json
+        - pytorch_model.bin
+        - tokenizer.json
+        - tokenizer_config.json
+        - special_tokens_map.json
+        - vocab.txt
+
+    labels:
+      id2label:
+        0: NEUTRAL
+        1: POSITIVE
+        2: NEGATIVE
+
+      canonical:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+
+      continuous_sentiment:
+        positive_label: POSITIVE
+        negative_label: NEGATIVE
+        formula: "prob_positive - prob_negative"
+
+    metadata:
+      family: BERT
+      architecture: BertForSequenceClassification
+      language: en
+      domain: financial
+      task: sentiment_classification
+      framework: pytorch
+      source: yiyanghkust/finbert-tone
       returns_probabilities: true
       supports_batching: true
       supports_cuda: true

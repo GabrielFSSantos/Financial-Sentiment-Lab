@@ -19,6 +19,10 @@ CANONICAL_LABELS: tuple[str, ...] = (
     "POSITIVE",
 )
 
+ASSET_FETCH_HINT = (
+    " Execute ./scripts/setup_env.sh --fetch-assets para baixar."
+)
+
 
 class DataFrameAccessError(ValueError):
     """Indica coluna duplicada ou conversão numérica inválida."""

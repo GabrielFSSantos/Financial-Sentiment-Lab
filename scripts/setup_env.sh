@@ -4,6 +4,7 @@
 #
 #   ./scripts/setup_env.sh
 #   ./scripts/setup_env.sh --recreate
+#   ./scripts/setup_env.sh --fetch-assets
 
 set -euo pipefail
 
@@ -14,15 +15,18 @@ REQUIREMENTS_FILE="${PROJECT_ROOT}/requirements.txt"
 DEV_REQUIREMENTS_FILE="${PROJECT_ROOT}/requirements-dev.txt"
 
 RECREATE=false
+FETCH_ASSETS=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --recreate) RECREATE=true ;;
+        --fetch-assets) FETCH_ASSETS=true ;;
         -h|--help)
             cat <<'HELP'
 Uso:
   ./scripts/setup_env.sh
   ./scripts/setup_env.sh --recreate
+  ./scripts/setup_env.sh --fetch-assets
 HELP
             exit 0
             ;;
@@ -56,3 +60,22 @@ if [[ -f "${DEV_REQUIREMENTS_FILE}" ]]; then
 fi
 
 printf 'Ambiente pronto: %s\n' "${VENV_DIR}"
+
+if [[ "${FETCH_ASSETS}" == true ]]; then
+    export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
+    "${VENV_DIR}/bin/python" - <<'PY'
+from pathlib import Path
+
+from pipeline.assets import fetch_assets_for_configuration
+from pipeline.configuration import load_configuration
+
+configuration = load_configuration(project_root=Path("."))
+summary = fetch_assets_for_configuration(configuration)
+print(
+    f"Assets: {summary.downloaded_count} baixado(s), "
+    f"{summary.failed_count} falha(s)."
+)
+if summary.failed_count:
+    raise SystemExit(1)
+PY
+fi

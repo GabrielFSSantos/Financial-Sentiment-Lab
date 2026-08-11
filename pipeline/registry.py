@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 from models.base_model import BaseSentimentModel, ModelPrediction
-from pipeline.common import to_serializable
+from pipeline.common import ASSET_FETCH_HINT, to_serializable
 from pipeline.configuration import (
     ModelConfiguration,
     ResolvedConfiguration,
@@ -339,10 +339,15 @@ class ModelRegistry:
 
         if require_directory:
             if not model_dir.exists():
+                hint = (
+                    ASSET_FETCH_HINT
+                    if configuration.source
+                    else ""
+                )
                 raise ModelFileValidationError(
                     f"Diretório do modelo "
                     f"{configuration.key!r} não encontrado: "
-                    f"{model_dir}"
+                    f"{model_dir}.{hint}"
                 )
 
             if not model_dir.is_dir():
@@ -387,6 +392,7 @@ class ModelRegistry:
             raise ModelFileValidationError(
                 f"Arquivos obrigatórios ausentes no modelo "
                 f"{configuration.key!r}:\n{formatted}"
+                f"{ASSET_FETCH_HINT if configuration.source else ''}"
             )
 
         return tuple(validated_paths)

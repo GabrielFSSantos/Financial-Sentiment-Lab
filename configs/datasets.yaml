@@ -1,22 +1,5 @@
-# ============================================================
-# CONFIGURAÇÃO DOS DATASETS
-# ============================================================
-#
-# Este arquivo é a única fonte de configuração dos datasets.
-#
-# Na execução padrão, a pipeline seleciona todos os datasets com:
-#
-#   enabled: true
-#
-# Cada dataset ativo será executado com todos os modelos ativos
-# definidos em configs/models.yaml.
-#
-# Uma execução pode selecionar temporariamente datasets específicos:
-#
-#   ./scripts/run_experiment.sh --dataset noticias_exemplo
-#
-# Todos os caminhos são relativos à raiz do projeto.
-# ============================================================
+# Configuração dos datasets (schema 2.0).
+# Seleciona datasets com enabled: true; paths relativos à raiz do projeto.
 
 schema_version: "2.0"
 
@@ -68,6 +51,10 @@ defaults:
     fail_on_invalid: true
     output_format: "%Y-%m-%d"
 
+  # max = todas as linhas; inteiro >= 1 limita leitura e fetch amostrado.
+  limits:
+    max_rows: 2000
+
 
 # ============================================================
 # DATASETS
@@ -105,10 +92,13 @@ datasets:
     display_name: Notícias financeiras de exemplo
 
     # Arquivo de entrada.
-    path: datasets/raw/noticias_exemplo/noticias.csv
+    path: data/noticias_exemplo/noticias.csv
 
     # Formato do arquivo.
     format: csv
+
+    limits:
+      max_rows: max
 
     # --------------------------------------------------------
     # MAPEAMENTO DAS COLUNAS
@@ -260,8 +250,18 @@ datasets:
     order: 2
     dataset_name: ptbr_financial_news_dataset
     display_name: PT-BR Financial News Dataset
-    path: datasets/raw/ptbr_financial_news_dataset/ptbr_financial_news_dataset.jsonl
+    path: data/ptbr_financial_news_dataset/ptbr_financial_news_dataset.jsonl
     format: jsonl
+
+    source:
+      provider: huggingface_dataset
+      repo_id: lucasalmda/pt-br-financial-news-dataset
+      revision: main
+      config: default
+      split: train
+      data_files: financial_news_br.jsonl
+      materialize_format: jsonl
+      local_path: data/ptbr_financial_news_dataset/ptbr_financial_news_dataset.jsonl
 
     columns:
       news_id: url
@@ -309,3 +309,150 @@ datasets:
         Notícias financeiras brasileiras publicadas entre 2016 e 2025,
         sem rótulos verdadeiros de sentimento, destinadas à inferência
         e à construção de indicadores agregados.
+
+
+  # ----------------------------------------------------------
+  # ENGLISH NEWS EXAMPLE
+  # ----------------------------------------------------------
+
+  news_example_en:
+    enabled: true
+    order: 3
+    language: en
+
+    dataset_name: news_example_en
+    display_name: English financial news example
+    path: data/news_example_en/news.csv
+    format: csv
+
+    limits:
+      max_rows: max
+
+    columns:
+      news_id: id
+      text: news_text
+      date: date
+      company: company
+      sector: sector
+      ticker: ticker
+      title: title
+      true_label: sentiment
+      source: source
+      url: url
+
+    required_fields:
+      - news_id
+      - text
+
+    labels:
+      available: true
+      normalize_case: true
+      strip_whitespace: true
+      mapping:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+
+    dates:
+      available: true
+      format: "%Y-%m-%d"
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+
+    validation:
+      strip_text: true
+      drop_empty_texts: true
+      fail_on_duplicate_ids: true
+      preserve_extra_columns: true
+
+    metadata:
+      language: en
+      domain: financial
+      market: US
+      country: United States
+      split: test
+      source_type: synthetic
+      description: >-
+        Small English financial news dataset for pipeline validation,
+        metrics and aggregations.
+
+
+  # ----------------------------------------------------------
+  # EN FINANCIAL NEWS DATASET (FNSPID NASDAQ)
+  # ----------------------------------------------------------
+
+  en_financial_news_dataset:
+    enabled: false
+    order: 4
+    language: en
+
+    dataset_name: en_financial_news_dataset
+    display_name: EN Financial News Dataset (FNSPID Nasdaq)
+    path: data/en_financial_news_dataset/nasdaq_exteral_data.csv
+    format: csv
+
+    source:
+      provider: huggingface_dataset
+      repo_id: Zihan1004/FNSPID
+      revision: main
+      config: default
+      split: train
+      data_files: Stock_news/nasdaq_exteral_data.csv
+      materialize_format: csv
+      local_path: data/en_financial_news_dataset/nasdaq_exteral_data.csv
+
+    text_compose:
+      template: "Title: {title}\nBody: {body}"
+      fields:
+        title: Article_title
+        body: Article
+      skip_if_all_empty: true
+
+    columns:
+      news_id: Url
+      text: null
+      date: Date
+      company: null
+      sector: null
+      ticker: Stock_symbol
+      title: Article_title
+      true_label: null
+      source: Publisher
+      url: Url
+
+    required_fields:
+      - news_id
+      - text
+
+    labels:
+      available: false
+      normalize_case: true
+      strip_whitespace: true
+      mapping: {}
+
+    dates:
+      available: true
+      format: null
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+
+    validation:
+      strip_text: true
+      drop_empty_texts: true
+      fail_on_duplicate_ids: true
+      preserve_extra_columns: true
+
+    metadata:
+      language: en
+      domain: financial_news
+      market: US
+      country: United States
+      split: inference
+      source_type: real_news
+      size_gb: 23
+      citation: "FNSPID (Dong et al., 2024)"
+      description: >-
+        Nasdaq news slice from FNSPID for temporal informational index
+        experiments. Full file is ~23 GB; use limits.max_rows for pilots.

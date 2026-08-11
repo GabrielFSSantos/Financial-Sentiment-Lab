@@ -37,7 +37,12 @@ from pipeline.common import CANONICAL_LABELS, to_serializable
 
 SUPPORTED_SCHEMA_VERSION = "2.0"
 SUPPORTED_ENVIRONMENTS = {"local", "sdumont"}
-SUPPORTED_DATASET_FORMATS = {"csv", "jsonl"}
+SUPPORTED_DATASET_FORMATS = {"csv", "jsonl", "parquet", "huggingface"}
+SUPPORTED_SOURCE_PROVIDERS = {
+    "huggingface_hub",
+    "huggingface_hub_file",
+    "huggingface_dataset",
+}
 SUPPORTED_DEVICES = {"auto", "cpu", "cuda"}
 SUPPORTED_LANGUAGES = {"pt", "en"}
 SUPPORTED_AGGREGATION_LEVELS = {
@@ -107,6 +112,7 @@ class ModelConfiguration:
     required_files: tuple[str, ...]
     labels: dict[str, Any]
     metadata: dict[str, Any]
+    source: dict[str, Any]
     raw: dict[str, Any] = field(repr=False)
 
     def to_dict(self) -> dict[str, Any]:
@@ -123,7 +129,7 @@ class DatasetConfiguration:
     dataset_name: str
     display_name: str
     language: str
-    path: Path
+    path: Path | None
     format: str
     reader: dict[str, Any]
     columns: dict[str, str | None]
@@ -132,6 +138,9 @@ class DatasetConfiguration:
     dates: dict[str, Any]
     validation: dict[str, Any]
     metadata: dict[str, Any]
+    source: dict[str, Any]
+    text_compose: dict[str, Any] | None
+    limits: dict[str, Any]
     raw: dict[str, Any] = field(repr=False)
 
     def to_dict(self) -> dict[str, Any]:
@@ -387,6 +396,185 @@ def _require_language(value: Any, location: str) -> str:
         )
 
     return language
+
+
+def _optional_mapping(
+    value: Any,
+    location: str,
+) -> dict[str, Any]:
+    if value is None:
+        return {}
+    return dict(_require_mapping(value, location))
+
+
+def _resolve_optional_source(
+    *,
+    project_root: Path,
+    raw_source: Any,
+    location: str,
+    default_local_dir: Path | None = None,
+    default_local_path: Path | None = None,
+) -> dict[str, Any]:
+    if raw_source is None:
+        return {}
+
+    source = dict(_require_mapping(raw_source, location))
+    provider = _require_string(
+        source.get("provider"),
+        f"{location}.provider",
+    ).lower()
+
+    if provider not in SUPPORTED_SOURCE_PROVIDERS:
+        supported = ", ".join(sorted(SUPPORTED_SOURCE_PROVIDERS))
+        raise ConfigurationError(
+            f"{location}.provider precisa ser um dos valores: {supported}."
+        )
+
+    source["provider"] = provider
+    source["repo_id"] = _require_string(
+        source.get("repo_id"),
+        f"{location}.repo_id",
+    )
+    source["revision"] = _require_string(
+        source.get("revision", "main"),
+        f"{location}.revision",
+    )
+
+    if provider == "huggingface_hub":
+        local_dir = source.get("local_dir")
+        if local_dir is None and default_local_dir is not None:
+            local_dir = str(default_local_dir.relative_to(project_root))
+        source["local_dir"] = str(
+            _resolve_path(
+                project_root,
+                _require_string(
+                    local_dir,
+                    f"{location}.local_dir",
+                ),
+            )
+        )
+    elif provider == "huggingface_hub_file":
+        filename = _require_string(
+            source.get("filename"),
+            f"{location}.filename",
+        )
+        local_path = source.get("local_path")
+        if local_path is None and default_local_path is not None:
+            local_path = str(default_local_path.relative_to(project_root))
+        source["filename"] = filename
+        source["local_path"] = str(
+            _resolve_path(
+                project_root,
+                _require_string(
+                    local_path,
+                    f"{location}.local_path",
+                ),
+            )
+        )
+    elif provider == "huggingface_dataset":
+        source["config"] = _require_string(
+            source.get("config", "default"),
+            f"{location}.config",
+        )
+        source["split"] = _require_string(
+            source.get("split", "train"),
+            f"{location}.split",
+        )
+        if source.get("data_files") is not None:
+            source["data_files"] = _require_string(
+                source["data_files"],
+                f"{location}.data_files",
+            )
+        local_path = source.get("local_path")
+        if local_path is None and default_local_path is not None:
+            local_path = str(default_local_path.relative_to(project_root))
+        if local_path is not None:
+            source["local_path"] = str(
+                _resolve_path(
+                    project_root,
+                    _require_string(
+                        local_path,
+                        f"{location}.local_path",
+                    ),
+                )
+            )
+
+    if source.get("materialize_format") is not None:
+        materialize_format = str(source["materialize_format"]).lower()
+        if materialize_format not in {"csv", "jsonl"}:
+            raise ConfigurationError(
+                f"{location}.materialize_format precisa ser csv ou jsonl."
+            )
+        source["materialize_format"] = materialize_format
+
+    return source
+
+
+def _resolve_max_rows_limit(value: Any, location: str) -> int | None:
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized == "max":
+            return None
+        raise ConfigurationError(
+            f"{location} precisa ser inteiro >= 1 ou max."
+        )
+    return _require_integer(value, location, minimum=1)
+
+
+def _resolve_dataset_limits(
+    raw_limits: Any,
+    location: str,
+) -> dict[str, Any]:
+    limits = _optional_mapping(raw_limits, location)
+    resolved: dict[str, Any] = {}
+
+    if "max_rows" in limits:
+        resolved["max_rows"] = _resolve_max_rows_limit(
+            limits["max_rows"],
+            f"{location}.max_rows",
+        )
+
+    for key in ("date_from", "date_to"):
+        if key in limits:
+            value = limits[key]
+            if value is None:
+                continue
+            resolved[key] = _require_string(
+                value,
+                f"{location}.{key}",
+            )
+
+    return resolved
+
+
+def _resolve_text_compose(
+    raw_compose: Any,
+    location: str,
+) -> dict[str, Any] | None:
+    if raw_compose is None:
+        return None
+
+    compose = dict(_require_mapping(raw_compose, location))
+    compose["template"] = _require_string(
+        compose.get("template"),
+        f"{location}.template",
+    )
+    fields = _require_mapping(
+        compose.get("fields"),
+        f"{location}.fields",
+    )
+    compose["fields"] = {
+        _require_string(key, f"{location}.fields.<chave>"): _require_string(
+            value,
+            f"{location}.fields.{key}",
+        )
+        for key, value in fields.items()
+    }
+    compose["skip_if_all_empty"] = _require_boolean(
+        compose.get("skip_if_all_empty", True),
+        f"{location}.skip_if_all_empty",
+    )
+    return compose
 
 
 def _require_boolean(
@@ -744,6 +932,7 @@ class ConfigurationLoader:
             "combined_sentiment_index",
             "parallelism",
             "paper_reproduction",
+            "asset_fetch",
         }
         found_obsolete = sorted(
             obsolete_sections.intersection(config)
@@ -1065,6 +1254,12 @@ class ConfigurationLoader:
                 merged.get("metadata", {}),
                 f"models.{model_key}.metadata",
             )
+            source = _resolve_optional_source(
+                project_root=self.project_root,
+                raw_source=merged.get("source"),
+                location=f"models.{model_key}.source",
+                default_local_dir=model_dir,
+            )
 
             resolved.append(
                 ModelConfiguration(
@@ -1082,6 +1277,7 @@ class ConfigurationLoader:
                     required_files=required_files,
                     labels=labels,
                     metadata=metadata,
+                    source=source,
                     raw=merged,
                 )
             )
@@ -1199,13 +1395,6 @@ class ConfigurationLoader:
                 merged.get("language"),
                 f"datasets.{dataset_key}.language",
             )
-            dataset_path = _resolve_path(
-                self.project_root,
-                _require_string(
-                    merged.get("path"),
-                    f"datasets.{dataset_key}.path",
-                ),
-            )
             dataset_format = _require_string(
                 merged.get("format"),
                 f"datasets.{dataset_key}.format",
@@ -1216,6 +1405,46 @@ class ConfigurationLoader:
                     f"datasets.{dataset_key}.format não é suportado: "
                     f"{dataset_format}"
                 )
+
+            raw_path = merged.get("path")
+            dataset_path: Path | None
+            if raw_path is None:
+                if dataset_format == "huggingface":
+                    dataset_path = None
+                else:
+                    raise ConfigurationError(
+                        f"datasets.{dataset_key}.path é obrigatório "
+                        f"quando format={dataset_format!r}."
+                    )
+            else:
+                dataset_path = _resolve_path(
+                    self.project_root,
+                    _require_string(
+                        raw_path,
+                        f"datasets.{dataset_key}.path",
+                    ),
+                )
+
+            source = _resolve_optional_source(
+                project_root=self.project_root,
+                raw_source=merged.get("source"),
+                location=f"datasets.{dataset_key}.source",
+                default_local_path=dataset_path,
+            )
+            if (
+                source.get("provider") == "huggingface_hub_file"
+                and dataset_path is None
+            ):
+                dataset_path = Path(source["local_path"])
+
+            text_compose = _resolve_text_compose(
+                merged.get("text_compose"),
+                f"datasets.{dataset_key}.text_compose",
+            )
+            limits = _resolve_dataset_limits(
+                merged.get("limits", {}),
+                f"datasets.{dataset_key}.limits",
+            )
 
             reader = _require_mapping(
                 merged.get("reader"),
@@ -1259,10 +1488,19 @@ class ConfigurationLoader:
                 )
 
             for field_name in required_fields:
+                if field_name == "text" and text_compose is not None:
+                    continue
                 if not columns.get(field_name):
                     raise ConfigurationError(
                         f"datasets.{dataset_key} não possui mapeamento "
                         f"para o campo obrigatório {field_name!r}."
+                    )
+
+            if "text" in required_fields and not columns.get("text"):
+                if text_compose is None:
+                    raise ConfigurationError(
+                        f"datasets.{dataset_key} não possui columns.text "
+                        "nem text_compose."
                     )
 
             labels = _require_mapping(
@@ -1295,6 +1533,7 @@ class ConfigurationLoader:
             self._validate_dataset_reader(
                 dataset_key,
                 reader,
+                dataset_format,
             )
 
             resolved.append(
@@ -1314,6 +1553,9 @@ class ConfigurationLoader:
                     dates=dates,
                     validation=validation,
                     metadata=metadata,
+                    source=source,
+                    text_compose=text_compose,
+                    limits=limits,
                     raw=merged,
                 )
             )
@@ -1327,7 +1569,11 @@ class ConfigurationLoader:
         self,
         dataset_key: str,
         reader: Mapping[str, Any],
+        dataset_format: str,
     ) -> None:
+        if dataset_format in {"parquet", "huggingface"}:
+            return
+
         _require_string(
             reader.get("encoding"),
             f"datasets.{dataset_key}.reader.encoding",
@@ -1447,10 +1693,12 @@ class ConfigurationLoader:
                     "mas columns.date não foi mapeada."
                 )
 
-            _require_string(
-                dates.get("format"),
-                f"datasets.{dataset_key}.dates.format",
-            )
+            date_format = dates.get("format")
+            if date_format is not None:
+                _require_string(
+                    date_format,
+                    f"datasets.{dataset_key}.dates.format",
+                )
         elif dates.get("format") is not None:
             raise ConfigurationError(
                 f"datasets.{dataset_key}.dates.format precisa ser null "
@@ -1752,6 +2000,9 @@ class ConfigurationLoader:
         models: Iterable[ModelConfiguration],
     ) -> None:
         for model in models:
+            if model.source:
+                continue
+
             validation = model.validation
 
             if validation.get("require_model_directory", True):
@@ -1779,7 +2030,20 @@ class ConfigurationLoader:
         datasets: Iterable[DatasetConfiguration],
     ) -> None:
         for dataset in datasets:
-            if not dataset.path.is_file():
+            if dataset.format == "huggingface" and dataset.path is None:
+                if not dataset.source:
+                    raise ConfigurationError(
+                        f"O dataset {dataset.key} usa format=huggingface "
+                        "sem path e sem source declarado."
+                    )
+                continue
+
+            if dataset.source and (
+                dataset.path is None or not dataset.path.is_file()
+            ):
+                continue
+
+            if dataset.path is None or not dataset.path.is_file():
                 raise ConfigurationError(
                     f"Arquivo do dataset {dataset.key} não encontrado: "
                     f"{dataset.path}"

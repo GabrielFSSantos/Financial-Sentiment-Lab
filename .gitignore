@@ -23,11 +23,12 @@ job_financial_*.err
 model_store/
 .cache/
 
-# Datasets (mantém só o exemplo de teste versionado)
-datasets/processed/
-datasets/raw/**
-!datasets/raw/noticias_exemplo/
-!datasets/raw/noticias_exemplo/**
+# Datasets baixados (mantém só os exemplos versionados)
+data/**
+!data/noticias_exemplo/
+!data/noticias_exemplo/**
+!data/news_example_en/
+!data/news_example_en/**
 
 # SO e editores
 .DS_Store

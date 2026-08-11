@@ -37,7 +37,7 @@ def test_language_mismatch_is_skipped(project_root: Path) -> None:
             model_name="model_pt",
             display_name="Model PT",
             language="pt",
-            adapter="models.finbert_ptbr.FinBertPtBrModel",
+            adapter="models.bert.finbert_ptbr.FinBertPtBrModel",
             model_dir=project_root / "model_store/FinBERT-PT-BR",
             parameters={},
             loading={},
@@ -45,6 +45,7 @@ def test_language_mismatch_is_skipped(project_root: Path) -> None:
             required_files=("config.json",),
             labels={},
             metadata={},
+            source={},
             raw={},
         )
     ]
@@ -56,7 +57,7 @@ def test_language_mismatch_is_skipped(project_root: Path) -> None:
             dataset_name="dataset_en",
             display_name="Dataset EN",
             language="en",
-            path=project_root / "datasets/raw/noticias_exemplo/noticias.csv",
+            path=project_root / "data/noticias_exemplo/noticias.csv",
             format="csv",
             reader={},
             columns={"news_id": "id", "text": "noticia"},
@@ -65,6 +66,9 @@ def test_language_mismatch_is_skipped(project_root: Path) -> None:
             dates={},
             validation={},
             metadata={},
+            source={},
+            text_compose=None,
+            limits={},
             raw={},
         )
     ]
@@ -90,7 +94,7 @@ def test_language_match_builds_combination(project_root: Path) -> None:
             model_name="model_pt",
             display_name="Model PT",
             language="pt",
-            adapter="models.finbert_ptbr.FinBertPtBrModel",
+            adapter="models.bert.finbert_ptbr.FinBertPtBrModel",
             model_dir=project_root / "model_store/FinBERT-PT-BR",
             parameters={},
             loading={},
@@ -98,6 +102,7 @@ def test_language_match_builds_combination(project_root: Path) -> None:
             required_files=("config.json",),
             labels={},
             metadata={},
+            source={},
             raw={},
         )
     ]
@@ -109,7 +114,7 @@ def test_language_match_builds_combination(project_root: Path) -> None:
             dataset_name="dataset_pt",
             display_name="Dataset PT",
             language="pt",
-            path=project_root / "datasets/raw/noticias_exemplo/noticias.csv",
+            path=project_root / "data/noticias_exemplo/noticias.csv",
             format="csv",
             reader={},
             columns={"news_id": "id", "text": "noticia"},
@@ -118,6 +123,9 @@ def test_language_match_builds_combination(project_root: Path) -> None:
             dates={},
             validation={},
             metadata={},
+            source={},
+            text_compose=None,
+            limits={},
             raw={},
         )
     ]
@@ -144,7 +152,7 @@ def test_language_mismatch_allowed_when_disabled(
             model_name="model_pt",
             display_name="Model PT",
             language="pt",
-            adapter="models.finbert_ptbr.FinBertPtBrModel",
+            adapter="models.bert.finbert_ptbr.FinBertPtBrModel",
             model_dir=project_root / "model_store/FinBERT-PT-BR",
             parameters={},
             loading={},
@@ -152,6 +160,7 @@ def test_language_mismatch_allowed_when_disabled(
             required_files=("config.json",),
             labels={},
             metadata={},
+            source={},
             raw={},
         )
     ]
@@ -163,7 +172,7 @@ def test_language_mismatch_allowed_when_disabled(
             dataset_name="dataset_en",
             display_name="Dataset EN",
             language="en",
-            path=project_root / "datasets/raw/noticias_exemplo/noticias.csv",
+            path=project_root / "data/noticias_exemplo/noticias.csv",
             format="csv",
             reader={},
             columns={"news_id": "id", "text": "noticia"},
@@ -172,6 +181,9 @@ def test_language_mismatch_allowed_when_disabled(
             dates={},
             validation={},
             metadata={},
+            source={},
+            text_compose=None,
+            limits={},
             raw={},
         )
     ]

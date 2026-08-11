@@ -1,13 +1,4 @@
-"""Carregamento e padronização dos datasets da pipeline.
-
-Este módulo recebe uma :class:`DatasetConfiguration` já resolvida por
-``pipeline.configuration`` e transforma o arquivo de entrada em um DataFrame
-com schema único para todos os modelos.
-
-O módulo não lê arquivos YAML, não escolhe datasets, não executa modelos e não
-salva resultados. Essas responsabilidades pertencem, respectivamente, a
-``pipeline.configuration``, ``pipeline.runner`` e ``pipeline.results``.
-"""
+"""Carregamento e padronização dos datasets da pipeline."""
 
 from __future__ import annotations
 
@@ -17,7 +8,7 @@ from typing import Any, Iterable, Mapping, Sequence, cast
 
 import pandas as pd
 
-from pipeline.common import CANONICAL_LABELS
+from pipeline.common import ASSET_FETCH_HINT, CANONICAL_LABELS
 from pipeline.configuration import DatasetConfiguration
 
 
@@ -59,7 +50,9 @@ OPTIONAL_TEXT_FIELDS: tuple[str, ...] = (
     "url",
 )
 
-SUPPORTED_FORMATS: frozenset[str] = frozenset({"csv", "jsonl"})
+SUPPORTED_FORMATS: frozenset[str] = frozenset(
+    {"csv", "jsonl", "parquet", "huggingface"}
+)
 
 
 class DatasetError(RuntimeError):
@@ -156,7 +149,11 @@ class LoadedDataset:
             "dataset_key": self.key,
             "dataset_name": self.dataset_name,
             "display_name": self.display_name,
-            "path": str(self.configuration.path),
+            "path": (
+                str(self.configuration.path)
+                if self.configuration.path is not None
+                else None
+            ),
             "format": self.configuration.format,
             "has_labels": self.has_labels,
             "has_dates": self.has_dates,
@@ -178,8 +175,6 @@ class DatasetLoader:
     def validate_file(self, configuration: DatasetConfiguration) -> None:
         """Valida somente o arquivo e o formato, sem carregar os dados."""
 
-        path = configuration.path
-
         if configuration.format not in SUPPORTED_FORMATS:
             raise DatasetValidationError(
                 f"Formato não suportado no dataset {configuration.key!r}: "
@@ -187,10 +182,29 @@ class DatasetLoader:
                 f"{sorted(SUPPORTED_FORMATS)}."
             )
 
+        if configuration.format == "huggingface":
+            if not configuration.source:
+                raise DatasetValidationError(
+                    f"Dataset {configuration.key!r} usa format=huggingface "
+                    "sem source configurado."
+                )
+            return
+
+        path = configuration.path
+        if path is None:
+            raise DatasetFileError(
+                f"Dataset {configuration.key!r} não possui path configurado."
+            )
+
         if not path.exists():
+            hint = (
+                ASSET_FETCH_HINT
+                if configuration.source
+                else ""
+            )
             raise DatasetFileError(
                 f"Arquivo do dataset {configuration.key!r} não encontrado: "
-                f"{path}"
+                f"{path}.{hint}"
             )
 
         if not path.is_file():
@@ -217,6 +231,8 @@ class DatasetLoader:
         self.validate_file(configuration)
 
         source = self._read_dataset(configuration)
+        source = self._apply_text_compose(configuration, source)
+        source = self._apply_limits(configuration, source)
         original_columns = tuple(str(column) for column in source.columns)
         original_row_count = len(source)
 
@@ -329,14 +345,198 @@ class DatasetLoader:
         *,
         nrows: int | None = None,
     ) -> pd.DataFrame:
+        effective_nrows = nrows
+        if effective_nrows is None:
+            max_rows = configuration.limits.get("max_rows")
+            if isinstance(max_rows, int) and max_rows > 0:
+                effective_nrows = max_rows
+
         if configuration.format == "csv":
-            return self._read_csv(configuration, nrows=nrows)
+            return self._read_csv(
+                configuration,
+                nrows=effective_nrows,
+            )
         if configuration.format == "jsonl":
-            return self._read_jsonl(configuration, nrows=nrows)
+            return self._read_jsonl(
+                configuration,
+                nrows=effective_nrows,
+            )
+        if configuration.format == "parquet":
+            return self._read_parquet(
+                configuration,
+                nrows=effective_nrows,
+            )
+        if configuration.format == "huggingface":
+            return self._read_huggingface(
+                configuration,
+                nrows=effective_nrows,
+            )
         raise DatasetValidationError(
             f"Formato não suportado no dataset {configuration.key!r}: "
             f"{configuration.format!r}."
         )
+
+    def _read_parquet(
+        self,
+        configuration: DatasetConfiguration,
+        *,
+        nrows: int | None = None,
+    ) -> pd.DataFrame:
+        if configuration.path is None:
+            raise DatasetFileError(
+                f"Dataset {configuration.key!r} não possui path configurado."
+            )
+
+        try:
+            dataframe = pd.read_parquet(configuration.path)
+        except (OSError, ValueError) as error:
+            raise DatasetFileError(
+                f"Falha ao ler parquet do dataset {configuration.key!r} em "
+                f"{configuration.path}: {error}"
+            ) from error
+
+        if nrows is not None:
+            dataframe = dataframe.head(nrows)
+
+        return self._normalize_source_columns(dataframe, configuration)
+
+    def _read_huggingface(
+        self,
+        configuration: DatasetConfiguration,
+        *,
+        nrows: int | None = None,
+    ) -> pd.DataFrame:
+        source = configuration.source
+        if not source:
+            raise DatasetValidationError(
+                f"Dataset {configuration.key!r} usa format=huggingface "
+                "sem source."
+            )
+
+        try:
+            from datasets import load_dataset
+        except ImportError as error:
+            raise DatasetFileError(
+                "Biblioteca datasets não instalada. "
+                "Execute: pip install datasets"
+            ) from error
+
+        split = source.get("split", "train")
+        try:
+            dataset = load_dataset(
+                source["repo_id"],
+                source.get("config", "default"),
+                split=split,
+                revision=source.get("revision", "main"),
+            )
+        except Exception as error:
+            raise DatasetFileError(
+                f"Falha ao carregar dataset HF {configuration.key!r}: "
+                f"{error}"
+            ) from error
+
+        if nrows is not None:
+            dataset = dataset.select(range(min(nrows, len(dataset))))
+
+        dataframe = dataset.to_pandas()
+        return self._normalize_source_columns(dataframe, configuration)
+
+    @staticmethod
+    def _normalize_source_columns(
+        dataframe: pd.DataFrame,
+        configuration: DatasetConfiguration,
+    ) -> pd.DataFrame:
+        dataframe = dataframe.copy()
+        dataframe.columns = [
+            str(column).strip()
+            for column in dataframe.columns
+        ]
+
+        if len(set(dataframe.columns)) != len(dataframe.columns):
+            duplicates = _duplicates(dataframe.columns)
+            raise DatasetValidationError(
+                f"O dataset {configuration.key!r} possui nomes de colunas "
+                f"duplicados: {duplicates}."
+            )
+
+        return dataframe
+
+    def _apply_text_compose(
+        self,
+        configuration: DatasetConfiguration,
+        source: pd.DataFrame,
+    ) -> pd.DataFrame:
+        compose = configuration.text_compose
+        if compose is None:
+            return source
+
+        template = str(compose["template"])
+        fields = compose["fields"]
+        skip_if_all_empty = bool(compose.get("skip_if_all_empty", True))
+
+        composed_values: list[str | None] = []
+        for row_index in source.index:
+            values: dict[str, str] = {}
+            all_empty = True
+            for placeholder, column_name in fields.items():
+                raw = source.at[row_index, column_name]
+                if pd.isna(raw):
+                    text_value = ""
+                else:
+                    text_value = str(raw).strip()
+                if text_value:
+                    all_empty = False
+                values[placeholder] = text_value
+
+            if skip_if_all_empty and all_empty:
+                composed_values.append(None)
+            else:
+                composed_values.append(template.format(**values))
+
+        output = source.copy()
+        output["__composed_text__"] = pd.Series(
+            composed_values,
+            index=source.index,
+            dtype="string",
+        )
+        return output
+
+    def _apply_limits(
+        self,
+        configuration: DatasetConfiguration,
+        source: pd.DataFrame,
+    ) -> pd.DataFrame:
+        limits = configuration.limits
+        if not limits:
+            return source
+
+        filtered = source
+        date_column = configuration.columns.get("date")
+        date_from = limits.get("date_from")
+        date_to = limits.get("date_to")
+
+        if (
+            date_column
+            and date_column in filtered.columns
+            and (date_from or date_to)
+        ):
+            parsed = pd.to_datetime(
+                filtered[date_column],
+                errors="coerce",
+                utc=True,
+            )
+            mask = pd.Series(True, index=filtered.index)
+            if date_from:
+                lower = pd.to_datetime(date_from, errors="coerce", utc=True)
+                if pd.notna(lower):
+                    mask &= parsed >= lower
+            if date_to:
+                upper = pd.to_datetime(date_to, errors="coerce", utc=True)
+                if pd.notna(upper):
+                    mask &= parsed <= upper
+            filtered = filtered.loc[mask]
+
+        return filtered.reset_index(drop=True)
 
     def _read_csv(
         self,
@@ -436,6 +636,11 @@ class DatasetLoader:
         missing: list[str] = []
 
         for internal_field in configuration.required_fields:
+            if internal_field == "text" and configuration.text_compose:
+                if "__composed_text__" not in available:
+                    missing.append("text -> __composed_text__")
+                continue
+
             source_name = configuration.columns.get(internal_field)
             if not source_name or source_name not in available:
                 missing.append(
@@ -470,7 +675,11 @@ class DatasetLoader:
 
         for field_name in CONFIGURABLE_FIELDS:
             source_name = configuration.columns.get(field_name)
-            if source_name is None:
+            if field_name == "text" and configuration.text_compose is not None:
+                result[field_name] = source["__composed_text__"].astype(
+                    "string"
+                )
+            elif source_name is None:
                 result[field_name] = pd.Series(
                     pd.NA,
                     index=source.index,
@@ -601,6 +810,7 @@ class DatasetLoader:
                 format=expected_format,
                 dayfirst=dayfirst,
                 errors="coerce",
+                utc=True,
             )
         except (TypeError, ValueError) as error:
             raise DatasetValidationError(
@@ -626,6 +836,8 @@ class DatasetLoader:
             )
 
         output_format = str(dates_config.get("output_format", "%Y-%m-%d"))
+        if parsed.dt.tz is not None:
+            parsed = parsed.dt.tz_convert(None)
         formatted = parsed.dt.strftime(output_format).astype("string")
         dataframe["date"] = formatted
         return invalid_count + missing_count
