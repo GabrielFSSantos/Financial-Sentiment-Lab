@@ -9,6 +9,7 @@ __pycache__/
 .env
 .env.*
 configs/sdumont.env
+SDumont.md
 
 # Artefatos de execução
 logs/

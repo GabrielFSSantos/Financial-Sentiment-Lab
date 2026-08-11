@@ -87,7 +87,25 @@ Com ≥2 modelos no mesmo dataset: `indices/merged/{dataset}/iti_uncertainty_dai
 
 ## Santos Dumont
 
+Paths (confirme com `echo $SCRATCH` após login):
+
+- `$HOME` → `/prj/ufsj/hpc4agents-br/<usuario>`
+- `$SCRATCH` → `/scratch/ufsj/hpc4agents-br/<usuario>`
+- Projeto → `$SCRATCH/financial-sentiment-lab`
+
+Guia operacional detalhado (SSH Windows, job, coleta): `SDumont.md` (local, não versionado).
+
 ```bash
+mkdir -p "$SCRATCH/financial-sentiment-lab"
+cd "$SCRATCH/financial-sentiment-lab"
+git clone <repo> .    # ou git pull
+
+chmod +x scripts/*.sh jobs/sdumont/*.srm
+module purge
+module load arch_gpu/current
+module load cuda/12.6
+module load anaconda3/2024.02_sequana
+
 ./scripts/setup_env.sh --fetch-assets
 ./scripts/audit_project.sh --sdumont
 sbatch jobs/sdumont/run_experiment.srm
