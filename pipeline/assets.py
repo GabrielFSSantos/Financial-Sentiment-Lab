@@ -13,7 +13,7 @@ from typing import Any, Literal
 
 import pandas as pd
 
-from pipeline.common import ASSET_FETCH_HINT
+from pipeline.common import ASSET_FETCH_HINT, to_serializable
 from pipeline.configuration import (
     ConfigurationError,
     DatasetConfiguration,
@@ -149,12 +149,16 @@ def _write_materialized_rows(
         with target.open("w", encoding="utf-8") as handle:
             for row in rows:
                 handle.write(
-                    json.dumps(row, ensure_ascii=False) + "\n"
+                    json.dumps(
+                        to_serializable(row),
+                        ensure_ascii=False,
+                    )
+                    + "\n"
                 )
         return
 
     if materialize_format == "csv":
-        pd.DataFrame(rows).to_csv(target, index=False)
+        pd.DataFrame(to_serializable(rows)).to_csv(target, index=False)
         return
 
     raise AssetFetchError(

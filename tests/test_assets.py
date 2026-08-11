@@ -67,9 +67,16 @@ def test_fetch_dataset_sample_materializes(
     tmp_path: Path,
 ) -> None:
     from dataclasses import replace
+    from datetime import datetime
 
     mock_load_dataset.return_value = iter(
-        [{"text": f"news {index}"} for index in range(3)]
+        [
+            {
+                "text": f"news {index}",
+                "published_at": datetime(2024, 1, index + 1, 12, 0, 0),
+            }
+            for index in range(3)
+        ]
     )
 
     configuration = load_configuration(
@@ -93,7 +100,9 @@ def test_fetch_dataset_sample_materializes(
     assert report is not None
     assert report.status == "downloaded"
     assert target.is_file()
-    assert target.read_text(encoding="utf-8").count("\n") == 3
+    content = target.read_text(encoding="utf-8")
+    assert content.count("\n") == 3
+    assert "2024-01-01T12:00:00" in content
 
 
 def test_configuration_includes_bilingual_defaults(project_root: Path) -> None:
