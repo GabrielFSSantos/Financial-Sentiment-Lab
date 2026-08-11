@@ -53,7 +53,7 @@ defaults:
 
   # max = todas as linhas; inteiro >= 1 limita leitura e fetch amostrado.
   limits:
-    max_rows: 2000
+    max_rows: 200
 
 
 # ============================================================
@@ -246,7 +246,7 @@ datasets:
   # ----------------------------------------------------------
 
   ptbr_financial_news_dataset:
-    enabled: false
+    enabled: true
     order: 2
     dataset_name: ptbr_financial_news_dataset
     display_name: PT-BR Financial News Dataset
@@ -383,7 +383,7 @@ datasets:
   # ----------------------------------------------------------
 
   en_financial_news_dataset:
-    enabled: false
+    enabled: true
     order: 4
     language: en
 
