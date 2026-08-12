@@ -39,10 +39,10 @@ O `run_experiment.sh` **não baixa** modelos nem datasets. Se faltar peso ou arq
 
 ### Limites de linhas (`limits.max_rows`)
 
-Em [`configs/datasets.yaml`](configs/datasets.yaml):
+Em `[configs/datasets.yaml](configs/datasets.yaml)`:
 
 - **Padrão:** `200` linhas (ajuste em `configs/datasets.yaml` para pilotos maiores)
-- **`max`:** todas as linhas (exemplos versionados)
+- `max`**:** todas as linhas (exemplos versionados)
 - Inteiro maior que o dataset disponível lê todas as linhas existentes
 - Fetch completo quando `max`; fetch amostrado quando inteiro (via streaming no Hub)
 
@@ -50,25 +50,29 @@ Em [`configs/datasets.yaml`](configs/datasets.yaml):
 
 ## Comandos
 
-| Comando | Faz |
-|---|---|
-| `setup_env.sh` | Cria `venv/` e instala dependências |
-| `setup_env.sh --fetch-assets` | Instala deps **e baixa** modelos/datasets dos YAMLs |
-| `audit_project.sh` | Estrutura + YAML + pytest + dry-run (se assets presentes) |
-| `run_experiment.sh` | Executa combinações `enabled: true` |
-| `run_experiment.sh --model X --dataset Y` | Restringe a execução |
+
+| Comando                                   | Faz                                                       |
+| ----------------------------------------- | --------------------------------------------------------- |
+| `setup_env.sh`                            | Cria `venv/` e instala dependências                       |
+| `setup_env.sh --fetch-assets`             | Instala deps **e baixa** modelos/datasets dos YAMLs       |
+| `audit_project.sh`                        | Estrutura + YAML + pytest + dry-run (se assets presentes) |
+| `run_experiment.sh`                       | Executa combinações `enabled: true`                       |
+| `run_experiment.sh --model X --dataset Y` | Restringe a execução                                      |
+
 
 ---
 
 ## Configuração
 
-| Arquivo | Controla |
-|---|---|
-| [`configs/experiment.yaml`](configs/experiment.yaml) | ITI, agregação, execução |
-| [`configs/models.yaml`](configs/models.yaml) | Modelos, `language`, `source`, adaptadores |
-| [`configs/datasets.yaml`](configs/datasets.yaml) | Datasets, `source`, `limits`, colunas |
 
-Adaptadores FinBERT em [`models/bert/`](models/bert/): motor compartilhado (`finbert_hf.py`) e aliases por checkpoint. Ensembles têm adaptador dedicado.
+| Arquivo                                              | Controla                                   |
+| ---------------------------------------------------- | ------------------------------------------ |
+| `[configs/experiment.yaml](configs/experiment.yaml)` | ITI, agregação, execução                   |
+| `[configs/models.yaml](configs/models.yaml)`         | Modelos, `language`, `source`, adaptadores |
+| `[configs/datasets.yaml](configs/datasets.yaml)`     | Datasets, `source`, `limits`, colunas      |
+
+
+Adaptadores FinBERT em `[models/bert/](models/bert/)`: motor compartilhado (`finbert_hf.py`) e aliases por checkpoint. Ensembles têm adaptador dedicado.
 
 ---
 
@@ -93,17 +97,14 @@ Paths (confirme com `echo $SCRATCH` após login):
 - `$SCRATCH` → `/scratch/ufsj/hpc4agents-br/<usuario>`
 - Projeto → `$SCRATCH/financial-sentiment-lab`
 
-Guia operacional detalhado (SSH Windows, job, coleta): `SDumont.md` (local, não versionado).
-
 ```bash
 mkdir -p "$SCRATCH/financial-sentiment-lab"
 cd "$SCRATCH/financial-sentiment-lab"
-git clone <repo> .    # ou git pull
+git clone https://github.com/GabrielFSSantos/Financial-Sentiment-Lab.git .   # ou git pull
 
 chmod +x scripts/*.sh jobs/sdumont/*.srm
 module purge
-module load arch_gpu/current
-module load cuda/12.6
+module load cuda/12.6_sequana
 module load anaconda3/2024.02_sequana
 
 ./scripts/setup_env.sh --fetch-assets
@@ -133,20 +134,29 @@ financial-sentiment-lab/
 
 ## Referências
 
+
+
 ### Modelos
 
-| Chave YAML | Repositório |
-|---|---|
-| `finbert_ptbr` | [lucas-leme/FinBERT-PT-BR](https://huggingface.co/lucas-leme/FinBERT-PT-BR) |
+
+| Chave YAML                           | Repositório                                                                                                           |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `finbert_ptbr`                       | [lucas-leme/FinBERT-PT-BR](https://huggingface.co/lucas-leme/FinBERT-PT-BR)                                           |
 | `pt_br_financial_sentiment_analysis` | [lucasalmda/pt-br-financial-sentiment-analysis](https://huggingface.co/lucasalmda/pt-br-financial-sentiment-analysis) |
-| `finbert_en` | [ProsusAI/finbert](https://huggingface.co/ProsusAI/finbert) |
-| `finbert_tone_en` | [yiyanghkust/finbert-tone](https://huggingface.co/yiyanghkust/finbert-tone) |
+| `finbert_en`                         | [ProsusAI/finbert](https://huggingface.co/ProsusAI/finbert)                                                           |
+| `finbert_tone_en`                    | [yiyanghkust/finbert-tone](https://huggingface.co/yiyanghkust/finbert-tone)                                           |
+
+
+
 
 ### Datasets
 
-| Chave YAML | Repositório / origem |
-|---|---|
-| `noticias_exemplo` | CSV versionado no repositório |
-| `news_example_en` | CSV versionado no repositório |
+
+| Chave YAML                    | Repositório / origem                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `noticias_exemplo`            | CSV versionado no repositório                                                                                      |
+| `news_example_en`             | CSV versionado no repositório                                                                                      |
 | `ptbr_financial_news_dataset` | [lucasalmda/pt-br-financial-news-dataset](https://huggingface.co/datasets/lucasalmda/pt-br-financial-news-dataset) |
-| `en_financial_news_dataset` | [Zihan1004/FNSPID](https://huggingface.co/datasets/Zihan1004/FNSPID) |
+| `en_financial_news_dataset`   | [Zihan1004/FNSPID](https://huggingface.co/datasets/Zihan1004/FNSPID)                                               |
+
+
