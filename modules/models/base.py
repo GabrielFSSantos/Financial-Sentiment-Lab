@@ -28,7 +28,7 @@ from typing import Any, Sequence
 
 import torch
 
-from models.sentiment import (
+from modules.models.sentiment import (
     CANONICAL_SENTIMENT_LABELS,
     calculate_continuous_sentiment,
     normalize_sentiment_label,

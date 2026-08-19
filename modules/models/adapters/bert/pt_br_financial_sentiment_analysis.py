@@ -23,17 +23,17 @@ from transformers import (
     AutoTokenizer,
 )
 
-from models.base_model import (
+from modules.models.base import (
     BaseSentimentModel,
     ModelConfigurationError,
     ModelLoadingError,
     ModelPrediction,
     ModelPredictionError,
 )
-from models.bert.finbert_ptbr import FinBertPtBrModel
+from modules.models.adapters.bert.finbert_ptbr import FinBertPtBrModel
 
 if TYPE_CHECKING:
-    from pipeline.configuration import ModelConfiguration
+    from modules.models.config.loader import ModelConfiguration
 
 
 DEFAULT_MODEL_NAME = "pt_br_financial_sentiment_analysis"

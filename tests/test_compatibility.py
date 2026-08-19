@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pipeline.configuration import (
+from modules.experiment.config.loader import (
     ConfigurationLoader,
     DatasetConfiguration,
     ModelConfiguration,

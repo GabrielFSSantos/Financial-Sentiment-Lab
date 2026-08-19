@@ -16,7 +16,7 @@ from transformers import (
     BertTokenizer,
 )
 
-from models.base_model import (
+from modules.models.base import (
     BaseSentimentModel,
     ModelConfigurationError,
     ModelLoadingError,
@@ -25,7 +25,7 @@ from models.base_model import (
 )
 
 if TYPE_CHECKING:
-    from pipeline.configuration import ModelConfiguration
+    from modules.models.config.loader import ModelConfiguration
 
 
 DEFAULT_MODEL_NAME = "finbert_hf"

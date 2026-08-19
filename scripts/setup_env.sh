@@ -66,8 +66,8 @@ if [[ "${FETCH_ASSETS}" == true ]]; then
     "${VENV_DIR}/bin/python" - <<'PY'
 from pathlib import Path
 
-from pipeline.assets import fetch_assets_for_configuration
-from pipeline.configuration import load_configuration
+from modules.experiment.config.assets import fetch_assets_for_configuration
+from modules.experiment.config.loader import load_configuration
 
 configuration = load_configuration(project_root=Path("."))
 summary = fetch_assets_for_configuration(configuration)

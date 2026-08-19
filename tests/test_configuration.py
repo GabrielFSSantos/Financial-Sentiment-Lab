@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pipeline.configuration import load_configuration
+from modules.experiment.config.loader import load_configuration
 
 
 def test_load_configuration_with_example_dataset(

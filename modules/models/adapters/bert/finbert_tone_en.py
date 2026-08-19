@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from models.bert.finbert_hf import FinBertHfModel
+from modules.models.adapters.bert.finbert_hf import FinBertHfModel
 
 DEFAULT_MODEL_NAME = "finbert_tone_en"
 

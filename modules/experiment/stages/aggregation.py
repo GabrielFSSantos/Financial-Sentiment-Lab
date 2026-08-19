@@ -23,14 +23,14 @@ from typing import Any, Literal, Mapping, Sequence, cast
 import numpy as np
 import pandas as pd
 
-from pipeline.common import (
+from modules.experiment.common import (
     CANONICAL_LABELS,
     column_series,
     deduplicate,
     numeric_series,
 )
-from pipeline.configuration import ResolvedConfiguration
-from pipeline.output_schema import StandardizedPredictions
+from modules.experiment.config.loader import ResolvedConfiguration
+from modules.experiment.io.output_schema import StandardizedPredictions
 
 
 IDENTITY_COLUMNS: tuple[str, ...] = (
