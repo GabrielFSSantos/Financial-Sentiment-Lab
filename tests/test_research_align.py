@@ -5,12 +5,17 @@ from __future__ import annotations
 from dataclasses import replace
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 from modules.market.config.loader import load_market_configuration
 from modules.market.loader import load_market_prices
 from modules.research.config.loader import load_research_configuration
-from modules.research.io.align import AlignmentError, align_combination
+from modules.research.io.align import (
+    AlignmentError,
+    _add_future_returns,
+    align_combination,
+)
 from modules.research.io.experiment import list_index_combinations
 
 
@@ -29,6 +34,32 @@ def _research_configuration(
         market_config_path=market_config_path,
         min_overlap_days=5,
     )
+
+
+def test_cumulative_forward_return_sums_window() -> None:
+    frame = pd.DataFrame(
+        {
+            "ticker": ["AAA"] * 4,
+            "date": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04"],
+            "log_return": [0.01, 0.02, 0.03, 0.04],
+        }
+    )
+
+    cumulative = _add_future_returns(
+        frame,
+        return_column="log_return",
+        return_mode="cumulative",
+        horizons=(2,),
+    )
+    point = _add_future_returns(
+        frame,
+        return_column="log_return",
+        return_mode="point",
+        horizons=(2,),
+    )
+
+    assert abs(cumulative.loc[0, "future_log_return_2"] - 0.05) < 1e-9
+    assert abs(point.loc[0, "future_log_return_2"] - 0.03) < 1e-9
 
 
 def test_align_combination_adds_b3_and_future_returns(

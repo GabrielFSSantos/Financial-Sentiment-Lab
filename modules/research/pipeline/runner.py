@@ -35,14 +35,20 @@ class ResearchRunnerError(RuntimeError):
 
 
 @dataclass
+class PredictorWinStats:
+    wins: int = 0
+    significant_wins: int = 0
+    comparisons: int = 0
+
+
+@dataclass
 class CombinationResult:
     model_key: str
     dataset_key: str
     overlap_days: int
     dropped_companies: tuple[str, ...]
     output_dir: str
-    iti_wins: int = 0
-    baseline_comparisons: int = 0
+    predictor_stats: dict[str, PredictorWinStats] = field(default_factory=dict)
 
 
 @dataclass
@@ -62,8 +68,14 @@ class ResearchRunSummary:
                     "overlap_days": item.overlap_days,
                     "dropped_companies": list(item.dropped_companies),
                     "output_dir": item.output_dir,
-                    "iti_wins": item.iti_wins,
-                    "baseline_comparisons": item.baseline_comparisons,
+                    "predictor_stats": {
+                        predictor: {
+                            "wins": stats.wins,
+                            "significant_wins": stats.significant_wins,
+                            "comparisons": stats.comparisons,
+                        }
+                        for predictor, stats in item.predictor_stats.items()
+                    },
                 }
                 for item in self.combinations
             ],
@@ -72,25 +84,48 @@ class ResearchRunSummary:
         }
 
     def _conclusion(self) -> str:
-        total_wins = sum(item.iti_wins for item in self.combinations)
-        total_comparisons = sum(
-            item.baseline_comparisons for item in self.combinations
-        )
-        if total_comparisons == 0:
+        totals: dict[str, PredictorWinStats] = {}
+        for combination in self.combinations:
+            for predictor, stats in combination.predictor_stats.items():
+                aggregate = totals.setdefault(predictor, PredictorWinStats())
+                aggregate.wins += stats.wins
+                aggregate.significant_wins += stats.significant_wins
+                aggregate.comparisons += stats.comparisons
+
+        if not totals:
             return "Nenhuma comparação ITI vs baseline disponível."
-        ratio = total_wins / total_comparisons
-        return (
-            f"ITI venceu {total_wins}/{total_comparisons} comparações "
-            f"({ratio:.1%}) contra baselines nos horizontes configurados."
-        )
+
+        parts = []
+        for predictor, stats in sorted(totals.items()):
+            if stats.comparisons == 0:
+                continue
+            ratio = stats.wins / stats.comparisons
+            sig_ratio = stats.significant_wins / stats.comparisons
+            parts.append(
+                f"{predictor}: {stats.wins}/{stats.comparisons} vitórias "
+                f"({ratio:.1%}), {stats.significant_wins} significativas "
+                f"({sig_ratio:.1%})"
+            )
+
+        return "; ".join(parts) if parts else "Nenhuma comparação ITI vs baseline disponível."
 
 
-def _count_iti_wins(incremental: pd.DataFrame) -> tuple[int, int]:
+def _count_predictor_wins(incremental: pd.DataFrame) -> dict[str, PredictorWinStats]:
     deltas = incremental.attrs.get("deltas")
     if deltas is None or deltas.empty:
-        return 0, 0
-    wins = int((deltas["delta"] > 0).sum())
-    return wins, int(len(deltas))
+        return {}
+
+    stats: dict[str, PredictorWinStats] = {}
+    for predictor in deltas["iti_predictor"].unique():
+        subset = deltas[deltas["iti_predictor"] == predictor]
+        wins = int((subset["delta"] > 0).sum())
+        significant = int(subset["significant"].sum()) if "significant" in subset else 0
+        stats[str(predictor)] = PredictorWinStats(
+            wins=wins,
+            significant_wins=significant,
+            comparisons=int(len(subset)),
+        )
+    return stats
 
 
 def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
@@ -161,13 +196,16 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
             market_metrics=market_metrics,
         )
 
+        deltas = incremental.attrs.get("deltas")
+        if deltas is not None and not deltas.empty:
+            deltas.to_csv(output_dir / "incremental_deltas.csv", index=False)
+
         if uncertainty_metrics is not None:
             uncertainty_metrics.to_csv(
                 output_dir / "uncertainty_metrics.csv",
                 index=False,
             )
 
-        iti_wins, baseline_comparisons = _count_iti_wins(incremental)
         results.append(
             CombinationResult(
                 model_key=combination.model_key,
@@ -175,8 +213,7 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
                 overlap_days=alignment.overlap_days,
                 dropped_companies=alignment.dropped_companies,
                 output_dir=str(output_dir),
-                iti_wins=iti_wins,
-                baseline_comparisons=baseline_comparisons,
+                predictor_stats=_count_predictor_wins(incremental),
             )
         )
 
@@ -193,6 +230,9 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
     )
     payload = summary.to_dict()
     payload["experiment_summary"] = read_run_summary(run_dir)
+    payload["return_mode"] = configuration.return_mode
+    payload["return_column"] = configuration.return_column
+    payload["iti_predictors"] = list(configuration.iti_predictors)
     write_research_summary(summary_path=summary_path, payload=payload)
     return summary
 
@@ -226,6 +266,7 @@ def check_research_inputs(configuration: ResearchConfiguration) -> list[str]:
 
 __all__ = [
     "CombinationResult",
+    "PredictorWinStats",
     "ResearchRunSummary",
     "ResearchRunnerError",
     "check_research_inputs",

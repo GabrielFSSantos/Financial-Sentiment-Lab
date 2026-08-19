@@ -132,10 +132,11 @@ EXPECTED_FILES=(
     modules/datasets/__main__.py modules/datasets/common.py modules/datasets/loader.py
     modules/datasets/config/loader.py modules/datasets/assets.py
     modules/market/__main__.py modules/market/common.py modules/market/loader.py
-    modules/market/config/loader.py modules/market/assets.py
+    modules/market/config/loader.py modules/market/assets.py modules/market/scripts/fetch.sh
     modules/research/__main__.py modules/research/common.py modules/research/config/loader.py
     modules/research/io/experiment.py modules/research/io/align.py modules/research/io/reports.py
-    modules/research/validation/metrics.py modules/research/validation/incremental.py
+    modules/research/validation/metrics.py modules/research/validation/inference.py
+    modules/research/validation/incremental.py
     modules/research/validation/market.py modules/research/validation/baselines.py
     modules/research/pipeline/runner.py
     modules/experiment/pipeline/runner.py modules/experiment/indexing/temporal_index.py

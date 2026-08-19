@@ -19,5 +19,5 @@ market:
   local_path: data/market/prices.csv
   source:
     provider: yfinance
-    tickers: [SBSP3.SA]
+    tickers: [SBSP3.SA, CSMG3.SA, SAPR4.SA]
     start: "2020-01-01"

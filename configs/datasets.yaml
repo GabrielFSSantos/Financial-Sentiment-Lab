@@ -221,3 +221,44 @@ datasets:
       description: >-
         Notícias EN filtradas para water utilities (FNSPID Nasdaq).
         CSV local gitignored; gere com scripts/temp/build_saneamento_filtered_datasets.py.
+
+  saneamento_corpus:
+    enabled: true
+    order: 5
+    dataset_name: saneamento_corpus
+    display_name: Corpus de saneamento (scraper)
+    path: data/saneamento_corpus/noticias.csv
+    format: csv
+    limits:
+      max_rows: max
+    columns:
+      news_id: id
+      text: noticia
+      date: data
+      company: empresa
+      sector: setor
+      ticker: ticker
+      title: titulo
+      true_label: null
+      source: fonte
+      url: url
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: false
+    dates:
+      available: true
+      format: "%Y-%m-%d"
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+    metadata:
+      language: pt-BR
+      domain: sanitation_utilities
+      market: Brazilian
+      country: Brazil
+      split: inference
+      source_type: scraper
+      description: >-
+        Corpus multiportal gerado por modules/scrapers; CSV versionado no repositório.

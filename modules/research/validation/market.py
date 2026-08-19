@@ -6,7 +6,10 @@ import pandas as pd
 
 from modules.research.common import BASELINE_COLUMNS
 from modules.research.config.loader import ResearchConfiguration
-from modules.research.validation.metrics import compute_metric
+from modules.research.validation.metrics import (
+    compute_metric_with_inference,
+    resolve_target_series,
+)
 
 
 def run_market_validation(
@@ -16,25 +19,37 @@ def run_market_validation(
     """Correlaciona índices e baselines com retornos futuros."""
 
     rows: list[dict[str, object]] = []
-    series_keys = list(configuration.baselines) + ["iti"]
+    series_keys = list(configuration.baselines) + list(configuration.iti_predictors)
 
     for horizon in configuration.horizons:
         target_column = f"future_{configuration.return_column}_{horizon}"
         if target_column not in panel.columns:
             continue
-        target = panel[target_column]
 
         for series_key in series_keys:
-            if series_key == "iti":
-                column = configuration.iti_column
+            if series_key in configuration.iti_predictors:
+                column = series_key
             else:
                 column = BASELINE_COLUMNS[series_key]
             if column not in panel.columns:
                 continue
 
+            target = resolve_target_series(
+                panel,
+                target_column=target_column,
+                predictor_key=series_key,
+                configuration=configuration,
+            )
+            target_mode = "abs" if configuration.uses_abs_target(series_key) else "signed"
+
             for metric_name in configuration.metrics:
-                value = compute_metric(metric_name, panel[column], target)
-                if value is None:
+                result = compute_metric_with_inference(
+                    metric_name,
+                    panel[column],
+                    target,
+                    inference=configuration.inference,
+                )
+                if result.value is None:
                     continue
                 rows.append(
                     {
@@ -44,9 +59,14 @@ def run_market_validation(
                         "series": series_key,
                         "series_column": column,
                         "target_column": target_column,
+                        "target_mode": target_mode,
                         "metric": metric_name,
-                        "value": value,
-                        "n": int(panel[column].notna().sum()),
+                        "value": result.value,
+                        "p_value": result.p_value,
+                        "ci_low": result.ci_low,
+                        "ci_high": result.ci_high,
+                        "n": result.n,
+                        "n_bootstrap": result.n_bootstrap,
                     }
                 )
 
@@ -59,9 +79,14 @@ def run_market_validation(
                 "series",
                 "series_column",
                 "target_column",
+                "target_mode",
                 "metric",
                 "value",
+                "p_value",
+                "ci_low",
+                "ci_high",
                 "n",
+                "n_bootstrap",
             ]
         )
 
@@ -89,18 +114,23 @@ def run_uncertainty_validation(
     abs_return = merged[configuration.return_column].abs()
     rows: list[dict[str, object]] = []
     for metric_name in configuration.metrics:
-        value = compute_metric(
+        result = compute_metric_with_inference(
             metric_name,
             merged["iti_uncertainty"],
             abs_return,
+            inference=configuration.inference,
         )
-        if value is None:
+        if result.value is None:
             continue
         rows.append(
             {
                 "metric": metric_name,
-                "value": value,
-                "n": int(merged["iti_uncertainty"].notna().sum()),
+                "value": result.value,
+                "p_value": result.p_value,
+                "ci_low": result.ci_low,
+                "ci_high": result.ci_high,
+                "n": result.n,
+                "n_bootstrap": result.n_bootstrap,
             }
         )
 

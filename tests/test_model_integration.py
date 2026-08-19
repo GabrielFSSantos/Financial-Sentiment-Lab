@@ -16,9 +16,9 @@ def test_full_bilingual_combination_matrix(project_root: Path) -> None:
     configuration = load_configuration(project_root=project_root)
 
     assert len(configuration.models) == 4
-    assert len(configuration.datasets) == 4
-    assert len(configuration.combinations) == 8
-    assert len(configuration.skipped_combinations) == 8
+    assert len(configuration.datasets) == 5
+    assert len(configuration.combinations) == 10
+    assert len(configuration.skipped_combinations) == 10
 
     for combination in configuration.combinations:
         model = configuration.get_model(combination.model_key)
@@ -29,7 +29,7 @@ def test_full_bilingual_combination_matrix(project_root: Path) -> None:
         (skipped.model_key, skipped.dataset_key)
         for skipped in configuration.skipped_combinations
     }
-    assert len(skipped_pairs) == 8
+    assert len(skipped_pairs) == 10
 
 
 def test_finbert_tone_en_legacy_load(project_root: Path) -> None:

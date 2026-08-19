@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+import numpy as np
 import pandas as pd
 
 from modules.market.config.loader import load_market_configuration
@@ -47,18 +48,53 @@ def _map_company_to_ticker(
     return working.dropna(subset=["ticker"]), dropped
 
 
+def _cumulative_forward_return(
+    series: pd.Series,
+    *,
+    horizon: int,
+    return_column: str,
+) -> pd.Series:
+    values = series.to_numpy(dtype=float)
+    output = np.full(len(values), np.nan)
+
+    for index in range(len(values)):
+        end = index + horizon
+        if end >= len(values):
+            continue
+        window = values[index + 1 : end + 1]
+        if return_column == "log_return":
+            output[index] = float(np.nansum(window))
+        else:
+            output[index] = float(np.prod(1.0 + window) - 1.0)
+
+    return pd.Series(output, index=series.index)
+
+
 def _add_future_returns(
     frame: pd.DataFrame,
     *,
     return_column: str,
+    return_mode: str,
     horizons: tuple[int, ...],
 ) -> pd.DataFrame:
     working = frame.sort_values(["ticker", "date"]).reset_index(drop=True)
 
     for horizon in horizons:
-        working[f"future_{return_column}_{horizon}"] = working.groupby(
-            "ticker"
-        )[return_column].shift(-horizon)
+        column_name = f"future_{return_column}_{horizon}"
+        if return_mode == "point":
+            working[column_name] = working.groupby("ticker")[return_column].shift(
+                -horizon
+            )
+        else:
+            working[column_name] = working.groupby("ticker", group_keys=False)[
+                return_column
+            ].apply(
+                lambda series: _cumulative_forward_return(
+                    series,
+                    horizon=horizon,
+                    return_column=return_column,
+                )
+            )
 
     return working
 
@@ -119,6 +155,7 @@ def align_combination(
     merged = _add_future_returns(
         merged,
         return_column=configuration.return_column,
+        return_mode=configuration.return_mode,
         horizons=configuration.horizons,
     )
     merged["model_key"] = combination.model_key

@@ -80,7 +80,7 @@ Download isolado de modelos: `python -m modules.models fetch` ou `[modules/model
 
 Download/validação de datasets: `python -m modules.datasets fetch|check|validate` ou `[modules/datasets/scripts/fetch.sh](modules/datasets/scripts/fetch.sh)`.
 
-Download/validação de preços: `python -m modules.market fetch|check`.
+Download/validação de preços: `python -m modules.market fetch|check` ou [`modules/market/scripts/fetch.sh`](modules/market/scripts/fetch.sh).
 
 Validação científica: `python -m modules.research validate|check` ou `[scripts/run_research.sh](scripts/run_research.sh)`.
 
@@ -175,5 +175,6 @@ financial-sentiment-lab/
 | `news_example_en`             | CSV versionado no repositório                                                                                      |
 | `saneamento_ptbr_filtrado`    | CSV filtrado PT (local gitignored; HF via script temp)                                                             |
 | `saneamento_en_filtrado`      | CSV filtrado EN (local gitignored; FNSPID via script temp)                                                           |
+| `saneamento_corpus`             | CSV versionado gerado por `modules/scrapers` (corpus multiportal PT)                                                 |
 
 

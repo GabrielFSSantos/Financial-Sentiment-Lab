@@ -19,6 +19,7 @@ def test_load_market_configuration(project_root: Path) -> None:
     assert configuration.local_path.name == "prices.csv"
     assert configuration.source is not None
     assert "SBSP3.SA" in configuration.source.tickers
+    assert "CSMG3.SA" in configuration.source.tickers
 
 
 def test_load_market_configuration_rejects_invalid_provider(

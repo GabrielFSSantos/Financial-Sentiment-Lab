@@ -15,8 +15,9 @@ from modules.datasets.config.loader import (
 def test_load_datasets_configuration(project_root: Path) -> None:
     configuration = load_datasets_configuration(project_root=project_root)
     assert configuration.schema_version == "2.0"
-    assert len(configuration.datasets) >= 4
+    assert len(configuration.datasets) >= 5
     assert configuration.get_dataset("noticias_exemplo").path is not None
+    assert configuration.get_dataset("saneamento_corpus").path is not None
 
 
 def test_load_datasets_configuration_rejects_missing_path(

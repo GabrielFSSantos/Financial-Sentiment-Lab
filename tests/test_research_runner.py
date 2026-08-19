@@ -56,4 +56,5 @@ market:
 
     assert summary.run_id == "test_run"
     assert len(summary.combinations) == 1
+    assert summary.combinations[0].predictor_stats
     assert summary_path.is_file()
