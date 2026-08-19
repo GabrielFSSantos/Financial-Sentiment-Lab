@@ -5,8 +5,9 @@ from __future__ import annotations
 import json
 
 import pandas as pd
+import pytest
 
-from pipeline.temporal_index import (
+from modules.experiment.indexing.temporal_index import (
     build_news_impact_frame,
     compute_daily_company_impact,
     compute_iti_daily_series,
@@ -37,8 +38,8 @@ def test_build_news_impact_uses_defaults() -> None:
             "risk": 1.0,
             "novelty": 1.0,
         },
+        settings={"dimensions": {"heuristics": {"enabled": False}}},
     )
-
     assert len(impact) == 2
     assert impact.loc[0, "I_n"] == 0.5 * 0.9
     assert impact.loc[1, "R_n"] == 0.2 * 0.8
@@ -76,8 +77,13 @@ def test_build_news_impact_reads_metadata_dimensions() -> None:
             "risk": 1.0,
             "novelty": 1.0,
         },
+        settings={
+            "dimensions": {
+                "provider_order": ["prediction_metadata", "defaults"],
+                "heuristics": {"enabled": False},
+            }
+        },
     )
-
     expected = 0.4 * 2.0 * 0.5 * 0.7 * 1.5 * 0.8
     assert impact.loc[0, "I_n"] == expected
 
@@ -117,6 +123,29 @@ def test_iti_recurrence_with_dissipation() -> None:
     assert iti.loc[1, "iti_liquido"] == 0.25
     assert iti.loc[2, "impacto_dia"] == -1.0
     assert iti.loc[2, "iti_liquido"] == -0.375
+
+
+def test_iti_horizon_modulates_alpha() -> None:
+    daily = pd.DataFrame(
+        {
+            "company": ["ACME"],
+            "sector": ["Tech"],
+            "date": pd.to_datetime(["2024-01-01"]),
+            "impacto_dia": [1.0],
+            "risco_dia": [0.0],
+            "news_count": [1],
+            "mean_confidence": [1.0],
+            "mean_relevance": [1.0],
+            "mean_horizon": [2.0],
+        }
+    )
+    iti = compute_iti_daily_series(
+        daily,
+        alpha=0.5,
+        initial_value=0.0,
+        horizon_mode="ewma_alpha",
+    )
+    assert iti.loc[0, "iti_liquido"] == pytest.approx(1.0 - (0.5 ** (1 / 2)))
 
 
 def test_resample_weekly_produces_period_rows() -> None:

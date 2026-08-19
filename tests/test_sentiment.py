@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from models.sentiment import (
+from modules.models.sentiment import (
     calculate_continuous_sentiment,
     normalize_sentiment_label,
 )

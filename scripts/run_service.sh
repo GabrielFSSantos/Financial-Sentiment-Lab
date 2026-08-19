@@ -47,5 +47,5 @@ printf 'Executando com Python: %s\n' \
     "${PYTHON_EXECUTABLE}"
 
 exec "${PYTHON_EXECUTABLE}" \
-    -m pipeline.runner \
+    -m modules.experiment \
     "$@"

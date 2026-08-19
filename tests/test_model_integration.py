@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from pipeline.configuration import load_configuration
-from pipeline.dataset_loader import DatasetLoader
-from pipeline.registry import create_model_registry
+from modules.experiment.config.loader import load_configuration
+from modules.datasets.loader import DatasetLoader
+from modules.models.registry import create_model_registry
 
 
 def test_full_bilingual_combination_matrix(project_root: Path) -> None:
@@ -67,16 +67,16 @@ def test_finbert_tone_en_legacy_load(project_root: Path) -> None:
         registered.unload()
 
 
-def test_max_rows_limits_jsonl_read(project_root: Path) -> None:
+def test_max_rows_limits_filtered_csv_read(project_root: Path) -> None:
     configuration = load_configuration(
         project_root=project_root,
-        dataset_keys=["ptbr_financial_news_dataset"],
+        dataset_keys=["saneamento_ptbr_filtrado"],
         model_keys=["finbert_ptbr"],
     )
-    dataset = configuration.get_dataset("ptbr_financial_news_dataset")
+    dataset = configuration.get_dataset("saneamento_ptbr_filtrado")
 
     if not dataset.path or not dataset.path.is_file():
-        pytest.skip("ptbr_financial_news_dataset.jsonl ausente em data/")
+        pytest.skip("saneamento_ptbr_filtrado/noticias.csv ausente em data/")
 
     limited = replace(
         dataset,

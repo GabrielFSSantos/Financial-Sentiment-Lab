@@ -24,7 +24,7 @@ models:
     order: 1
     model_name: finbert_ptbr
     display_name: FinBERT-PT-BR
-    adapter: models.bert.finbert_ptbr.FinBertPtBrModel
+    adapter: modules.models.adapters.bert.finbert_ptbr.FinBertPtBrModel
     model_dir: model_store/FinBERT-PT-BR
     source:
       provider: huggingface_hub
@@ -69,7 +69,7 @@ models:
     model_name: pt_br_financial_sentiment_analysis
     display_name: PT-BR Financial Sentiment Analysis
     adapter: >-
-      models.bert.pt_br_financial_sentiment_analysis.PtBrFinancialSentimentAnalysisModel
+      modules.models.adapters.bert.pt_br_financial_sentiment_analysis.PtBrFinancialSentimentAnalysisModel
     model_dir: model_store/pt-br-financial-sentiment-analysis
     source:
       provider: huggingface_hub
@@ -142,7 +142,7 @@ models:
     language: en
     model_name: finbert_en
     display_name: FinBERT (EN)
-    adapter: models.bert.finbert_en.FinBertEnModel
+    adapter: modules.models.adapters.bert.finbert_en.FinBertEnModel
     model_dir: model_store/FinBERT-EN
     source:
       provider: huggingface_hub
@@ -189,7 +189,7 @@ models:
     language: en
     model_name: finbert_tone_en
     display_name: FinBERT-Tone (EN)
-    adapter: models.bert.finbert_tone_en.FinBertToneEnModel
+    adapter: modules.models.adapters.bert.finbert_tone_en.FinBertToneEnModel
     model_dir: model_store/FinBERT-Tone-EN
     source:
       provider: huggingface_hub

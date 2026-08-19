@@ -1,0 +1,104 @@
+# Coleta de notícias via configs/scrapers.yaml
+
+schema_version: "1.1"
+
+defaults:
+  max_articles_per_site: 50
+  default_since: "2020-01-01"
+  delay_seconds: 2.0
+  request_timeout: 30.0
+  min_article_chars: 40
+  raw_dir: data/saneamento_corpus/raw
+  corpus_path: data/saneamento_corpus/noticias.csv
+  state_path: data/saneamento_corpus/.scrape_state.json
+
+sites:
+  valor:
+    enabled: true
+    order: 1
+    display_name: Valor Econômico
+    adapter: modules.scrapers.sites.base.SiteScraper
+    output_file: valor.csv
+    scraping:
+      fonte: Valor Econômico
+      search_strategy: rss
+      rss_url: https://valor.globo.com/rss/valor/
+      base_url: https://valor.globo.com
+      search_url: "https://valor.globo.com/busca/?q={query}"
+      link_selector: "a.busca-titulo__link, a[href*='/empresas/'], a[href*='/financas/']"
+      body_selector: "article p, .content-text__container p, .mc-article-body p"
+      article_url_pattern: "valor\\.globo\\.com/.+/noticia/\\d{4}/\\d{2}/\\d{2}/"
+      link_exclude_substrings:
+        - /busca/
+        - /video/
+        - /podcast/
+        - /patrocinado/
+      search_queries:
+        - Sabesp
+        - Copasa
+        - Sanepar
+        - saneamento
+
+  infomoney:
+    enabled: true
+    order: 2
+    display_name: InfoMoney
+    adapter: modules.scrapers.sites.base.SiteScraper
+    output_file: infomoney.csv
+    scraping:
+      fonte: InfoMoney
+      search_strategy: wordpress_api
+      api_url: https://www.infomoney.com.br/wp-json/wp/v2/posts
+      api_per_page: 20
+      api_max_pages: 3
+      base_url: https://www.infomoney.com.br
+      body_selector: "article p, .article-content p, .post-content p"
+      search_queries:
+        - Sabesp
+        - Copasa
+        - Sanepar
+        - saneamento
+
+  estadao:
+    enabled: true
+    order: 3
+    display_name: Estadão
+    adapter: modules.scrapers.sites.base.SiteScraper
+    output_file: estadao.csv
+    scraping:
+      fonte: Estadão
+      search_strategy: rss
+      rss_url: https://www.estadao.com.br/arc/outboundfeeds/feeds/rss/sections/economia/
+      base_url: https://www.estadao.com.br
+      body_selector: "article p, .content-body p, .news-body p"
+      article_url_pattern: "estadao\\.com\\.br/.+"
+      link_exclude_substrings:
+        - /error/
+        - /podcast/
+      search_queries:
+        - Sabesp
+        - Copasa
+        - Sanepar
+        - saneamento
+
+  g1_economia:
+    enabled: true
+    order: 4
+    display_name: G1 Economia
+    adapter: modules.scrapers.sites.base.SiteScraper
+    output_file: g1.csv
+    scraping:
+      fonte: G1 Economia
+      search_strategy: rss
+      rss_url: https://g1.globo.com/rss/g1/economia/
+      base_url: https://g1.globo.com
+      body_selector: "article p, .content-text__container p, .mc-article-body p"
+      article_url_pattern: "g1\\.globo\\.com/.+/noticia/\\d{4}/\\d{2}/\\d{2}/"
+      link_exclude_substrings:
+        - /video/
+        - /podcasts/
+      search_queries:
+        - Sabesp
+        - Copasa
+        - Sanepar
+        - saneamento

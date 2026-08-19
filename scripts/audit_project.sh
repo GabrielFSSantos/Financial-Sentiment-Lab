@@ -115,17 +115,34 @@ section "2. ESTRUTURA"
 
 EXPECTED_FILES=(
     README.md requirements.txt pytest.ini requirements-dev.txt
-    configs/experiment.yaml configs/models.yaml configs/datasets.yaml
+    configs/experiment.yaml configs/models.yaml configs/datasets.yaml configs/scrapers.yaml
     data/noticias_exemplo/noticias.csv
     data/news_example_en/news.csv
+    data/saneamento_corpus/noticias.csv
     scripts/setup_env.sh scripts/run_service.sh scripts/run_experiment.sh scripts/audit_project.sh
     jobs/sdumont/run_experiment.srm
-    pipeline/common.py pipeline/configuration.py pipeline/assets.py pipeline/runner.py pipeline/temporal_index.py
-    models/sentiment.py models/base_model.py
-    models/bert/finbert_hf.py models/bert/finbert_ptbr.py
-    models/bert/finbert_en.py models/bert/finbert_tone_en.py
-    models/bert/pt_br_financial_sentiment_analysis.py
+    modules/experiment/__main__.py modules/experiment/common.py
+    modules/experiment/config/loader.py modules/experiment/config/assets.py
+    modules/models/__main__.py modules/models/base.py modules/models/sentiment.py
+    modules/models/config/loader.py modules/models/assets.py modules/models/registry.py
+    modules/models/adapters/bert/finbert_hf.py modules/models/adapters/bert/finbert_ptbr.py
+    modules/models/adapters/bert/finbert_en.py modules/models/adapters/bert/finbert_tone_en.py
+    modules/models/adapters/bert/pt_br_financial_sentiment_analysis.py
+    modules/datasets/__main__.py modules/datasets/common.py modules/datasets/loader.py
+    modules/datasets/config/loader.py modules/datasets/assets.py
+    modules/experiment/pipeline/runner.py modules/experiment/indexing/temporal_index.py
+    modules/experiment/indexing/constants.py modules/experiment/indexing/dimensions.py modules/experiment/indexing/baselines.py
+    modules/experiment/io/output_schema.py modules/experiment/io/results.py
+    modules/scrapers/__main__.py modules/scrapers/cli/main.py modules/scrapers/config/loader.py
+    modules/scrapers/schema/csv.py modules/scrapers/schema/entities.py
+    modules/scrapers/pipeline/runner.py modules/scrapers/pipeline/state.py modules/scrapers/core/search.py
+    modules/scrapers/sites/base.py modules/scrapers/scripts/scrape.sh modules/scrapers/scripts/build_corpus.sh
     tests/conftest.py tests/test_sentiment.py tests/test_configuration.py tests/test_compatibility.py tests/test_temporal_index.py
+    tests/test_experiment_dimensions.py tests/test_experiment_baselines.py
+    tests/test_models_config.py tests/test_models_assets.py
+    tests/test_datasets_config.py tests/test_datasets_assets.py tests/test_datasets_validation.py
+    tests/test_scrapers_config.py tests/test_scrapers_schema.py tests/test_scrapers_search.py
+    tests/test_scrapers_cron.py tests/test_scrapers_corpus.py tests/test_scrapers_live.py
 )
 
 for relative_path in "${EXPECTED_FILES[@]}"; do
@@ -136,7 +153,7 @@ for relative_path in "${EXPECTED_FILES[@]}"; do
     fi
 done
 
-for relative_path in configs data jobs/sdumont model_store models outputs logs pipeline scripts tests; do
+for relative_path in configs data jobs/sdumont model_store modules outputs logs scripts tests; do
     if [[ -d "${relative_path}" ]]; then
         ok "Diretório: ${relative_path}/"
     else
@@ -146,7 +163,8 @@ done
 
 section "3. SHELL"
 
-for script in scripts/*.sh; do
+for script in scripts/*.sh modules/scrapers/scripts/*.sh; do
+    [[ -f "${script}" ]] || continue
     run_check "bash -n $(basename "${script}")" bash -n "${script}"
 done
 run_check "bash -n run_experiment.srm" bash -n jobs/sdumont/run_experiment.srm
@@ -155,14 +173,14 @@ section "4. CONFIGURAÇÃO"
 
 if [[ -n "${PYTHON}" ]]; then
     run_check "load_configuration()" "${PYTHON}" -c \
-        'from pathlib import Path; from pipeline.configuration import load_configuration; load_configuration(project_root=Path(".")); print("OK")'
+        'from pathlib import Path; from modules.experiment.config.loader import load_configuration; load_configuration(project_root=Path(".")); print("OK")'
 
     ASSET_CHECK_FILE="$(mktemp)"
     if "${PYTHON}" - <<'PY' >"${ASSET_CHECK_FILE}" 2>&1; then
 from pathlib import Path
 
-from pipeline.assets import check_enabled_assets
-from pipeline.configuration import load_configuration
+from modules.experiment.config.assets import check_enabled_assets
+from modules.experiment.config.loader import load_configuration
 
 configuration = load_configuration(project_root=Path("."))
 missing = check_enabled_assets(configuration)
@@ -188,9 +206,9 @@ section "5. TESTES"
 if [[ ! -d tests ]]; then
     fail "Diretório tests/ ausente"
 elif [[ -x "${VENV_DIR}/bin/pytest" ]]; then
-    run_check "pytest" "${VENV_DIR}/bin/pytest" tests
+    run_check "pytest (sem rede)" "${VENV_DIR}/bin/pytest" tests -m "not network"
 elif command -v pytest >/dev/null 2>&1; then
-    run_check "pytest" pytest tests
+    run_check "pytest (sem rede)" pytest tests -m "not network"
 else
     fail "pytest não encontrado (pip install -r requirements-dev.txt)"
 fi
@@ -222,9 +240,9 @@ if [[ "${RUN_SMOKE}" == true ]]; then
         fail "Smoke requer assets enabled presentes"
     else
         run_check "Smoke FinBERT" "${PYTHON}" - <<'PY'
-from pipeline.configuration import load_configuration
-from pipeline.dataset_loader import DatasetLoader
-from pipeline.registry import create_model_registry
+from modules.experiment.config.loader import load_configuration
+from modules.datasets.loader import DatasetLoader
+from modules.models.registry import create_model_registry
 
 configuration = load_configuration(
     model_keys=["finbert_ptbr"],

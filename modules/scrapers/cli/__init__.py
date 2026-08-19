@@ -1,0 +1,1 @@
+"""CLI dos scrapers."""

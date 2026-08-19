@@ -1,0 +1,1 @@
+"""Scraper configurável por YAML."""

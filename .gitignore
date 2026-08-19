@@ -30,6 +30,8 @@ data/**
 !data/noticias_exemplo/**
 !data/news_example_en/
 !data/news_example_en/**
+!data/saneamento_corpus/
+!data/saneamento_corpus/noticias.csv
 
 # SO e editores
 .DS_Store

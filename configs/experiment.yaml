@@ -90,11 +90,12 @@ reproducibility:
 compatibility:
   require_language_match: true
 
-# ITI — fórmulas em pipeline/temporal_index.py
+# ITI — fórmulas em modules/experiment/indexing/temporal_index.py
 temporal_index:
   enabled: true
   alpha: 0.85
   initial_value: 0.0
+  fail_on_error: false
   defaults:
     magnitude: 1.0
     relevance: 1.0
@@ -102,6 +103,23 @@ temporal_index:
     horizon: 1.0
     risk: 1.0
     novelty: 1.0
+  dimensions:
+    provider_order:
+      - dataset_columns
+      - prediction_metadata
+      - heuristics
+      - defaults
+    heuristics:
+      enabled: true
+      event_keywords:
+        regulacao: [regulat, aneel, ana, arsesp, agepar, multa]
+        investimento: [invest, capex, obras, expansão, expansao]
+        tarifa: [tarifa, reajuste, precific]
+        privatizacao: [privatiz, concess, leilão, leilao]
+  horizon:
+    mode: ewma_alpha
+  baselines:
+    enabled: true
   resample:
     enabled: true
     frequencies:

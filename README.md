@@ -67,12 +67,16 @@ Em `[configs/datasets.yaml](configs/datasets.yaml)`:
 
 | Arquivo                                              | Controla                                   |
 | ---------------------------------------------------- | ------------------------------------------ |
-| `[configs/experiment.yaml](configs/experiment.yaml)` | ITI, agregação, execução                   |
+| `[configs/experiment.yaml](configs/experiment.yaml)` | ITI, dimensões, baselines, agregação, execução |
 | `[configs/models.yaml](configs/models.yaml)`         | Modelos, `language`, `source`, adaptadores |
 | `[configs/datasets.yaml](configs/datasets.yaml)`     | Datasets, `source`, `limits`, colunas      |
 
 
-Adaptadores FinBERT em `[models/bert/](models/bert/)`: motor compartilhado (`finbert_hf.py`) e aliases por checkpoint. Ensembles têm adaptador dedicado.
+Adaptadores FinBERT em `[modules/models/adapters/bert/](modules/models/adapters/bert/)`: motor compartilhado (`finbert_hf.py`) e aliases por checkpoint. Ensembles têm adaptador dedicado.
+
+Download isolado de modelos: `python -m modules.models fetch` ou `[modules/models/scripts/fetch.sh](modules/models/scripts/fetch.sh)`.
+
+Download/validação de datasets: `python -m modules.datasets fetch|check|validate` ou `[modules/datasets/scripts/fetch.sh](modules/datasets/scripts/fetch.sh)`.
 
 ---
 
@@ -121,9 +125,12 @@ financial-sentiment-lab/
 ├── configs/
 ├── data/                  # exemplos versionados; demais via --fetch-assets
 ├── model_store/
-├── models/
-│   └── bert/
-├── pipeline/
+├── modules/
+│   ├── models/            # config, download HF, registry, adaptadores FinBERT
+│   │   └── adapters/bert/
+│   ├── datasets/          # config, download, validação e leitura de datasets
+│   ├── scrapers/          # coleta multiportal → corpus CSV
+│   └── experiment/        # inferência FinBERT + ITI
 ├── scripts/
 ├── tests/
 ├── outputs/
@@ -156,7 +163,7 @@ financial-sentiment-lab/
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `noticias_exemplo`            | CSV versionado no repositório                                                                                      |
 | `news_example_en`             | CSV versionado no repositório                                                                                      |
-| `ptbr_financial_news_dataset` | [lucasalmda/pt-br-financial-news-dataset](https://huggingface.co/datasets/lucasalmda/pt-br-financial-news-dataset) |
-| `en_financial_news_dataset`   | [Zihan1004/FNSPID](https://huggingface.co/datasets/Zihan1004/FNSPID)                                               |
+| `saneamento_ptbr_filtrado`    | CSV filtrado PT (local gitignored; HF via script temp)                                                             |
+| `saneamento_en_filtrado`      | CSV filtrado EN (local gitignored; FNSPID via script temp)                                                           |
 
 

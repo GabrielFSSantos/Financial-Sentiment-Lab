@@ -90,32 +90,25 @@ datasets:
         Dataset pequeno para validar carregamento, inferência, métricas e
         agregações da pipeline.
 
-  ptbr_financial_news_dataset:
+  saneamento_ptbr_filtrado:
     enabled: true
     order: 2
-    dataset_name: ptbr_financial_news_dataset
-    display_name: PT-BR Financial News Dataset
-    path: data/ptbr_financial_news_dataset/ptbr_financial_news_dataset.jsonl
-    format: jsonl
-    source:
-      provider: huggingface_dataset
-      repo_id: lucasalmda/pt-br-financial-news-dataset
-      revision: main
-      config: default
-      split: train
-      data_files: financial_news_br.jsonl
-      materialize_format: jsonl
-      local_path: data/ptbr_financial_news_dataset/ptbr_financial_news_dataset.jsonl
+    dataset_name: saneamento_ptbr_filtrado
+    display_name: Saneamento PT filtrado (HF)
+    path: data/saneamento_ptbr_filtrado/noticias.csv
+    format: csv
+    limits:
+      max_rows: max
     columns:
-      news_id: url
-      text: sentiment_text
-      date: published_at
-      company: null
-      sector: null
-      ticker: null
-      title: title
+      news_id: id
+      text: noticia
+      date: data
+      company: empresa
+      sector: setor
+      ticker: ticker
+      title: titulo
       true_label: null
-      source: source
+      source: fonte
       url: url
     required_fields:
       - news_id
@@ -124,20 +117,20 @@ datasets:
       available: false
     dates:
       available: true
-      format: ISO8601
+      format: "%Y-%m-%d"
       dayfirst: false
       fail_on_invalid: true
       output_format: "%Y-%m-%d"
     metadata:
       language: pt-BR
-      domain: financial_news
+      domain: sanitation_utilities
       market: Brazilian
       country: Brazil
       split: inference
-      source_type: real_news
+      source_type: filtered_hf
       description: >-
-        Notícias financeiras brasileiras (2016–2025), sem rótulos de
-        sentimento.
+        Notícias PT filtradas para saneamento (Sabesp/Copasa/Sanepar/keywords).
+        CSV local gitignored; gere com scripts/temp/build_saneamento_filtered_datasets.py.
 
   news_example_en:
     enabled: true
@@ -186,40 +179,27 @@ datasets:
       source_type: synthetic
       description: Exemplo EN com rótulos para validação da pipeline.
 
-  en_financial_news_dataset:
+  saneamento_en_filtrado:
     enabled: true
     order: 4
     language: en
-    dataset_name: en_financial_news_dataset
-    display_name: EN Financial News Dataset (FNSPID Nasdaq)
-    path: data/en_financial_news_dataset/nasdaq_exteral_data.csv
+    dataset_name: saneamento_en_filtrado
+    display_name: Saneamento EN filtrado (FNSPID)
+    path: data/saneamento_en_filtrado/news.csv
     format: csv
-    source:
-      provider: huggingface_dataset
-      repo_id: Zihan1004/FNSPID
-      revision: main
-      config: default
-      split: train
-      data_files: Stock_news/nasdaq_exteral_data.csv
-      materialize_format: csv
-      local_path: data/en_financial_news_dataset/nasdaq_exteral_data.csv
-    text_compose:
-      template: "Title: {title}\nBody: {body}"
-      fields:
-        title: Article_title
-        body: Article
-      skip_if_all_empty: true
+    limits:
+      max_rows: max
     columns:
-      news_id: Url
-      text: null
-      date: Date
-      company: null
-      sector: null
-      ticker: Stock_symbol
-      title: Article_title
+      news_id: id
+      text: news_text
+      date: date
+      company: company
+      sector: sector
+      ticker: ticker
+      title: title
       true_label: null
-      source: Publisher
-      url: Url
+      source: source
+      url: url
     required_fields:
       - news_id
       - text
@@ -227,19 +207,17 @@ datasets:
       available: false
     dates:
       available: true
-      format: null
+      format: "%Y-%m-%d"
       dayfirst: false
       fail_on_invalid: true
       output_format: "%Y-%m-%d"
     metadata:
       language: en
-      domain: financial_news
+      domain: sanitation_utilities
       market: US
       country: United States
       split: inference
-      source_type: real_news
-      size_gb: 23
-      citation: "FNSPID (Dong et al., 2024)"
+      source_type: filtered_hf
       description: >-
-        Fatia Nasdaq do FNSPID (~23 GB completo). Use limits.max_rows em
-        pilotos.
+        Notícias EN filtradas para water utilities (FNSPID Nasdaq).
+        CSV local gitignored; gere com scripts/temp/build_saneamento_filtered_datasets.py.

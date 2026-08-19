@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from pipeline.configuration import load_configuration
-from pipeline.dataset_loader import DatasetLoader
+from modules.experiment.config.loader import load_configuration
+from modules.datasets.loader import DatasetLoader
 
 
 def test_news_example_en_loads(project_root: Path) -> None:
@@ -29,22 +29,39 @@ def test_news_example_en_loads(project_root: Path) -> None:
 
 
 def test_text_compose_builds_text(project_root: Path) -> None:
+    from dataclasses import replace
+
     configuration = load_configuration(
         project_root=project_root,
-        dataset_keys=["en_financial_news_dataset"],
+        dataset_keys=["news_example_en"],
         model_keys=["finbert_en"],
     )
-    dataset = configuration.get_dataset("en_financial_news_dataset")
+    dataset = replace(
+        configuration.get_dataset("news_example_en"),
+        text_compose={
+            "template": "Title: {title}\nBody: {body}",
+            "fields": {"title": "title", "body": "news_text"},
+            "skip_if_all_empty": True,
+        },
+        columns={
+            **configuration.get_dataset("news_example_en").columns,
+            "text": None,
+            "true_label": None,
+        },
+    )
     loader = DatasetLoader()
 
     sample = pd.DataFrame(
         {
-            "Article_title": ["Apple beats estimates"],
-            "Article": ["Apple reported stronger than expected earnings."],
-            "Date": ["2023-11-24 00:00:00 UTC"],
-            "Stock_symbol": ["AAPL"],
-            "Url": ["https://example.invalid/a"],
-            "Publisher": ["Nasdaq"],
+            "title": ["Apple beats estimates"],
+            "news_text": ["Apple reported stronger than expected earnings."],
+            "date": ["2023-11-24"],
+            "company": ["Apple"],
+            "sector": ["Tech"],
+            "ticker": ["AAPL"],
+            "id": ["1"],
+            "source": ["Example"],
+            "url": ["https://example.invalid/a"],
         }
     )
     composed = loader._apply_text_compose(dataset, sample)
