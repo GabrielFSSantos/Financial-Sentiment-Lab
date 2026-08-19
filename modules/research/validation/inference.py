@@ -45,6 +45,24 @@ def _clean_arrays(
     return x, y
 
 
+def _clean_arrays_joint(
+    iti_predictor: np.ndarray,
+    baseline_predictor: np.ndarray,
+    target: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray] | None:
+    mask = (
+        np.isfinite(iti_predictor)
+        & np.isfinite(baseline_predictor)
+        & np.isfinite(target)
+    )
+    x_iti = iti_predictor[mask]
+    x_base = baseline_predictor[mask]
+    y = target[mask]
+    if len(y) < 2:
+        return None
+    return x_iti, x_base, y
+
+
 def _block_bootstrap_indices(
     length: int,
     *,
@@ -168,9 +186,8 @@ def compute_delta_inference(
 ) -> MetricInferenceResult:
     """Bootstrap do delta ITI − baseline (MSE: baseline − ITI)."""
 
-    cleaned_iti = _clean_arrays(iti_predictor, target)
-    cleaned_baseline = _clean_arrays(baseline_predictor, target)
-    if cleaned_iti is None or cleaned_baseline is None:
+    cleaned = _clean_arrays_joint(iti_predictor, baseline_predictor, target)
+    if cleaned is None:
         return MetricInferenceResult(
             value=None,
             p_value=None,
@@ -180,16 +197,11 @@ def compute_delta_inference(
             n_bootstrap=0,
         )
 
-    x_iti, y_iti = cleaned_iti
-    x_base, y_base = cleaned_baseline
-    n = min(len(x_iti), len(x_base))
-    x_iti = x_iti[:n]
-    y_iti = y_iti[:n]
-    x_base = x_base[:n]
-    y_base = y_base[:n]
+    x_iti, x_base, y = cleaned
+    n = len(y)
 
-    iti_value = metric_fn(x_iti, y_iti)
-    baseline_value = metric_fn(x_base, y_base)
+    iti_value = metric_fn(x_iti, y)
+    baseline_value = metric_fn(x_base, y)
     if iti_value is None or baseline_value is None:
         return MetricInferenceResult(
             value=None,
@@ -224,8 +236,8 @@ def compute_delta_inference(
             block_size=inference.block_size,
             rng=rng,
         )
-        sample_iti = metric_fn(x_iti[indices], y_iti[indices])
-        sample_base = metric_fn(x_base[indices], y_base[indices])
+        sample_iti = metric_fn(x_iti[indices], y[indices])
+        sample_base = metric_fn(x_base[indices], y[indices])
         if sample_iti is None or sample_base is None:
             continue
         if metric_name == "mse":

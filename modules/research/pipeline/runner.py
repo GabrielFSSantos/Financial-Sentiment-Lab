@@ -8,7 +8,7 @@ from typing import Any
 import pandas as pd
 
 from modules.market.config.loader import load_market_configuration
-from modules.market.loader import load_market_prices
+from modules.market.loader import MarketLoaderError, load_market_prices
 from modules.research.config.loader import ResearchConfiguration
 from modules.research.io.align import AlignmentError, align_combination
 from modules.research.io.experiment import (
@@ -49,6 +49,7 @@ class CombinationResult:
     dropped_companies: tuple[str, ...]
     output_dir: str
     predictor_stats: dict[str, PredictorWinStats] = field(default_factory=dict)
+    predictor_stats_error: dict[str, PredictorWinStats] = field(default_factory=dict)
 
 
 @dataclass
@@ -56,6 +57,8 @@ class ResearchRunSummary:
     run_id: str
     combinations: tuple[CombinationResult, ...] = field(default_factory=tuple)
     warnings: tuple[str, ...] = field(default_factory=tuple)
+    sample_warnings: tuple[str, ...] = field(default_factory=tuple)
+    conclusion_metrics: tuple[str, ...] = ("pearson", "spearman")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -76,10 +79,20 @@ class ResearchRunSummary:
                         }
                         for predictor, stats in item.predictor_stats.items()
                     },
+                    "predictor_stats_error": {
+                        predictor: {
+                            "wins": stats.wins,
+                            "significant_wins": stats.significant_wins,
+                            "comparisons": stats.comparisons,
+                        }
+                        for predictor, stats in item.predictor_stats_error.items()
+                    },
                 }
                 for item in self.combinations
             ],
             "warnings": list(self.warnings),
+            "sample_warnings": list(self.sample_warnings),
+            "conclusion_metrics": list(self.conclusion_metrics),
             "conclusion": self._conclusion(),
         }
 
@@ -95,6 +108,7 @@ class ResearchRunSummary:
         if not totals:
             return "Nenhuma comparação ITI vs baseline disponível."
 
+        metric_label = ", ".join(self.conclusion_metrics)
         parts = []
         for predictor, stats in sorted(totals.items()):
             if stats.comparisons == 0:
@@ -102,22 +116,32 @@ class ResearchRunSummary:
             ratio = stats.wins / stats.comparisons
             sig_ratio = stats.significant_wins / stats.comparisons
             parts.append(
-                f"{predictor}: {stats.wins}/{stats.comparisons} vitórias "
-                f"({ratio:.1%}), {stats.significant_wins} significativas "
-                f"({sig_ratio:.1%})"
+                f"{predictor} ({metric_label}): {stats.wins}/"
+                f"{stats.comparisons} vitórias ({ratio:.1%}), "
+                f"{stats.significant_wins} significativas ({sig_ratio:.1%})"
             )
 
         return "; ".join(parts) if parts else "Nenhuma comparação ITI vs baseline disponível."
 
 
-def _count_predictor_wins(incremental: pd.DataFrame) -> dict[str, PredictorWinStats]:
+def _count_predictor_wins(
+    incremental: pd.DataFrame,
+    *,
+    metrics: tuple[str, ...] | None = None,
+) -> dict[str, PredictorWinStats]:
     deltas = incremental.attrs.get("deltas")
     if deltas is None or deltas.empty:
         return {}
 
+    working = deltas
+    if metrics is not None:
+        working = working[working["metric"].isin(metrics)]
+        if working.empty:
+            return {}
+
     stats: dict[str, PredictorWinStats] = {}
-    for predictor in deltas["iti_predictor"].unique():
-        subset = deltas[deltas["iti_predictor"] == predictor]
+    for predictor in working["iti_predictor"].unique():
+        subset = working[working["iti_predictor"] == predictor]
         wins = int((subset["delta"] > 0).sum())
         significant = int(subset["significant"].sum()) if "significant" in subset else 0
         stats[str(predictor)] = PredictorWinStats(
@@ -144,6 +168,7 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
     market_prices = load_market_prices(market_config)
 
     warnings: list[str] = []
+    sample_warnings: list[str] = []
     results: list[CombinationResult] = []
 
     for combination in combinations:
@@ -167,6 +192,9 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
             alignment.panel,
             configuration,
         )
+        combo_sample_warnings = incremental.attrs.get("sample_warnings")
+        if combo_sample_warnings:
+            sample_warnings.extend(combo_sample_warnings)
         market_metrics = run_market_validation(
             alignment.panel,
             configuration,
@@ -213,7 +241,18 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
                 overlap_days=alignment.overlap_days,
                 dropped_companies=alignment.dropped_companies,
                 output_dir=str(output_dir),
-                predictor_stats=_count_predictor_wins(incremental),
+                predictor_stats=_count_predictor_wins(
+                    incremental,
+                    metrics=configuration.conclusion_metrics,
+                ),
+                predictor_stats_error=_count_predictor_wins(
+                    incremental,
+                    metrics=tuple(
+                        metric
+                        for metric in configuration.metrics
+                        if metric not in configuration.conclusion_metrics
+                    ),
+                ),
             )
         )
 
@@ -221,6 +260,8 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
         run_id=run_id,
         combinations=tuple(results),
         warnings=tuple(warnings),
+        sample_warnings=tuple(sorted(set(sample_warnings))),
+        conclusion_metrics=configuration.conclusion_metrics,
     )
     summary_path = (
         configuration.research_output_root
@@ -233,35 +274,86 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
     payload["return_mode"] = configuration.return_mode
     payload["return_column"] = configuration.return_column
     payload["iti_predictors"] = list(configuration.iti_predictors)
+    payload["sample_warnings"] = list(summary.sample_warnings)
     write_research_summary(summary_path=summary_path, payload=payload)
     return summary
 
 
-def check_research_inputs(configuration: ResearchConfiguration) -> list[str]:
-    """Verifica pré-requisitos para validação."""
+def check_research_inputs(
+    configuration: ResearchConfiguration,
+) -> tuple[list[str], list[str]]:
+    """Verifica pré-requisitos para validação.
 
-    issues: list[str] = []
+    Returns:
+        Tupla ``(errors, warnings)``. Erros bloqueiam validate; avisos não.
+    """
+
+    errors: list[str] = []
+    warnings: list[str] = []
 
     try:
         resolve_run_directory(configuration)
     except ExperimentIOError as error:
-        issues.append(str(error))
+        errors.append(str(error))
 
     try:
         list_index_combinations(configuration)
     except ExperimentIOError as error:
-        issues.append(str(error))
+        errors.append(str(error))
 
     market_config = load_market_configuration(
         config_path=configuration.market_config_path,
     )
     if not market_config.local_path.is_file():
-        issues.append(
+        errors.append(
             f"CSV de mercado ausente: {market_config.local_path}. "
             "Execute: python -m modules.market fetch"
         )
+        return errors, warnings
 
-    return issues
+    try:
+        market_prices = load_market_prices(market_config)
+    except MarketLoaderError as error:
+        errors.append(f"CSV de mercado inválido: {error}")
+        return errors, warnings
+
+    if market_prices.empty:
+        errors.append("CSV de mercado vazio após sanitização.")
+        return errors, warnings
+
+    tickers_in_csv = sorted(market_prices["ticker"].dropna().unique())
+    date_min = market_prices["date"].min()
+    date_max = market_prices["date"].max()
+    warnings.append(
+        "Mercado: "
+        f"{len(market_prices)} linha(s), "
+        f"{len(tickers_in_csv)} ticker(s) "
+        f"({', '.join(tickers_in_csv)}), "
+        f"período {date_min} → {date_max}."
+    )
+
+    mapped_tickers = sorted(set(configuration.company_to_ticker.values()))
+    missing_mapped = [
+        ticker for ticker in mapped_tickers if ticker not in tickers_in_csv
+    ]
+    if missing_mapped:
+        warnings.append(
+            "Tickers mapeados ausentes no CSV de mercado: "
+            f"{', '.join(missing_mapped)}."
+        )
+
+    if market_config.source is not None:
+        source_tickers = list(market_config.source.tickers)
+        missing_source = [
+            ticker for ticker in source_tickers if ticker not in tickers_in_csv
+        ]
+        if missing_source:
+            errors.append(
+                "Tickers declarados em market.yaml ausentes no CSV: "
+                f"{', '.join(missing_source)}."
+            )
+
+    return errors, warnings
 
 
 __all__ = [

@@ -57,6 +57,49 @@ def test_incremental_prefers_iti_liquido_on_constructed_panel(project_root) -> N
     assert "iti_risco" in predictors
 
 
+def test_incremental_delta_uses_same_sample_size_for_sparse_baselines(
+    project_root,
+) -> None:
+    configuration = replace(
+        _fast_configuration(project_root),
+        inference=replace(
+            load_research_configuration(project_root=project_root).inference,
+            enabled=False,
+        ),
+        baseline_news_only=("b0",),
+    )
+
+    panel = pd.DataFrame(
+        {
+            "model_key": ["m"] * 6,
+            "dataset_key": ["d"] * 6,
+            "news_count": [0, 1, 0, 1, 0, 1],
+            "iti_liquido": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
+            "iti_risco": [0.5, 0.4, 0.3, 0.2, 0.1, 0.0],
+            "b0_news_count": [float("nan"), 1.0, float("nan"), 2.0, float("nan"), 3.0],
+            "future_log_return_1": [0.01, 0.02, 0.03, 0.04, 0.05, 0.06],
+        }
+    )
+
+    result = run_incremental_validation(panel, configuration)
+    deltas = result.attrs.get("deltas")
+    assert deltas is not None and not deltas.empty
+
+    pearson_delta = deltas[
+        (deltas["metric"] == "pearson") & (deltas["baseline"] == "b0")
+    ].iloc[0]
+    b0_row = result[
+        (result["predictor"] == "b0") & (result["metric"] == "pearson")
+    ].iloc[0]
+    iti_row = result[
+        (result["predictor"] == "iti_liquido") & (result["metric"] == "pearson")
+    ].iloc[0]
+
+    assert pearson_delta["n"] == b0_row["n"]
+    assert pearson_delta["n"] == 3
+    assert iti_row["n"] == 6
+
+
 def test_incremental_includes_both_iti_predictors(project_root) -> None:
     configuration = replace(
         _fast_configuration(project_root),

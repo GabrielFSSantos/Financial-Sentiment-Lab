@@ -92,6 +92,8 @@ def _cmd_validate(args: argparse.Namespace) -> int:
     )
     for warning in summary.warnings:
         print(f"AVISO: {warning}", file=sys.stderr)
+    for warning in summary.sample_warnings:
+        print(f"AVISO: {warning}", file=sys.stderr)
     return 0
 
 
@@ -106,15 +108,19 @@ def _cmd_check(args: argparse.Namespace) -> int:
         print(error, file=sys.stderr)
         return 1
 
-    issues = check_research_inputs(configuration)
-    if not issues:
-        print("Pré-requisitos de research atendidos.")
-        return 0
+    errors, warnings = check_research_inputs(configuration)
+    if errors:
+        print("Pendências:")
+        for issue in errors:
+            print(f"  - {issue}")
+        for warning in warnings:
+            print(f"  AVISO: {warning}")
+        return 1
 
-    print("Pendências:")
-    for issue in issues:
-        print(f"  - {issue}")
-    return 1
+    print("Pré-requisitos de research atendidos.")
+    for warning in warnings:
+        print(f"  {warning}")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:

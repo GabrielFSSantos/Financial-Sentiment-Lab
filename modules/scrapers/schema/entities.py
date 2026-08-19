@@ -15,6 +15,11 @@ class EntityMatch:
 
 SANITATION_ENTITIES: tuple[EntityMatch, ...] = (
     EntityMatch("Sabesp", "Saneamento", "SBSP3"),
+    EntityMatch(
+        "Companhia de Saneamento Básico do Estado de Minas Gerais",
+        "Saneamento",
+        "CSMG3",
+    ),
     EntityMatch("Companhia de Saneamento de Minas Gerais", "Saneamento", "CSMG3"),
     EntityMatch("Companhia de Saneamento do Paraná", "Saneamento", "SAPR4"),
     EntityMatch("Copasa", "Saneamento", "CSMG3"),
@@ -37,6 +42,4 @@ def match_entity(text: str) -> EntityMatch | None:
     for pattern, entity in _PATTERNS:
         if pattern.search(text):
             return entity
-    if re.search(r"\bsaneamento\b|\bsabesp\b|\bcopasa\b|\bsanepar\b", text, re.I):
-        return EntityMatch("Saneamento", "Saneamento", "SETOR")
     return None

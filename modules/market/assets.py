@@ -11,6 +11,7 @@ import pandas as pd
 
 from modules.market.common import ASSET_FETCH_HINT
 from modules.market.config.loader import MarketConfiguration
+from modules.market.loader import sanitize_price_frame
 
 try:
     import yfinance as yf
@@ -88,24 +89,59 @@ def check_market_assets(configuration: MarketConfiguration) -> list[str]:
     return [str(configuration.local_path)]
 
 
+def _flatten_yfinance_columns(frame: pd.DataFrame) -> pd.DataFrame:
+    """Achata colunas MultiIndex do yfinance e mantém apenas Close."""
+
+    if not isinstance(frame.columns, pd.MultiIndex):
+        if "Close" in frame.columns:
+            return frame.loc[:, ["Close"]].copy()
+        close_candidates = [
+            column
+            for column in frame.columns
+            if str(column).lower() == "close"
+        ]
+        if close_candidates:
+            return frame.loc[:, [close_candidates[0]]].rename(
+                columns={close_candidates[0]: "Close"}
+            )
+        raise AssetFetchError("Coluna Close ausente no retorno yfinance.")
+
+    close_column = None
+    for column in frame.columns:
+        labels = tuple(
+            str(level)
+            for level in column
+            if level is not None and str(level) != ""
+        )
+        if any(label.lower() == "close" for label in labels):
+            close_column = column
+            break
+
+    if close_column is None:
+        raise AssetFetchError("Coluna Close ausente no retorno yfinance.")
+
+    return pd.DataFrame({"Close": frame[close_column]}, index=frame.index)
+
+
 def _normalize_yfinance_frame(
     *,
     frame: pd.DataFrame,
     ticker: str,
     configuration: MarketConfiguration,
 ) -> pd.DataFrame:
-    working = frame.reset_index()
     date_col = configuration.columns["date"]
     close_col = configuration.columns["close"]
     ticker_col = configuration.columns["ticker"]
 
+    close_only = _flatten_yfinance_columns(frame)
+    working = close_only.reset_index()
     if "Date" in working.columns:
         working = working.rename(columns={"Date": date_col})
     elif "Datetime" in working.columns:
         working = working.rename(columns={"Datetime": date_col})
     elif date_col not in working.columns:
         first_column = working.columns[0]
-        if first_column in {"index", "level_0"} or first_column not in {
+        if first_column in {"index", "level_0", "Close"} or first_column not in {
             date_col,
             close_col,
             ticker_col,
@@ -120,12 +156,13 @@ def _normalize_yfinance_frame(
         )
 
     working[ticker_col] = ticker
-    working[date_col] = pd.to_datetime(
-        working[date_col],
-        errors="coerce",
-    ).dt.date.astype(str)
-
-    return working.loc[:, [date_col, ticker_col, close_col]]
+    sanitized = sanitize_price_frame(
+        working,
+        date_col=date_col,
+        ticker_col=ticker_col,
+        close_col=close_col,
+    )
+    return sanitized
 
 
 def _fetch_yfinance(
@@ -199,6 +236,12 @@ def _fetch_yfinance(
         )
 
     combined = pd.concat(frames, ignore_index=True)
+    combined = sanitize_price_frame(
+        combined,
+        date_col=configuration.columns["date"],
+        ticker_col=configuration.columns["ticker"],
+        close_col=configuration.columns["close"],
+    )
     combined = combined.sort_values(
         [configuration.columns["ticker"], configuration.columns["date"]]
     )

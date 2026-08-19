@@ -84,6 +84,20 @@ Download/validação de preços: `python -m modules.market fetch|check` ou [`mod
 
 Validação científica: `python -m modules.research validate|check` ou `[scripts/run_research.sh](scripts/run_research.sh)`.
 
+### Corpus de notícias (`saneamento_corpus`)
+
+O dataset `saneamento_corpus` é montado a partir do scraper multiportal:
+
+```bash
+python -m modules.scrapers --since 2020-01-01 --until 2024-12-31
+bash modules/scrapers/scripts/build_corpus.sh
+python -m modules.market fetch
+./scripts/run_experiment.sh --model finbert_ptbr --dataset saneamento_corpus
+python -m modules.research validate --run-id <run_id>
+```
+
+**Expectativa operacional:** nas primeiras coletas é normal o corpus ser dominado por uma empresa (ex.: Sabesp). Para ampliar Copasa e Sanepar, rode o scraper em **todos os sites habilitados** em `configs/scrapers.yaml` (Valor, InfoMoney, etc.) com janela temporal ampla. Registros genéricos de setor (`empresa=Saneamento`, `ticker=SETOR`) são descartados na mesclagem do corpus.
+
 ---
 
 ## Saídas

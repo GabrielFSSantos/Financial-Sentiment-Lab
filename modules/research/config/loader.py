@@ -90,6 +90,9 @@ class ResearchConfiguration:
     company_to_ticker: dict[str, str]
     baselines: tuple[str, ...]
     metrics: tuple[str, ...]
+    conclusion_metrics: tuple[str, ...]
+    baseline_news_only: tuple[str, ...]
+    min_samples_for_r2: int
     min_overlap_days: int
     inference: InferenceConfiguration
     research_output_root: Path
@@ -537,6 +540,45 @@ def load_research_configuration(
         "validation.min_overlap_days",
         minimum=1,
     )
+    conclusion_metrics_raw = _require_list(
+        validation.get("conclusion_metrics", ["pearson", "spearman"]),
+        "validation.conclusion_metrics",
+    )
+    conclusion_metrics = tuple(
+        _require_string(item, "validation.conclusion_metrics").lower()
+        for item in conclusion_metrics_raw
+    )
+    invalid_conclusion_metrics = sorted(
+        set(conclusion_metrics) - SUPPORTED_METRICS
+    )
+    if invalid_conclusion_metrics:
+        supported = ", ".join(sorted(SUPPORTED_METRICS))
+        raise ConfigurationError(
+            "validation.conclusion_metrics inválidos: "
+            f"{invalid_conclusion_metrics}; use: {supported}."
+        )
+
+    baseline_news_only_raw = _require_list(
+        validation.get("baseline_news_only", ["b0", "b1", "b2"]),
+        "validation.baseline_news_only",
+    )
+    baseline_news_only = tuple(
+        _require_string(item, "validation.baseline_news_only").lower()
+        for item in baseline_news_only_raw
+    )
+    invalid_news_only = sorted(set(baseline_news_only) - SUPPORTED_BASELINES)
+    if invalid_news_only:
+        supported = ", ".join(sorted(SUPPORTED_BASELINES))
+        raise ConfigurationError(
+            "validation.baseline_news_only inválidos: "
+            f"{invalid_news_only}; use: {supported}."
+        )
+
+    min_samples_for_r2 = _require_integer(
+        validation.get("min_samples_for_r2", 30),
+        "validation.min_samples_for_r2",
+        minimum=1,
+    )
     inference = _resolve_inference(validation)
 
     return ResearchConfiguration(
@@ -555,6 +597,9 @@ def load_research_configuration(
         company_to_ticker=company_to_ticker,
         baselines=baselines,
         metrics=metrics,
+        conclusion_metrics=conclusion_metrics,
+        baseline_news_only=baseline_news_only,
+        min_samples_for_r2=min_samples_for_r2,
         min_overlap_days=min_overlap_days,
         inference=inference,
         research_output_root=research_output_root,

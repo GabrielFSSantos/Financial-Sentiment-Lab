@@ -26,6 +26,34 @@ def _predictor_column(
     return BASELINE_COLUMNS[predictor_key]
 
 
+def _subset_for_predictor(
+    panel: pd.DataFrame,
+    predictor_key: str,
+    configuration: ResearchConfiguration,
+) -> pd.DataFrame:
+    if predictor_key not in configuration.baseline_news_only:
+        return panel
+
+    if "news_count" in panel.columns:
+        return panel.loc[panel["news_count"].fillna(0) > 0]
+
+    column = _predictor_column(predictor_key, configuration)
+    if column not in panel.columns:
+        return panel.iloc[0:0]
+    return panel.loc[panel[column].notna()]
+
+
+def _delta_subset_panel(
+    panel: pd.DataFrame,
+    *,
+    baseline_key: str,
+    configuration: ResearchConfiguration,
+) -> pd.DataFrame:
+    if baseline_key in configuration.baseline_news_only:
+        return _subset_for_predictor(panel, baseline_key, configuration)
+    return panel
+
+
 def _target_column(
     horizon: int,
     configuration: ResearchConfiguration,
@@ -72,6 +100,7 @@ def run_incremental_validation(
     """Compara ITI e baselines contra retornos futuros por horizonte."""
 
     rows: list[dict[str, object]] = []
+    sample_warnings: list[str] = []
     iti_predictors = list(configuration.iti_predictors)
     predictors = list(configuration.baselines) + iti_predictors
 
@@ -81,12 +110,17 @@ def run_incremental_validation(
             continue
 
         for predictor_key in predictors:
-            column = _predictor_column(predictor_key, configuration)
-            if column not in panel.columns:
-                continue
-            predictor = panel[column]
-            target = resolve_target_series(
+            evaluation_panel = _subset_for_predictor(
                 panel,
+                predictor_key,
+                configuration,
+            )
+            column = _predictor_column(predictor_key, configuration)
+            if column not in evaluation_panel.columns:
+                continue
+            predictor = evaluation_panel[column]
+            target = resolve_target_series(
+                evaluation_panel,
                 target_column=target_column,
                 predictor_key=predictor_key,
                 configuration=configuration,
@@ -94,6 +128,17 @@ def run_incremental_validation(
             target_mode = "abs" if configuration.uses_abs_target(predictor_key) else "signed"
 
             for metric_name in configuration.metrics:
+                if (
+                    metric_name == "r2"
+                    and len(evaluation_panel) < configuration.min_samples_for_r2
+                ):
+                    sample_warnings.append(
+                        f"{predictor_key} horizon={horizon}: n="
+                        f"{len(evaluation_panel)} abaixo do mínimo "
+                        f"({configuration.min_samples_for_r2}) para r2."
+                    )
+                    continue
+
                 result = compute_metric_with_inference(
                     metric_name,
                     predictor,
@@ -102,7 +147,7 @@ def run_incremental_validation(
                 )
                 _append_metric_row(
                     rows,
-                    panel=panel,
+                    panel=evaluation_panel,
                     horizon=horizon,
                     predictor_key=predictor_key,
                     column=column,
@@ -142,21 +187,33 @@ def run_incremental_validation(
             & (baseline_rows["target_mode"] == iti_row["target_mode"])
         ]
         for _, baseline_row in matching.iterrows():
-            metric_name = str(iti_row["metric"])
             iti_column = str(iti_row["predictor_column"])
             baseline_column = str(baseline_row["predictor_column"])
+            baseline_key = str(baseline_row["predictor"])
             target_column = _target_column(int(iti_row["horizon"]), configuration)
-            target = resolve_target_series(
+            delta_panel = _delta_subset_panel(
                 panel,
+                baseline_key=baseline_key,
+                configuration=configuration,
+            )
+            target = resolve_target_series(
+                delta_panel,
                 target_column=target_column,
                 predictor_key=str(iti_row["predictor"]),
                 configuration=configuration,
             )
 
+            metric_name = str(iti_row["metric"])
+            if (
+                metric_name == "r2"
+                and len(delta_panel) < configuration.min_samples_for_r2
+            ):
+                continue
+
             delta_result = compute_delta_inference(
                 metric_name,
-                panel[iti_column].astype(float).to_numpy(),
-                panel[baseline_column].astype(float).to_numpy(),
+                delta_panel[iti_column].astype(float).to_numpy(),
+                delta_panel[baseline_column].astype(float).to_numpy(),
                 target.astype(float).to_numpy(),
                 metric_fn=NUMPY_METRIC_FUNCTIONS[metric_name],
                 inference=configuration.inference,
@@ -193,6 +250,9 @@ def run_incremental_validation(
 
     if deltas:
         frame.attrs["deltas"] = pd.DataFrame(deltas)
+
+    if sample_warnings:
+        frame.attrs["sample_warnings"] = tuple(sorted(set(sample_warnings)))
 
     return frame
 

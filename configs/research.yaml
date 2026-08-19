@@ -24,10 +24,16 @@ mapping:
     Sabesp: SBSP3.SA
     Copasa: CSMG3.SA
     Sanepar: SAPR4.SA
+    Companhia de Saneamento de Minas Gerais: CSMG3.SA
+    Companhia de Saneamento do Paraná: SAPR4.SA
+    Companhia de Saneamento Básico do Estado de Minas Gerais: CSMG3.SA
 
 validation:
   baselines: [b0, b1, b2, b3]
   metrics: [pearson, spearman, r2, mse]
+  conclusion_metrics: [pearson, spearman]
+  baseline_news_only: [b0, b1, b2]
+  min_samples_for_r2: 30
   min_overlap_days: 10
   inference:
     enabled: true

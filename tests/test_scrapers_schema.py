@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from modules.scrapers.pipeline.corpus import build_merged_corpus
 from modules.scrapers.schema.csv import (
     CORPUS_COLUMNS,
     dedupe_key,
@@ -9,6 +10,35 @@ from modules.scrapers.schema.csv import (
     normalize_title,
     normalize_url,
 )
+from modules.scrapers.schema.entities import match_entity
+
+
+def test_match_entity_returns_none_for_generic_sector_text() -> None:
+    assert match_entity("Setor de saneamento avança no trimestre") is None
+
+
+def test_match_entity_matches_copasa() -> None:
+    entity = match_entity("Copasa anuncia investimentos")
+    assert entity is not None
+    assert entity.company == "Copasa"
+    assert entity.ticker == "CSMG3"
+
+
+def test_build_merged_corpus_filters_generic_records(tmp_path) -> None:
+    raw_dir = tmp_path / "raw"
+    raw_dir.mkdir()
+    (raw_dir / "sample.csv").write_text(
+        "id,data,empresa,setor,ticker,titulo,noticia,fonte,url\n"
+        "1,2024-01-01,Sabesp,Saneamento,SBSP3,t1,n1,f1,https://a\n"
+        "2,2024-01-02,Saneamento,Saneamento,SETOR,t2,n2,f2,https://b\n",
+        encoding="utf-8",
+    )
+    corpus_path = tmp_path / "noticias.csv"
+    count = build_merged_corpus(raw_dir=raw_dir, corpus_path=corpus_path)
+    assert count == 1
+    content = corpus_path.read_text(encoding="utf-8")
+    assert "SETOR" not in content
+    assert "Sabesp" in content
 
 
 def test_corpus_columns_order() -> None:
