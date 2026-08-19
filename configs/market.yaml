@@ -1,0 +1,23 @@
+# Preços de mercado (schema 2.0). enabled: true entra no fetch de assets.
+
+schema_version: "2.0"
+
+defaults:
+  format: csv
+  reader:
+    encoding: utf-8
+    delimiter: ","
+  columns:
+    date: date
+    ticker: ticker
+    close: close
+  returns:
+    compute: [simple_return, log_return]
+
+market:
+  enabled: true
+  local_path: data/market/prices.csv
+  source:
+    provider: yfinance
+    tickers: [SBSP3.SA]
+    start: "2020-01-01"

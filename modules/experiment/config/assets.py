@@ -1,4 +1,4 @@
-"""Orquestração de assets: modelos (``modules.models``) e datasets (``modules.datasets``).
+"""Orquestração de assets: modelos, datasets e mercado.
 
 Use ``./scripts/setup_env.sh --fetch-assets`` antes da primeira inferência.
 """
@@ -29,6 +29,16 @@ from modules.models.assets import (
     AssetFetchReport as ModelsAssetFetchReport,
     check_model_assets,
     fetch_enabled_models,
+)
+from modules.market.assets import (
+    AssetFetchError as MarketAssetFetchError,
+    AssetFetchReport as MarketAssetFetchReport,
+    check_market_assets,
+    fetch_market_assets,
+)
+from modules.market.config.loader import (
+    MarketConfiguration,
+    load_market_configuration,
 )
 from modules.models.config.loader import (
     ModelsConfiguration,
@@ -103,6 +113,29 @@ def _convert_dataset_report(
     )
 
 
+def _convert_market_report(
+    report: MarketAssetFetchReport,
+) -> AssetFetchReport:
+    return AssetFetchReport(
+        asset_key=report.asset_key,
+        asset_type=report.asset_type,
+        provider=report.provider,
+        status=report.status,
+        target=report.target,
+        message=report.message,
+        bytes_downloaded=report.bytes_downloaded,
+    )
+
+
+def _market_configuration(
+    configuration: ResolvedConfiguration,
+) -> MarketConfiguration:
+    return load_market_configuration(
+        project_root=configuration.paths.project_root,
+        config_path="configs/market.yaml",
+    )
+
+
 def _filtered_models_configuration(
     configuration: ResolvedConfiguration,
 ) -> ModelsConfiguration:
@@ -156,6 +189,7 @@ def check_enabled_assets(
             _filtered_datasets_configuration(configuration)
         )
     )
+    missing.extend(check_market_assets(_market_configuration(configuration)))
     return missing
 
 
@@ -201,14 +235,28 @@ def fetch_assets_for_configuration(
         for report in dataset_summary.reports
     )
 
+    try:
+        market_summary = fetch_market_assets(
+            _market_configuration(configuration),
+            logger=log,
+        )
+    except MarketAssetFetchError as error:
+        raise AssetFetchError(str(error)) from error
+
+    reports.extend(
+        _convert_market_report(report)
+        for report in market_summary.reports
+    )
+
     failed = [report for report in reports if report.status == "failed"]
     if failed:
         report = failed[0]
-        asset_label = (
-            f"modelo {report.asset_key}"
-            if report.asset_type == "model"
-            else f"dataset {report.asset_key}"
-        )
+        if report.asset_type == "model":
+            asset_label = f"modelo {report.asset_key}"
+        elif report.asset_type == "market":
+            asset_label = f"mercado {report.asset_key}"
+        else:
+            asset_label = f"dataset {report.asset_key}"
         raise AssetFetchError(
             f"Falha ao baixar {asset_label}: {report.message}{ASSET_FETCH_HINT}"
         )

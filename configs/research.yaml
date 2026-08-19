@@ -1,0 +1,29 @@
+# Validação científica (schema 2.0). Research consome índices do experimento e preços via modules.market.
+
+schema_version: "2.0"
+
+defaults:
+  horizons: [1, 5, 21]
+  iti_column: iti_liquido
+  return_column: log_return
+
+experiment_run:
+  run_id: null
+  output_root: outputs
+  model_key: null
+  dataset_key: null
+
+market:
+  config_path: configs/market.yaml
+
+mapping:
+  company_to_ticker:
+    Sabesp: SBSP3.SA
+
+validation:
+  baselines: [b0, b1, b2, b3]
+  metrics: [pearson, spearman, r2, mse]
+  min_overlap_days: 10
+
+paths:
+  output_root: outputs

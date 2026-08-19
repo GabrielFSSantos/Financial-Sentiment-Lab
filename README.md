@@ -70,6 +70,8 @@ Em `[configs/datasets.yaml](configs/datasets.yaml)`:
 | `[configs/experiment.yaml](configs/experiment.yaml)` | ITI, dimensões, baselines, agregação, execução |
 | `[configs/models.yaml](configs/models.yaml)`         | Modelos, `language`, `source`, adaptadores |
 | `[configs/datasets.yaml](configs/datasets.yaml)`     | Datasets, `source`, `limits`, colunas      |
+| `[configs/market.yaml](configs/market.yaml)`         | Preços de mercado, tickers, fetch yfinance |
+| `[configs/research.yaml](configs/research.yaml)`     | Validação ITI vs baselines, horizontes     |
 
 
 Adaptadores FinBERT em `[modules/models/adapters/bert/](modules/models/adapters/bert/)`: motor compartilhado (`finbert_hf.py`) e aliases por checkpoint. Ensembles têm adaptador dedicado.
@@ -77,6 +79,10 @@ Adaptadores FinBERT em `[modules/models/adapters/bert/](modules/models/adapters/
 Download isolado de modelos: `python -m modules.models fetch` ou `[modules/models/scripts/fetch.sh](modules/models/scripts/fetch.sh)`.
 
 Download/validação de datasets: `python -m modules.datasets fetch|check|validate` ou `[modules/datasets/scripts/fetch.sh](modules/datasets/scripts/fetch.sh)`.
+
+Download/validação de preços: `python -m modules.market fetch|check`.
+
+Validação científica: `python -m modules.research validate|check` ou `[scripts/run_research.sh](scripts/run_research.sh)`.
 
 ---
 
@@ -90,6 +96,8 @@ outputs/{run_id}/
 ```
 
 Com ≥2 modelos no mesmo dataset: `indices/merged/{dataset}/iti_uncertainty_daily.csv`.
+
+Após um run: `outputs/{run_id}/research/` com `aligned_panel.csv`, `incremental.csv`, `market_metrics.csv` e `research_summary.json`.
 
 ---
 
@@ -129,6 +137,8 @@ financial-sentiment-lab/
 │   ├── models/            # config, download HF, registry, adaptadores FinBERT
 │   │   └── adapters/bert/
 │   ├── datasets/          # config, download, validação e leitura de datasets
+│   ├── market/            # config, fetch yfinance, leitura de preços CSV
+│   ├── research/          # validação ITI vs baselines vs mercado
 │   ├── scrapers/          # coleta multiportal → corpus CSV
 │   └── experiment/        # inferência FinBERT + ITI
 ├── scripts/

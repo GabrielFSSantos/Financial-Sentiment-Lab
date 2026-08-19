@@ -116,10 +116,11 @@ section "2. ESTRUTURA"
 EXPECTED_FILES=(
     README.md requirements.txt pytest.ini requirements-dev.txt
     configs/experiment.yaml configs/models.yaml configs/datasets.yaml configs/scrapers.yaml
+    configs/market.yaml configs/research.yaml
     data/noticias_exemplo/noticias.csv
     data/news_example_en/news.csv
     data/saneamento_corpus/noticias.csv
-    scripts/setup_env.sh scripts/run_service.sh scripts/run_experiment.sh scripts/audit_project.sh
+    scripts/setup_env.sh scripts/run_service.sh scripts/run_experiment.sh scripts/run_research.sh scripts/audit_project.sh
     jobs/sdumont/run_experiment.srm
     modules/experiment/__main__.py modules/experiment/common.py
     modules/experiment/config/loader.py modules/experiment/config/assets.py
@@ -130,6 +131,13 @@ EXPECTED_FILES=(
     modules/models/adapters/bert/pt_br_financial_sentiment_analysis.py
     modules/datasets/__main__.py modules/datasets/common.py modules/datasets/loader.py
     modules/datasets/config/loader.py modules/datasets/assets.py
+    modules/market/__main__.py modules/market/common.py modules/market/loader.py
+    modules/market/config/loader.py modules/market/assets.py
+    modules/research/__main__.py modules/research/common.py modules/research/config/loader.py
+    modules/research/io/experiment.py modules/research/io/align.py modules/research/io/reports.py
+    modules/research/validation/metrics.py modules/research/validation/incremental.py
+    modules/research/validation/market.py modules/research/validation/baselines.py
+    modules/research/pipeline/runner.py
     modules/experiment/pipeline/runner.py modules/experiment/indexing/temporal_index.py
     modules/experiment/indexing/constants.py modules/experiment/indexing/dimensions.py modules/experiment/indexing/baselines.py
     modules/experiment/io/output_schema.py modules/experiment/io/results.py
@@ -141,6 +149,9 @@ EXPECTED_FILES=(
     tests/test_experiment_dimensions.py tests/test_experiment_baselines.py
     tests/test_models_config.py tests/test_models_assets.py
     tests/test_datasets_config.py tests/test_datasets_assets.py tests/test_datasets_validation.py
+    tests/test_market_config.py tests/test_market_loader.py tests/test_market_assets.py
+    tests/test_research_config.py tests/test_research_align.py tests/test_research_metrics.py
+    tests/test_research_incremental.py tests/test_research_runner.py
     tests/test_scrapers_config.py tests/test_scrapers_schema.py tests/test_scrapers_search.py
     tests/test_scrapers_cron.py tests/test_scrapers_corpus.py tests/test_scrapers_live.py
 )
