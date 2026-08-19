@@ -1,92 +1,99 @@
 # Financial Sentiment Lab
 
-Pipeline para **análise de sentimentos em notícias financeiras** (PT e EN), com execução local e no Supercomputador Santos Dumont.
+Laboratório de **análise de sentimento em notícias financeiras** (PT e EN) para construir o **Índice Temporal Informacional (ITI)** e validar se sinais informacionais se associam a retornos de mercado.
 
-Modelos, datasets e parâmetros são definidos em YAML.
+A pesquisa parte de notícias (datasets versionados, filtrados ou coletados por scraper), aplica modelos FinBERT, agrega impacto por empresa/setor/mercado e compara o ITI com baselines simples e preços B3 via validação estatística incremental.
+
+Documentação técnica completa (módulos, fluxos, fórmulas): **[DOCUMENTACAO.md](DOCUMENTACAO.md)**.
+
+---
+
+## O que a pesquisa produz
+
+1. **Sentimento por notícia** — classes `POSITIVE`, `NEGATIVE`, `NEUTRAL` e score contínuo `d = P(pos) − P(neg)`.
+2. **ITI diário** — séries `iti_liquido` e `iti_risco` com memória EWMA por empresa (e agregados setor/mercado).
+3. **Baselines B0–B3** — contagem de notícias, sentimento médio, sentimento ponderado por confiança e impacto diário sem memória.
+4. **Validação research** — correlação e deltas ITI vs baselines contra retornos futuros (horizontes 1, 5 e 21 dias), com bootstrap em bloco.
+
+Saídas principais em `outputs/{run_id}/`:
 
 ```text
-./scripts/setup_env.sh --fetch-assets   # venv + download HF (obrigatório na 1ª vez)
-./scripts/audit_project.sh              # validar antes de rodar
-./scripts/run_experiment.sh             # inferência (não baixa assets)
-sbatch jobs/sdumont/run_experiment.srm  # HPC
+indices/{model}/{dataset}/iti_daily.csv      # ITI e baselines
+research/.../aligned_panel.csv               # painel alinhado com mercado
+research/research_summary.json               # conclusão estatística
 ```
 
-Por padrão: **8 combinações** (4 modelos × 4 datasets, filtradas por idioma PT/EN).
-
 ---
 
-## Objetivo
-
-Construir o **Índice Temporal Informacional (ITI)** — séries diárias de impacto informacional por empresa, setor e mercado. O produto final está em `outputs/{run_id}/indices/`.
-
-Classes: `POSITIVE`, `NEGATIVE`, `NEUTRAL`. Sentimento contínuo: `prob_positive - prob_negative`.
-
----
-
-## Primeiro uso
+## Primeira execução
 
 ```bash
 git clone <repo>
 cd financial-sentiment-lab
-chmod +x scripts/*.sh jobs/sdumont/*.srm
+chmod +x scripts/*.sh modules/*/scripts/*.sh
 
-./scripts/setup_env.sh --fetch-assets
-./scripts/audit_project.sh
-./scripts/run_experiment.sh
+./scripts/setup_env.sh --fetch-assets   # venv + modelos/datasets dos YAMLs
+./scripts/audit_project.sh              # pytest + dry-run
+./scripts/run_experiment.sh               # todas as combinações enabled
 ```
 
-O `run_experiment.sh` **não baixa** modelos nem datasets. Se faltar peso ou arquivo, o preflight falha indicando `./scripts/setup_env.sh --fetch-assets`.
+O `run_experiment.sh` **não baixa assets** em runtime. Se faltar modelo ou dataset, o preflight indica `./scripts/setup_env.sh --fetch-assets`.
 
-### Limites de linhas (`limits.max_rows`)
-
-Em `[configs/datasets.yaml](configs/datasets.yaml)`:
-
-- **Padrão:** `200` linhas (ajuste em `configs/datasets.yaml` para pilotos maiores)
-- `max`**:** todas as linhas (exemplos versionados)
-- Inteiro maior que o dataset disponível lê todas as linhas existentes
-- Fetch completo quando `max`; fetch amostrado quando inteiro (via streaming no Hub)
+Por padrão roda **combinações `enabled: true`** em `configs/models.yaml` × `configs/datasets.yaml`, respeitando idioma (PT/EN).
 
 ---
 
-## Comandos
+## Comandos essenciais
 
+### Experimento (inferência + ITI)
 
-| Comando                                   | Faz                                                       |
-| ----------------------------------------- | --------------------------------------------------------- |
-| `setup_env.sh`                            | Cria `venv/` e instala dependências                       |
-| `setup_env.sh --fetch-assets`             | Instala deps **e baixa** modelos/datasets dos YAMLs       |
-| `audit_project.sh`                        | Estrutura + YAML + pytest + dry-run (se assets presentes) |
-| `run_experiment.sh`                       | Executa combinações `enabled: true`                       |
-| `run_experiment.sh --model X --dataset Y` | Restringe a execução                                      |
+```bash
+# Todas as combinações enabled
+./scripts/run_experiment.sh
 
+# Uma combinação específica
+./scripts/run_experiment.sh --model finbert_ptbr --dataset saneamento_corpus
 
----
+# Run ID fixo
+./scripts/run_experiment.sh --run-id meu_experimento --model finbert_ptbr --dataset noticias_exemplo
 
-## Configuração
+# Sem recriar venv (útil após setup inicial)
+./scripts/run_experiment.sh --skip-setup
+```
 
+### Scraper → corpus de saneamento
 
-| Arquivo                                              | Controla                                   |
-| ---------------------------------------------------- | ------------------------------------------ |
-| `[configs/experiment.yaml](configs/experiment.yaml)` | ITI, dimensões, baselines, agregação, execução |
-| `[configs/models.yaml](configs/models.yaml)`         | Modelos, `language`, `source`, adaptadores |
-| `[configs/datasets.yaml](configs/datasets.yaml)`     | Datasets, `source`, `limits`, colunas      |
-| `[configs/market.yaml](configs/market.yaml)`         | Preços de mercado, tickers, fetch yfinance |
-| `[configs/research.yaml](configs/research.yaml)`     | Validação ITI vs baselines, horizontes     |
+```bash
+# Coleta (sites habilitados em configs/scrapers.yaml)
+python -m modules.scrapers --since 2020-01-01 --until 2024-12-31
+python -m modules.scrapers --since 2024-01-01 --site infomoney   # um portal
 
+# Mescla raw/ → data/saneamento_corpus/noticias.csv
+bash modules/scrapers/scripts/build_corpus.sh
+```
 
-Adaptadores FinBERT em `[modules/models/adapters/bert/](modules/models/adapters/bert/)`: motor compartilhado (`finbert_hf.py`) e aliases por checkpoint. Ensembles têm adaptador dedicado.
+Nas primeiras coletas é comum o corpus ser dominado por uma empresa; ampliar Copasa/Sanepar exige janela temporal maior e múltiplos portais.
 
-Download isolado de modelos: `python -m modules.models fetch` ou `[modules/models/scripts/fetch.sh](modules/models/scripts/fetch.sh)`.
+### Mercado (preços para research)
 
-Download/validação de datasets: `python -m modules.datasets fetch|check|validate` ou `[modules/datasets/scripts/fetch.sh](modules/datasets/scripts/fetch.sh)`.
+```bash
+python -m modules.market fetch          # baixa tickers de configs/market.yaml
+python -m modules.market fetch --force  # refetch
+python -m modules.market check
+```
 
-Download/validação de preços: `python -m modules.market fetch|check` ou [`modules/market/scripts/fetch.sh`](modules/market/scripts/fetch.sh).
+### Research (validação científica)
 
-Validação científica: `python -m modules.research validate|check` ou `[scripts/run_research.sh](scripts/run_research.sh)`.
+```bash
+# Verificar pré-requisitos (run + CSV de mercado válido)
+python -m modules.research check --run-id <run_id>
 
-### Corpus de notícias (`saneamento_corpus`)
+# Validar (usa o run mais recente se --run-id omitido)
+./scripts/run_research.sh --run-id <run_id>
+python -m modules.research validate --run-id <run_id> --model finbert_ptbr --dataset saneamento_corpus
+```
 
-O dataset `saneamento_corpus` é montado a partir do scraper multiportal:
+### Pipeline operacional (corpus próprio)
 
 ```bash
 python -m modules.scrapers --since 2020-01-01 --until 2024-12-31
@@ -96,99 +103,63 @@ python -m modules.market fetch
 python -m modules.research validate --run-id <run_id>
 ```
 
-**Expectativa operacional:** nas primeiras coletas é normal o corpus ser dominado por uma empresa (ex.: Sabesp). Para ampliar Copasa e Sanepar, rode o scraper em **todos os sites habilitados** em `configs/scrapers.yaml` (Valor, InfoMoney, etc.) com janela temporal ampla. Registros genéricos de setor (`empresa=Saneamento`, `ticker=SETOR`) são descartados na mesclagem do corpus.
+---
+
+## Configuração (YAML)
+
+| Arquivo | Controle |
+| --- | --- |
+| [configs/experiment.yaml](configs/experiment.yaml) | ITI, agregação, baselines, execução |
+| [configs/models.yaml](configs/models.yaml) | Modelos FinBERT, adaptadores, HuggingFace |
+| [configs/datasets.yaml](configs/datasets.yaml) | Datasets, colunas, `limits.max_rows` |
+| [configs/market.yaml](configs/market.yaml) | Tickers B3, fetch yfinance |
+| [configs/research.yaml](configs/research.yaml) | Horizontes, baselines, métricas, bootstrap |
+| [configs/scrapers.yaml](configs/scrapers.yaml) | Portais, queries, corpus |
+
+Downloads isolados: `python -m modules.models fetch`, `python -m modules.datasets fetch|check|validate`.
 
 ---
 
-## Saídas
+## Referências — modelos
 
-```text
-outputs/{run_id}/
-├── summary.json
-├── models/{model}/{dataset}/
-└── indices/{model}/{dataset}/
-```
-
-Com ≥2 modelos no mesmo dataset: `indices/merged/{dataset}/iti_uncertainty_daily.csv`.
-
-Após um run: `outputs/{run_id}/research/` com `aligned_panel.csv`, `incremental.csv`, `market_metrics.csv` e `research_summary.json`.
+| Chave YAML | Repositório Hugging Face |
+| --- | --- |
+| `finbert_ptbr` | [lucas-leme/FinBERT-PT-BR](https://huggingface.co/lucas-leme/FinBERT-PT-BR) |
+| `pt_br_financial_sentiment_analysis` | [lucasalmda/pt-br-financial-sentiment-analysis](https://huggingface.co/lucasalmda/pt-br-financial-sentiment-analysis) |
+| `finbert_en` | [ProsusAI/finbert](https://huggingface.co/ProsusAI/finbert) |
+| `finbert_tone_en` | [yiyanghkust/finbert-tone](https://huggingface.co/yiyanghkust/finbert-tone) |
 
 ---
 
-## Santos Dumont
+## Referências — datasets
 
-Paths (confirme com `echo $SCRATCH` após login):
+| Chave YAML | Origem |
+| --- | --- |
+| `noticias_exemplo` | CSV versionado (`data/noticias_exemplo/`) — exemplo PT com rótulos |
+| `news_example_en` | CSV versionado (`data/news_example_en/`) — exemplo EN com rótulos |
+| `saneamento_ptbr_filtrado` | Notícias PT filtradas (HF); CSV local gitignored |
+| `saneamento_en_filtrado` | Notícias EN filtradas (FNSPID); CSV local gitignored |
+| `saneamento_corpus` | Corpus multiportal gerado por `modules/scrapers` |
 
-- `$HOME` → `/prj/ufsj/hpc4agents-br/<usuario>`
-- `$SCRATCH` → `/scratch/ufsj/hpc4agents-br/<usuario>`
-- Projeto → `$SCRATCH/financial-sentiment-lab`
-
-```bash
-mkdir -p "$SCRATCH/financial-sentiment-lab"
-cd "$SCRATCH/financial-sentiment-lab"
-git clone https://github.com/GabrielFSSantos/Financial-Sentiment-Lab.git .   # ou git pull
-
-chmod +x scripts/*.sh jobs/sdumont/*.srm
-module purge
-module load cuda/12.6_sequana
-module load anaconda3/2024.02_sequana
-
-./scripts/setup_env.sh --fetch-assets
-./scripts/audit_project.sh --sdumont
-sbatch jobs/sdumont/run_experiment.srm
-```
+Tickers de mercado (research): Sabesp `SBSP3.SA`, Copasa `CSMG3.SA`, Sanepar `SAPR4.SA` — ver [configs/market.yaml](configs/market.yaml) e [configs/research.yaml](configs/research.yaml).
 
 ---
 
-## Estrutura
+## Estrutura do repositório
 
 ```text
 financial-sentiment-lab/
-├── configs/
-├── data/                  # exemplos versionados; demais via --fetch-assets
-├── model_store/
+├── configs/           # YAML declarativo
+├── data/              # exemplos versionados; demais via fetch/scraper
+├── model_store/       # checkpoints locais
 ├── modules/
-│   ├── models/            # config, download HF, registry, adaptadores FinBERT
-│   │   └── adapters/bert/
-│   ├── datasets/          # config, download, validação e leitura de datasets
-│   ├── market/            # config, fetch yfinance, leitura de preços CSV
-│   ├── research/          # validação ITI vs baselines vs mercado
-│   ├── scrapers/          # coleta multiportal → corpus CSV
-│   └── experiment/        # inferência FinBERT + ITI
-├── scripts/
-├── tests/
-├── outputs/
-└── logs/
+│   ├── experiment/    # inferência + ITI
+│   ├── models/        # FinBERT e registry
+│   ├── datasets/      # leitura e fetch de datasets
+│   ├── market/        # preços yfinance
+│   ├── research/      # validação ITI vs mercado
+│   └── scrapers/      # coleta multiportal
+├── scripts/           # entrypoints shell
+├── outputs/           # runs do experimento e research
+└── tests/
 ```
-
----
-
-## Referências
-
-
-
-### Modelos
-
-
-| Chave YAML                           | Repositório                                                                                                           |
-| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| `finbert_ptbr`                       | [lucas-leme/FinBERT-PT-BR](https://huggingface.co/lucas-leme/FinBERT-PT-BR)                                           |
-| `pt_br_financial_sentiment_analysis` | [lucasalmda/pt-br-financial-sentiment-analysis](https://huggingface.co/lucasalmda/pt-br-financial-sentiment-analysis) |
-| `finbert_en`                         | [ProsusAI/finbert](https://huggingface.co/ProsusAI/finbert)                                                           |
-| `finbert_tone_en`                    | [yiyanghkust/finbert-tone](https://huggingface.co/yiyanghkust/finbert-tone)                                           |
-
-
-
-
-### Datasets
-
-
-| Chave YAML                    | Repositório / origem                                                                                               |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `noticias_exemplo`            | CSV versionado no repositório                                                                                      |
-| `news_example_en`             | CSV versionado no repositório                                                                                      |
-| `saneamento_ptbr_filtrado`    | CSV filtrado PT (local gitignored; HF via script temp)                                                             |
-| `saneamento_en_filtrado`      | CSV filtrado EN (local gitignored; FNSPID via script temp)                                                           |
-| `saneamento_corpus`             | CSV versionado gerado por `modules/scrapers` (corpus multiportal PT)                                                 |
-
-
