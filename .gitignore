@@ -13,6 +13,8 @@ configs/sdumont.env
 # Artefatos de execução
 logs/
 outputs/
+!tests/fixtures/research/outputs/
+!tests/fixtures/research/outputs/**
 .tmp/
 
 # Slurm (jobs/sdumont/run_experiment.srm)

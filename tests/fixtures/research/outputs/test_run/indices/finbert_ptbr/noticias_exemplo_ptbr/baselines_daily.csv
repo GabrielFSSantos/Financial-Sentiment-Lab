@@ -1,0 +1,9 @@
+date,company,sector,b0_news_count,b1_mean_sentiment,b2_confidence_weighted_sentiment
+2024-01-02,Sabesp,Saneamento,2,0.20,0.18
+2024-01-03,Sabesp,Saneamento,1,0.10,0.09
+2024-01-04,Sabesp,Saneamento,1,-0.05,-0.04
+2024-01-05,Sabesp,Saneamento,2,0.15,0.14
+2024-01-08,Sabesp,Saneamento,1,0.08,0.07
+2024-01-09,Sabesp,Saneamento,1,0.12,0.11
+2024-01-10,Sabesp,Saneamento,1,0.06,0.05
+2024-01-11,Sabesp,Saneamento,2,0.14,0.13
