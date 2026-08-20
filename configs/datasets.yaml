@@ -36,12 +36,12 @@ defaults:
 datasets:
 
   # Exemplo PT com rótulos — validação técnica da pipeline
-  noticias_exemplo:
+  noticias_exemplo_ptbr:
     enabled: true
     order: 1
-    dataset_name: noticias_exemplo
-    display_name: Notícias financeiras de exemplo
-    path: data/noticias_exemplo/noticias.csv
+    dataset_name: noticias_exemplo_ptbr
+    display_name: Notícias financeiras de exemplo (PT-BR)
+    path: data/noticias_exemplo_ptbr/noticias.csv
     format: csv
     limits:
       max_rows: max
@@ -90,51 +90,9 @@ datasets:
         Dataset pequeno para validar carregamento, inferência, métricas e
         agregações da pipeline.
 
-  saneamento_ptbr_filtrado:
-    enabled: true
-    order: 2
-    dataset_name: saneamento_ptbr_filtrado
-    display_name: Saneamento PT filtrado (HF)
-    path: data/saneamento_ptbr_filtrado/noticias.csv
-    format: csv
-    limits:
-      max_rows: max
-    columns:
-      news_id: id
-      text: noticia
-      date: data
-      company: empresa
-      sector: setor
-      ticker: ticker
-      title: titulo
-      true_label: null
-      source: fonte
-      url: url
-    required_fields:
-      - news_id
-      - text
-    labels:
-      available: false
-    dates:
-      available: true
-      format: "%Y-%m-%d"
-      dayfirst: false
-      fail_on_invalid: true
-      output_format: "%Y-%m-%d"
-    metadata:
-      language: pt-BR
-      domain: sanitation_utilities
-      market: Brazilian
-      country: Brazil
-      split: inference
-      source_type: filtered_hf
-      description: >-
-        Notícias PT filtradas para saneamento (Sabesp/Copasa/Sanepar/keywords).
-        CSV local gitignored; gere com scripts/temp/build_saneamento_filtered_datasets.py.
-
   news_example_en:
     enabled: true
-    order: 3
+    order: 2
     language: en
     dataset_name: news_example_en
     display_name: English financial news example
@@ -179,52 +137,9 @@ datasets:
       source_type: synthetic
       description: Exemplo EN com rótulos para validação da pipeline.
 
-  saneamento_en_filtrado:
-    enabled: true
-    order: 4
-    language: en
-    dataset_name: saneamento_en_filtrado
-    display_name: Saneamento EN filtrado (FNSPID)
-    path: data/saneamento_en_filtrado/news.csv
-    format: csv
-    limits:
-      max_rows: max
-    columns:
-      news_id: id
-      text: news_text
-      date: date
-      company: company
-      sector: sector
-      ticker: ticker
-      title: title
-      true_label: null
-      source: source
-      url: url
-    required_fields:
-      - news_id
-      - text
-    labels:
-      available: false
-    dates:
-      available: true
-      format: "%Y-%m-%d"
-      dayfirst: false
-      fail_on_invalid: true
-      output_format: "%Y-%m-%d"
-    metadata:
-      language: en
-      domain: sanitation_utilities
-      market: US
-      country: United States
-      split: inference
-      source_type: filtered_hf
-      description: >-
-        Notícias EN filtradas para water utilities (FNSPID Nasdaq).
-        CSV local gitignored; gere com scripts/temp/build_saneamento_filtered_datasets.py.
-
   saneamento_corpus:
     enabled: true
-    order: 5
+    order: 3
     dataset_name: saneamento_corpus
     display_name: Corpus de saneamento (scraper)
     path: data/saneamento_corpus/noticias.csv

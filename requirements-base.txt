@@ -1,0 +1,22 @@
+# Dependências principais da pipeline (sem PyTorch).
+#
+# O PyTorch é instalado separadamente por scripts/setup_env.sh conforme
+# detecção de GPU (CPU ou CUDA). As faixas evitam atualizações de versão
+# principal sem impedir correções compatíveis.
+
+numpy>=2.0,<3.0
+pandas>=2.2,<3.0
+PyYAML>=6.0,<7.0
+scikit-learn>=1.5,<2.0
+scipy>=1.11,<2.0
+
+transformers>=4.48,<6.0
+safetensors>=0.4,<1.0
+
+huggingface_hub>=0.26,<1.0
+datasets>=3.0,<4.0
+pyarrow>=22.0,<26.0
+
+requests>=2.31,<3.0
+beautifulsoup4>=4.12,<5.0
+yfinance>=0.2,<1.0

@@ -46,9 +46,9 @@ def test_fetch_dataset_sample_materializes(
     dataset = replace(
         load_configuration(
             project_root=project_root,
-            dataset_keys=["noticias_exemplo"],
+            dataset_keys=["noticias_exemplo_ptbr"],
             model_keys=["finbert_ptbr"],
-        ).get_dataset("noticias_exemplo"),
+        ).get_dataset("noticias_exemplo_ptbr"),
         path=target,
         format="jsonl",
         limits={"max_rows": 3},
@@ -75,9 +75,9 @@ def test_fetch_dataset_sample_materializes(
 def test_fetch_dataset_skips_local_csv_without_source(project_root: Path) -> None:
     configuration = load_configuration(
         project_root=project_root,
-        dataset_keys=["saneamento_ptbr_filtrado"],
+        dataset_keys=["saneamento_corpus"],
         model_keys=["finbert_ptbr"],
     )
-    dataset = configuration.get_dataset("saneamento_ptbr_filtrado")
+    dataset = configuration.get_dataset("saneamento_corpus")
     assert not dataset.source
     assert fetch_dataset_asset(dataset) is None

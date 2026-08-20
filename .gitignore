@@ -25,8 +25,8 @@ model_store/
 
 # Datasets baixados (mantém só os exemplos versionados)
 data/**
-!data/noticias_exemplo/
-!data/noticias_exemplo/**
+!data/noticias_exemplo_ptbr/
+!data/noticias_exemplo_ptbr/**
 !data/news_example_en/
 !data/news_example_en/**
 !data/saneamento_corpus/

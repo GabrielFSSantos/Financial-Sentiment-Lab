@@ -15,10 +15,10 @@ from modules.models.registry import create_model_registry
 def test_full_bilingual_combination_matrix(project_root: Path) -> None:
     configuration = load_configuration(project_root=project_root)
 
-    assert len(configuration.models) == 4
-    assert len(configuration.datasets) == 5
-    assert len(configuration.combinations) == 10
-    assert len(configuration.skipped_combinations) == 10
+    assert len(configuration.models) == 3
+    assert len(configuration.datasets) == 3
+    assert len(configuration.combinations) == 5
+    assert len(configuration.skipped_combinations) == 4
 
     for combination in configuration.combinations:
         model = configuration.get_model(combination.model_key)
@@ -29,7 +29,7 @@ def test_full_bilingual_combination_matrix(project_root: Path) -> None:
         (skipped.model_key, skipped.dataset_key)
         for skipped in configuration.skipped_combinations
     }
-    assert len(skipped_pairs) == 10
+    assert len(skipped_pairs) == 4
 
 
 def test_finbert_tone_en_legacy_load(project_root: Path) -> None:
@@ -67,16 +67,13 @@ def test_finbert_tone_en_legacy_load(project_root: Path) -> None:
         registered.unload()
 
 
-def test_max_rows_limits_filtered_csv_read(project_root: Path) -> None:
+def test_max_rows_limits_example_csv_read(project_root: Path) -> None:
     configuration = load_configuration(
         project_root=project_root,
-        dataset_keys=["saneamento_ptbr_filtrado"],
+        dataset_keys=["noticias_exemplo_ptbr"],
         model_keys=["finbert_ptbr"],
     )
-    dataset = configuration.get_dataset("saneamento_ptbr_filtrado")
-
-    if not dataset.path or not dataset.path.is_file():
-        pytest.skip("saneamento_ptbr_filtrado/noticias.csv ausente em data/")
+    dataset = configuration.get_dataset("noticias_exemplo_ptbr")
 
     limited = replace(
         dataset,

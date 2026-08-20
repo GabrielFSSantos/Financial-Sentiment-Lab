@@ -2,7 +2,7 @@
 
 Laboratório de **análise de sentimento em notícias financeiras** (PT e EN) para construir o **Índice Temporal Informacional (ITI)** e validar se sinais informacionais se associam a retornos de mercado.
 
-A pesquisa parte de notícias (datasets versionados, filtrados ou coletados por scraper), aplica modelos FinBERT, agrega impacto por empresa/setor/mercado e compara o ITI com baselines simples e preços B3 via validação estatística incremental.
+A pesquisa parte de notícias (datasets versionados ou coletados por scraper), aplica modelos FinBERT, agrega impacto por empresa/setor/mercado e compara o ITI com baselines simples e preços B3 via validação estatística incremental.
 
 Documentação técnica completa (módulos, fluxos, fórmulas): **[DOCUMENTACAO.md](DOCUMENTACAO.md)**.
 
@@ -22,6 +22,14 @@ indices/{model}/{dataset}/iti_daily.csv      # ITI e baselines
 research/.../aligned_panel.csv               # painel alinhado com mercado
 research/research_summary.json               # conclusão estatística
 ```
+
+---
+
+## Requisitos
+
+- **Python 3.10 a 3.14** (o `setup_env.sh` escolhe automaticamente o melhor disponível)
+- Opcional: variável `PYTHON` para fixar o interpretador (ex.: `PYTHON=/usr/bin/python3.12 ./scripts/setup_env.sh`)
+- PyTorch **CPU ou CUDA** é instalado automaticamente conforme detecção de GPU NVIDIA
 
 ---
 
@@ -55,7 +63,7 @@ Por padrão roda **combinações `enabled: true`** em `configs/models.yaml` × `
 ./scripts/run_experiment.sh --model finbert_ptbr --dataset saneamento_corpus
 
 # Run ID fixo
-./scripts/run_experiment.sh --run-id meu_experimento --model finbert_ptbr --dataset noticias_exemplo
+./scripts/run_experiment.sh --run-id meu_experimento --model finbert_ptbr --dataset noticias_exemplo_ptbr
 
 # Sem recriar venv (útil após setup inicial)
 ./scripts/run_experiment.sh --skip-setup
@@ -135,10 +143,8 @@ Downloads isolados: `python -m modules.models fetch`, `python -m modules.dataset
 
 | Chave YAML | Origem |
 | --- | --- |
-| `noticias_exemplo` | CSV versionado (`data/noticias_exemplo/`) — exemplo PT com rótulos |
+| `noticias_exemplo_ptbr` | CSV versionado (`data/noticias_exemplo_ptbr/`) — exemplo PT com rótulos |
 | `news_example_en` | CSV versionado (`data/news_example_en/`) — exemplo EN com rótulos |
-| `saneamento_ptbr_filtrado` | Notícias PT filtradas (HF); CSV local gitignored |
-| `saneamento_en_filtrado` | Notícias EN filtradas (FNSPID); CSV local gitignored |
 | `saneamento_corpus` | Corpus multiportal gerado por `modules/scrapers` |
 
 Tickers de mercado (research): Sabesp `SBSP3.SA`, Copasa `CSMG3.SA`, Sanepar `SAPR4.SA` — ver [configs/market.yaml](configs/market.yaml) e [configs/research.yaml](configs/research.yaml).

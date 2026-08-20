@@ -504,6 +504,7 @@ scp $SSH "${BASE}/job_financial_${JOB}.out" .
 
 | Sintoma | Solução |
 | --- | --- |
+| `Failed building wheel for pyarrow` | `rm -rf venv && ./scripts/setup_env.sh --recreate --fetch-assets` (requer pyarrow ≥ 22 para Python 3.14) |
 | `bad interpreter` no venv | `rm -rf venv` + setup + PyTorch cu124 |
 | CUDA driver too old | Reinstalar torch com index `cu124` |
 | Audit CUDA falha no login | Normal no login node; GPU vale no job |

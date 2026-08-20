@@ -15,7 +15,7 @@ def test_fetch_model_skips_when_present(project_root: Path) -> None:
     configuration = load_configuration(
         project_root=project_root,
         model_keys=["finbert_ptbr"],
-        dataset_keys=["noticias_exemplo"],
+        dataset_keys=["noticias_exemplo_ptbr"],
     )
     model = configuration.get_model("finbert_ptbr")
 

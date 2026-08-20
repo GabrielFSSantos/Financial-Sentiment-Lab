@@ -18,7 +18,7 @@ def test_load_configuration_includes_language_fields(
     configuration = load_configuration(
         project_root=project_root,
         model_keys=["finbert_ptbr"],
-        dataset_keys=["noticias_exemplo"],
+        dataset_keys=["noticias_exemplo_ptbr"],
     )
 
     assert configuration.models[0].language == "pt"
@@ -57,7 +57,7 @@ def test_language_mismatch_is_skipped(project_root: Path) -> None:
             dataset_name="dataset_en",
             display_name="Dataset EN",
             language="en",
-            path=project_root / "data/noticias_exemplo/noticias.csv",
+            path=project_root / "data/noticias_exemplo_ptbr/noticias.csv",
             format="csv",
             reader={},
             columns={"news_id": "id", "text": "noticia"},
@@ -114,7 +114,7 @@ def test_language_match_builds_combination(project_root: Path) -> None:
             dataset_name="dataset_pt",
             display_name="Dataset PT",
             language="pt",
-            path=project_root / "data/noticias_exemplo/noticias.csv",
+            path=project_root / "data/noticias_exemplo_ptbr/noticias.csv",
             format="csv",
             reader={},
             columns={"news_id": "id", "text": "noticia"},
@@ -172,7 +172,7 @@ def test_language_mismatch_allowed_when_disabled(
             dataset_name="dataset_en",
             display_name="Dataset EN",
             language="en",
-            path=project_root / "data/noticias_exemplo/noticias.csv",
+            path=project_root / "data/noticias_exemplo_ptbr/noticias.csv",
             format="csv",
             reader={},
             columns={"news_id": "id", "text": "noticia"},

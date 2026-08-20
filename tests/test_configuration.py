@@ -13,12 +13,12 @@ def test_load_configuration_with_example_dataset(
     configuration = load_configuration(
         project_root=project_root,
         model_keys=["finbert_ptbr"],
-        dataset_keys=["noticias_exemplo"],
+        dataset_keys=["noticias_exemplo_ptbr"],
     )
 
     assert configuration.schema_version == "2.0"
     assert len(configuration.models) == 1
     assert configuration.models[0].key == "finbert_ptbr"
     assert len(configuration.datasets) == 1
-    assert configuration.datasets[0].key == "noticias_exemplo"
+    assert configuration.datasets[0].key == "noticias_exemplo_ptbr"
     assert len(configuration.combinations) == 1

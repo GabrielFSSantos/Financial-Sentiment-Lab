@@ -16,13 +16,13 @@ from modules.datasets.loader import (
 from modules.experiment.config.loader import load_configuration
 
 
-def test_validate_dataset_noticias_exemplo(project_root: Path) -> None:
+def test_validate_dataset_noticias_exemplo_ptbr(project_root: Path) -> None:
     configuration = load_configuration(
         project_root=project_root,
-        dataset_keys=["noticias_exemplo"],
+        dataset_keys=["noticias_exemplo_ptbr"],
         model_keys=["finbert_ptbr"],
     )
-    report = validate_dataset(configuration.get_dataset("noticias_exemplo"))
+    report = validate_dataset(configuration.get_dataset("noticias_exemplo_ptbr"))
     assert report["valid"] is True
     assert "id" in report["columns"] or "noticia" in report["columns"]
 
@@ -73,9 +73,9 @@ def test_inspect_columns_rejects_missing_mapped_column(
 
     base = load_configuration(
         project_root=project_root,
-        dataset_keys=["noticias_exemplo"],
+        dataset_keys=["noticias_exemplo_ptbr"],
         model_keys=["finbert_ptbr"],
-    ).get_dataset("noticias_exemplo")
+    ).get_dataset("noticias_exemplo_ptbr")
 
     dataset = replace(
         base,

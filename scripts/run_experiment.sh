@@ -4,7 +4,7 @@
 #
 #   ./scripts/run_experiment.sh
 #   ./scripts/run_experiment.sh --skip-setup
-#   ./scripts/run_experiment.sh --model finbert_ptbr --dataset noticias_exemplo
+#   ./scripts/run_experiment.sh --model finbert_ptbr --dataset noticias_exemplo_ptbr
 #   ./scripts/run_experiment.sh --run-id meu_experimento
 
 set -euo pipefail

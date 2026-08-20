@@ -184,7 +184,7 @@ models:
       supports_cuda: true
 
   finbert_tone_en:
-    enabled: true
+    enabled: false
     order: 4
     language: en
     model_name: finbert_tone_en

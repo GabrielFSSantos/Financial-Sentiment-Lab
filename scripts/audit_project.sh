@@ -107,6 +107,11 @@ if [[ -z "${PYTHON}" ]]; then
 else
     ok "Python: ${PYTHON}"
     run_check "Python >= 3.10" "${PYTHON}" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)'
+    if "${PYTHON}" -c 'import sys; raise SystemExit(0 if sys.version_info < (3, 15) else 1)'; then
+        ok "Python na faixa suportada (< 3.15)"
+    else
+        warn "Python fora da faixa testada (>= 3.15); use 3.10–3.14"
+    fi
 fi
 
 export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
@@ -114,10 +119,10 @@ export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 section "2. ESTRUTURA"
 
 EXPECTED_FILES=(
-    README.md requirements.txt pytest.ini requirements-dev.txt
+    README.md pyproject.toml requirements.txt requirements-base.txt pytest.ini requirements-dev.txt
     configs/experiment.yaml configs/models.yaml configs/datasets.yaml configs/scrapers.yaml
     configs/market.yaml configs/research.yaml
-    data/noticias_exemplo/noticias.csv
+    data/noticias_exemplo_ptbr/noticias.csv
     data/news_example_en/news.csv
     data/saneamento_corpus/noticias.csv
     scripts/setup_env.sh scripts/run_service.sh scripts/run_experiment.sh scripts/run_research.sh scripts/audit_project.sh
@@ -146,6 +151,8 @@ EXPECTED_FILES=(
     modules/scrapers/schema/csv.py modules/scrapers/schema/entities.py
     modules/scrapers/pipeline/runner.py modules/scrapers/pipeline/state.py modules/scrapers/core/search.py
     modules/scrapers/sites/base.py modules/scrapers/scripts/scrape.sh modules/scrapers/scripts/build_corpus.sh
+    tests/fixtures/research/outputs/test_run/indices/finbert_ptbr/noticias_exemplo_ptbr/iti_daily.csv
+    tests/fixtures/research/outputs/test_run/indices/finbert_ptbr/noticias_exemplo_ptbr/baselines_daily.csv
     tests/conftest.py tests/test_sentiment.py tests/test_configuration.py tests/test_compatibility.py tests/test_temporal_index.py
     tests/test_experiment_dimensions.py tests/test_experiment_baselines.py
     tests/test_models_config.py tests/test_models_assets.py
@@ -235,13 +242,13 @@ if [[ "${ASSETS_READY}" == true ]]; then
             --environment sdumont \
             --dry-run \
             --model finbert_ptbr \
-            --dataset noticias_exemplo
+            --dataset noticias_exemplo_ptbr
     else
         run_check "Dry-run automático" \
             "${PROJECT_ROOT}/scripts/run_service.sh" \
             --dry-run \
             --model finbert_ptbr \
-            --dataset noticias_exemplo
+            --dataset noticias_exemplo_ptbr
     fi
 else
     info "Dry-run ignorado: assets enabled ausentes"
@@ -258,14 +265,14 @@ from modules.models.registry import create_model_registry
 
 configuration = load_configuration(
     model_keys=["finbert_ptbr"],
-    dataset_keys=["noticias_exemplo"],
+    dataset_keys=["noticias_exemplo_ptbr"],
 )
 registry = create_model_registry(configuration)
 registered = registry.create(
     configuration.get_model("finbert_ptbr"),
     load=True,
 )
-dataset = DatasetLoader().load(configuration.get_dataset("noticias_exemplo"))
+dataset = DatasetLoader().load(configuration.get_dataset("noticias_exemplo_ptbr"))
 predictions = registered.predict(dataset.texts[:2])
 if len(predictions) != 2:
     raise SystemExit(f"Esperadas 2 previsões, recebidas {len(predictions)}")
