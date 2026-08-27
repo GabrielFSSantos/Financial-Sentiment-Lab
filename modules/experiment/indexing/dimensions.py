@@ -72,10 +72,23 @@ def resolve_dimensions(
             continue
 
     for key in DIMENSION_KEYS:
-        short = _LONG_TO_SHORT[key]
+        short = DIMENSION_SHORT_NAMES[key]
         resolved[key] = _clip_dimension(resolved[key])
         if short in frame.columns:
             frame[short] = resolved[key]
+
+    disabled_raw = settings.get("disabled_dimensions", [])
+    if isinstance(disabled_raw, (list, tuple)):
+        for item in disabled_raw:
+            dimension = str(item).strip()
+            if dimension in DIMENSION_SHORT_NAMES.values():
+                long_key = next(
+                    long for long, short in DIMENSION_SHORT_NAMES.items() if short == dimension
+                )
+                resolved[long_key] = pd.Series(1.0, index=frame.index, dtype=float)
+            elif dimension in DIMENSION_KEYS:
+                resolved[dimension] = pd.Series(1.0, index=frame.index, dtype=float)
+
     return resolved
 
 

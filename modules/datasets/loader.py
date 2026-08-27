@@ -538,6 +538,19 @@ class DatasetLoader:
                     mask &= parsed <= upper
             filtered = filtered.loc[mask]
 
+        company_column = configuration.columns.get("company")
+        companies = limits.get("companies")
+        if (
+            companies
+            and company_column
+            and company_column in filtered.columns
+        ):
+            allowed = {str(item).strip() for item in companies if str(item).strip()}
+            if allowed:
+                filtered = filtered.loc[
+                    filtered[company_column].astype(str).str.strip().isin(allowed)
+                ]
+
         return filtered.reset_index(drop=True)
 
     def _read_csv(

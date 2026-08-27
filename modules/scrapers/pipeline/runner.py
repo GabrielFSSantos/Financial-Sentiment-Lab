@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+import sys
 
 from modules.scrapers.config.loader import ScrapersConfiguration
 from modules.scrapers.pipeline.state import (
@@ -35,28 +36,31 @@ def run_scrape(
     total_new = 0
 
     for site in sites:
-        scraper_cls = import_scraper(site.adapter)
-        scraper = scraper_cls(configuration, site)
-        records = scraper.scrape(
-            since=since,
-            until=until,
-            state=state if use_state else None,
-        )
-        output_path = configuration.raw_dir / site.output_file
-        total_rows, added_rows = append_records(output_path, records)
-        print(
-            f"{site.key}: {len(records)} coletado(s), +{added_rows} novo(s) "
-            f"→ {output_path} (total {total_rows})"
-        )
-        total_new += added_rows
-
-        if use_state:
-            update_site_state(
-                state,
-                site_key=site.key,
-                last_until=until,
-                collected_urls=[record.get("url", "") for record in records],
+        try:
+            scraper_cls = import_scraper(site.adapter)
+            scraper = scraper_cls(configuration, site)
+            records = scraper.scrape(
+                since=since,
+                until=until,
+                state=state if use_state else None,
             )
-            save_state(configuration.state_path, state)
+            output_path = configuration.raw_dir / site.output_file
+            total_rows, added_rows = append_records(output_path, records)
+            print(
+                f"{site.key}: {len(records)} coletado(s), +{added_rows} novo(s) "
+                f"→ {output_path} (total {total_rows})"
+            )
+            total_new += added_rows
+
+            if use_state:
+                update_site_state(
+                    state,
+                    site_key=site.key,
+                    last_until=until,
+                    collected_urls=[record.get("url", "") for record in records],
+                )
+                save_state(configuration.state_path, state)
+        except Exception as exc:
+            print(f"{site.key}: ERRO — {exc}", file=sys.stderr)
 
     return total_new

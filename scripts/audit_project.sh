@@ -150,7 +150,7 @@ EXPECTED_FILES=(
     modules/scrapers/__main__.py modules/scrapers/cli/main.py modules/scrapers/config/loader.py
     modules/scrapers/schema/csv.py modules/scrapers/schema/entities.py
     modules/scrapers/pipeline/runner.py modules/scrapers/pipeline/state.py modules/scrapers/core/search.py
-    modules/scrapers/sites/base.py modules/scrapers/scripts/scrape.sh modules/scrapers/scripts/build_corpus.sh
+    modules/scrapers/sites/base.py modules/scrapers/scripts/run_scrape.sh modules/scrapers/scripts/scrape.sh modules/scrapers/scripts/build_corpus.sh
     tests/fixtures/research/outputs/test_run/indices/finbert_ptbr/noticias_exemplo_ptbr/iti_daily.csv
     tests/fixtures/research/outputs/test_run/indices/finbert_ptbr/noticias_exemplo_ptbr/baselines_daily.csv
     tests/conftest.py tests/test_sentiment.py tests/test_configuration.py tests/test_compatibility.py tests/test_temporal_index.py

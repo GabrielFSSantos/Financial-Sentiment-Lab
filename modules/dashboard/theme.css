@@ -1,0 +1,100 @@
+/* Tema do Financial Sentiment Lab Dashboard */
+
+:root {
+    --fsl-primary: #1e3a5f;
+    --fsl-accent: #2563eb;
+    --fsl-success: #059669;
+    --fsl-warning: #d97706;
+    --fsl-danger: #dc2626;
+    --fsl-muted: #64748b;
+    --fsl-bg-card: #f8fafc;
+    --fsl-border: #e2e8f0;
+}
+
+/* Tipografia */
+html, body, [class*="css"] {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+h1 {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    color: var(--fsl-primary) !important;
+    margin-bottom: 0.25rem !important;
+}
+
+h2 {
+    font-size: 1.25rem !important;
+    font-weight: 600 !important;
+    color: var(--fsl-primary) !important;
+    margin-top: 1.5rem !important;
+}
+
+h3 {
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
+}
+
+/* Cards KPI */
+div[data-testid="stMetric"] {
+    background: var(--fsl-bg-card);
+    border: 1px solid var(--fsl-border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+div[data-testid="stMetric"] label {
+    font-size: 0.85rem !important;
+    color: var(--fsl-muted) !important;
+}
+
+div[data-testid="stMetric"] [data-testid="stMetricValue"] {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: var(--fsl-primary) !important;
+}
+
+/* Insight boxes */
+.fsl-insight {
+    background: #eff6ff;
+    border-left: 4px solid var(--fsl-accent);
+    padding: 0.75rem 1rem;
+    border-radius: 0 6px 6px 0;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.fsl-insight-warning {
+    background: #fffbeb;
+    border-left-color: var(--fsl-warning);
+}
+
+.fsl-insight-success {
+    background: #ecfdf5;
+    border-left-color: var(--fsl-success);
+}
+
+.fsl-insight-danger {
+    background: #fef2f2;
+    border-left-color: var(--fsl-danger);
+}
+
+.fsl-page-desc {
+    color: var(--fsl-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background: #f1f5f9;
+}
+
+/* Tabelas */
+.stDataFrame {
+    border: 1px solid var(--fsl-border);
+    border-radius: 8px;
+}

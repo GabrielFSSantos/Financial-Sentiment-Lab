@@ -34,8 +34,9 @@ def test_build_merged_corpus_filters_generic_records(tmp_path) -> None:
         encoding="utf-8",
     )
     corpus_path = tmp_path / "noticias.csv"
-    count = build_merged_corpus(raw_dir=raw_dir, corpus_path=corpus_path)
-    assert count == 1
+    result = build_merged_corpus(raw_dir=raw_dir, corpus_path=corpus_path)
+    assert result.classified_count == 1
+    assert result.discarded_count == 1
     content = corpus_path.read_text(encoding="utf-8")
     assert "SETOR" not in content
     assert "Sabesp" in content

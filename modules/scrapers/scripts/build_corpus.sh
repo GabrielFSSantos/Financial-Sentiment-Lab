@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Mescla CSVs em raw/ → data/saneamento_corpus/noticias.csv
+# Mescla CSVs em raw/ → noticias.csv + noticias_pendentes.csv
 
 set -euo pipefail
 
@@ -19,9 +19,17 @@ from modules.scrapers.config.loader import load_scrapers_configuration
 from modules.scrapers.pipeline.corpus import build_merged_corpus
 
 configuration = load_scrapers_configuration()
-count = build_merged_corpus(
+result = build_merged_corpus(
     raw_dir=configuration.raw_dir,
     corpus_path=configuration.corpus_path,
+    pending_path=configuration.pending_corpus_path,
 )
-print(f"Corpus mesclado: {count} registro(s) → {configuration.corpus_path}")
+print(
+    f"Corpus mesclado: {result.classified_count} classificado(s) → {configuration.corpus_path}"
+)
+print(
+    f"Pendentes: {result.pending_count} → {configuration.pending_corpus_path}"
+)
+if result.discarded_count:
+    print(f"Descartados: {result.discarded_count}")
 PY

@@ -1,6 +1,6 @@
 # Documentação técnica — Financial Sentiment Lab
 
-Referência para entender **o que foi implementado**, **como os módulos se conectam** e **quais fórmulas são usadas**. Para comandos rápidos, veja [README.md](README.md).
+Referência para entender **o que foi implementado**, **como os módulos se conectam** e **quais fórmulas são usadas**. Para comandos rápidos, veja [README.md](README.md). Para o histórico experimental run a run, veja [TRAJETORIA.md](TRAJETORIA.md).
 
 ---
 
@@ -45,6 +45,98 @@ flowchart TB
 
 ---
 
+## 1.5 Conceitos em linguagem acessível
+
+Esta seção antecipa a leitura técnica dos módulos e fórmulas. Os detalhes de implementação estão nas seções seguintes; o histórico de runs está em [TRAJETORIA.md](TRAJETORIA.md).
+
+### O que estamos testando
+
+O projeto constrói um **Índice Temporal Informacional (ITI)** a partir do sentimento de notícias financeiras e verifica se esse índice se associa ao **retorno futuro** de uma ação melhor do que alternativas simples feitas com as mesmas notícias (baselines B0–B3). A pergunta não é “o ITI prevê se a ação sobe ou desce como aposta”, e sim se existe **correlação** estatística entre o índice em um período e o movimento do preço nas semanas seguintes.
+
+### De onde vêm os dados
+
+```mermaid
+flowchart TB
+  news[Noticias scraper] --> sentiment[FinBERT nosso]
+  sentiment --> iti[ITI diario EWMA]
+  sentiment --> baselines[Baselines B0-B3 nossos]
+  yfinance[yfinance internet] --> prices[precos SBSP3]
+  iti --> weekly[Agregacao semanal last]
+  baselines --> weekly
+  weekly --> research[Correlacao com retorno futuro]
+  prices --> research
+```
+
+| Origem | O que é | Exemplo no repo |
+| --- | --- | --- |
+| Nosso scraper / datasets | Notícias brutas e corpus classificado | `data/saneamento_corpus/` |
+| Nossos modelos | Sentimento por notícia (FinBERT) | `outputs/{run_id}/models/.../predictions.csv` |
+| Nosso experimento | ITI diário, agregados, baselines B0–B2 | `outputs/{run_id}/indices/.../iti_daily.csv` |
+| Nosso research | Baseline B3 (impacto sem memória) | derivado em `validation/baselines.py` |
+| Internet (yfinance) | Preços e retornos da ação | `data/market/prices.csv` |
+
+Os baselines **não** usam preço de mercado — são competidores internos derivados das notícias. O preço da ação entra como **variável alvo** na validação.
+
+### ITI líquido e ITI risco
+
+- **`iti_liquido`** — índice de sentimento líquido acumulado (impactos positivos e negativos combinados via `impacto_dia`). É o predictor principal nas campanhas.
+- **`iti_risco`** — índice do lado negativo/risco (`risco_dia`). Usado em análises complementares; para `iti_risco`, o alvo pode ser o valor absoluto do retorno.
+
+Não há coluna “ITI bruto” no pipeline. O conceito mais próximo de impacto sem memória é o **B3** (`b3_daily_impact_no_memory`): o `impacto_dia` da semana, sem suavização EWMA.
+
+### Parâmetro α (alpha)
+
+No ITI, **α** controla a **memória** do EWMA (*Exponentially Weighted Moving Average*), não o “alpha” de retorno acima do mercado em finanças:
+
+\[
+\text{ITI}_t = \alpha_{\text{eff}} \cdot \text{ITI}_{t-1} + (1 - \alpha_{\text{eff}}) \cdot \text{impacto\_dia}_t
+\]
+
+- **α alto** (ex.: 0,95) — o índice muda devagar, “lembra” muito do passado.
+- **α baixo** (ex.: 0,70) — o índice reage mais rápido a notícias novas.
+
+Na campanha Sabesp 2026, α = 0,70 (run R1) foi o melhor resultado. Ver [TRAJETORIA.md](TRAJETORIA.md#marco-1--campanha-sabesp-2026-r0r9).
+
+### Baselines B0–B3
+
+Alternativas simples para responder: “será que contar notícias ou tirar média de sentimento já explica o retorno futuro tão bem quanto o ITI?”
+
+| Baseline | Coluna | Significado |
+| --- | --- | --- |
+| **B0** | `b0_news_count` | Quantidade de notícias no período |
+| **B1** | `b1_mean_sentiment` | Média do sentimento contínuo \(d\) |
+| **B2** | `b2_confidence_weighted_sentiment` | Média ponderada por confiança do modelo |
+| **B3** | `b3_daily_impact_no_memory` | Impacto do dia sem memória EWMA |
+
+B0–B2 são gerados no experimento (`indexing/baselines.py`). B3 é derivado no research (`validation/baselines.py`). B0–B2 são avaliados apenas em dias/semanas com notícia (`baseline_news_only` em `configs/research.yaml`).
+
+### Frequência diária e agregação semanal
+
+O ITI é calculado em **série diária** (incluindo decay nos dias sem notícia). Na validação semanal da campanha Sabesp, o painel usa um valor por semana:
+
+- **`iti_liquido_last`** (padrão) — estado EWMA no último dia útil da semana (sexta, W-FRI).
+- **`iti_liquido_mean`** (testado na run R8) — média dos valores diários da semana.
+
+O retorno de mercado é agregado na mesma frequência: soma dos log-returns diários da semana, alinhada ao `period_end` do ITI.
+
+### Validação incremental e as 24 comparações
+
+Para cada run da campanha Sabesp, o research executa comparações **cabeça a cabeça** entre o ITI e cada baseline. Com 4 baselines, 2 métricas de conclusão (Pearson, Spearman) e 3 horizontes semanais (1, 2, 4), obtemos **24 comparações** por run.
+
+- **Vitória** — a correlação do ITI com o retorno futuro é maior que a do baseline na mesma métrica e horizonte (\(\Delta > 0\)).
+- **Win rate** — proporção de vitórias entre as 24 comparações.
+- **Significativa** — a diferença é estatisticamente confiável (bootstrap em bloco: intervalo de confiança que não cruza zero ou p < 0,05).
+
+Na janela nov/2023–abr/2024 há cerca de **24 semanas** com ITI, baselines e preço alinhados (`overlap_days` no manifest). Amostra pequena: poucas vitórias significativas mesmo na melhor run (R1: 2/24).
+
+### Limitações
+
+- Evento único (privatização Sabesp) — difícil generalizar.
+- Correlação não implica causalidade.
+- Qualidade do sentimento depende do FinBERT; rótulos manuais ainda em validação.
+
+---
+
 ## 2. Entrypoints e scripts
 
 ```mermaid
@@ -86,6 +178,7 @@ flowchart TB
 | `scripts/audit_project.sh` | Estrutura, YAML, pytest, dry-run |
 | `scripts/run_experiment.sh` | Chama `python -m modules.experiment` |
 | `scripts/run_research.sh` | Chama `python -m modules.research validate` |
+| `scripts/run_dashboard.sh` | Dashboard Streamlit de exploração da pesquisa |
 | `modules/scrapers/scripts/scrape.sh` | Wrapper de coleta |
 | `modules/scrapers/scripts/build_corpus.sh` | Mescla `raw/` → corpus |
 | `modules/market/scripts/fetch.sh` | Wrapper de preços |
@@ -168,8 +261,10 @@ flowchart TB
 | `stages/metrics.py` | Métricas supervisionadas e performance |
 | `indexing/temporal_index.py` | **Cálculo do ITI** |
 | `indexing/dimensions.py` | Dimensões m, r, e, h, q, u |
-| `indexing/baselines.py` | Baselines B0–B2 |
+| `indexing/baselines.py` | Baselines B0–B2 (contagem, média, média ponderada) |
 | `io/results.py` | Grava CSVs e `summary.json` |
+
+Baselines **B0–B2** são calculados no experimento a partir das previsões (`build_baselines_daily` em `indexing/baselines.py`). O baseline **B3** (impacto diário sem memória EWMA) é derivado no research (`validation/baselines.py`, coluna `b3_daily_impact_no_memory`).
 
 ---
 
@@ -259,6 +354,8 @@ flowchart LR
 ---
 
 ## 4. Fórmulas do ITI
+
+Com os conceitos da [§1.5](#15-conceitos-em-linguagem-acessível) em mente, esta seção formaliza o cálculo implementado no código.
 
 Implementação: `modules/experiment/indexing/temporal_index.py`  
 Dimensões: `modules/experiment/indexing/dimensions.py`  
@@ -358,7 +455,25 @@ B0–B2 são gerados no experimento; B3 é derivado no research. B0–B2 são av
 
 ## 5. Validação research — métricas e retornos
 
-Config: `configs/research.yaml`
+Config padrão: `configs/research.yaml`. Campanha Sabesp semanal: `configs/research_weekly_sabesp.yaml`.
+
+### 5.0 Modos diário e semanal
+
+O módulo research suporta dois modos de alinhamento, selecionados por `index_frequency` no YAML de research:
+
+| Modo | Config | `index_frequency` | Horizontes | Coluna ITI | Alinhamento |
+| --- | --- | --- | --- | --- | --- |
+| **Diário** (padrão) | `configs/research.yaml` | `daily` (implícito) | 1, 5, 21 **dias** | `iti_liquido` diário | `io/align.py` |
+| **Semanal** (campanha Sabesp) | `configs/research_weekly_sabesp.yaml` | `weekly` | 1, 2, 4 **semanas** | `iti_liquido_last` | `io/weekly_align.py` |
+
+No modo semanal:
+
+- ITI e baselines são agregados para W-FRI (sexta-feira).
+- Retornos de mercado são a soma dos log-returns diários da semana.
+- Retornos futuros somam as semanas seguintes (horizonte em semanas).
+- Filtro `companies_filter: [Sabesp]` restringe o painel à empresa do evento.
+
+As **24 comparações** por run no modo semanal vêm de 4 baselines × 2 métricas de conclusão (Pearson, Spearman) × 3 horizontes. Resultados e interpretação: [TRAJETORIA.md](TRAJETORIA.md).
 
 ### 5.1 Retorno alvo
 
@@ -521,7 +636,32 @@ python -m modules.research validate --run-id <run_id>
 
 ---
 
-## 8. Testes
+## 8. Dashboard (Streamlit)
+
+Interface multipage para explorar corpus, runs, modelos, experimentos e research sem abrir CSVs manualmente.
+
+```bash
+./scripts/run_dashboard.sh
+# ou: ./scripts/run_dashboard.sh --port 8502
+```
+
+### Módulos
+
+| Página | Conteúdo |
+| --- | --- |
+| Visão Geral | KPIs, corpus, campanha Sabesp, atalhos |
+| Datasets e Scraper | Filtros, cobertura, heatmap, tabela de notícias |
+| Modelos | Previsões, distribuição de classes, sentimento por empresa |
+| Runs | Detalhe da execução, config ITI, diff vs baseline |
+| Comparação | Multi-run: parâmetros, win rate, sentimento |
+| Experimentos | Campanha R0–R9, alpha vs win rate, ablações — ver também [TRAJETORIA.md](TRAJETORIA.md) |
+| Research | ITI vs mercado, incremental, drill-down por empresa |
+
+Dados lidos de `outputs/` e `data/` via `modules/dashboard/services/`. Insights automáticos em `modules/dashboard/insights/`.
+
+---
+
+## 9. Testes
 
 ```bash
 pytest -m "not network"

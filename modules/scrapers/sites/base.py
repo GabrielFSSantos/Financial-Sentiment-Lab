@@ -12,7 +12,11 @@ from modules.scrapers.core.html import extract_paragraphs, extract_title, parse_
 from modules.scrapers.core.http import fetch_text, sleep
 from modules.scrapers.core.search import SearchHit, discover_links
 from modules.scrapers.pipeline.state import is_url_seen
-from modules.scrapers.schema.entities import match_entity
+from modules.scrapers.schema.entities import (
+    PENDING_COMPANY,
+    match_entity,
+    matches_sector_keywords,
+)
 from modules.scrapers.schema.csv import normalize_url
 
 
@@ -40,6 +44,7 @@ class SiteScraper:
         delay = float(self.defaults.get("delay_seconds", 2.0))
         timeout = float(self.defaults.get("request_timeout", 30.0))
         min_chars = int(self.defaults.get("min_article_chars", 40))
+        collection_mode = str(self.defaults.get("collection_mode", "strict")).strip().lower()
 
         since_date = datetime.strptime(since, "%Y-%m-%d").date()
         until_date = datetime.strptime(until, "%Y-%m-%d").date()
@@ -76,6 +81,7 @@ class SiteScraper:
                 min_chars=min_chars,
                 seen_urls=seen_urls,
                 state=state,
+                collection_mode=collection_mode,
             )
             if record is not None:
                 records.append(record)
@@ -97,6 +103,7 @@ class SiteScraper:
         min_chars: int,
         seen_urls: set[str],
         state: Mapping[str, Any] | None,
+        collection_mode: str,
     ) -> dict[str, str] | None:
         article_url = hit.url.strip()
         normalized = normalize_url(article_url)
@@ -129,7 +136,15 @@ class SiteScraper:
 
         entity = match_entity(combined)
         if entity is None:
-            return None
+            if collection_mode != "broad" or not matches_sector_keywords(combined):
+                return None
+            empresa = PENDING_COMPANY
+            setor = "Saneamento"
+            ticker = ""
+        else:
+            empresa = entity.company
+            setor = entity.sector
+            ticker = entity.ticker
 
         parsed_date = hit.published or self._extract_date(soup, article_url, until_date)
         if not parsed_date:
@@ -143,9 +158,9 @@ class SiteScraper:
         return {
             "id": f"{self.site.key}_{digest}",
             "data": parsed_date,
-            "empresa": entity.company,
-            "setor": entity.sector,
-            "ticker": entity.ticker,
+            "empresa": empresa,
+            "setor": setor,
+            "ticker": ticker,
             "titulo": title or combined[:120],
             "noticia": body or combined,
             "fonte": fonte,
@@ -167,5 +182,5 @@ class SiteScraper:
             if match:
                 parsed_date = match.group(1).replace("/", "-")
         if not parsed_date:
-            parsed_date = until_date.strftime("%Y-%m-%d")
+            return ""
         return parsed_date

@@ -1,0 +1,13 @@
+# Dependências opcionais para scrapers com busca JavaScript (Valor, G1, Estadão).
+#
+# Instalação:
+#   pip install -r requirements-scrapers.txt
+#   ./venv/bin/playwright install chromium
+#   ./venv/bin/playwright install-deps chromium
+#
+# Nota: use o binário do venv (não `sudo playwright` — o sudo não enxerga o venv).
+#
+# WSL/Ubuntu — se launch falhar com libasound.so.2, instale deps do sistema:
+#   ./venv/bin/playwright install-deps chromium
+
+playwright>=1.40,<2.0

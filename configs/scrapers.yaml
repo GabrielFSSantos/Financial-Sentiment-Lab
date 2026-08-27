@@ -1,16 +1,40 @@
 # Coleta de notícias via configs/scrapers.yaml
+#
+# Portais com search_strategy: playwright exigem:
+#   pip install -r requirements-scrapers.txt && playwright install chromium
 
 schema_version: "1.1"
 
 defaults:
-  max_articles_per_site: 50
+  collection_mode: broad  # broad | strict
+  max_articles_per_site: 5000
+  max_fetch_misses: 50
   default_since: "2020-01-01"
   delay_seconds: 2.0
   request_timeout: 30.0
   min_article_chars: 40
   raw_dir: data/saneamento_corpus/raw
   corpus_path: data/saneamento_corpus/noticias.csv
+  pending_corpus_path: data/saneamento_corpus/noticias_pendentes.csv
   state_path: data/saneamento_corpus/.scrape_state.json
+
+# Queries compartilhadas — copiar em cada site (YAML sem âncoras)
+_shared_queries: &shared_queries
+  - Sabesp
+  - SBSP3
+  - Copasa
+  - CSMG3
+  - Sanepar
+  - SAPR4
+  - SAPR3
+  - saneamento
+  - privatização Sabesp
+  - Marco do saneamento
+
+_playwright_queries: &playwright_queries
+  - Sabesp
+  - privatização Sabesp
+  - saneamento
 
 sites:
   valor:
@@ -21,11 +45,14 @@ sites:
     output_file: valor.csv
     scraping:
       fonte: Valor Econômico
-      search_strategy: rss
-      rss_url: https://valor.globo.com/rss/valor/
+      search_strategy: playwright
       base_url: https://valor.globo.com
       search_url: "https://valor.globo.com/busca/?q={query}"
-      link_selector: "a.busca-titulo__link, a[href*='/empresas/'], a[href*='/financas/']"
+      link_selector: "a[href*='measures.globo.com'], a[href*='/noticia/']"
+      playwright_wait_ms: 8000
+      playwright_wait_until: networkidle
+      playwright_scroll_steps: 4
+      playwright_max_pages: 5
       body_selector: "article p, .content-text__container p, .mc-article-body p"
       article_url_pattern: "valor\\.globo\\.com/.+/noticia/\\d{4}/\\d{2}/\\d{2}/"
       link_exclude_substrings:
@@ -33,11 +60,8 @@ sites:
         - /video/
         - /podcast/
         - /patrocinado/
-      search_queries:
-        - Sabesp
-        - Copasa
-        - Sanepar
-        - saneamento
+        - /conteudo-de-marca/
+      search_queries: *playwright_queries
 
   infomoney:
     enabled: true
@@ -49,37 +73,39 @@ sites:
       fonte: InfoMoney
       search_strategy: wordpress_api
       api_url: https://www.infomoney.com.br/wp-json/wp/v2/posts
-      api_per_page: 20
-      api_max_pages: 3
+      api_per_page: 100
+      api_max_pages: 20
       base_url: https://www.infomoney.com.br
       body_selector: "article p, .article-content p, .post-content p"
-      search_queries:
-        - Sabesp
-        - Copasa
-        - Sanepar
-        - saneamento
+      search_queries: *shared_queries
 
   estadao:
-    enabled: true
+    enabled: false
     order: 3
     display_name: Estadão
     adapter: modules.scrapers.sites.base.SiteScraper
     output_file: estadao.csv
     scraping:
-      fonte: Estadão
-      search_strategy: rss
-      rss_url: https://www.estadao.com.br/arc/outboundfeeds/feeds/rss/sections/economia/
-      base_url: https://www.estadao.com.br
-      body_selector: "article p, .content-body p, .news-body p"
-      article_url_pattern: "estadao\\.com\\.br/.+"
+      fonte: Estadão E-Investidor
+      # Busca WP não indexa histórico; resultados são páginas de marketing.
+      # Cobertura do Estadão via Exame + InfoMoney.
+      search_strategy: playwright
+      search_url: "https://www.estadao.com.br/einvestidor/?s={query}"
+      base_url: https://einvestidor.estadao.com.br
+      link_selector: "a[href*='einvestidor.estadao.com.br/'][href*='-']"
+      playwright_wait_ms: 8000
+      playwright_scroll_steps: 4
+      playwright_max_pages: 5
+      body_selector: "article p, .entry-content p, .post-content p, .content-body p"
+      article_url_pattern: "einvestidor\\.estadao\\.com\\.br/.+"
       link_exclude_substrings:
         - /error/
         - /podcast/
-      search_queries:
-        - Sabesp
-        - Copasa
-        - Sanepar
-        - saneamento
+        - /calculadora
+        - /converter
+        - /cotacoes
+        - /simulador
+      search_queries: *playwright_queries
 
   g1_economia:
     enabled: true
@@ -89,16 +115,53 @@ sites:
     output_file: g1.csv
     scraping:
       fonte: G1 Economia
-      search_strategy: rss
-      rss_url: https://g1.globo.com/rss/g1/economia/
+      search_strategy: playwright
       base_url: https://g1.globo.com
+      search_url: "https://g1.globo.com/busca/?q={query}"
+      link_selector: "a[href*='measures.globo.com'], a[href*='/noticia/20']"
+      playwright_wait_ms: 8000
+      playwright_wait_until: networkidle
+      playwright_scroll_steps: 4
+      playwright_max_pages: 5
       body_selector: "article p, .content-text__container p, .mc-article-body p"
       article_url_pattern: "g1\\.globo\\.com/.+/noticia/\\d{4}/\\d{2}/\\d{2}/"
       link_exclude_substrings:
         - /video/
         - /podcasts/
-      search_queries:
-        - Sabesp
-        - Copasa
-        - Sanepar
-        - saneamento
+      search_queries: *playwright_queries
+
+  money_times:
+    enabled: true
+    order: 5
+    display_name: Money Times
+    adapter: modules.scrapers.sites.base.SiteScraper
+    output_file: money_times.csv
+    scraping:
+      fonte: Money Times
+      search_strategy: wordpress_api
+      api_url: https://www.moneytimes.com.br/wp-json/wp/v2/posts
+      api_per_page: 100
+      api_max_pages: 20
+      base_url: https://www.moneytimes.com.br
+      body_selector: "article p, .entry-content p, .post-content p"
+      search_queries: *shared_queries
+
+  exame:
+    enabled: true
+    order: 6
+    display_name: Exame
+    adapter: modules.scrapers.sites.base.SiteScraper
+    output_file: exame.csv
+    scraping:
+      fonte: Exame
+      search_strategy: wordpress_api
+      api_url: https://exame.com/wp-json/wp/v2/posts
+      api_per_page: 100
+      api_max_pages: 20
+      base_url: https://exame.com
+      body_selector: "article p, .body-content p, .content-body p"
+      article_url_pattern: "exame\\.com/.+"
+      link_exclude_substrings:
+        - /video/
+        - /podcast/
+      search_queries: *shared_queries

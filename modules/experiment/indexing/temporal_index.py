@@ -260,22 +260,28 @@ def build_news_impact_frame(
         short = DIMENSION_SHORT_NAMES[key]
         frame[short] = dimensions[key]
 
-    frame["I_n"] = (
-        frame["d"]
-        * frame["m"]
-        * frame["r"]
-        * frame["c"]
-        * frame["e"]
-        * frame["u"]
-    )
-    frame["R_n"] = (
-        np.maximum(0.0, -frame["d"])
-        * frame["m"]
-        * frame["r"]
-        * frame["c"]
-        * frame["q"]
-    )
-    frame["w_n"] = frame["c"] * frame["r"] * frame["u"]
+    equation_mode = str((settings or {}).get("equation_mode", "full")).strip().lower()
+    if equation_mode == "simplified_dc":
+        frame["I_n"] = frame["d"] * frame["c"]
+        frame["R_n"] = np.maximum(0.0, -frame["d"]) * frame["c"]
+        frame["w_n"] = frame["c"]
+    else:
+        frame["I_n"] = (
+            frame["d"]
+            * frame["m"]
+            * frame["r"]
+            * frame["c"]
+            * frame["e"]
+            * frame["u"]
+        )
+        frame["R_n"] = (
+            np.maximum(0.0, -frame["d"])
+            * frame["m"]
+            * frame["r"]
+            * frame["c"]
+            * frame["q"]
+        )
+        frame["w_n"] = frame["c"] * frame["r"] * frame["u"]
 
     output_columns = [
         "news_id",
@@ -515,6 +521,9 @@ def resample_iti_series(
                     ),
                     "iti_liquido_mean": float(
                         period_df["iti_liquido"].mean()
+                    ),
+                    "iti_liquido_last": float(
+                        period_df["iti_liquido"].iloc[-1]
                     ),
                     "iti_liquido_min": float(
                         period_df["iti_liquido"].min()

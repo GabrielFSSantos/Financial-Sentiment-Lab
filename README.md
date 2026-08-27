@@ -4,7 +4,20 @@ Laboratório de **análise de sentimento em notícias financeiras** (PT e EN) pa
 
 A pesquisa parte de notícias (datasets versionados ou coletados por scraper), aplica modelos FinBERT, agrega impacto por empresa/setor/mercado e compara o ITI com baselines simples e preços B3 via validação estatística incremental.
 
-Documentação técnica completa (módulos, fluxos, fórmulas): **[DOCUMENTACAO.md](DOCUMENTACAO.md)**.
+- **Histórico experimental (runs, resultados, decisões):** [TRAJETORIA.md](TRAJETORIA.md)
+- **Documentação técnica (módulos, fluxos, fórmulas):** [DOCUMENTACAO.md](DOCUMENTACAO.md)
+
+---
+
+## Entendendo a pesquisa
+
+A hipótese central é que o sentimento agregado em notícias sobre uma empresa, transformado em um índice com memória no tempo (ITI — *Information Trend Index*), pode se associar ao movimento futuro da ação melhor do que alternativas simples feitas com as mesmas notícias.
+
+O fluxo usa três fontes de dado distintas. As **notícias** vêm do nosso scraper ou de datasets versionados. O **sentimento** é inferido por modelos FinBERT (probabilidades por notícia). Os **preços** da B3 são baixados da internet (yfinance) e salvos em `data/market/prices.csv`. O ITI e os baselines B0–B3 são calculados apenas a partir das notícias; o mercado entra como **alvo** — medimos se o índice da semana correlaciona com o retorno futuro da ação (ex.: SBSP3).
+
+O índice é atualizado **todo dia** (EWMA — *Exponentially Weighted Moving Average*). Na validação semanal da campanha Sabesp, usamos um ponto por semana (valor do último dia útil, `iti_liquido_last`). Cada run da campanha gera 24 comparações: o ITI contra quatro baselines internos, em duas métricas de correlação (Pearson, Spearman) e três horizontes (1, 2 e 4 semanas). O **win rate** (taxa de vitória) indica em quantas dessas comparações o ITI supera o baseline.
+
+Para conceitos detalhados e fórmulas, veja [DOCUMENTACAO.md §1.5](DOCUMENTACAO.md#15-conceitos-em-linguagem-acessível). Para o histórico run a run, veja [TRAJETORIA.md](TRAJETORIA.md).
 
 ---
 
@@ -13,7 +26,7 @@ Documentação técnica completa (módulos, fluxos, fórmulas): **[DOCUMENTACAO.
 1. **Sentimento por notícia** — classes `POSITIVE`, `NEGATIVE`, `NEUTRAL` e score contínuo `d = P(pos) − P(neg)`.
 2. **ITI diário** — séries `iti_liquido` e `iti_risco` com memória EWMA por empresa (e agregados setor/mercado).
 3. **Baselines B0–B3** — contagem de notícias, sentimento médio, sentimento ponderado por confiança e impacto diário sem memória.
-4. **Validação research** — correlação e deltas ITI vs baselines contra retornos futuros (horizontes 1, 5 e 21 dias), com bootstrap em bloco.
+4. **Validação research** — correlação e deltas ITI vs baselines contra retornos futuros, com bootstrap em bloco. Modo padrão: horizontes **1, 5 e 21 dias** (`configs/research.yaml`). Campanhas semanais (ex.: Sabesp): horizontes **1, 2 e 4 semanas** (`configs/research_weekly_sabesp.yaml`).
 
 Saídas principais em `outputs/{run_id}/`:
 
@@ -72,13 +85,20 @@ Por padrão roda **combinações `enabled: true`** em `configs/models.yaml` × `
 ### Scraper → corpus de saneamento
 
 ```bash
-# Coleta (sites habilitados em configs/scrapers.yaml)
-python -m modules.scrapers --since 2020-01-01 --until 2024-12-31
-python -m modules.scrapers --since 2024-01-01 --site infomoney   # um portal
+# Ponto de entrada unificado do módulo
+./modules/scrapers/scripts/run_scrape.sh historical --since 2023-11-01 --until 2024-04-30
+./modules/scrapers/scripts/run_scrape.sh smoke --site valor --since 2023-11-01 --until 2023-11-30
+./modules/scrapers/scripts/run_scrape.sh once --since 2024-01-01 --until 2024-03-31 --use-state
+./modules/scrapers/scripts/run_scrape.sh build-corpus
+./modules/scrapers/scripts/run_scrape.sh report
+./modules/scrapers/scripts/run_scrape.sh debug-search --site valor --since 2023-11-01 --until 2023-11-30 --query Sabesp
 
-# Mescla raw/ → data/saneamento_corpus/noticias.csv
-bash modules/scrapers/scripts/build_corpus.sh
+# Wrappers de compatibilidade na raiz (delegam ao run_scrape.sh)
+./scripts/scrape_historical.sh --since 2023-11-01 --until 2024-04-30
+./scripts/scrape_smoke_site.sh exame 2023-11-01 2023-11-30
 ```
+
+Saídas: `data/saneamento_corpus/noticias.csv` (empresa + ticker) e `noticias_pendentes.csv` (modo `broad`, revisão manual). Config: `configs/scrapers.yaml` (`collection_mode: broad`, 6 portais).
 
 Nas primeiras coletas é comum o corpus ser dominado por uma empresa; ampliar Copasa/Sanepar exige janela temporal maior e múltiplos portais.
 
@@ -105,7 +125,7 @@ python -m modules.research validate --run-id <run_id> --model finbert_ptbr --dat
 
 ```bash
 python -m modules.scrapers --since 2020-01-01 --until 2024-12-31
-bash modules/scrapers/scripts/build_corpus.sh
+./modules/scrapers/scripts/run_scrape.sh build-corpus
 python -m modules.market fetch
 ./scripts/run_experiment.sh --model finbert_ptbr --dataset saneamento_corpus
 python -m modules.research validate --run-id <run_id>

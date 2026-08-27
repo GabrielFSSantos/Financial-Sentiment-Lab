@@ -96,6 +96,10 @@ class ResearchConfiguration:
     min_overlap_days: int
     inference: InferenceConfiguration
     research_output_root: Path
+    index_frequency: str
+    iti_weekly_column: str
+    companies_filter: tuple[str, ...]
+    trading_days_per_week: int
     defaults: dict[str, Any]
     raw: dict[str, Any] = field(repr=False)
     config_path: Path = field(repr=False)
@@ -581,6 +585,34 @@ def load_research_configuration(
     )
     inference = _resolve_inference(validation)
 
+    index_frequency = _require_string(
+        defaults.get("index_frequency", "daily"),
+        "defaults.index_frequency",
+    ).lower()
+    if index_frequency not in {"daily", "weekly"}:
+        raise ConfigurationError(
+            "defaults.index_frequency precisa ser 'daily' ou 'weekly'."
+        )
+
+    iti_weekly_column = _require_string(
+        defaults.get("iti_weekly_column", "iti_liquido_last"),
+        "defaults.iti_weekly_column",
+    )
+
+    companies_raw = defaults.get("companies_filter", [])
+    companies_filter: tuple[str, ...] = ()
+    if companies_raw:
+        companies_filter = tuple(
+            _require_string(item, "defaults.companies_filter")
+            for item in _require_list(companies_raw, "defaults.companies_filter")
+        )
+
+    trading_days_per_week = _require_integer(
+        defaults.get("trading_days_per_week", 5),
+        "defaults.trading_days_per_week",
+        minimum=1,
+    )
+
     return ResearchConfiguration(
         schema_version=SUPPORTED_SCHEMA_VERSION,
         horizons=horizons,
@@ -603,6 +635,10 @@ def load_research_configuration(
         min_overlap_days=min_overlap_days,
         inference=inference,
         research_output_root=research_output_root,
+        index_frequency=index_frequency,
+        iti_weekly_column=iti_weekly_column,
+        companies_filter=companies_filter,
+        trading_days_per_week=trading_days_per_week,
         defaults=defaults,
         raw=raw_config,
         config_path=resolved_path,

@@ -9,8 +9,15 @@ def test_scrapers_yaml_loads(project_root) -> None:
     configuration = load_scrapers_configuration(project_root=project_root)
     enabled = configuration.enabled_sites()
     keys = {site.key for site in enabled}
-    assert keys == {"valor", "infomoney", "estadao", "g1_economia"}
-    assert configuration.defaults["max_articles_per_site"] == 50
+    assert keys == {
+        "valor",
+        "infomoney",
+        "g1_economia",
+        "money_times",
+        "exame",
+    }
+    assert configuration.defaults["max_articles_per_site"] == 5000
+    assert configuration.defaults["collection_mode"] == "broad"
     assert configuration.defaults["default_since"] == "2020-01-01"
 
 

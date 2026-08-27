@@ -94,3 +94,15 @@ paths:
             project_root=project_root,
             config_path=invalid_yaml,
         )
+
+
+def test_load_weekly_sabesp_research_configuration(project_root: Path) -> None:
+    configuration = load_research_configuration(
+        project_root=project_root,
+        config_path=project_root / "configs/research_weekly_sabesp.yaml",
+    )
+    assert configuration.index_frequency == "weekly"
+    assert configuration.horizons == (1, 2, 4)
+    assert configuration.iti_weekly_column == "iti_liquido_last"
+    assert configuration.companies_filter == ("Sabesp",)
+

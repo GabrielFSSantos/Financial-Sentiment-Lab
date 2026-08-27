@@ -10,7 +10,8 @@ import pandas as pd
 from modules.market.config.loader import load_market_configuration
 from modules.market.loader import MarketLoaderError, load_market_prices
 from modules.research.config.loader import ResearchConfiguration
-from modules.research.io.align import AlignmentError, align_combination
+from modules.research.io.align import AlignmentError, AlignmentResult, align_combination
+from modules.research.io.weekly_align import align_weekly_combination
 from modules.research.io.experiment import (
     ExperimentIOError,
     list_index_combinations,
@@ -173,12 +174,25 @@ def run_research(configuration: ResearchConfiguration) -> ResearchRunSummary:
 
     for combination in combinations:
         try:
-            alignment = align_combination(
-                combination,
-                configuration,
-                market_prices=market_prices,
-            )
-        except AlignmentError as error:
+            if configuration.index_frequency == "weekly":
+                panel, dropped_companies, overlap_days = align_weekly_combination(
+                    combination,
+                    configuration,
+                    market_prices=market_prices,
+                    company_to_ticker=configuration.company_to_ticker,
+                )
+                alignment = AlignmentResult(
+                    panel=panel,
+                    dropped_companies=dropped_companies,
+                    overlap_days=overlap_days,
+                )
+            else:
+                alignment = align_combination(
+                    combination,
+                    configuration,
+                    market_prices=market_prices,
+                )
+        except (AlignmentError, ValueError, FileNotFoundError, KeyError) as error:
             raise ResearchRunnerError(str(error)) from error
 
         if alignment.dropped_companies:

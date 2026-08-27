@@ -20,3 +20,7 @@ pyarrow>=22.0,<26.0
 requests>=2.31,<3.0
 beautifulsoup4>=4.12,<5.0
 yfinance>=0.2,<1.0
+
+# Dashboard
+streamlit>=1.36,<2.0
+plotly>=5.18,<6.0

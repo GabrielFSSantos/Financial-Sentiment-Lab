@@ -403,6 +403,15 @@ def _resolve_dataset_limits(
                 f"{location}.{key}",
             )
 
+    if "companies" in limits:
+        raw_companies = limits["companies"]
+        if raw_companies is not None:
+            companies = _require_list(raw_companies, f"{location}.companies")
+            resolved["companies"] = tuple(
+                _require_string(item, f"{location}.companies")
+                for item in companies
+            )
+
     return resolved
 
 

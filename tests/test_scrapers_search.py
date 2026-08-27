@@ -2,9 +2,17 @@
 
 from __future__ import annotations
 
+from datetime import date
 from unittest.mock import patch
 
-from modules.scrapers.core.search import discover_links
+import requests
+
+from modules.scrapers.core.search import (
+    _date_from_article_url,
+    _link_in_date_window,
+    _resolve_search_result_url,
+    discover_links,
+)
 
 
 SAMPLE_RSS = """<?xml version="1.0" encoding="UTF-8"?>
@@ -81,3 +89,60 @@ def test_html_search_respects_exclude() -> None:
         hits = discover_links(strategy="html", scraping=scraping, queries=("Copasa",), timeout=5)
     assert len(hits) == 1
     assert hits[0].url.endswith("copasa-plano.ghtml")
+
+
+def test_html_search_ignores_http_errors() -> None:
+    scraping = {
+        "search_url": "https://www.estadao.com.br/buscador/?q={query}",
+        "base_url": "https://www.estadao.com.br",
+        "link_selector": "a[href]",
+    }
+    with patch(
+        "modules.scrapers.core.search.fetch_text",
+        side_effect=requests.exceptions.HTTPError("404 Client Error"),
+    ):
+        hits = discover_links(strategy="html", scraping=scraping, queries=("Sabesp",), timeout=5)
+    assert hits == []
+
+
+def test_rss_search_ignores_http_errors() -> None:
+    scraping = {
+        "rss_url": "https://einvestidor.estadao.com.br/feed",
+    }
+    with patch(
+        "modules.scrapers.core.search.fetch_text",
+        side_effect=requests.exceptions.HTTPError("404 Client Error"),
+    ):
+        hits = discover_links(strategy="rss", scraping=scraping, queries=("Sabesp",), timeout=5)
+    assert hits == []
+
+
+def test_date_from_article_url() -> None:
+    url = "https://valor.globo.com/empresas/noticia/2023/11/29/sabesp.ghtml"
+    assert _date_from_article_url(url) == date(2023, 11, 29)
+
+
+def test_link_in_date_window_filters_by_url_date() -> None:
+    link = "https://g1.globo.com/economia/noticia/2024/01/15/teste.ghtml"
+    since = date(2023, 11, 1)
+    until = date(2023, 11, 30)
+    assert not _link_in_date_window(link, since_date=since, until_date=until)
+
+    in_window = "https://g1.globo.com/economia/noticia/2023/11/15/teste.ghtml"
+    assert _link_in_date_window(in_window, since_date=since, until_date=until)
+
+
+def test_resolve_globo_measures_redirect() -> None:
+    href = (
+        "https://measures.globo.com/v1/click?u="
+        "https%3A%2F%2Fvalor.globo.com%2Fempresas%2Fnoticia%2F2023%2F11%2F29%2Fsabesp.ghtml"
+    )
+    resolved = _resolve_search_result_url(href)
+    assert resolved == "https://valor.globo.com/empresas/noticia/2023/11/29/sabesp.ghtml"
+
+
+def test_link_without_url_date_passes_window_filter() -> None:
+    link = "https://einvestidor.estadao.com.br/investimentos/sabesp/"
+    since = date(2023, 11, 1)
+    until = date(2023, 11, 30)
+    assert _link_in_date_window(link, since_date=since, until_date=until)

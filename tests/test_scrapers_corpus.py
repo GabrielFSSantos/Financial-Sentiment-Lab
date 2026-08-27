@@ -44,6 +44,7 @@ def test_site_scraper_parses_fixture_article(project_root) -> None:
             min_chars=40,
             seen_urls=set(),
             state=None,
+            collection_mode="strict",
         )
 
     assert record is not None

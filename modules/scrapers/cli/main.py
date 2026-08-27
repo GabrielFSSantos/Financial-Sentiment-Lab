@@ -17,6 +17,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--until", required=False, help="Data final YYYY-MM-DD")
     parser.add_argument("--site", required=False, help="Executa apenas um portal (ex.: valor)")
     parser.add_argument(
+        "--use-state",
+        action="store_true",
+        help="Reutiliza state para pular URLs já coletadas (compatível com --since/--until)",
+    )
+    parser.add_argument(
         "--config",
         default="configs/scrapers.yaml",
         help="Caminho do YAML de scrapers",
@@ -60,6 +65,6 @@ def main(argv: list[str] | None = None) -> int:
             since=args.since,
             until=args.until,
             site_key=args.site,
-            use_state=False,
+            use_state=args.use_state,
         )
     return 0

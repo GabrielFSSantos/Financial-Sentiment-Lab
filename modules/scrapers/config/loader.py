@@ -38,6 +38,15 @@ class ScrapersConfiguration:
         )
 
     @property
+    def pending_corpus_path(self) -> Path:
+        return self.project_root / str(
+            self.defaults.get(
+                "pending_corpus_path",
+                "data/saneamento_corpus/noticias_pendentes.csv",
+            )
+        )
+
+    @property
     def state_path(self) -> Path:
         return self.project_root / str(
             self.defaults.get("state_path", "data/saneamento_corpus/.scrape_state.json")

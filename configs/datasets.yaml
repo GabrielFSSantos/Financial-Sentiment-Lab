@@ -177,3 +177,48 @@ datasets:
       source_type: scraper
       description: >-
         Corpus multiportal gerado por modules/scrapers; CSV versionado no repositório.
+
+  saneamento_sabesp_strict_event:
+    enabled: true
+    order: 4
+    dataset_name: saneamento_sabesp_strict_event
+    display_name: Sabesp strict (evento nov/23–abr/24)
+    path: data/saneamento_corpus/noticias_strict_sabesp.csv
+    format: csv
+    limits:
+      max_rows: max
+      date_from: "2023-11-01"
+      date_to: "2024-04-30"
+      companies:
+        - Sabesp
+    columns:
+      news_id: id
+      text: noticia
+      date: data
+      company: empresa
+      sector: setor
+      ticker: ticker
+      title: titulo
+      true_label: null
+      source: fonte
+      url: url
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: false
+    dates:
+      available: true
+      format: "%Y-%m-%d"
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+    metadata:
+      language: pt-BR
+      domain: sanitation_utilities
+      market: Brazilian
+      country: Brazil
+      split: inference
+      source_type: scraper
+      description: >-
+        Corpus strict filtrado para Sabesp na janela do evento (nov/2023–abr/2024).

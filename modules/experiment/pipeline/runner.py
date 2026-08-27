@@ -1289,6 +1289,11 @@ def build_argument_parser() -> argparse.ArgumentParser:
         default=None,
         help="Sobrescreve experiment.run_id.",
     )
+    parser.add_argument(
+        "--experiment-config",
+        default=None,
+        help="Caminho alternativo para configs/experiment.yaml.",
+    )
     parser.set_defaults(dry_run=None)
     return parser
 
@@ -1304,6 +1309,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             environment=arguments.environment,
             dry_run=arguments.dry_run,
             run_id=arguments.run_id,
+            experiment_config=arguments.experiment_config or DEFAULT_EXPERIMENT_CONFIG,
         )
 
         return outcome.exit_code

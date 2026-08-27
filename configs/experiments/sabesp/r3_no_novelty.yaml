@@ -1,0 +1,145 @@
+schema_version: '2.0'
+experiment:
+  name: financial_sentiment
+  description: Análise de sentimentos em notícias do mercado financeiro brasileiro
+    com modelos de Processamento de Linguagem Natural.
+  run_id: null
+  run_id_prefix: financial_sentiment
+  random_seed: 42
+  timezone: America/Sao_Paulo
+execution:
+  environment: local
+  dry_run: false
+  log_level: INFO
+  fail_fast: true
+  save_partial_results: true
+  overwrite_existing_run: true
+  unload_model_after_combination: true
+configuration_files:
+  models: configs/models.yaml
+  datasets: configs/datasets.yaml
+paths:
+  output_root: outputs
+  log_root: logs
+  temp_root: .tmp
+outputs:
+  save_predictions: true
+  save_metrics: true
+  save_aggregates: true
+  save_metadata: true
+  save_experiment_summary: true
+  save_resolved_config: true
+  tabular_format: csv
+  encoding: utf-8
+  delimiter: ','
+  float_precision: 8
+classification_metrics:
+  enabled: true
+  labels:
+  - NEGATIVE
+  - NEUTRAL
+  - POSITIVE
+  zero_division: 0
+  allow_unlabeled_datasets: true
+  save_per_class_metrics: true
+  save_confusion_matrix: true
+  save_class_distribution: true
+performance_metrics:
+  enabled: true
+  measure_load_time: true
+  measure_inference_time: true
+  measure_total_time: true
+  measure_throughput: true
+  measure_gpu_memory: true
+aggregation:
+  enabled: true
+  sentiment_column: continuous_sentiment
+  minimum_news_per_group: 1
+  skip_level_when_columns_missing: true
+  levels:
+  - company_day
+  - sector_day
+  - market_day
+  statistics:
+  - mean
+  - median
+  - sum
+  - count
+  include_class_counts: true
+  include_mean_confidence: true
+reproducibility:
+  set_python_hash_seed: true
+  seed_numpy: true
+  seed_torch: true
+  deterministic_torch: false
+  cudnn_benchmark: true
+compatibility:
+  require_language_match: true
+temporal_index:
+  enabled: true
+  alpha: 0.85
+  initial_value: 0.0
+  fail_on_error: false
+  defaults:
+    magnitude: 1.0
+    relevance: 1.0
+    event_weight: 1.0
+    horizon: 1.0
+    risk: 1.0
+    novelty: 1.0
+  dimensions:
+    provider_order:
+    - dataset_columns
+    - prediction_metadata
+    - heuristics
+    - defaults
+    heuristics:
+      enabled: true
+      event_keywords:
+        regulacao:
+        - regulat
+        - aneel
+        - ana
+        - arsesp
+        - agepar
+        - multa
+        investimento:
+        - invest
+        - capex
+        - obras
+        - expansão
+        - expansao
+        tarifa:
+        - tarifa
+        - reajuste
+        - precific
+        privatizacao:
+        - privatiz
+        - concess
+        - leilão
+        - leilao
+  horizon:
+    mode: ewma_alpha
+  baselines:
+    enabled: true
+  resample:
+    enabled: true
+    frequencies:
+    - weekly
+    - monthly
+    - quarterly
+  uncertainty:
+    enabled: true
+    min_models: 2
+  disabled_dimensions:
+  - novelty
+preflight_checks:
+  enabled: true
+  validate_configuration_files: true
+  require_at_least_one_enabled_model: true
+  require_at_least_one_enabled_dataset: true
+  validate_model_files: true
+  validate_dataset_files: true
+  validate_output_directory: true
+  validate_required_dataset_columns: true
+  validate_label_mapping: true

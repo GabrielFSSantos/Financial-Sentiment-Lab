@@ -56,3 +56,45 @@ def build_baselines_daily(predictions: pd.DataFrame) -> pd.DataFrame:
             "b2_confidence_weighted_sentiment",
         ],
     ].sort_values(["company", "date"]).reset_index(drop=True)
+
+
+def resample_baselines_weekly(baselines_daily: pd.DataFrame) -> pd.DataFrame:
+    """Agrega baselines diários para frequência semanal (W-FRI)."""
+
+    if baselines_daily.empty:
+        return pd.DataFrame(
+            columns=[
+                "period_start",
+                "period_end",
+                "company",
+                "sector",
+                "b0_news_count",
+                "b1_mean_sentiment",
+                "b2_confidence_weighted_sentiment",
+            ]
+        )
+
+    frame = baselines_daily.copy()
+    frame["date"] = pd.to_datetime(frame["date"], errors="coerce")
+    rows: list[dict[str, object]] = []
+
+    for (company, sector), group in frame.groupby(["company", "sector"], dropna=False):
+        indexed = group.set_index("date").sort_index()
+        for period_start, period_df in indexed.resample("W-FRI"):
+            if period_df.empty:
+                continue
+            rows.append(
+                {
+                    "period_start": period_start.date().isoformat(),
+                    "period_end": period_df.index.max().date().isoformat(),
+                    "company": company,
+                    "sector": sector,
+                    "b0_news_count": int(period_df["b0_news_count"].sum()),
+                    "b1_mean_sentiment": float(period_df["b1_mean_sentiment"].mean()),
+                    "b2_confidence_weighted_sentiment": float(
+                        period_df["b2_confidence_weighted_sentiment"].mean()
+                    ),
+                }
+            )
+
+    return pd.DataFrame(rows)
