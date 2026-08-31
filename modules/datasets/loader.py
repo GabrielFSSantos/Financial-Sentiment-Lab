@@ -107,6 +107,12 @@ class LoadedDataset:
     original_columns: tuple[str, ...]
     extra_columns: tuple[str, ...]
     warnings: tuple[str, ...] = field(default_factory=tuple)
+    _texts_cache: list[str] | None = field(
+        default=None,
+        init=False,
+        repr=False,
+        compare=False,
+    )
 
     @property
     def key(self) -> str:
@@ -132,7 +138,11 @@ class LoadedDataset:
     def texts(self) -> list[str]:
         """Retorna os textos válidos na mesma ordem do DataFrame."""
 
-        return self.dataframe["text"].astype(str).tolist()
+        if self._texts_cache is None:
+            self._texts_cache = (
+                self.dataframe["text"].astype(str).tolist()
+            )
+        return self._texts_cache
 
     def metadata(self) -> dict[str, Any]:
         """Retorna metadados serializáveis para a saída da combinação."""
@@ -220,7 +230,15 @@ class DatasetLoader:
         """Lê o cabeçalho (e aplica text_compose, se houver)."""
 
         self.validate_file(configuration)
-        dataframe = self._read_dataset(configuration, nrows=0)
+        inspect_nrows = (
+            1
+            if configuration.format in {"jsonl", "huggingface"}
+            else 0
+        )
+        dataframe = self._read_dataset(
+            configuration,
+            nrows=inspect_nrows,
+        )
         if configuration.text_compose is not None:
             dataframe = self._apply_text_compose(configuration, dataframe)
         columns = tuple(str(column) for column in dataframe.columns)

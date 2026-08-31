@@ -1,4 +1,4 @@
-"""Criação, gravação e resumo dos resultados da pipeline.
+"""Criação, gravação e resumo dos resultados do módulo experiment.
 
 Estrutura produzida:
 

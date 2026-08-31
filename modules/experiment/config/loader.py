@@ -760,6 +760,10 @@ class ConfigurationLoader:
 
         execution_section["environment"] = environment
         execution_section["dry_run"] = dry_run
+
+        execution_section = self._normalize_execution_flags(
+            execution_section
+        )
         experiment_section["run_id"] = run_id
 
         paths = self._resolve_paths(
@@ -961,10 +965,16 @@ class ConfigurationLoader:
                 "execution.environment precisa ser local ou sdumont."
             )
 
+        if "save_partial_results" in execution:
+            _require_boolean(
+                execution.get("save_partial_results"),
+                "execution.save_partial_results",
+            )
+
         for key in (
             "dry_run",
             "fail_fast",
-            "save_partial_results",
+            "save_failure_artifacts",
             "overwrite_existing_run",
             "unload_model_after_combination",
         ):
@@ -1295,6 +1305,19 @@ class ConfigurationLoader:
                 index += 1
 
         return combinations, skipped
+
+
+    def _normalize_execution_flags(
+        self,
+        execution: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Unifica flags de execução e mantém compatibilidade legada."""
+
+        if "save_failure_artifacts" not in execution:
+            legacy = execution.get("save_partial_results", True)
+            execution["save_failure_artifacts"] = legacy
+
+        return execution
 
     def _validate_resolved_configuration(
         self,

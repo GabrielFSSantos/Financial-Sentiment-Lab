@@ -1,7 +1,8 @@
 """Agregação temporal do sentimento por empresa, setor e mercado.
 
 Este módulo trabalha sobre as previsões já padronizadas por
-``pipeline.output_schema`` e produz o conteúdo de ``aggregates.csv``.
+``modules.experiment.io.output_schema`` e produz o conteúdo de
+``aggregates.csv``.
 
 Níveis suportados:
 
@@ -10,7 +11,7 @@ Níveis suportados:
 - ``market_day``: uma linha por data para todo o mercado.
 
 O módulo não salva arquivos. A persistência pertence ao
-``pipeline.results.ResultsManager``.
+``modules.experiment.io.results.ResultsManager``.
 """
 
 from __future__ import annotations
@@ -871,10 +872,10 @@ def _prediction_dataframe(
                 "StandardizedPredictions.dataframe precisa ser um "
                 "pandas.DataFrame."
             )
-        return dataframe.copy()
+        return dataframe
 
     if isinstance(predictions, pd.DataFrame):
-        return predictions.copy()
+        return predictions
 
     raise AggregationInputError(
         "predictions precisa ser StandardizedPredictions "

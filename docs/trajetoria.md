@@ -1,6 +1,6 @@
 # Trajetória experimental — Financial Sentiment Lab
 
-Registro versionado da evolução da pesquisa: decisões tomadas, escopo de cada rodada, resultados run a run e o que aprendemos. Este documento é a **narrativa** do projeto; conceitos e fórmulas estão em [DOCUMENTACAO.md](DOCUMENTACAO.md) e comandos em [README.md](README.md).
+Registro versionado da evolução da pesquisa: decisões tomadas, escopo de cada rodada, resultados run a run e o que aprendemos. Este documento é a **narrativa** do projeto; conceitos e fórmulas estão em [documentacao.md](documentacao.md) e comandos em [README.md](../README.md). Índice geral: [docs/README.md](README.md).
 
 ---
 
@@ -29,7 +29,7 @@ Termos em inglês aparecem entre parênteses na primeira menção de cada seçã
 | **Baseline** | Alternativa simples calculada só com notícias, para comparar com o ITI |
 | **Win rate** | Proporção de comparações em que o ITI supera um baseline em Pearson ou Spearman |
 | **Overlap** | Semanas em que há simultaneamente ITI, baselines e preço da ação alinhados |
-| **B0–B3** | Quatro baselines internos — ver [DOCUMENTACAO.md §1.5](DOCUMENTACAO.md#15-conceitos-em-linguagem-acessível) |
+| **B0–B3** | Quatro baselines internos — ver [documentacao.md §1.5](documentacao.md#15-conceitos-em-linguagem-acessível) |
 
 ---
 
@@ -97,12 +97,53 @@ Primeira execução completa do pipeline com corpus **broad** (amplo) de saneame
 
 ### O que aprendemos
 
-- Lacunas metodológicas documentadas em [docs/metodologia_auditoria.md](docs/metodologia_auditoria.md) motivaram a campanha corrigida (Marco 1).
+- Lacunas metodológicas documentadas na [auditoria metodológica](#auditoria-metodológica--por-que-o-marco-1-existiu) motivaram a campanha corrigida (Marco 1).
 - Win rate baixo (~0–12%) refletia tanto sinal fraco quanto **comparação inválida** (frequências misturadas).
 
 ### Artefatos
 
 - Saída: `outputs/saneamento_pt_20260824/`
+
+---
+
+## Auditoria metodológica — por que o Marco 1 existiu
+
+Antes da campanha Sabesp 2026 (Marco 1), revisamos o protocolo da rodada broad e listamos lacunas que tornavam os números difíceis de interpretar. A tabela abaixo resume o estado **pré-correção** e o que mudou no código e nos YAMLs. Detalhes técnicos das correções estão em [documentacao.md §5.0](documentacao.md#50-modos-diário-e-semanal) e [§6](documentacao.md#6-configurações-principais).
+
+| Lacuna | Impacto | Correção |
+|--------|---------|----------|
+| Research usava só `iti_daily.csv` | ITI semanal ignorado na validação | `index_frequency: weekly` + `weekly_align.py` |
+| Baselines só diários | Comparação inválida com ITI semanal | `resample_baselines_weekly` |
+| Sem filtro empresa/janela | Sabesp diluída com outras empresas | `companies_filter` + dataset `saneamento_sabesp_strict_event` |
+| `strict` só na coleta | Ruído broad permanecia no raw | `build_strict_corpus()` offline |
+| Sem `--experiment-config` | Grid alpha/ablação manual | Flag no CLI do runner |
+| Horizontes em dias | Incompatível com ITI semanal | Horizontes `[1, 2, 4]` semanas |
+
+### Decisões fixadas na campanha
+
+**ITI semanal.** Agregação padrão `iti_liquido_last` (estado EWMA no último dia útil da semana). A run R8 testou `iti_liquido_mean` (média dos dias da semana) e performou pior. Retorno semanal = soma dos `log_return` diários alinhada ao `period_end` do ITI.
+
+**Corpus strict.** `noticias_strict.csv` preserva `noticias.csv` broad; reaplica `match_entity(titulo + noticia)` em cada registro de `raw/` e descarta registros sem entidade (sem gerar PENDENTE).
+
+**Equação ITI.** Forma completa documentada em [documentacao.md §4](documentacao.md#4-fórmulas-do-iti). Ablações via `disabled_dimensions` ou `equation_mode: simplified_dc` (R6: `I_n = d·c`, `w_n = c`).
+
+**Entidades e tickers.** Sabesp → `SBSP3.SA`; Copasa → `CSMG3.SA`; Sanepar → `SAPR4.SA`.
+
+### Gate de coleta pré-evento (mai–out/2022)
+
+Avançar a coleta para o período pré-privatização somente se **uma** das condições for atendida:
+
+- ITI vence B1/B2 em ≥40% das comparações em alguma config R1–R8, **ou**
+- FinBERT ≥70% concordância manual **e** correlação semanal ITI×retorno p < 0,05 em h = 2.
+
+A run **R1** atingiu 41,7% de win rate (≥ 40%) — gate atendido. Ver [Decisões tomadas](#decisões-tomadas) no Marco 1.
+
+### Artefatos da auditoria e campanha
+
+- Configs por run: `configs/experiments/sabesp/r0..r9.yaml`
+- Research semanal: `configs/research_weekly_sabesp.yaml`
+- Manifest: `outputs/campaigns/sabesp_2026/manifest.json`
+- Orquestração: `scripts/run_sabesp_campaign.sh`
 
 ---
 
@@ -129,7 +170,7 @@ Correção metodológica antes de expandir a coleta: corpus **strict** só Sabes
 | R8 | `sabesp_r8_weekly_mean` | média semanal ITI | 1/24 | 4,2% | −16,7 pp | 0 |
 | R9 | `sabesp_r9_ensemble` | modelo PT-BR alt. | 6/24 | 25,0% | +4,2 pp | 0 |
 
-> As 24 comparações por run resultam de 4 baselines × 2 métricas de conclusão (Pearson, Spearman) × 3 horizontes semanais. Detalhe em [DOCUMENTACAO.md §5](DOCUMENTACAO.md#50-modos-diário-e-semanal).
+> As 24 comparações por run resultam de 4 baselines × 2 métricas de conclusão (Pearson, Spearman) × 3 horizontes semanais. Detalhe em [documentacao.md §5](documentacao.md#50-modos-diário-e-semanal).
 
 ### Run R0 BASELINE — Baseline corrigido
 
@@ -867,5 +908,6 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 1. Ao concluir uma campanha, adicione um novo **Marco** no final (antes desta seção).
 2. Para cada run, copie o [template](#template-para-novas-runs) e preencha com dados de `outputs/campaigns/{campanha}/manifest.json` e `incremental_deltas.csv`.
 3. Atualize a tabela resumo do marco e a síntese (o que funcionou / não funcionou / decisões).
-4. Rode `./scripts/run_sabesp_campaign.sh` (ou equivalente) e confira no dashboard (páginas **Experimentos** e **Research**) antes de commitar.
-5. Mantenha números consistentes com o manifest — não editar `outputs/` manualmente.
+4. Se o protocolo mudar (frequência, filtros, equação), atualize também [documentacao.md](documentacao.md) nas seções §4–§6.
+5. Rode `./scripts/run_sabesp_campaign.sh` (ou equivalente) e confira no dashboard (páginas **Experimentos** e **Research**) antes de commitar.
+6. Mantenha números consistentes com o manifest — não editar `outputs/` manualmente.

@@ -4,8 +4,9 @@ Laboratório de **análise de sentimento em notícias financeiras** (PT e EN) pa
 
 A pesquisa parte de notícias (datasets versionados ou coletados por scraper), aplica modelos FinBERT, agrega impacto por empresa/setor/mercado e compara o ITI com baselines simples e preços B3 via validação estatística incremental.
 
-- **Histórico experimental (runs, resultados, decisões):** [TRAJETORIA.md](TRAJETORIA.md)
-- **Documentação técnica (módulos, fluxos, fórmulas):** [DOCUMENTACAO.md](DOCUMENTACAO.md)
+- **Índice da documentação:** [docs/README.md](docs/README.md)
+- **Histórico experimental (runs, resultados, decisões):** [docs/trajetoria.md](docs/trajetoria.md)
+- **Documentação técnica (módulos, fluxos, fórmulas):** [docs/documentacao.md](docs/documentacao.md)
 
 ---
 
@@ -17,7 +18,7 @@ O fluxo usa três fontes de dado distintas. As **notícias** vêm do nosso scrap
 
 O índice é atualizado **todo dia** (EWMA — *Exponentially Weighted Moving Average*). Na validação semanal da campanha Sabesp, usamos um ponto por semana (valor do último dia útil, `iti_liquido_last`). Cada run da campanha gera 24 comparações: o ITI contra quatro baselines internos, em duas métricas de correlação (Pearson, Spearman) e três horizontes (1, 2 e 4 semanas). O **win rate** (taxa de vitória) indica em quantas dessas comparações o ITI supera o baseline.
 
-Para conceitos detalhados e fórmulas, veja [DOCUMENTACAO.md §1.5](DOCUMENTACAO.md#15-conceitos-em-linguagem-acessível). Para o histórico run a run, veja [TRAJETORIA.md](TRAJETORIA.md).
+Para conceitos detalhados e fórmulas, veja [docs/documentacao.md §1.5](docs/documentacao.md#15-conceitos-em-linguagem-acessível). Para o histórico run a run, veja [docs/trajetoria.md](docs/trajetoria.md).
 
 ---
 
@@ -137,7 +138,7 @@ python -m modules.research validate --run-id <run_id>
 
 | Arquivo | Controle |
 | --- | --- |
-| [configs/experiment.yaml](configs/experiment.yaml) | ITI, agregação, baselines, execução |
+| [configs/experiment.yaml](configs/experiment.yaml) | ITI, agregação, baselines, execução. Preflight (`enabled` + validação de arquivos/diretório). `unload_model_after_combination` libera o modelo ao trocar de modelo ou ao terminar. |
 | [configs/models.yaml](configs/models.yaml) | Modelos FinBERT, adaptadores, HuggingFace |
 | [configs/datasets.yaml](configs/datasets.yaml) | Datasets, colunas, `limits.max_rows` |
 | [configs/market.yaml](configs/market.yaml) | Tickers B3, fetch yfinance |

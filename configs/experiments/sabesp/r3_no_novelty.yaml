@@ -12,7 +12,7 @@ execution:
   dry_run: false
   log_level: INFO
   fail_fast: true
-  save_partial_results: true
+  save_failure_artifacts: true  # legado: save_partial_results
   overwrite_existing_run: true
   unload_model_after_combination: true
 configuration_files:
@@ -135,11 +135,6 @@ temporal_index:
   - novelty
 preflight_checks:
   enabled: true
-  validate_configuration_files: true
-  require_at_least_one_enabled_model: true
-  require_at_least_one_enabled_dataset: true
   validate_model_files: true
   validate_dataset_files: true
   validate_output_directory: true
-  validate_required_dataset_columns: true
-  validate_label_mapping: true

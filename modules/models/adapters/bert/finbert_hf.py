@@ -164,6 +164,16 @@ class FinBertHfModel(BaseSentimentModel):
         self.validate_configured_labels = (
             self._configuration_boolean(
                 self.validation_configuration,
+                "validate_label_mapping",
+                default=self._configuration_boolean(
+                    self.validation_configuration,
+                    "validate_configured_labels",
+                    default=True,
+                ),
+            )
+            if "validate_label_mapping" in self.validation_configuration
+            else self._configuration_boolean(
+                self.validation_configuration,
                 "validate_configured_labels",
                 default=True,
             )

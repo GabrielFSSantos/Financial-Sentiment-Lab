@@ -1,6 +1,6 @@
 # Documentação técnica — Financial Sentiment Lab
 
-Referência para entender **o que foi implementado**, **como os módulos se conectam** e **quais fórmulas são usadas**. Para comandos rápidos, veja [README.md](README.md). Para o histórico experimental run a run, veja [TRAJETORIA.md](TRAJETORIA.md).
+Referência para entender **o que foi implementado**, **como os módulos se conectam** e **quais fórmulas são usadas**. Para comandos rápidos, veja [README.md](../README.md). Para o histórico experimental run a run, veja [trajetoria.md](trajetoria.md). Índice geral: [docs/README.md](README.md).
 
 ---
 
@@ -47,7 +47,7 @@ flowchart TB
 
 ## 1.5 Conceitos em linguagem acessível
 
-Esta seção antecipa a leitura técnica dos módulos e fórmulas. Os detalhes de implementação estão nas seções seguintes; o histórico de runs está em [TRAJETORIA.md](TRAJETORIA.md).
+Esta seção antecipa a leitura técnica dos módulos e fórmulas. Os detalhes de implementação estão nas seções seguintes; o histórico de runs está em [trajetoria.md](trajetoria.md).
 
 ### O que estamos testando
 
@@ -95,7 +95,7 @@ No ITI, **α** controla a **memória** do EWMA (*Exponentially Weighted Moving A
 - **α alto** (ex.: 0,95) — o índice muda devagar, “lembra” muito do passado.
 - **α baixo** (ex.: 0,70) — o índice reage mais rápido a notícias novas.
 
-Na campanha Sabesp 2026, α = 0,70 (run R1) foi o melhor resultado. Ver [TRAJETORIA.md](TRAJETORIA.md#marco-1--campanha-sabesp-2026-r0r9).
+Na campanha Sabesp 2026, α = 0,70 (run R1) foi o melhor resultado. Ver [trajetoria.md](trajetoria.md#marco-1--campanha-sabesp-2026-r0r9).
 
 ### Baselines B0–B3
 
@@ -221,6 +221,8 @@ d = P(\text{POSITIVE}) - P(\text{NEGATIVE})
 
 Implementado conforme `labels.continuous_sentiment.formula` em cada modelo (`prob_positive - prob_negative`).
 
+**Validação de rótulos.** Em `configs/models.yaml`, `validate_label_mapping: true` confere se os rótulos do checkpoint batem com o mapeamento declarado no YAML. Adaptadores antigos usavam `validate_configured_labels`; o código aceita os dois nomes por compatibilidade.
+
 ---
 
 ### 3.2 `modules/datasets` — datasets de notícias
@@ -235,6 +237,8 @@ Implementado conforme `labels.continuous_sentiment.formula` em cada modelo (`pro
 | `__main__.py` | CLI `fetch`, `check`, `validate` |
 
 Colunas canônicas internas: `news_id`, `text`, `date`, `company`, `sector`, `ticker`, etc., mapeadas via `columns` no YAML.
+
+**Inspeção em preflight.** `inspect_columns()` lê apenas a primeira linha de arquivos JSONL e HuggingFace (`nrows=1`), evitando carregar o corpus inteiro só para obter nomes de colunas.
 
 ---
 
@@ -265,6 +269,33 @@ flowchart TB
 | `io/results.py` | Grava CSVs e `summary.json` |
 
 Baselines **B0–B2** são calculados no experimento a partir das previsões (`build_baselines_daily` em `indexing/baselines.py`). O baseline **B3** (impacto diário sem memória EWMA) é derivado no research (`validation/baselines.py`, coluna `b3_daily_impact_no_memory`).
+
+**Preflight.** Invariantes (YAML válido, pelo menos uma combinação modelo×dataset, colunas mínimas ao inspecionar/carregar) são sempre aplicadas. Em `preflight_checks`, só restam flags reais: `enabled` (desliga o I/O caro de `run_preflight`), `validate_model_files`, `validate_dataset_files` e `validate_output_directory`.
+
+**Ciclo de vida do runner.** `ExperimentRunner.run()` instala handlers de SIGINT/SIGTERM dentro do bloco `try` principal (incluindo `results.prepare()` e coleta de metadados), de modo que o `finally` sempre restaura os handlers mesmo se a preparação falhar cedo. A finalização de resultados em caso de erro usa `try/except` para não mascarar a exceção original.
+
+**Memória e performance.** `LoadedDataset.texts` usa cache interno (`_texts_cache`) — a lista de strings é criada uma vez por dataset carregado. `CombinationPerformanceMonitor` (`stages/metrics.py`) respeita `performance_metrics.enabled`: quando `false`, `start()`, `stop()` e `phase()` são no-op (sem sincronização CUDA desnecessária). `execution.unload_model_after_combination` libera o modelo ao **trocar de `model_key`** ou ao terminar a run — não a cada dataset do mesmo modelo (o runner passa `next_model_key` para decidir).
+
+Dívida conhecida: ver [§3.3.1 Higiene do pipeline](#331-higiene-do-pipeline-estado-atual).
+
+#### 3.3.1 Higiene do pipeline (estado atual)
+
+Auditoria das correções de robustez e memória no runner. Itens já resolvidos têm testes dedicados.
+
+| Item | Status | Onde |
+| --- | --- | --- |
+| `preflight_checks` enxuto (só flags reais) | Resolvido | `configs/experiment.yaml`, `loader._validate_resolved_configuration`, `runner.run_preflight` |
+| JSONL `nrows=1` em `inspect_columns` | Resolvido | `modules/datasets/loader.py` |
+| `performance_metrics.enabled` como no-op | Resolvido | `stages/metrics.py` `CombinationPerformanceMonitor` |
+| `prepare()` dentro do `try/finally` de sinais | Resolvido | `pipeline/runner.py` |
+| Unload de modelo só ao trocar `model_key` | Resolvido | `runner._release_model_after_combination` |
+| Cache de `LoadedDataset.texts` | Resolvido | `modules/datasets/loader.py` |
+| Reduzir cópias de DataFrame/previsões | Resolvido | `prediction_normalization`, `aggregation`, `runner` (sem cópia redundante de `texts`/previsões) |
+| `save_failure_artifacts` (ex-`save_partial_results`) | Resolvido | `execution` no YAML e runner |
+| `OutputSchemaBuilder` só `ModelPrediction` | Resolvido | `io/output_schema.py`, `io/prediction_normalization.py` |
+| Docstrings legadas | Resolvido | módulos `modules/experiment` |
+
+**Limitação conhecida:** o dataset inteiro ainda é carregado em memória por combinação; inferência já é por lotes no adaptador (`batch_size` em `models.yaml`). Streaming end-to-end fica para fase futura.
 
 ---
 
@@ -451,6 +482,17 @@ Médias diárias de `impacto_dia`, `risco_dia`, `iti_liquido`, `iti_risco` entre
 
 B0–B2 são gerados no experimento; B3 é derivado no research. B0–B2 são avaliados **apenas em dias com notícia** (`baseline_news_only` em `configs/research.yaml`).
 
+### 4.7 Ablações da equação
+
+A equação completa usa todas as dimensões em \(I_n\), \(R_n\) e \(w_n\). Para testar hipóteses isoladas (campanha Sabesp R3–R6), o YAML de experimento aceita:
+
+| Mecanismo | Efeito | Exemplo na campanha |
+| --- | --- | --- |
+| `disabled_dimensions` | Zera dimensões na fórmula (ex.: `novelty`, `event_weight`) | R3 sem `u`, R4 sem `e`, R5 sem `r` |
+| `equation_mode: simplified_dc` | `I_n = d \cdot c`, `w_n = c` (sem m, r, e, u) | R6 |
+
+O modo simplificado e as dimensões desabilitadas alteram apenas o cálculo de impacto por notícia; a memória EWMA (§4.4) permanece igual.
+
 ---
 
 ## 5. Validação research — métricas e retornos
@@ -458,6 +500,8 @@ B0–B2 são gerados no experimento; B3 é derivado no research. B0–B2 são av
 Config padrão: `configs/research.yaml`. Campanha Sabesp semanal: `configs/research_weekly_sabesp.yaml`.
 
 ### 5.0 Modos diário e semanal
+
+**Correções que habilitam o modo semanal.** A rodada broad (Marco 0) misturava frequências: o ITI semanal era gerado mas o research lia só `iti_daily.csv` com baselines diários. A auditoria metodológica (detalhe narrativo em [trajetoria.md § Auditoria](trajetoria.md#auditoria-metodológica--por-que-o-marco-1-existiu)) mapeou seis lacunas; as correções no código incluem `index_frequency: weekly`, alinhamento em `io/weekly_align.py`, `resample_baselines_weekly`, `companies_filter`, dataset strict por evento e horizontes em semanas.
 
 O módulo research suporta dois modos de alinhamento, selecionados por `index_frequency` no YAML de research:
 
@@ -473,7 +517,7 @@ No modo semanal:
 - Retornos futuros somam as semanas seguintes (horizonte em semanas).
 - Filtro `companies_filter: [Sabesp]` restringe o painel à empresa do evento.
 
-As **24 comparações** por run no modo semanal vêm de 4 baselines × 2 métricas de conclusão (Pearson, Spearman) × 3 horizontes. Resultados e interpretação: [TRAJETORIA.md](TRAJETORIA.md).
+As **24 comparações** por run no modo semanal vêm de 4 baselines × 2 métricas de conclusão (Pearson, Spearman) × 3 horizontes. Resultados e interpretação: [trajetoria.md](trajetoria.md).
 
 ### 5.1 Retorno alvo
 
@@ -528,6 +572,18 @@ temporal_index:
     min_models: 2
 ```
 
+### Preflight (`configs/experiment.yaml`)
+
+```yaml
+preflight_checks:
+  enabled: true
+  validate_model_files: true
+  validate_dataset_files: true
+  validate_output_directory: true
+```
+
+Invariantes (schema YAML, matriz não vazia, colunas mínimas) não são desligáveis. `enabled: false` só pula o I/O de `run_preflight`.
+
 ### Research (`configs/research.yaml`)
 
 ```yaml
@@ -539,6 +595,35 @@ validation:
   min_samples_for_r2: 30
   return_mode: cumulative
 ```
+
+### Research semanal Sabesp (`configs/research_weekly_sabesp.yaml`)
+
+Usado pela campanha `sabesp_2026` (runs R0–R9). Diferenças principais em relação ao research diário:
+
+```yaml
+defaults:
+  horizons: [1, 2, 4]              # semanas, não dias
+  index_frequency: weekly
+  iti_weekly_column: iti_liquido_last   # R8 testou iti_liquido_mean
+  companies_filter: [Sabesp]
+  return_column: log_return
+  return_mode: cumulative
+
+validation:
+  inference:
+    block_size: 2                  # ajustado para série semanal curta
+    n_bootstrap: 500
+```
+
+**Mapeamento entidade → ticker** (também em `configs/market.yaml` e `mapping.company_to_ticker`):
+
+| Empresa | Ticker B3 |
+| --- | --- |
+| Sabesp | `SBSP3.SA` |
+| Copasa | `CSMG3.SA` |
+| Sanepar | `SAPR4.SA` |
+
+**Corpus strict.** `build_strict_corpus()` gera `noticias_strict.csv` (ou variantes por evento) reaplicando `match_entity(titulo + noticia)` nos registros de `raw/`, sem gerar PENDENTE — preserva o corpus broad em `noticias.csv`.
 
 ---
 
@@ -654,7 +739,7 @@ Interface multipage para explorar corpus, runs, modelos, experimentos e research
 | Modelos | Previsões, distribuição de classes, sentimento por empresa |
 | Runs | Detalhe da execução, config ITI, diff vs baseline |
 | Comparação | Multi-run: parâmetros, win rate, sentimento |
-| Experimentos | Campanha R0–R9, alpha vs win rate, ablações — ver também [TRAJETORIA.md](TRAJETORIA.md) |
+| Experimentos | Campanha R0–R9, alpha vs win rate, ablações — ver também [trajetoria.md](trajetoria.md) |
 | Research | ITI vs mercado, incremental, drill-down por empresa |
 
 Dados lidos de `outputs/` e `data/` via `modules/dashboard/services/`. Insights automáticos em `modules/dashboard/insights/`.
@@ -669,3 +754,19 @@ pytest -m "not network"
 ```
 
 Fixtures em `tests/fixtures/` cobrem mercado, research e experimento dry-run.
+
+**Testes de higiene do pipeline** (comportamento do runner e preflight):
+
+| Arquivo | O que valida |
+| --- | --- |
+| `tests/test_preflight.py` | Flags de `preflight_checks`, bypass com `enabled: false`, inspeção JSONL com `nrows=1` |
+| `tests/test_performance_monitor.py` | `CombinationPerformanceMonitor` como no-op quando `performance_metrics.enabled: false` |
+| `tests/test_runner_lifecycle.py` | Restauração de signal handlers em falha cedo; unload de modelo só ao trocar `model_key`; cache de `texts`; unload entre datasets do mesmo modelo |
+
+Outros testes relevantes: `test_research_weekly_align.py` (alinhamento semanal), `test_temporal_index.py` (EWMA), `test_experiment_baselines.py` (B0–B2).
+
+Para rodar só a higiene do pipeline:
+
+```bash
+pytest tests/test_preflight.py tests/test_performance_monitor.py tests/test_runner_lifecycle.py -q
+```

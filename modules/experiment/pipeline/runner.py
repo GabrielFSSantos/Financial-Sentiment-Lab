@@ -171,9 +171,8 @@ class ExperimentRunner:
     def registry(self) -> ModelRegistry:
         """Cria o registry de forma tardia.
 
-        O import tardio permite que ``python -m pipeline.runner --help`` e a
-        validação sintática do arquivo funcionem mesmo durante a refatoração
-        intermediária dos adaptadores em ``models/``.
+        O import tardio permite que ``python -m modules.experiment --help``
+        funcione sem carregar adaptadores de modelo.
         """
 
         if self._registry is None:
@@ -188,14 +187,15 @@ class ExperimentRunner:
         """Executa preflight, dry-run ou todas as combinações."""
 
         self._install_signal_handlers()
-        self.results.prepare()
-
-        runtime_metadata = collect_runtime_metadata()
-        repository_metadata = _collect_git_metadata(
-            self.configuration.paths.project_root
-        )
+        runtime_metadata: dict[str, Any] = {}
+        repository_metadata: dict[str, Any] = {}
 
         try:
+            self.results.prepare()
+            runtime_metadata = collect_runtime_metadata()
+            repository_metadata = _collect_git_metadata(
+                self.configuration.paths.project_root
+            )
             if repository_metadata.get("dirty"):
                 self.logger.warning(
                     "O repositório Git possui alterações não commitadas. "
@@ -341,36 +341,73 @@ class ExperimentRunner:
             self._skip_pending_combinations(
                 "execution_interrupted"
             )
-            summary = self.results.finalize(
-                extra={
-                    "runtime": runtime_metadata,
-                    "repository": repository_metadata,
-                    "interrupted": True,
-                }
-            )
+            try:
+                self.results.finalize(
+                    extra={
+                        "runtime": runtime_metadata,
+                        "repository": repository_metadata,
+                        "interrupted": True,
+                    }
+                )
+            except Exception:
+                self.logger.debug(
+                    "Não foi possível finalizar o summary após interrupção.",
+                    exc_info=True,
+                )
             self.logger.error("Experimento interrompido.")
             raise
         except Exception as error:
             self._skip_pending_combinations(
                 "experiment_aborted_before_execution"
             )
-            self.results.finalize(
-                extra={
-                    "runtime": runtime_metadata,
-                    "repository": repository_metadata,
-                    "fatal_error": _error_payload(error),
-                }
-            )
+            try:
+                self.results.finalize(
+                    extra={
+                        "runtime": runtime_metadata,
+                        "repository": repository_metadata,
+                        "fatal_error": _error_payload(error),
+                    }
+                )
+            except Exception:
+                self.logger.debug(
+                    "Não foi possível finalizar o summary após erro fatal.",
+                    exc_info=True,
+                )
             raise
         finally:
             self._release_all_models()
             self._restore_signal_handlers()
 
     def run_preflight(self) -> PreflightReport:
-        """Valida configurações, adaptadores, arquivos e datasets."""
+        """Valida adaptadores, arquivos e colunas dos datasets.
+
+        Invariantes de configuração (YAML válido, matriz não vazia) já
+        foram aplicadas no loader. ``preflight_checks.enabled: false``
+        desliga apenas o I/O caro desta etapa.
+        """
 
         started_counter = perf_counter()
         started_at = _experiment_now_iso(self.configuration)
+        checks = self.configuration.preflight_checks
+        if not bool(checks.get("enabled", True)):
+            finished_at = _experiment_now_iso(self.configuration)
+            duration = perf_counter() - started_counter
+            self.logger.info(
+                "Preflight de I/O desativado "
+                "(preflight_checks.enabled=false)."
+            )
+            return PreflightReport(
+                model_reports=(),
+                dataset_reports=(),
+                combination_count=len(
+                    self.configuration.combinations
+                ),
+                started_at=started_at,
+                finished_at=finished_at,
+                duration_seconds=round(duration, 6),
+                valid=True,
+            )
+
         self.logger.info("Executando verificações de preflight.")
 
         try:
@@ -436,10 +473,19 @@ class ExperimentRunner:
             )
         )
 
-        for combination in self.configuration.combinations:
+        combinations = self.configuration.combinations
+        for position, combination in enumerate(combinations):
             self._raise_if_interrupted()
+            next_model_key = (
+                combinations[position + 1].model_key
+                if position + 1 < len(combinations)
+                else None
+            )
 
-            result = self._execute_combination(combination)
+            result = self._execute_combination(
+                combination,
+                next_model_key=next_model_key,
+            )
             self._combination_results.append(result)
 
             if result.status == "failed" and fail_fast:
@@ -497,6 +543,8 @@ class ExperimentRunner:
     def _execute_combination(
         self,
         combination: ExperimentCombination,
+        *,
+        next_model_key: str | None = None,
     ) -> CombinationRunResult:
         model_configuration = self.configuration.get_model(
             combination.model_key
@@ -570,12 +618,11 @@ class ExperimentRunner:
                 registered_model.load(skip_file_validation=True)
 
             self._raise_if_interrupted()
+            texts = loaded_dataset.texts
             with monitor.measure_inference(
-                text_count=len(loaded_dataset.texts)
+                text_count=len(texts)
             ):
-                raw_predictions = registered_model.predict(
-                    loaded_dataset.texts
-                )
+                raw_predictions = registered_model.predict(texts)
 
             self._raise_if_interrupted()
             standardized = self.output_builder.build(
@@ -662,14 +709,15 @@ class ExperimentRunner:
                     *aggregation.warnings,
                 ]
             )
+            valid_text_count = (
+                loaded_dataset.statistics.valid_row_count
+            )
 
             self.results.complete_combination(
                 combination,
                 duration_seconds=duration,
                 row_count=standardized.row_count,
-                valid_text_count=(
-                    loaded_dataset.statistics.valid_row_count
-                ),
+                valid_text_count=valid_text_count,
                 device=registered_model.device_type,
                 extra={
                     "model_display_name": (
@@ -688,6 +736,9 @@ class ExperimentRunner:
                     "warnings": list(warnings),
                 },
             )
+
+            del raw_predictions, loaded_dataset, texts
+            _release_python_and_cuda_memory()
 
             self.logger.info(
                 "Progresso geral: %s — %s × %s concluída em %.3f s "
@@ -709,9 +760,7 @@ class ExperimentRunner:
                 status="success",
                 duration_seconds=round(duration, 6),
                 row_count=standardized.row_count,
-                valid_text_count=(
-                    loaded_dataset.statistics.valid_row_count
-                ),
+                valid_text_count=valid_text_count,
                 device=registered_model.device_type,
                 warnings=tuple(warnings),
             )
@@ -800,7 +849,8 @@ class ExperimentRunner:
 
         finally:
             self._release_model_after_combination(
-                combination.model_key
+                combination.model_key,
+                next_model_key=next_model_key,
             )
 
     def _success_metadata(
@@ -837,13 +887,16 @@ class ExperimentRunner:
         monitor: CombinationPerformanceMonitor | None,
         error: BaseException,
     ) -> None:
-        save_partial = bool(
+        save_artifacts = bool(
             self.configuration.execution.get(
-                "save_partial_results",
-                True,
+                "save_failure_artifacts",
+                self.configuration.execution.get(
+                    "save_partial_results",
+                    True,
+                ),
             )
         )
-        if not save_partial:
+        if not save_artifacts:
             return
 
         metadata = {
@@ -1042,6 +1095,8 @@ class ExperimentRunner:
     def _release_model_after_combination(
         self,
         model_key: str,
+        *,
+        next_model_key: str | None = None,
     ) -> None:
         unload = bool(
             self.configuration.execution.get(
@@ -1050,6 +1105,8 @@ class ExperimentRunner:
             )
         )
         if not unload or self._registry is None:
+            return
+        if next_model_key == model_key:
             return
 
         try:
@@ -1252,7 +1309,7 @@ def configure_logging(
 
 def build_argument_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="python -m pipeline.runner",
+        prog="python -m modules.experiment",
         description=(
             "Executa a matriz de modelos e datasets configurada no "
             "financial-sentiment-lab."

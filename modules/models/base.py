@@ -54,7 +54,7 @@ class ModelPrediction:
     Campos de identificação do dataset, como ``run_id``, ``news_id``,
     ``company`` e ``date``, são adicionados posteriormente pelo runner.
 
-    ``extra`` permanece aninhado para que ``pipeline.output_schema`` possa
+    ``extra`` permanece aninhado para que ``modules.experiment.io.output_schema`` possa
     serializá-lo no campo de metadados sem misturar informações específicas
     do adaptador com o contrato principal.
     """

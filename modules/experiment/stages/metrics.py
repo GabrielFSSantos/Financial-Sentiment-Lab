@@ -1,8 +1,8 @@
 """Cálculo de métricas de classificação e desempenho.
 
 Este módulo trabalha sobre o DataFrame padronizado por
-``pipeline.output_schema`` e produz os arquivos tabulares esperados por
-``pipeline.results``:
+``modules.experiment.io.output_schema`` e produz os arquivos tabulares
+esperados por ``modules.experiment.io.results``:
 
 - classification_metrics.csv;
 - per_class_metrics.csv;
@@ -798,22 +798,28 @@ class CombinationPerformanceMonitor:
                 "O monitor já está em execução."
             )
 
-        if self.device.type == "cuda":
-            _validate_cuda_device(self.device)
-            torch.cuda.synchronize(self.device)
-            if self.measure_gpu_memory:
-                torch.cuda.reset_peak_memory_stats(self.device)
-
+        now = datetime.now(self.timezone)
         self._phases.clear()
         self._active_phase = None
-        self._started_at = datetime.now(self.timezone)
-        self._start_counter = perf_counter()
+        self._started_at = now
         self._finished_at = None
         self._total_time_seconds = None
         self._peak_gpu_memory_mb = None
         self._measured_text_count = None
         self._started = True
         self._finished = False
+
+        if not self.enabled:
+            self._start_counter = None
+            return
+
+        if self.device.type == "cuda":
+            _validate_cuda_device(self.device)
+            torch.cuda.synchronize(self.device)
+            if self.measure_gpu_memory:
+                torch.cuda.reset_peak_memory_stats(self.device)
+
+        self._start_counter = perf_counter()
 
     def stop(self) -> PerformanceSnapshot:
         if not self._started:
@@ -829,11 +835,18 @@ class CombinationPerformanceMonitor:
         if self._finished:
             return self.snapshot
 
+        now_datetime = datetime.now(self.timezone)
+        self._finished_at = now_datetime
+
+        if not self.enabled:
+            self._total_time_seconds = 0.0
+            self._finished = True
+            return self.snapshot
+
         if self.device.type == "cuda":
             torch.cuda.synchronize(self.device)
 
         now_counter = perf_counter()
-        now_datetime = datetime.now(self.timezone)
 
         if self._start_counter is None:
             raise PerformanceMetricsError(
@@ -844,7 +857,6 @@ class CombinationPerformanceMonitor:
             0.0,
             now_counter - self._start_counter,
         )
-        self._finished_at = now_datetime
 
         if (
             self.device.type == "cuda"
@@ -867,6 +879,10 @@ class CombinationPerformanceMonitor:
         *,
         text_count: int | None = None,
     ) -> Iterator[None]:
+        if not self.enabled:
+            yield
+            return
+
         if not self._started or self._finished:
             raise PerformanceMetricsError(
                 "Inicie o monitor antes de medir uma fase."

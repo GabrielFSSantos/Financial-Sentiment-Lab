@@ -1,4 +1,4 @@
-"""Utilitários compartilhados entre os módulos da pipeline."""
+"""Utilitários compartilhados do módulo ``modules.experiment``."""
 
 from __future__ import annotations
 
