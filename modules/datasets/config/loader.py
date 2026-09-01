@@ -412,6 +412,13 @@ def _resolve_dataset_limits(
                 for item in companies
             )
 
+    if "max_scan_rows" in limits:
+        resolved["max_scan_rows"] = _require_integer(
+            limits["max_scan_rows"],
+            f"{location}.max_scan_rows",
+            minimum=1,
+        )
+
     return resolved
 
 
@@ -819,12 +826,52 @@ def _resolve_datasets(
     )
 
 
+CAMPAIGNS_DATASETS_PATH = "configs/campaigns/datasets.yaml"
+
+
+def _merge_campaign_datasets_overlay(
+    root: Path,
+    raw_config: dict[str, Any],
+) -> dict[str, Any]:
+    """Mescla ``configs/campaigns/datasets.yaml`` se existir (overlay)."""
+
+    overlay_path = root / CAMPAIGNS_DATASETS_PATH
+    if not overlay_path.is_file():
+        return raw_config
+
+    overlay = _load_yaml_file(overlay_path)
+    merged = copy.deepcopy(raw_config)
+    overlay_defaults = overlay.get("defaults")
+    if isinstance(overlay_defaults, Mapping):
+        merged["defaults"] = _deep_merge(
+            merged.get("defaults", {}),
+            overlay_defaults,
+        )
+
+    base_datasets = _require_mapping(
+        merged.get("datasets"),
+        "datasets",
+    )
+    overlay_datasets = overlay.get("datasets")
+    if isinstance(overlay_datasets, Mapping):
+        for key, value in overlay_datasets.items():
+            if key not in base_datasets:
+                base_datasets[key] = copy.deepcopy(value)
+
+    merged["datasets"] = base_datasets
+    return merged
+
+
 def load_datasets_configuration(
     *,
     project_root: str | Path | None = None,
     config_path: str | Path = "configs/datasets.yaml",
 ) -> DatasetsConfiguration:
-    """Carrega e valida ``configs/datasets.yaml``."""
+    """Carrega e valida ``configs/datasets.yaml``.
+
+    Se ``configs/campaigns/datasets.yaml`` existir, mescla datasets de
+    campanha sem sobrescrever entradas do core.
+    """
 
     root = (
         Path(project_root).expanduser().resolve()
@@ -833,6 +880,7 @@ def load_datasets_configuration(
     )
     resolved_path = _resolve_path(root, config_path)
     raw_config = _load_yaml_file(resolved_path)
+    raw_config = _merge_campaign_datasets_overlay(root, raw_config)
     _validate_schema_version(raw_config, resolved_path)
 
     defaults = _require_mapping(

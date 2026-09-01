@@ -18,6 +18,9 @@ def test_load_datasets_configuration(project_root: Path) -> None:
     assert len(configuration.datasets) >= 3
     assert configuration.get_dataset("noticias_exemplo_ptbr").path is not None
     assert configuration.get_dataset("saneamento_corpus").path is not None
+    expanded = configuration.get_dataset("saneamento_sabesp_strict_expanded")
+    assert expanded.limits["date_from"] == "2022-05-01"
+    assert configuration.get_dataset("fnspid_pilot").enabled is False
 
 
 def test_load_datasets_configuration_rejects_missing_path(
@@ -80,3 +83,9 @@ datasets:
             project_root=project_root,
             config_path=invalid_yaml,
         )
+
+
+def test_campaign_datasets_overlay_merges(project_root: Path) -> None:
+    configuration = load_datasets_configuration(project_root=project_root)
+    assert configuration.get_dataset("saneamento_sabesp_strict_event").enabled is False
+    assert "fnspid_pilot" in {dataset.key for dataset in configuration.datasets}

@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
 # Campanha experimental Sabesp — R0–R9 com manifest estruturado.
 #
-#   ./scripts/run_sabesp_campaign.sh init          # gera configs + manifest
-#   ./scripts/run_sabesp_campaign.sh corpus        # Fase 1: strict + filtro Sabesp
-#   ./scripts/run_sabesp_campaign.sh r0            # baseline apenas
-#   ./scripts/run_sabesp_campaign.sh all           # R0–R9 (GPU ~3–4h)
-#   ./scripts/run_sabesp_campaign.sh analyze       # análise comparativa
+#   ./scripts/campaigns/sabesp_2026.sh init
+#   ./scripts/campaigns/sabesp_2026.sh corpus
+#   ./scripts/campaigns/sabesp_2026.sh r0
+#   ./scripts/campaigns/sabesp_2026.sh all
+#   ./scripts/campaigns/sabesp_2026.sh analyze
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd -P)"
+PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/../.." && pwd -P)"
 VENV_DIR="${PROJECT_ROOT}/venv"
 CAMPAIGN_DIR="${PROJECT_ROOT}/outputs/campaigns/sabesp_2026"
 MANIFEST="${CAMPAIGN_DIR}/manifest.json"
 DATASET="saneamento_sabesp_strict_event"
-RESEARCH_CONFIG="${PROJECT_ROOT}/configs/research_weekly_sabesp.yaml"
+RESEARCH_CONFIG="${PROJECT_ROOT}/configs/campaigns/sabesp_2026/research_weekly.yaml"
+EXPERIMENTS_DIR="configs/campaigns/sabesp_2026/experiments"
 
 RUNS=(
     "r0_baseline:sabesp_r0_baseline:finbert_ptbr"
@@ -68,12 +69,12 @@ run_single() {
     local research_config="${RESEARCH_CONFIG}"
 
     if [[ "${config_file}" == *"r8_weekly_mean"* ]]; then
-        research_config="${PROJECT_ROOT}/configs/research_weekly_sabesp_r8.yaml"
+        research_config="${PROJECT_ROOT}/configs/campaigns/sabesp_2026/research_weekly_r8.yaml"
     fi
 
     echo "=== Experimento ${run_id} (${model}) ==="
     ./scripts/run_experiment.sh --skip-setup \
-        --experiment-config "configs/experiments/sabesp/${config_file}.yaml" \
+        --experiment-config "${EXPERIMENTS_DIR}/${config_file}.yaml" \
         --run-id "${run_id}" \
         --dataset "${DATASET}" \
         --model "${model}"
@@ -126,6 +127,32 @@ cmd_manual_sample() {
         --predictions "${predictions}"
 }
 
+resolve_manual_predictions() {
+    local candidates=(
+        "${PROJECT_ROOT}/outputs/sabesp_r0_baseline/models/finbert_ptbr/saneamento_sabesp_strict_event/predictions.csv"
+        "${PROJECT_ROOT}/outputs/sabesp_marco2_r0_baseline/models/finbert_ptbr/saneamento_sabesp_strict_expanded/predictions.csv"
+    )
+    local path
+    for path in "${candidates[@]}"; do
+        if [[ -f "${path}" ]]; then
+            echo "${path}"
+            return 0
+        fi
+    done
+    echo "Nenhum predictions.csv encontrado (R0 Marco 1 ou Marco 2)." >&2
+    return 1
+}
+
+cmd_manual_compare() {
+    activate_venv
+    local predictions
+    predictions="$(resolve_manual_predictions)"
+    python -m modules.evaluation.manual_labels compare \
+        --predictions "${predictions}" \
+        --report "${PROJECT_ROOT}/outputs/campaigns/sabesp_2026/manual_label_report.md"
+    echo "Relatório: outputs/campaigns/sabesp_2026/manual_label_report.md"
+}
+
 MODE="${1:-}"
 shift || true
 
@@ -136,17 +163,24 @@ case "${MODE}" in
     all) cmd_all ;;
     analyze) cmd_analyze ;;
     manual-sample) cmd_manual_sample ;;
+    manual-compare) cmd_manual_compare ;;
+    marco2)
+        echo "Use ./scripts/campaigns/sabesp_marco2.sh (scrape | corpus | replay | all)" >&2
+        exit 0
+        ;;
     -h|--help|"")
         cat <<'HELP'
-Uso: ./scripts/run_sabesp_campaign.sh <subcomando>
+Uso: ./scripts/campaigns/sabesp_2026.sh <subcomando>
 
 Subcomandos:
-  init           Gera configs/experiments/sabesp/*.yaml e manifest.json
+  init           Gera configs/campaigns/sabesp_2026/experiments/*.yaml e manifest
   corpus         Build strict + filtro Sabesp (nov/23–abr/24)
-  r0             Fase 2: baseline R0 + research
+  r0             Baseline R0 + research
   all            R0–R9 + análise comparativa
-  analyze        Fase 5: comparative_analysis.md
-  manual-sample  Fase 4: amostra 100 para rotulação manual
+  analyze        comparative_analysis.md
+  manual-sample  Amostra 100 para rotulação manual
+  manual-compare Relatório rótulos manuais vs FinBERT
+  marco2         Redireciona para sabesp_marco2.sh
 HELP
         ;;
     *)

@@ -29,7 +29,13 @@ def test_match_entity_sanepar_sapr11() -> None:
     assert entity.ticker == "SAPR4"
 
 
-def test_match_entity_copasa() -> None:
+def test_match_entity_sabesp_razao_social() -> None:
+    entity = match_entity(
+        "A Companhia de Saneamento Básico do Estado de São Paulo anunciou tarifas."
+    )
+    assert entity is not None
+    assert entity.company == "Sabesp"
+    assert entity.ticker == "SBSP3"
     entity = match_entity("Copasa anuncia investimentos em Minas.")
     assert entity is not None
     assert entity.company == "Copasa"

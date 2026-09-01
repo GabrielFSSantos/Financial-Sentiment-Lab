@@ -16,9 +16,9 @@ def test_full_bilingual_combination_matrix(project_root: Path) -> None:
     configuration = load_configuration(project_root=project_root)
 
     assert len(configuration.models) == 3
-    assert len(configuration.datasets) == 4
-    assert len(configuration.combinations) == 7
-    assert len(configuration.skipped_combinations) == 5
+    assert len(configuration.datasets) == 3
+    assert len(configuration.combinations) == 5
+    assert len(configuration.skipped_combinations) == 4
 
     for combination in configuration.combinations:
         model = configuration.get_model(combination.model_key)
@@ -29,7 +29,7 @@ def test_full_bilingual_combination_matrix(project_root: Path) -> None:
         (skipped.model_key, skipped.dataset_key)
         for skipped in configuration.skipped_combinations
     }
-    assert len(skipped_pairs) == 5
+    assert len(skipped_pairs) == 4
 
 
 def test_finbert_tone_en_legacy_load(project_root: Path) -> None:
@@ -81,3 +81,29 @@ def test_max_rows_limits_example_csv_read(project_root: Path) -> None:
     )
     loaded = DatasetLoader().load(limited)
     assert len(loaded.dataframe) == 5
+
+
+def test_control_pt_models_load_when_present(project_root: Path) -> None:
+    for model_key in ("bertweet_pt_sentiment", "bertimbau_sentiment"):
+        configuration = load_configuration(
+            project_root=project_root,
+            model_keys=[model_key],
+            dataset_keys=["noticias_exemplo_ptbr"],
+        )
+        model_configuration = configuration.get_model(model_key)
+        if not model_configuration.model_dir.is_dir():
+            pytest.skip(f"{model_key} não está em model_store/")
+        registry = create_model_registry(configuration)
+        registered = registry.create(model_configuration, load=True)
+        try:
+            assert registered.is_loaded
+            dataset = configuration.get_dataset("noticias_exemplo_ptbr")
+            loaded = DatasetLoader().load(dataset)
+            predictions = registered.predict(loaded.texts[:2])
+            assert len(predictions) == 2
+            assert all(
+                prediction.predicted_label in {"POSITIVE", "NEGATIVE", "NEUTRAL"}
+                for prediction in predictions
+            )
+        finally:
+            registered.unload()

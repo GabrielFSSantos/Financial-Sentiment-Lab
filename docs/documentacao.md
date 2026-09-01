@@ -129,11 +129,27 @@ Para cada run da campanha Sabesp, o research executa comparações **cabeça a c
 
 Na janela nov/2023–abr/2024 há cerca de **24 semanas** com ITI, baselines e preço alinhados (`overlap_days` no manifest). Amostra pequena: poucas vitórias significativas mesmo na melhor run (R1: 2/24).
 
+**Caveat de busca múltipla:** as 24 comparações compartilham o mesmo painel semanal e horizontes sobrepostos — não são 24 testes independentes. Com α=0,05, espera-se ~1 falso positivo por acaso; 2 vitórias significativas (ambas h=4 vs. B3, Pearson e Spearman) **não** confirmam robustez isolada. Tabela extraída: `outputs/campaigns/sabesp_marco2/significant_wins_r1_event.md`.
+
 ### Limitações
 
 - Evento único (privatização Sabesp) — difícil generalizar.
 - Correlação não implica causalidade.
 - Qualidade do sentimento depende do FinBERT; rótulos manuais ainda em validação.
+
+### Tipos de rótulo (Trilhas B e C)
+
+O projeto usa **três definições de “sentimento verdadeiro”** em contextos distintos. Não misturá-las no mesmo experimento de ITI.
+
+| Tipo | Fonte | Onde entra no lab | Onde **não** entra |
+| --- | --- | --- | --- |
+| **Humano** | Anotador (100 notícias PT; PhraseBank EN) | Métricas de classificação (`classification_metrics`, `manual_labels`) | Cálculo do ITI na campanha Sabesp |
+| **LLM** | NOSIBLE (ensemble de modelos) | Eval opcional do `finbert_en` | ITI, research, corpus Sabesp |
+| **Mercado** | FinMarBa (retorno D+1 vs quantil histórico) | Diagnóstico de concordância (`scripts/campaigns/finmarba_diag.sh`) | ITI Sabesp, `true_label` no research B3 |
+
+Na **campanha Sabesp** (Trilha A), o sentimento por notícia vem do **FinBERT** (`finbert_ptbr`); o preço `SBSP3.SA` é **alvo** no research, nunca rótulo de treino do ITI.
+
+Comandos Trilha B: `./scripts/campaigns/sabesp_2026.sh manual-sample`, `./scripts/campaigns/sabesp_2026.sh manual-compare` (predictions: Marco 1 R0 ou fallback `sabesp_marco2_r0_baseline`), `./scripts/campaigns/classifier_eval_en.sh`. Trilha C: `./scripts/campaigns/fnspid_pilot.sh`, `./scripts/campaigns/finmarba_diag.sh`.
 
 ---
 
@@ -185,6 +201,18 @@ flowchart TB
 | `modules/models/scripts/fetch.sh` | Download isolado de modelos |
 | `modules/datasets/scripts/fetch.sh` | Download isolado de datasets |
 
+### Scripts de campanha (descartáveis)
+
+Ver [`scripts/campaigns/README.md`](../scripts/campaigns/README.md) e [`configs/campaigns/README.md`](../configs/campaigns/README.md).
+
+| Script | Função |
+| --- | --- |
+| `scripts/campaigns/sabesp_2026.sh` | Campanha Sabesp R0–R9 (Marco 1) |
+| `scripts/campaigns/sabesp_marco2.sh` | Marco 2 — janela expandida (`replay-event`, `analyze-periods`) |
+| `scripts/campaigns/classifier_eval_en.sh` | Trilha B — PhraseBank/NOSIBLE |
+| `scripts/campaigns/fnspid_pilot.sh` | Marco 4 — piloto FNSPID |
+| `scripts/campaigns/finmarba_diag.sh` | Marco 5 — FinMarBa |
+
 ---
 
 ## 3. Módulos
@@ -211,6 +239,8 @@ flowchart LR
 | `base.py` | Contrato base dos adaptadores |
 | `adapters/bert/finbert_hf.py` | Motor compartilhado BERT |
 | `adapters/bert/finbert_ptbr.py` | Alias FinBERT-PT-BR |
+| `adapters/bert/bertweet_pt_sentiment.py` | Controle PT (pysentimiento/BERTweet) |
+| `adapters/bert/bertimbau_sentiment.py` | Controle PT (BERTimbau geral, 3 classes) |
 | `adapters/bert/*.py` | Um adaptador por checkpoint |
 
 **Sentimento contínuo** (por notícia):
@@ -222,6 +252,8 @@ d = P(\text{POSITIVE}) - P(\text{NEGATIVE})
 Implementado conforme `labels.continuous_sentiment.formula` em cada modelo (`prob_positive - prob_negative`).
 
 **Validação de rótulos.** Em `configs/models.yaml`, `validate_label_mapping: true` confere se os rótulos do checkpoint batem com o mapeamento declarado no YAML. Adaptadores antigos usavam `validate_configured_labels`; o código aceita os dois nomes por compatibilidade.
+
+**Controles PT (`enabled: false`).** `bertweet_pt_sentiment` ([pysentimiento/bertweet-pt-sentiment](https://huggingface.co/pysentimiento/bertweet-pt-sentiment)) e `bertimbau_sentiment` ([lipaoMai/bert-sentiment-model-portuguese](https://huggingface.co/lipaoMai/bert-sentiment-model-portuguese), base BERTimbau) não entram na matriz default. Fetch e dry-run: ver [§3.3.1](#331-higiene-do-pipeline-estado-atual).
 
 ---
 
@@ -296,6 +328,28 @@ Auditoria das correções de robustez e memória no runner. Itens já resolvidos
 | Docstrings legadas | Resolvido | módulos `modules/experiment` |
 
 **Limitação conhecida:** o dataset inteiro ainda é carregado em memória por combinação; inferência já é por lotes no adaptador (`batch_size` em `models.yaml`). Streaming end-to-end fica para fase futura.
+
+#### Relatório de deep research vs. repositório
+
+A seção 6 do relatório externo ainda cita `pipeline/dataset_loader.py` e `pipeline/runner.py`. O lab está em `modules/`. Checklist para **não reabrir** o mesmo backlog:
+
+| Item do relatório | Estado no repo |
+| --- | --- |
+| JSONL `inspect_columns` com `nrows=1` | Feito (`modules/datasets/loader.py`) |
+| `performance_metrics.enabled` | Feito (`CombinationPerformanceMonitor`) |
+| `try/finally` na inicialização do runner | Feito (`prepare()` dentro do `try`) |
+| Não chamar `loaded_dataset.texts` duas vezes | Feito (cache `_texts_cache`) |
+| `save_partial_results` → `save_failure_artifacts` | Feito (YAMLs + alias legado) |
+| Modelos EN (`ProsusAI/finbert`, `yiyanghkust/finbert-tone`) | Já em `configs/models.yaml` (`finbert_en` enabled; `finbert_tone_en` disabled) |
+| Controles PT genéricos (BERTweet-PT, BERTimbau 3-class) | `bertweet_pt_sentiment` e `bertimbau_sentiment`, ambos `enabled: false` |
+
+Esses dois controles **não** são modelos financeiros: servem para comparar PT genérico vs. FinBERT-PT na próxima bateria ITI. Baixar checkpoints sem ligar a matriz:
+
+```bash
+python -m modules.models fetch --model bertweet_pt_sentiment --model bertimbau_sentiment
+./scripts/run_experiment.sh --skip-setup --dry-run --model bertweet_pt_sentiment --dataset noticias_exemplo_ptbr
+./scripts/run_experiment.sh --skip-setup --dry-run --model bertimbau_sentiment --dataset noticias_exemplo_ptbr
+```
 
 ---
 
@@ -497,7 +551,7 @@ O modo simplificado e as dimensões desabilitadas alteram apenas o cálculo de i
 
 ## 5. Validação research — métricas e retornos
 
-Config padrão: `configs/research.yaml`. Campanha Sabesp semanal: `configs/research_weekly_sabesp.yaml`.
+Config padrão: `configs/research.yaml`. Campanha Sabesp semanal: `configs/campaigns/sabesp_2026/research_weekly.yaml`.
 
 ### 5.0 Modos diário e semanal
 
@@ -508,7 +562,7 @@ O módulo research suporta dois modos de alinhamento, selecionados por `index_fr
 | Modo | Config | `index_frequency` | Horizontes | Coluna ITI | Alinhamento |
 | --- | --- | --- | --- | --- | --- |
 | **Diário** (padrão) | `configs/research.yaml` | `daily` (implícito) | 1, 5, 21 **dias** | `iti_liquido` diário | `io/align.py` |
-| **Semanal** (campanha Sabesp) | `configs/research_weekly_sabesp.yaml` | `weekly` | 1, 2, 4 **semanas** | `iti_liquido_last` | `io/weekly_align.py` |
+| **Semanal** (campanha Sabesp) | `configs/campaigns/sabesp_2026/research_weekly.yaml` | `weekly` | 1, 2, 4 **semanas** | `iti_liquido_last` | `io/weekly_align.py` |
 
 No modo semanal:
 
@@ -596,7 +650,7 @@ validation:
   return_mode: cumulative
 ```
 
-### Research semanal Sabesp (`configs/research_weekly_sabesp.yaml`)
+### Research semanal Sabesp (`configs/campaigns/sabesp_2026/research_weekly.yaml`)
 
 Usado pela campanha `sabesp_2026` (runs R0–R9). Diferenças principais em relação ao research diário:
 
@@ -624,6 +678,37 @@ validation:
 | Sanepar | `SAPR4.SA` |
 
 **Corpus strict.** `build_strict_corpus()` gera `noticias_strict.csv` (ou variantes por evento) reaplicando `match_entity(titulo + noticia)` nos registros de `raw/`, sem gerar PENDENTE — preserva o corpus broad em `noticias.csv`.
+
+**Cobertura Sabesp (filtro mai/2022–abr/2024).** Após `scrape-2023` + `corpus`, `data/saneamento_corpus/noticias_strict_sabesp.csv` tem **1.254** artigos (256 em 2022; **199** em jan–abr/2023; resto mai/2023–abr/2024). Sem duplicatas de URL. A lacuna jan–abr/2023 foi preenchida sem replay ITI — ver [trajetoria.md](trajetoria.md#atualização-de-corpus-31082026-sem-replay-iti). Estadão e Folha ficam desligados (marketing / paywall).
+
+### Core vs campaigns (`configs/`)
+
+| Camada | Caminho | Papel |
+| --- | --- | --- |
+| **Core** | `configs/experiment.yaml`, `models.yaml`, `datasets.yaml`, `market.yaml`, `research.yaml` | Pipeline genérico reutilizável |
+| **Campaigns** | `configs/campaigns/` | Sabesp, pilotos FNSPID/FinMarBa — **apagável** após consolidar a tese |
+
+Datasets de campanha ficam em `configs/campaigns/datasets.yaml` e são mesclados automaticamente pelo loader quando a pasta existe.
+
+### Datasets por trilha
+
+| Chave | Trilha | Onde | Uso |
+| --- | --- | --- | --- |
+| `noticias_exemplo_ptbr`, `news_example_en`, `saneamento_corpus` | core | `configs/datasets.yaml` | Validação e scraper |
+| `saneamento_sabesp_strict_event`, `saneamento_sabesp_strict_expanded` | A | overlay campaigns | ITI Sabesp |
+| `financial_phrasebank_en`, `nosible_financial_sentiment_en` | B | overlay campaigns | Eval `finbert_en` |
+| `fnspid_pilot` | C | overlay campaigns | Piloto ITI US (`configs/campaigns/fnspid_pilot/market.yaml`) |
+| `finmarba_headlines_en` | C | overlay campaigns | Diagnóstico classificador |
+
+Fetch de dataset `enabled: false`: `python -m modules.datasets fetch --dataset CHAVE` ou via experimento com `--dataset`.
+
+### Avaliação de rótulos (`modules/evaluation`)
+
+| Módulo | Função |
+| --- | --- |
+| `manual_labels.py` | Amostra estratificada PT + compare (acurácia, kappa) |
+| `classifier_eval.py` | Acurácia/kappa em `predictions.csv` com `true_label` |
+| `period_breakdown.py` | Correlação ITI×retorno por subperíodo (2022 / 2023Q1 / evento) |
 
 ---
 

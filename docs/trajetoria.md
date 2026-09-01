@@ -140,10 +140,10 @@ A run **R1** atingiu 41,7% de win rate (≥ 40%) — gate atendido. Ver [Decisõ
 
 ### Artefatos da auditoria e campanha
 
-- Configs por run: `configs/experiments/sabesp/r0..r9.yaml`
-- Research semanal: `configs/research_weekly_sabesp.yaml`
+- Configs por run: `configs/campaigns/sabesp_2026/experiments/r0..r9.yaml` (antes: `configs/experiments/sabesp/`)
+- Research semanal: `configs/campaigns/sabesp_2026/research_weekly.yaml`
 - Manifest: `outputs/campaigns/sabesp_2026/manifest.json`
-- Orquestração: `scripts/run_sabesp_campaign.sh`
+- Orquestração: `scripts/campaigns/sabesp_2026.sh`
 
 ---
 
@@ -239,7 +239,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r0_baseline.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r0_baseline.yaml`
 - Saída: `outputs/sabesp_r0_baseline/`
 - Research: `outputs/sabesp_r0_baseline/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -311,7 +311,7 @@ A validação mede se o ITI da semana **correlaciona** com o retorno futuro acum
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r1_alpha070.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r1_alpha070.yaml`
 - Saída: `outputs/sabesp_r1_alpha070/`
 - Research: `outputs/sabesp_r1_alpha070/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -382,7 +382,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r2_alpha095.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r2_alpha095.yaml`
 - Saída: `outputs/sabesp_r2_alpha095/`
 - Research: `outputs/sabesp_r2_alpha095/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -449,7 +449,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r3_no_novelty.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r3_no_novelty.yaml`
 - Saída: `outputs/sabesp_r3_no_novelty/`
 - Research: `outputs/sabesp_r3_no_novelty/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -516,7 +516,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r4_no_event.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r4_no_event.yaml`
 - Saída: `outputs/sabesp_r4_no_event/`
 - Research: `outputs/sabesp_r4_no_event/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -583,7 +583,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r5_no_relevance.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r5_no_relevance.yaml`
 - Saída: `outputs/sabesp_r5_no_relevance/`
 - Research: `outputs/sabesp_r5_no_relevance/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -650,7 +650,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r6_simplified.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r6_simplified.yaml`
 - Saída: `outputs/sabesp_r6_simplified/`
 - Research: `outputs/sabesp_r6_simplified/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -717,7 +717,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r7_horizon_fixed.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r7_horizon_fixed.yaml`
 - Saída: `outputs/sabesp_r7_horizon_fixed/`
 - Research: `outputs/sabesp_r7_horizon_fixed/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -788,7 +788,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r8_weekly_mean.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r8_weekly_mean.yaml`
 - Saída: `outputs/sabesp_r8_weekly_mean/`
 - Research: `outputs/sabesp_r8_weekly_mean/research/finbert_ptbr/saneamento_sabesp_strict_event/`
 
@@ -855,7 +855,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 
 #### Artefatos
 
-- Config: `configs/experiments/sabesp/r9_ensemble.yaml`
+- Config: `configs/campaigns/sabesp_2026/experiments/r9_ensemble.yaml`
 - Saída: `outputs/sabesp_r9_ensemble/`
 - Research: `outputs/sabesp_r9_ensemble/research/pt_br_financial_sentiment_analysis/saneamento_sabesp_strict_event/`
 
@@ -868,7 +868,7 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 1. Correção metodológica — strict + semanal + filtro Sabesp elevou win rate de ~12,5% (broad) para 20,8% (R0).
 2. **α = 0,70** (R1) — único eixo com ganho robusto; win rate 41,7% com 2 vitórias significativas.
 3. **`iti_liquido_last`** — último dia útil da semana vence média semanal (R8).
-4. Infraestrutura de campanha — manifest, configs por run, `scripts/run_sabesp_campaign.sh`.
+4. Infraestrutura de campanha — manifest, configs por run, `scripts/campaigns/sabesp_2026.sh`.
 
 **O que não funcionou**
 
@@ -880,13 +880,13 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 **Limitações**
 
 - Evento único (privatização Sabesp); ~24 semanas de overlap; correlação ≠ causalidade.
-- Rótulos manuais (100 notícias) ainda pendentes.
+- Rótulos manuais (100 notícias) — ver [Marco 3](#marco-3--qualidade-do-sentimento-trilha-b).
 
 ### Decisões tomadas
 
 | Decisão | Motivo |
 |---------|--------|
-| Avançar coleta pré-evento (mai–out/2022) | R1 atingiu 41,7% ≥ 40% (gate atendido) |
+| Avançar coleta pré-evento (mai–out/2022) | R1 atingiu 41,7% ≥ 40% (gate atendido); **executado no Marco 2** |
 | Usar α = 0,70 como default na próxima rodada | Melhor resultado + significância |
 | Manter `iti_liquido_last` | R8 provou que média semanal é pior |
 | Não investir em ablações de dimensões por ora | R3–R6 não moveram o resultado |
@@ -898,8 +898,287 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 | Manifest | `outputs/campaigns/sabesp_2026/manifest.json` |
 | Análise automática | `outputs/campaigns/sabesp_2026/comparative_analysis.md` |
 | Corpus strict Sabesp | `data/saneamento_corpus/noticias_strict_sabesp.csv` |
-| Research semanal | `configs/research_weekly_sabesp.yaml` |
-| Script campanha | `scripts/run_sabesp_campaign.sh` |
+| Research semanal | `configs/campaigns/sabesp_2026/research_weekly.yaml` |
+| Script campanha | `scripts/campaigns/sabesp_2026.sh` |
+
+---
+
+## Marco 2 — Amostra PT expandida (Sabesp)
+
+**Data:** 31/08/2026  
+**Status:** concluído (coleta + corpus + replay GPU)
+
+**Objetivo:** aumentar overlap semanal (meta **≥ 40 semanas**) incorporando notícias **mai–out/2022** (pré-evento) à janela do evento (nov/2023–abr/2024), sem misturar trilhas EN nem trocar preços B3.
+
+### Protocolo
+
+| Etapa | Comando |
+|-------|---------|
+| Coleta pré-evento | `./scripts/campaigns/sabesp_marco2.sh scrape` |
+| Coleta lacuna 2023 (depois do Marco 2) | `./scripts/campaigns/sabesp_marco2.sh scrape-2023` |
+| Corpus strict expandido | `./scripts/campaigns/sabesp_marco2.sh corpus` |
+| Replay R0 + R1 | `./scripts/campaigns/sabesp_marco2.sh replay` |
+| Sanity check janela evento | `./scripts/campaigns/sabesp_marco2.sh replay-event` |
+| Análise por subperíodo | `./scripts/campaigns/sabesp_marco2.sh analyze-periods` |
+
+### Escopo dos dados
+
+| Campo | Valor |
+|-------|-------|
+| Empresa | Sabesp |
+| Período | 2022-05-01 — 2024-04-30 |
+| Artigos no corpus filtrado | **1.055** no replay ITI (256 em 2022; lacuna jan–abr/2023). Depois: **1.254** — [atualização de corpus](#atualização-de-corpus-31082026-sem-replay-iti) |
+| Dataset YAML | `saneamento_sabesp_strict_expanded` |
+| Corpus | `data/saneamento_corpus/noticias_strict_sabesp.csv` |
+| Research | `configs/campaigns/sabesp_2026/research_weekly.yaml` |
+
+### Resumo comparativo
+
+| Run | run_id | α | Vitórias | Win rate | Δ vs R0 | Significativas |
+|-----|--------|---|----------|----------|---------|----------------|
+| R0 | `sabesp_marco2_r0_baseline` | 0,85 | 0/24 | 0,0% | — | 0 |
+| R1 | `sabesp_marco2_r1_alpha070` | 0,70 | 5/24 | 20,8% | +20,8 pp | 0 |
+
+Métrica: `iti_liquido` × baselines B0–B3, Pearson + Spearman, horizontes 1/2/4 semanas (24 comparações).
+
+### Overlap
+
+| Campo | Valor |
+|-------|-------|
+| Semanas alinhadas (ITI + baselines + preço) | **76** (`aligned_panel.csv`) |
+| Meta do marco | ≥ 40 semanas — **atingida** |
+| Marco 1 (janela evento) | ~24 semanas |
+
+### Marco 1 vs Marco 2 (janela expandida)
+
+| Run | Marco 1 (nov/23–abr/24, 465 artigos) | Marco 2 expandido (1.055 artigos) | Δ win rate |
+|-----|--------------------------------------|-----------------------------------|------------|
+| R0 | 20,8% | 0,0% | −20,8 pp |
+| R1 | **41,7%** (2 sig.) | 20,8% | −20,9 pp |
+
+Expandir a janela **não reforçou** o sinal ITI×mercado; α=0,70 continua melhor que 0,85 dentro do Marco 2, mas abaixo do Marco 1.
+
+### Leitura
+
+- O pré-evento (mai–out/2022) dilui o ITI semanal: notícias fora do choque de privatização não se alinham ao retorno da `SBSP3.SA` da mesma forma que o evento nov/2023–abr/2024.
+- A janela **interpretável** para a tese permanece o evento de privatização; ver [sanity check janela evento](#sanity-check-janela-evento) e [análise por subperíodo](#análise-por-subperíodo).
+- O gate de coleta pré-evento (Marco 1) foi cumprido metodologicamente; o resultado científico é que **mais dados ≠ melhor correlação** neste desenho.
+
+### Decisões do Marco 2
+
+| Decisão | Motivo |
+|---------|--------|
+| Manter α = 0,70 como hipótese preferida | Melhor run dentro do corpus expandido (5/24 vs 0/24) |
+| Não assumir 41,7% do Marco 1 no corpus expandido | Win rate caiu para 20,8% |
+| Priorizar validação de sentimento (Marco 3) | Separar qualidade do classificador de sinal fraco ITI×mercado |
+| Documentar subperíodos 2022 vs evento | Explicar diluição sem reescrever histórico do Marco 1 |
+
+### Sanity check janela evento
+
+Replay R0+R1 só no dataset `saneamento_sabesp_strict_event` (nov/2023–abr/2024, mesmo CSV) para verificar se o corpus atualizado reproduz o Marco 1.
+
+| Run | Marco 1 | Marco 2 event replay | Δ |
+|-----|---------|----------------------|---|
+| R0 | 20,8% | **20,8%** (`sabesp_marco2_event_r0_baseline`) | 0 pp |
+| R1 | 41,7% (2 sig.) | **41,7%** (2 sig., `sabesp_marco2_event_r1_alpha070`) | 0 pp |
+
+O corpus evento no CSV expandido ainda filtra **465 artigos** (nov/2023–abr/2024) — mesma contagem do Marco 1. A divergência aparece **somente** quando o ITI incorpora 2022 (`saneamento_sabesp_strict_expanded`).
+
+### Análise por subperíodo
+
+Correlação exploratória ITI×retorno futuro (h=1 semana) no painel do R1 expandido gap2023 (`analyze-periods`, três buckets):
+
+| Subperíodo | Semanas | Pearson | Spearman |
+|------------|---------|---------|----------|
+| `pre_evento_2022` | 25 | −0,148 | −0,110 |
+| `interregno_2023q1` | 15 | +0,172 | +0,304 |
+| `evento_nov23_abr24` | 50 | −0,030 | +0,054 |
+
+Relatório: `outputs/campaigns/sabesp_marco2/period_breakdown_gap2023.md`. O bucket antigo `evento_2023_2024` misturava a lacuna 2023 com o evento — leitura corrigida acima.
+
+### Artefatos
+
+| Artefato | Caminho |
+|----------|---------|
+| Script Marco 2 | `scripts/campaigns/sabesp_marco2.sh` |
+| Dataset expandido | `configs/campaigns/datasets.yaml` → `saneamento_sabesp_strict_expanded` |
+| Saída R0 | `outputs/sabesp_marco2_r0_baseline/` |
+| Saída R1 | `outputs/sabesp_marco2_r1_alpha070/` |
+| Research | `outputs/sabesp_marco2_r*/research/finbert_ptbr/saneamento_sabesp_strict_expanded/` |
+
+### Atualização de corpus (31/08/2026, sem replay ITI)
+
+Coleta histórica da lacuna **jan–abr/2023** (`./scripts/campaigns/sabesp_marco2.sh scrape-2023`) + `corpus` (build-strict + filtro Sabesp mai/22–abr/24). **Não** houve replay R0–R9: os números do Marco 2 acima continuam válidos para o CSV de 1.055 artigos.
+
+| Campo | Antes (Marco 2 / ITI) | Depois da coleta 2023 |
+|-------|----------------------|------------------------|
+| Strict Sabesp (`noticias_strict_sabesp.csv`) | 1.055 | **1.254** |
+| 2022 (mai–out) | 256 | **256** (janela intacta) |
+| jan–abr/2023 | 0 (lacuna) | **199** (jan 50, fev 56, mar 44, abr 49) |
+| Duplicatas de URL | — | 0 |
+| Pendentes | 1.026 | 1.248 |
+| Falsos PENDENTE com Sabesp/SBSP3 no título ou corpo | — | **0/1.248** |
+
+Fontes na janela jan–abr/2023 (Sabesp strict): Money Times 60, InfoMoney 52, G1 44, Valor 32, Exame 11. Portais ativos inalterados: Valor, InfoMoney, Money Times, G1, Exame.
+
+**Pendentes.** Amostra confirma PENDENTE = saneamento setorial sem empresa B3 no texto (PPPs, Enel, Veolia, censo, tarifa social genérica). Não há ganho claro em endurecer `match_entity` além do alias já existente da razão social da Sabesp. Não rotular os 1.248 à mão.
+
+**Estadão / Folha.** Permanecem `enabled: false` em `configs/scrapers.yaml`. A busca Playwright do Estadão devolve páginas de marketing; a da Folha exige login/paywall. O `SiteScraper` atual cobre o padrão, mas sem smoke live confiável — sem adapter novo.
+
+**Controles PT (inferência, `enabled: false`).** `bertweet_pt_sentiment` e `bertimbau_sentiment` entram no YAML para a próxima bateria; fetch/dry-run em [documentacao.md §3.3.1](documentacao.md#331-higiene-do-pipeline-estado-atual). Bateria κ executada — ver [síntese Trilha A](sintese_trilha_a.md#4-qualidade-do-classificador-marco-3--bateria-pt).
+
+### Fechamento Trilha A (gap 2023 + κ PT)
+
+Runs novas no corpus **1.254** (`sabesp_gap2023_*`) — runs Marco 2 (`sabesp_marco2_*`) **intactas**.
+
+| Pergunta | Resposta |
+|----------|----------|
+| Lacuna 2023 muda Marco 2 expandido? | R1 sobe **20,8% → 33,3%**; ainda **0 sig.** |
+| Sanity evento reproduz Marco 1? | **Sim** — R1 **41,7%**, **2 sig.** (`sabesp_gap2023_event_r1_alpha070`) |
+| Janela na tese | **Evento** = principal; **expandido** = robustez/limitação |
+| Controles PT passam gate (70% ou κ≥0,40)? | **Não** — ITI condicional omitido |
+
+Comandos: `./scripts/campaigns/sabesp_marco2.sh replay-gap2023`, `replay-event-gap2023`, `analyze-periods`; `./scripts/campaigns/classifier_eval_pt.sh run`.
+
+Relatórios: `outputs/campaigns/sabesp_marco2/gap2023_comparison.md`, `outputs/campaigns/classifier_eval_pt/comparative_report.md`, [docs/sintese_trilha_a.md](sintese_trilha_a.md).
+
+---
+
+## Marco 3 — Qualidade do sentimento (Trilha B)
+
+**Data:** 31/08/2026  
+**Status:** concluído (100 rótulos manuais + compare)
+
+### Rótulos manuais PT
+
+| Etapa | Comando |
+|-------|---------|
+| Amostra (já gerada) | `./scripts/campaigns/sabesp_2026.sh manual-sample` |
+| Preencher CSV | coluna `rotulo_manual` (POS / NEG / NEU) em `data/saneamento_corpus/rotulos_manual_100.csv` |
+| Comparar com FinBERT | `./scripts/campaigns/sabesp_2026.sh manual-compare` |
+
+Predictions usadas: `outputs/sabesp_marco2_r0_baseline/.../predictions.csv` (fallback se Marco 1 R0 ausente).
+
+### Distribuição da amostra
+
+| Fonte | POS | NEU | NEG |
+|-------|-----|-----|-----|
+| FinBERT (estratificação) | 19 | 43 | 38 |
+| Rótulo manual | 19 | 69 | 12 |
+
+### Resultado concordância manual
+
+| Métrica | Valor | Gate (auditoria) |
+|---------|-------|------------------|
+| Amostra rotulada | 100 | — |
+| Acurácia | **48,0%** | ≥ 70% — **não atingido** |
+| Cohen's kappa | **0,163** | — |
+
+Matriz de confusão (manual × FinBERT):
+
+| manual \\ finbert | NEG | NEU | POS |
+|-------------------|-----|-----|-----|
+| NEG | 11 | 1 | 0 |
+| NEU | 23 | 32 | 14 |
+| POS | 4 | 10 | 5 |
+
+Relatório completo: `outputs/campaigns/sabesp_2026/manual_label_report.md`.
+
+### Leitura
+
+- FinBERT classifica como **NEG** muitas menções neutras (roundups de ibovespa, agendas de mercado) — principal fonte de erro.
+- Notícias claramente positivas (aprovação Alesp, analistas otimistas) frequentemente saem como **NEU**.
+- Acurácia abaixo de 70% indica **limitação do classificador** como componente do ITI; não invalida sozinha o sinal fraco ITI×mercado, mas reforça cautela na interpretação.
+
+### Avaliação EN opcional (sem ITI)
+
+| Dataset | Uso | Comando |
+|---------|-----|---------|
+| PhraseBank | Rótulo humano EN | `./scripts/campaigns/classifier_eval_en.sh phrasebank` |
+| NOSIBLE (amostra) | Rótulo LLM EN | `./scripts/campaigns/classifier_eval_en.sh nosible` |
+
+**Não** fine-tunar FinBERT-PT no NOSIBLE. **Não** alimentar research semanal com esses datasets.
+
+---
+
+## Síntese Marcos 1–3
+
+### Linha do tempo
+
+1. **Marco 1** — protocolo corrigido (strict, semanal, Sabesp); R1 com 41,7% win rate e 2 vitórias significativas na janela do evento.
+2. **Marco 2** — gate pré-evento executado; overlap 76 semanas; **sinal enfraquece** no corpus expandido original (R1: 20,8%). Com lacuna 2023 preenchida (gap2023), R1 expandido sobe para **33,3%** (8/24), ainda **0 sig.**
+3. **Marco 3** — FinBERT vs humano: 48% acurácia, κ=0,163; classificador não atinge gate de 70%. Bateria PT (BERTweet/BERTimbau) também falha o gate.
+
+### O que funcionou
+
+- Infraestrutura reprodutível (configs/campaigns, scripts, research semanal).
+- α=0,70 consistentemente melhor que 0,85 (Marcos 1 e 2).
+- Sanity check `replay-event-gap2023` **reproduz** Marco 1 na janela evento (41,7% / 2 sig. no R1).
+
+### O que não funcionou
+
+- ITI×mercado no corpus **expandido** (R1: 20,8% Marco 2 → 33,3% gap2023; nenhuma sig.).
+- Concordância FinBERT×humano (48% < 70%; F1 macro 0,42).
+- Pré-evento 2022 correlaciona negativamente com retorno futuro no painel expandido.
+- Filtro de roundups no evento (`sabesp_event_r1_filtered`): win rate cai para **25,0%**, 0 sig.
+
+### Narrativa para a tese
+
+O gate metodológico do Marco 1 autorizou a coleta pré-evento, mas o **re-teste com janela expandida não reforçou** a hipótese ITI×mercado (melhora parcial com lacuna 2023, sem significância). A privatização (nov/2023–abr/2024) permanece a janela economicamente interpretável; o ruído de 2022 dilui o índice semanal. A baixa concordância manual e a run filtrada (25%) sugerem que o teto ~41,7% reflete mais **relação notícia–preço no evento** do que apenas ruído de roundups ou erro do classificador.
+
+### Próximos passos opcionais
+
+- **Marco 4** — `./scripts/campaigns/fnspid_pilot.sh run` (réplica US, CC-BY-NC).
+- **Marco 5** — `./scripts/campaigns/finmarba_diag.sh run` (sentimento × mercado D+1).
+- Não bloqueiam conclusão da Trilha A Sabesp.
+
+---
+
+## Marco 4 — Piloto FNSPID (Trilha C, opcional)
+
+**Status:** configs e script prontos; execução opcional (licença **CC-BY-NC**).
+
+Replica o protocolo ITI (α=0,70, `iti_liquido_last`, B0–B3) em **painel US separado** — não mistura com Sabesp.
+
+| Etapa | Comando |
+|-------|---------|
+| Fetch + run | `./scripts/campaigns/fnspid_pilot.sh run` |
+
+| Campo | Valor |
+|-------|-------|
+| Dataset | `fnspid_pilot` (5 tickers, ~2000 linhas) |
+| Modelo | `finbert_en` |
+| Preços | `configs/campaigns/fnspid_pilot/market.yaml` |
+| Research | `configs/campaigns/fnspid_pilot/research_weekly.yaml` |
+| run_id | `fnspid_r0_pilot` |
+
+### Resultado
+
+_A preencher após execução do piloto._
+
+---
+
+## Marco 5 — Diagnóstico FinMarBa (Trilha C, opcional)
+
+**Status:** script pronto; execução opcional.
+
+Mede concordância **FinBERT × rótulo de mercado** (retorno D+1). O rótulo FinMarBa **não** entra no ITI Sabesp nem no research B3 — evita vazamento de alvo.
+
+| Etapa | Comando |
+|-------|---------|
+| Inferência + relatório | `./scripts/campaigns/finmarba_diag.sh run` |
+
+| Campo | Valor |
+|-------|-------|
+| Dataset | `finmarba_headlines_en` |
+| Experimento | `configs/campaigns/trilha_b/classifier_diag.yaml` (`temporal_index.enabled: false`) |
+| Relatório | `outputs/campaigns/finmarba_diag/concordance_report.md` |
+
+**Leitura didática:** discordância não prova que o FinBERT está “errado” — prova que sentimento textual ≠ reação de mercado no dia seguinte.
+
+### Resultado
+
+_A preencher após execução._
 
 ---
 
@@ -909,5 +1188,5 @@ Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SB
 2. Para cada run, copie o [template](#template-para-novas-runs) e preencha com dados de `outputs/campaigns/{campanha}/manifest.json` e `incremental_deltas.csv`.
 3. Atualize a tabela resumo do marco e a síntese (o que funcionou / não funcionou / decisões).
 4. Se o protocolo mudar (frequência, filtros, equação), atualize também [documentacao.md](documentacao.md) nas seções §4–§6.
-5. Rode `./scripts/run_sabesp_campaign.sh` (ou equivalente) e confira no dashboard (páginas **Experimentos** e **Research**) antes de commitar.
+5. Rode `./scripts/campaigns/sabesp_2026.sh` (ou equivalente) e confira no dashboard (páginas **Experimentos** e **Research**) antes de commitar.
 6. Mantenha números consistentes com o manifest — não editar `outputs/` manualmente.

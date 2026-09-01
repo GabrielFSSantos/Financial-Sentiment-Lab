@@ -133,6 +133,8 @@ EXPECTED_FILES=(
     modules/models/config/loader.py modules/models/assets.py modules/models/registry.py
     modules/models/adapters/bert/finbert_hf.py modules/models/adapters/bert/finbert_ptbr.py
     modules/models/adapters/bert/finbert_en.py modules/models/adapters/bert/finbert_tone_en.py
+    modules/models/adapters/bert/bertweet_pt_sentiment.py
+    modules/models/adapters/bert/bertimbau_sentiment.py
     modules/models/adapters/bert/pt_br_financial_sentiment_analysis.py
     modules/datasets/__main__.py modules/datasets/common.py modules/datasets/loader.py
     modules/datasets/config/loader.py modules/datasets/assets.py

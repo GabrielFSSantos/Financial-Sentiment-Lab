@@ -23,6 +23,10 @@ from modules.models.base import (
     ModelPrediction,
     ModelPredictionError,
 )
+from modules.models.sentiment import (
+    calculate_continuous_sentiment,
+    normalize_sentiment_label,
+)
 
 if TYPE_CHECKING:
     from modules.models.config.loader import ModelConfiguration
@@ -583,6 +587,16 @@ class FinBertHfModel(BaseSentimentModel):
                     f"Foi encontrado rótulo vazio em {source}.id2label."
                 )
 
+            try:
+                class_label = normalize_sentiment_label(class_label)
+            except ValueError as error:
+                raise ModelConfigurationError(str(error)) from error
+
+            if class_label is None:
+                raise ModelConfigurationError(
+                    f"Foi encontrado rótulo vazio em {source}.id2label."
+                )
+
             if class_index in normalized_labels:
                 raise ModelConfigurationError(
                     "Foi encontrado índice duplicado em "
@@ -650,9 +664,13 @@ class FinBertHfModel(BaseSentimentModel):
                 raw_index,
                 "models.yaml.labels.id2label.index",
             )
-            normalized_configured[index_value] = (
-                str(raw_label).strip().upper()
-            )
+            try:
+                normalized_configured[index_value] = (
+                    normalize_sentiment_label(str(raw_label).strip().upper())
+                    or str(raw_label).strip().upper()
+                )
+            except ValueError as error:
+                raise ModelConfigurationError(str(error)) from error
 
         if normalized_configured != self.id2label:
             raise ModelConfigurationError(

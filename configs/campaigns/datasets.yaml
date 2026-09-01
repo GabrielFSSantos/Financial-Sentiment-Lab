@@ -1,0 +1,413 @@
+# Overlay de datasets de campanha (mesclado em configs/datasets.yaml pelo loader).
+# Apague configs/campaigns/ após consolidar a tese — o core segue sem estes datasets.
+
+schema_version: "2.0"
+
+datasets:
+
+  saneamento_sabesp_strict_event:
+    enabled: false
+    order: 4
+    dataset_name: saneamento_sabesp_strict_event
+    display_name: Sabesp strict (evento nov/23–abr/24)
+    path: data/saneamento_corpus/noticias_strict_sabesp.csv
+    format: csv
+    limits:
+      max_rows: max
+      date_from: "2023-11-01"
+      date_to: "2024-04-30"
+      companies:
+        - Sabesp
+    columns:
+      news_id: id
+      text: noticia
+      date: data
+      company: empresa
+      sector: setor
+      ticker: ticker
+      title: titulo
+      true_label: null
+      source: fonte
+      url: url
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: false
+    dates:
+      available: true
+      format: "%Y-%m-%d"
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+    metadata:
+      language: pt-BR
+      domain: sanitation_utilities
+      market: Brazilian
+      country: Brazil
+      split: inference
+      source_type: scraper
+      description: >-
+        Corpus strict filtrado para Sabesp na janela do evento (nov/2023–abr/2024).
+
+  saneamento_sabesp_strict_event_filtered:
+    enabled: false
+    order: 6
+    dataset_name: saneamento_sabesp_strict_event_filtered
+    display_name: Sabesp strict evento (sem roundups/agendas)
+    path: data/saneamento_corpus/noticias_strict_sabesp_event_filtered.csv
+    format: csv
+    limits:
+      max_rows: max
+    columns:
+      news_id: id
+      text: noticia
+      date: data
+      company: empresa
+      sector: setor
+      ticker: ticker
+      title: titulo
+      true_label: null
+      source: fonte
+      url: url
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: false
+    dates:
+      available: true
+      format: "%Y-%m-%d"
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+    metadata:
+      language: pt-BR
+      domain: sanitation_utilities
+      market: Brazilian
+      country: Brazil
+      split: inference
+      source_type: scraper
+      description: >-
+        Janela evento com filtro heurístico de roundups/agendas (ibovespa, day trade).
+
+  saneamento_sabesp_strict_expanded:
+    enabled: false
+    order: 5
+    dataset_name: saneamento_sabesp_strict_expanded
+    display_name: Sabesp strict expandido (mai/22–abr/24)
+    path: data/saneamento_corpus/noticias_strict_sabesp.csv
+    format: csv
+    limits:
+      max_rows: max
+      date_from: "2022-05-01"
+      date_to: "2024-04-30"
+      companies:
+        - Sabesp
+    columns:
+      news_id: id
+      text: noticia
+      date: data
+      company: empresa
+      sector: setor
+      ticker: ticker
+      title: titulo
+      true_label: null
+      source: fonte
+      url: url
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: false
+    dates:
+      available: true
+      format: "%Y-%m-%d"
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+    metadata:
+      language: pt-BR
+      domain: sanitation_utilities
+      market: Brazilian
+      country: Brazil
+      split: inference
+      source_type: scraper
+      description: >-
+        Corpus strict Sabesp com janela expandida (pré-evento mai–out/2022 +
+        evento nov/2023–abr/2024).
+
+  rotulos_manual_pt_100:
+    enabled: false
+    order: 8
+    dataset_name: rotulos_manual_pt_100
+    display_name: Rótulos manuais PT (100 notícias Sabesp)
+    path: data/saneamento_corpus/rotulos_manual_100_eval.csv
+    format: csv
+    limits:
+      max_rows: max
+    columns:
+      news_id: id
+      text: noticia
+      date: data
+      company: empresa
+      sector: setor
+      ticker: ticker
+      title: titulo
+      true_label: rotulo_manual
+      source: fonte
+      url: url
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: true
+      normalize_case: true
+      strip_whitespace: true
+      mapping:
+        POS: POSITIVE
+        NEG: NEGATIVE
+        NEU: NEUTRAL
+    dates:
+      available: true
+      format: "%Y-%m-%d"
+      dayfirst: false
+      fail_on_invalid: true
+      output_format: "%Y-%m-%d"
+    metadata:
+      language: pt-BR
+      domain: sanitation_utilities
+      market: Brazilian
+      country: Brazil
+      split: eval
+      source_type: manual_labels
+      description: >-
+        Amostra de 100 notícias Sabesp com rótulo manual (Trilha B / bateria PT).
+
+  financial_phrasebank_en:
+    enabled: false
+    order: 10
+    language: en
+    dataset_name: financial_phrasebank_en
+    display_name: Financial PhraseBank (sentences_allagree)
+    path: data/eval_en/financial_phrasebank.csv
+    format: csv
+    limits:
+      max_rows: max
+    source:
+      provider: huggingface_dataset
+      repo_id: takala/financial_phrasebank
+      config: sentences_allagree
+      revision: main
+      split: train
+      materialize_format: csv
+      local_path: data/eval_en/financial_phrasebank.csv
+    columns:
+      news_id: id
+      text: sentence
+      date: null
+      company: null
+      sector: null
+      ticker: null
+      title: null
+      true_label: label
+      source: null
+      url: null
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: true
+      normalize_case: true
+      strip_whitespace: true
+      mapping:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+    dates:
+      available: false
+    metadata:
+      language: en
+      domain: financial
+      market: Global
+      split: eval
+      source_type: huggingface
+      description: >-
+        PhraseBank EN — avaliação de classificador (Trilha B).
+
+  nosible_financial_sentiment_en:
+    enabled: false
+    order: 11
+    language: en
+    dataset_name: nosible_financial_sentiment_en
+    display_name: NOSIBLE Financial Sentiment (amostra EN)
+    path: data/eval_en/nosible_financial_sentiment.csv
+    format: csv
+    limits:
+      max_rows: 2000
+      max_scan_rows: 100000
+    source:
+      provider: huggingface_dataset
+      repo_id: NOSIBLE/financial-sentiment
+      revision: main
+      split: train
+      materialize_format: csv
+      local_path: data/eval_en/nosible_financial_sentiment.csv
+    columns:
+      news_id: url
+      text: text
+      date: null
+      company: null
+      sector: null
+      ticker: null
+      title: null
+      true_label: label
+      source: netloc
+      url: url
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: true
+      normalize_case: true
+      strip_whitespace: true
+      mapping:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+        pos: POSITIVE
+        neg: NEGATIVE
+        neu: NEUTRAL
+    dates:
+      available: false
+    metadata:
+      language: en
+      domain: financial
+      market: Global
+      split: eval
+      source_type: huggingface
+      description: >-
+        NOSIBLE 100k EN (rótulo LLM) — amostra para eval do finbert_en.
+
+  fnspid_pilot:
+    enabled: false
+    order: 20
+    language: en
+    dataset_name: fnspid_pilot
+    display_name: FNSPID piloto (5 tickers US)
+    path: data/fnspid_pilot/news.csv
+    format: csv
+    limits:
+      max_rows: 2000
+      max_scan_rows: 500000
+      date_from: "2021-01-01"
+      date_to: "2023-12-31"
+      companies:
+        - AAPL
+        - MSFT
+        - JPM
+        - XOM
+        - JNJ
+    source:
+      provider: huggingface_dataset
+      repo_id: Zihan1004/FNSPID
+      revision: main
+      split: train
+      data_files: Stock_news/nasdaq_exteral_data.csv
+      materialize_format: csv
+      local_path: data/fnspid_pilot/news.csv
+    text_compose:
+      template: "{title}\n\n{body}"
+      fields:
+        title: Article_title
+        body: Article
+    columns:
+      news_id: Url
+      text: null
+      date: Date
+      company: Stock_symbol
+      sector: null
+      ticker: Stock_symbol
+      title: Article_title
+      true_label: null
+      source: Publisher
+      url: Url
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: false
+    dates:
+      available: true
+      format: null
+      dayfirst: false
+      fail_on_invalid: false
+      output_format: "%Y-%m-%d"
+    metadata:
+      language: en
+      domain: financial
+      market: US
+      country: United States
+      split: inference
+      source_type: huggingface
+      license: CC-BY-NC
+      description: >-
+        Subset FNSPID (Nasdaq news) — piloto Marco 4.
+
+  finmarba_headlines_en:
+    enabled: false
+    order: 21
+    language: en
+    dataset_name: finmarba_headlines_en
+    display_name: FinMarBa headlines (rótulo de mercado)
+    path: data/eval_en/finmarba_headlines.csv
+    format: csv
+    limits:
+      max_rows: 5000
+      max_scan_rows: 200000
+    source:
+      provider: huggingface_dataset
+      repo_id: baptle/financial_headlines_market_based
+      revision: main
+      split: train
+      materialize_format: csv
+      local_path: data/eval_en/finmarba_headlines.csv
+    columns:
+      news_id: id
+      text: Title
+      date: Date
+      company: null
+      sector: null
+      ticker: null
+      title: Title
+      true_label: Global Sentiment
+      source: null
+      url: null
+    required_fields:
+      - news_id
+      - text
+    labels:
+      available: true
+      normalize_case: true
+      strip_whitespace: true
+      mapping:
+        "1": POSITIVE
+        "0": NEUTRAL
+        "-1": NEGATIVE
+        "1.0": POSITIVE
+        "0.0": NEUTRAL
+        "-1.0": NEGATIVE
+    dates:
+      available: true
+      format: null
+      dayfirst: false
+      fail_on_invalid: false
+      output_format: "%Y-%m-%d"
+    metadata:
+      language: en
+      domain: financial
+      market: Global
+      split: eval
+      source_type: huggingface
+      description: >-
+        FinMarBa — rótulo por reação de mercado (diagnóstico, sem ITI Sabesp).

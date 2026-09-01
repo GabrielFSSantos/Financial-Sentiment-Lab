@@ -18,7 +18,7 @@ def main() -> int:
         record = CampaignRunRecord(
             run_id=spec["run_id"],
             hypothesis=spec["hypothesis"],
-            config_path=f"configs/experiments/sabesp/{spec['file']}",
+            config_path=f"configs/campaigns/sabesp_2026/experiments/{spec['file']}",
             model=spec["model"],
             dataset="saneamento_sabesp_strict_event",
             alpha=spec["alpha"],

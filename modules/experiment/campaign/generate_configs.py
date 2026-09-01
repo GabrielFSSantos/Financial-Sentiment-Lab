@@ -10,7 +10,7 @@ import yaml
 from modules.experiment import PROJECT_ROOT
 
 BASE_CONFIG_PATH = PROJECT_ROOT / "configs" / "experiment.yaml"
-OUTPUT_DIR = PROJECT_ROOT / "configs" / "experiments" / "sabesp"
+OUTPUT_DIR = PROJECT_ROOT / "configs" / "campaigns" / "sabesp_2026" / "experiments"
 
 RUN_SPECS: list[dict] = [
     {

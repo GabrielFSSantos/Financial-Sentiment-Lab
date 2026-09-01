@@ -189,16 +189,21 @@ def fetch_enabled_models(
     model_keys: list[str] | None = None,
     logger: logging.Logger | None = None,
 ) -> AssetFetchSummary:
-    """Baixa modelos enabled ausentes."""
+    """Baixa modelos ausentes.
+
+    Sem ``model_keys``, baixa só os ``enabled: true``. Com ``--model``,
+    também baixa checkpoints desligados na matriz (controles PT).
+    """
 
     log = logger or logging.getLogger(__name__)
     reports: list[AssetFetchReport] = []
-    selected_keys = set(model_keys) if model_keys else None
 
-    for model in configuration.enabled_models:
-        if selected_keys is not None and model.key not in selected_keys:
-            continue
+    if model_keys:
+        models = [configuration.get_model(key) for key in model_keys]
+    else:
+        models = list(configuration.enabled_models)
 
+    for model in models:
         report = fetch_model_asset(model, logger=log)
         if report is not None:
             reports.append(report)

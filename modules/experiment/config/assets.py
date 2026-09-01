@@ -163,14 +163,14 @@ def _filtered_datasets_configuration(
         project_root=configuration.paths.project_root,
         config_path=configuration.paths.datasets_config,
     )
-    enabled_keys = {dataset.key for dataset in configuration.datasets}
+    selected_keys = {dataset.key for dataset in configuration.datasets}
     return DatasetsConfiguration(
         schema_version=datasets_cfg.schema_version,
         defaults=datasets_cfg.defaults,
         datasets=tuple(
             dataset
             for dataset in datasets_cfg.datasets
-            if dataset.enabled and dataset.key in enabled_keys
+            if dataset.key in selected_keys
         ),
         config_path=datasets_cfg.config_path,
     )
@@ -184,9 +184,14 @@ def check_enabled_assets(
     missing = check_model_assets(
         _filtered_models_configuration(configuration)
     )
+    datasets_cfg = load_datasets_configuration(
+        project_root=configuration.paths.project_root,
+        config_path=configuration.paths.datasets_config,
+    )
     missing.extend(
         check_dataset_assets(
-            _filtered_datasets_configuration(configuration)
+            datasets_cfg,
+            dataset_keys=[dataset.key for dataset in configuration.datasets],
         )
     )
     missing.extend(check_market_assets(_market_configuration(configuration)))
@@ -225,6 +230,7 @@ def fetch_assets_for_configuration(
     try:
         dataset_summary = fetch_enabled_datasets(
             _filtered_datasets_configuration(configuration),
+            dataset_keys=[dataset.key for dataset in configuration.datasets],
             logger=log,
         )
     except DatasetsAssetFetchError as error:

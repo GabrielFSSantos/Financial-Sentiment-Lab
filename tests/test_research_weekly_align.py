@@ -18,7 +18,7 @@ def test_weekly_align_sabesp_r0(project_root: Path) -> None:
 
     configuration = load_research_configuration(
         project_root=project_root,
-        config_path=project_root / "configs/research_weekly_sabesp.yaml",
+        config_path=project_root / "configs/campaigns/sabesp_2026/research_weekly.yaml",
         run_id="sabesp_r0_baseline",
     )
     combinations = list_index_combinations(configuration)

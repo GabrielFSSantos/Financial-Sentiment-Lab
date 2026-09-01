@@ -227,3 +227,100 @@ models:
       returns_probabilities: true
       supports_batching: true
       supports_cuda: true
+
+  bertweet_pt_sentiment:
+    enabled: false
+    order: 5
+    language: pt
+    model_name: bertweet_pt_sentiment
+    display_name: BERTweet-PT Sentiment (controle)
+    adapter: modules.models.adapters.bert.bertweet_pt_sentiment.BertweetPtSentimentModel
+    model_dir: model_store/BERTweet-PT-Sentiment
+    source:
+      provider: huggingface_hub
+      repo_id: pysentimiento/bertweet-pt-sentiment
+      revision: main
+      local_dir: model_store/BERTweet-PT-Sentiment
+    parameters:
+      max_length: 128
+    files:
+      required:
+        - config.json
+        - pytorch_model.bin
+        - vocab.txt
+        - bpe.codes
+        - tokenizer_config.json
+    validation:
+      strict_model_type: false
+      strict_architecture: false
+    labels:
+      id2label:
+        0: NEGATIVE
+        1: NEUTRAL
+        2: POSITIVE
+      canonical:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+      continuous_sentiment:
+        positive_label: POSITIVE
+        negative_label: NEGATIVE
+        formula: "prob_positive - prob_negative"
+    metadata:
+      family: RoBERTa
+      architecture: RobertaForSequenceClassification
+      language: pt-BR
+      domain: general
+      task: sentiment_classification
+      framework: pytorch
+      source: pysentimiento/bertweet-pt-sentiment
+      control_model: true
+      returns_probabilities: true
+      supports_batching: true
+      supports_cuda: true
+
+  bertimbau_sentiment:
+    enabled: false
+    order: 6
+    language: pt
+    model_name: bertimbau_sentiment
+    display_name: BERTimbau Sentiment (controle)
+    adapter: modules.models.adapters.bert.bertimbau_sentiment.BertimbauSentimentModel
+    model_dir: model_store/BERTimbau-Sentiment
+    source:
+      provider: huggingface_hub
+      repo_id: lipaoMai/bert-sentiment-model-portuguese
+      revision: main
+      local_dir: model_store/BERTimbau-Sentiment
+    files:
+      required:
+        - config.json
+        - model.safetensors
+        - vocab.txt
+        - tokenizer_config.json
+    labels:
+      id2label:
+        0: NEGATIVE
+        1: NEUTRAL
+        2: POSITIVE
+      canonical:
+        positive: POSITIVE
+        negative: NEGATIVE
+        neutral: NEUTRAL
+      continuous_sentiment:
+        positive_label: POSITIVE
+        negative_label: NEGATIVE
+        formula: "prob_positive - prob_negative"
+    metadata:
+      family: BERT
+      architecture: BertForSequenceClassification
+      language: pt-BR
+      domain: general
+      task: sentiment_classification
+      framework: pytorch
+      source: lipaoMai/bert-sentiment-model-portuguese
+      base_model: neuralmind/bert-base-portuguese-cased
+      control_model: true
+      returns_probabilities: true
+      supports_batching: true
+      supports_cuda: true

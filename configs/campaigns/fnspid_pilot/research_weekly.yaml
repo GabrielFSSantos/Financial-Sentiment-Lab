@@ -1,0 +1,54 @@
+# Research semanal — piloto FNSPID (Marco 4). Não misturar com painel Sabesp.
+
+schema_version: "2.0"
+
+defaults:
+  horizons: [1, 2, 4]
+  index_frequency: weekly
+  iti_weekly_column: iti_liquido_last
+  companies_filter:
+    - AAPL
+    - MSFT
+    - JPM
+    - XOM
+    - JNJ
+  trading_days_per_week: 5
+  iti_column: iti_liquido
+  iti_predictors: [iti_liquido, iti_risco]
+  abs_return_predictors: [iti_risco]
+  return_column: log_return
+  return_mode: cumulative
+
+experiment_run:
+  run_id: null
+  output_root: outputs
+  model_key: null
+  dataset_key: null
+
+market:
+  config_path: configs/campaigns/fnspid_pilot/market.yaml
+
+mapping:
+  company_to_ticker:
+    AAPL: AAPL
+    MSFT: MSFT
+    JPM: JPM
+    XOM: XOM
+    JNJ: JNJ
+
+validation:
+  baselines: [b0, b1, b2, b3]
+  metrics: [pearson, spearman, r2, mse]
+  conclusion_metrics: [pearson, spearman]
+  baseline_news_only: [b0, b1, b2]
+  min_samples_for_r2: 8
+  min_overlap_days: 8
+  inference:
+    enabled: true
+    n_bootstrap: 500
+    block_size: 2
+    ci_level: 0.95
+    random_seed: 42
+
+paths:
+  output_root: outputs

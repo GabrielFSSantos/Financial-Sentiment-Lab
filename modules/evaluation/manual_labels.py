@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 
 import pandas as pd
+from sklearn.metrics import cohen_kappa_score
 
 from modules.experiment import PROJECT_ROOT
 
@@ -115,6 +116,16 @@ def compare_manual_labels(
 
     merged["acerto"] = merged["rotulo_manual"] == merged["rotulo_finbert"]
     accuracy = float(merged["acerto"].mean())
+    labels = sorted(
+        set(merged["rotulo_manual"].dropna()) | set(merged["rotulo_finbert"].dropna())
+    )
+    kappa = float(
+        cohen_kappa_score(
+            merged["rotulo_manual"],
+            merged["rotulo_finbert"],
+            labels=labels,
+        )
+    )
 
     confusion = pd.crosstab(
         merged["rotulo_manual"],
@@ -128,25 +139,36 @@ def compare_manual_labels(
         "",
         f"- Amostra rotulada: {len(merged)}",
         f"- Acurácia: {accuracy:.1%}",
+        f"- Cohen's kappa: {kappa:.3f}",
         "",
         "## Matriz de confusão",
         "",
-        confusion.to_markdown(),
+        confusion.to_string(),
         "",
         "## Erros",
         "",
     ]
     errors = merged[~merged["acerto"]][
-        ["news_id", "titulo", "rotulo_manual", "rotulo_finbert", "notas"]
+        [
+            column
+            for column in (
+                "news_id",
+                "titulo",
+                "rotulo_manual",
+                "rotulo_finbert",
+                "notas",
+            )
+            if column in merged.columns
+        ]
     ]
     if errors.empty:
         lines.append("_Nenhum erro._")
     else:
-        lines.append(errors.to_markdown(index=False))
+        lines.append(errors.to_string(index=False))
 
     output_report.parent.mkdir(parents=True, exist_ok=True)
     output_report.write_text("\n".join(lines), encoding="utf-8")
-    return {"accuracy": accuracy, "n_labeled": len(merged)}
+    return {"accuracy": accuracy, "cohen_kappa": kappa, "n_labeled": len(merged)}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -198,7 +220,11 @@ def main(argv: list[str] | None = None) -> int:
             Path(args.predictions),
             output_report=Path(args.report),
         )
-        print(f"Acurácia: {metrics['accuracy']:.1%} ({metrics['n_labeled']} rotulados)")
+        print(
+            f"Acurácia: {metrics['accuracy']:.1%} | "
+            f"kappa: {metrics['cohen_kappa']:.3f} "
+            f"({metrics['n_labeled']} rotulados)"
+        )
         return 0
 
     return 1

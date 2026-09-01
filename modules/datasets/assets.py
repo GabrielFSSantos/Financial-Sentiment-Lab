@@ -6,7 +6,7 @@ import json
 import logging
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, Mapping
 
 import pandas as pd
 
@@ -264,6 +264,9 @@ def _fetch_huggingface_dataset_sample(
         "streaming": True,
         "revision": revision,
     }
+    hf_config = str(source.get("config") or "").strip()
+    if hf_config and hf_config.lower() != "default":
+        load_kwargs["name"] = hf_config
     data_files = source.get("data_files") or source.get("filename")
     if data_files:
         load_kwargs["data_files"] = data_files
@@ -278,15 +281,27 @@ def _fetch_huggingface_dataset_sample(
     try:
         stream = load_dataset(**load_kwargs)
         rows: list[dict[str, Any]] = []
-        for index, row in enumerate(stream):
-            if index >= max_rows:
+        scan_limit = _sample_scan_limit(dataset, max_rows=max_rows)
+        scanned = 0
+        for row in stream:
+            scanned += 1
+            if scanned > scan_limit:
                 break
-            rows.append(dict(row))
+            payload = dict(row)
+            if not _row_matches_dataset_limits(payload, dataset):
+                continue
+            rows.append(payload)
+            if len(rows) >= max_rows:
+                break
 
         if not rows:
             raise AssetFetchError(
-                f"Dataset {dataset.key}: streaming não retornou linhas."
+                f"Dataset {dataset.key}: streaming não retornou linhas "
+                f"após filtrar limits (varridas={scanned}, "
+                f"max_scan_rows={scan_limit})."
             )
+
+        _ensure_row_identifiers(rows, dataset)
 
         _write_materialized_rows(
             rows=rows,
@@ -370,14 +385,87 @@ def fetch_dataset_asset(
     )
 
 
+def _sample_scan_limit(dataset: DatasetConfiguration, *, max_rows: int) -> int:
+    raw = dataset.limits.get("max_scan_rows")
+    if isinstance(raw, int) and raw >= 1:
+        return raw
+    return max(max_rows * 100, 50_000)
+
+
+def _ensure_row_identifiers(
+    rows: list[dict[str, Any]],
+    dataset: DatasetConfiguration,
+) -> None:
+    id_column = str(dataset.columns.get("news_id") or "id")
+    for index, row in enumerate(rows):
+        current = row.get(id_column)
+        if current is None or str(current).strip() in {"", "nan", "<NA>"}:
+            row[id_column] = f"{dataset.key}-{index + 1:06d}"
+
+
+def _row_matches_dataset_limits(
+    row: Mapping[str, Any],
+    dataset: DatasetConfiguration,
+) -> bool:
+    """Filtra streaming HF por empresa/ticker e janela, usando nomes de origem."""
+
+    limits = dataset.limits or {}
+    columns = dataset.columns or {}
+    companies = {
+        str(item).strip().upper()
+        for item in limits.get("companies") or ()
+        if str(item).strip()
+    }
+    if companies:
+        company_keys = [columns.get("company"), columns.get("ticker")]
+        values = {
+            str(row.get(str(key), "")).strip().upper()
+            for key in company_keys
+            if key
+        }
+        if values.isdisjoint(companies):
+            return False
+
+    date_from = limits.get("date_from")
+    date_to = limits.get("date_to")
+    date_column = columns.get("date")
+    if date_column and (date_from or date_to):
+        parsed = pd.to_datetime(row.get(str(date_column)), errors="coerce", utc=True)
+        if pd.isna(parsed):
+            return False
+        if date_from:
+            lower = pd.to_datetime(date_from, errors="coerce", utc=True)
+            if pd.notna(lower) and parsed < lower:
+                return False
+        if date_to:
+            upper = pd.to_datetime(date_to, errors="coerce", utc=True)
+            if pd.notna(upper) and parsed > upper:
+                return False
+    return True
+
+
 def check_dataset_assets(
     configuration: DatasetsConfiguration,
+    *,
+    dataset_keys: list[str] | None = None,
 ) -> list[str]:
-    """Lista datasets enabled com source ausentes ou vazios."""
+    """Lista datasets com source ausentes ou vazios.
+
+    Sem ``dataset_keys``, inspeciona só os ``enabled``. Com chaves,
+    inclui também datasets ``enabled: false`` solicitados na run.
+    """
 
     missing: list[str] = []
+    selected_keys = set(dataset_keys) if dataset_keys else None
+    pool = (
+        configuration.datasets
+        if selected_keys is not None
+        else configuration.enabled_datasets
+    )
 
-    for dataset in configuration.enabled_datasets:
+    for dataset in pool:
+        if selected_keys is not None and dataset.key not in selected_keys:
+            continue
         if not dataset.source or dataset.format == "huggingface":
             continue
         if (
@@ -398,13 +486,30 @@ def fetch_enabled_datasets(
     dataset_keys: list[str] | None = None,
     logger: logging.Logger | None = None,
 ) -> AssetFetchSummary:
-    """Baixa datasets enabled ausentes."""
+    """Baixa datasets enabled ausentes.
+
+    Com ``dataset_keys``, baixa também datasets ``enabled: false``
+    (trilhas opcionais: NOSIBLE, PhraseBank, FNSPID, FinMarBa).
+    """
 
     log = logger or logging.getLogger(__name__)
     reports: list[AssetFetchReport] = []
     selected_keys = set(dataset_keys) if dataset_keys else None
+    pool = (
+        configuration.datasets
+        if selected_keys is not None
+        else configuration.enabled_datasets
+    )
 
-    for dataset in configuration.enabled_datasets:
+    if selected_keys is not None:
+        known = {dataset.key for dataset in configuration.datasets}
+        missing = sorted(selected_keys - known)
+        if missing:
+            raise AssetFetchError(
+                f"Datasets solicitados não cadastrados: {missing}."
+            )
+
+    for dataset in pool:
         if selected_keys is not None and dataset.key not in selected_keys:
             continue
 
@@ -427,4 +532,5 @@ __all__ = [
     "check_dataset_assets",
     "fetch_dataset_asset",
     "fetch_enabled_datasets",
+    "_row_matches_dataset_limits",
 ]

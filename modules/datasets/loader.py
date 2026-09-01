@@ -34,6 +34,7 @@ STANDARD_COLUMNS: tuple[str, ...] = (
     "company",
     "sector",
     "ticker",
+    "language",
     "title",
     "true_label",
     "source",
@@ -721,6 +722,7 @@ class DatasetLoader:
             else:
                 result[field_name] = source[source_name].astype("string")
 
+        result["language"] = configuration.language
         result["source_row_number"] = source_row_number
         return result
 

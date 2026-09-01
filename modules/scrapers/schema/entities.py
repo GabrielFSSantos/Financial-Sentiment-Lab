@@ -49,6 +49,13 @@ TICKER_ALIASES: tuple[tuple[str, EntityMatch], ...] = (
     ("SAPR11", EntityMatch("Sanepar", "Saneamento", "SAPR4")),
 )
 
+NAME_ALIASES: tuple[tuple[str, EntityMatch], ...] = (
+    (
+        "Companhia de Saneamento Básico do Estado de São Paulo",
+        EntityMatch("Sabesp", "Saneamento", "SBSP3"),
+    ),
+)
+
 _PATTERNS: tuple[tuple[re.Pattern[str], EntityMatch], ...] = tuple(
     (
         re.compile(rf"\b{re.escape(entity.company)}\b", re.I),
@@ -61,6 +68,12 @@ _PATTERNS: tuple[tuple[re.Pattern[str], EntityMatch], ...] = tuple(
         entity,
     )
     for ticker, entity in TICKER_ALIASES
+) + tuple(
+    (
+        re.compile(rf"\b{re.escape(name)}\b", re.I),
+        entity,
+    )
+    for name, entity in NAME_ALIASES
 )
 
 

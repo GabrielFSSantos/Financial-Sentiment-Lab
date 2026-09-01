@@ -165,3 +165,30 @@ sites:
         - /video/
         - /podcast/
       search_queries: *shared_queries
+
+  folha:
+    enabled: false
+    order: 7
+    display_name: Folha de S.Paulo (Mercado)
+    adapter: modules.scrapers.sites.base.SiteScraper
+    output_file: folha.csv
+    scraping:
+      fonte: Folha de S.Paulo
+      # Busca institucional costuma exigir login/paywall; o SiteScraper atual
+      # cobre o padrão playwright, mas a cobertura é instável. Manter desligado
+      # até um smoke live confiável — sem adapter novo neste plano.
+      search_strategy: playwright
+      base_url: https://www1.folha.uol.com.br
+      search_url: "https://search.folha.uol.com.br/search?q={query}"
+      link_selector: "a[href*='folha.uol.com.br']"
+      playwright_wait_ms: 8000
+      playwright_scroll_steps: 4
+      playwright_max_pages: 5
+      body_selector: "article p, .c-news__body p, .content-text p"
+      article_url_pattern: "folha\\.uol\\.com.br/.+"
+      link_exclude_substrings:
+        - /busca
+        - /search
+        - /podcast
+        - /video
+      search_queries: *playwright_queries

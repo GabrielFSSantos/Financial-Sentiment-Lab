@@ -5,8 +5,9 @@ Laboratório de **análise de sentimento em notícias financeiras** (PT e EN) pa
 A pesquisa parte de notícias (datasets versionados ou coletados por scraper), aplica modelos FinBERT, agrega impacto por empresa/setor/mercado e compara o ITI com baselines simples e preços B3 via validação estatística incremental.
 
 - **Índice da documentação:** [docs/README.md](docs/README.md)
-- **Histórico experimental (runs, resultados, decisões):** [docs/trajetoria.md](docs/trajetoria.md)
-- **Documentação técnica (módulos, fluxos, fórmulas):** [docs/documentacao.md](docs/documentacao.md)
+- **Fechamento Trilha A (resultados e tese):** [docs/sintese_trilha_a.md](docs/sintese_trilha_a.md)
+- **Histórico experimental:** [docs/trajetoria.md](docs/trajetoria.md)
+- **Referência técnica:** [docs/documentacao.md](docs/documentacao.md)
 
 ---
 
@@ -27,7 +28,7 @@ Para conceitos detalhados e fórmulas, veja [docs/documentacao.md §1.5](docs/do
 1. **Sentimento por notícia** — classes `POSITIVE`, `NEGATIVE`, `NEUTRAL` e score contínuo `d = P(pos) − P(neg)`.
 2. **ITI diário** — séries `iti_liquido` e `iti_risco` com memória EWMA por empresa (e agregados setor/mercado).
 3. **Baselines B0–B3** — contagem de notícias, sentimento médio, sentimento ponderado por confiança e impacto diário sem memória.
-4. **Validação research** — correlação e deltas ITI vs baselines contra retornos futuros, com bootstrap em bloco. Modo padrão: horizontes **1, 5 e 21 dias** (`configs/research.yaml`). Campanhas semanais (ex.: Sabesp): horizontes **1, 2 e 4 semanas** (`configs/research_weekly_sabesp.yaml`).
+4. **Validação research** — correlação e deltas ITI vs baselines contra retornos futuros, com bootstrap em bloco. Modo padrão: horizontes **1, 5 e 21 dias** (`configs/research.yaml`). Campanhas semanais (ex.: Sabesp): horizontes **1, 2 e 4 semanas** (`configs/campaigns/sabesp_2026/research_weekly.yaml`).
 
 Saídas principais em `outputs/{run_id}/`:
 
@@ -147,6 +148,8 @@ python -m modules.research validate --run-id <run_id>
 
 Downloads isolados: `python -m modules.models fetch`, `python -m modules.datasets fetch|check|validate`.
 
+Controles PT (`enabled: false`): `python -m modules.models fetch --model bertweet_pt_sentiment --model bertimbau_sentiment`. Dry-run sem baixar a matriz: `./scripts/run_experiment.sh --skip-setup --dry-run --model bertweet_pt_sentiment --dataset noticias_exemplo_ptbr` (idem `bertimbau_sentiment`).
+
 ---
 
 ## Referências — modelos
@@ -157,6 +160,8 @@ Downloads isolados: `python -m modules.models fetch`, `python -m modules.dataset
 | `pt_br_financial_sentiment_analysis` | [lucasalmda/pt-br-financial-sentiment-analysis](https://huggingface.co/lucasalmda/pt-br-financial-sentiment-analysis) |
 | `finbert_en` | [ProsusAI/finbert](https://huggingface.co/ProsusAI/finbert) |
 | `finbert_tone_en` | [yiyanghkust/finbert-tone](https://huggingface.co/yiyanghkust/finbert-tone) |
+| `bertweet_pt_sentiment` | [pysentimiento/bertweet-pt-sentiment](https://huggingface.co/pysentimiento/bertweet-pt-sentiment) (controle PT, `enabled: false`) |
+| `bertimbau_sentiment` | [lipaoMai/bert-sentiment-model-portuguese](https://huggingface.co/lipaoMai/bert-sentiment-model-portuguese) (BERTimbau geral, `enabled: false`) |
 
 ---
 

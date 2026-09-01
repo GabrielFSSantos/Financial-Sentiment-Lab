@@ -33,7 +33,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--model",
         action="append",
         dest="models",
-        help="Baixa apenas o modelo informado (pode repetir).",
+        help="Baixa apenas o modelo informado (pode repetir; inclui enabled: false).",
     )
     fetch_parser.add_argument(
         "--config",

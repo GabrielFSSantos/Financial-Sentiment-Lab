@@ -19,6 +19,11 @@ def test_load_models_configuration(project_root: Path) -> None:
     assert configuration.get_model("finbert_ptbr").adapter.startswith(
         "modules.models.adapters"
     )
+    control_keys = {"bertweet_pt_sentiment", "bertimbau_sentiment"}
+    loaded_keys = {model.key for model in configuration.models}
+    assert control_keys <= loaded_keys
+    for key in control_keys:
+        assert configuration.get_model(key).enabled is False
 
 
 def test_load_models_configuration_rejects_invalid_adapter(
