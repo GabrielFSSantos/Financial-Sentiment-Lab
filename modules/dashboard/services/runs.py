@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import pandas as pd
 import yaml
 
 from modules.dashboard.config import OUTPUTS_DIR
@@ -64,6 +65,24 @@ def diff_configs(config_a: dict[str, Any], config_b: dict[str, Any]) -> list[dic
         if val_a != val_b:
             rows.append({"parametro": key, "run_a": val_a, "run_b": val_b})
     return rows
+
+
+def format_param_value(value: Any) -> str:
+    if value is None:
+        return "—"
+    if isinstance(value, list):
+        return ", ".join(str(item) for item in value) if value else "—"
+    return str(value)
+
+
+def param_diffs_to_dataframe(rows: list[dict[str, Any]]) -> pd.DataFrame:
+    if not rows:
+        return pd.DataFrame(columns=["parametro", "run_a", "run_b"])
+    df = pd.DataFrame(rows)
+    for col in ("run_a", "run_b"):
+        if col in df.columns:
+            df[col] = df[col].map(format_param_value)
+    return df
 
 
 def get_campaign_hypothesis(run_id: str) -> str | None:

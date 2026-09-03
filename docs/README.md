@@ -2,23 +2,27 @@
 
 Entrada rápida na raiz: [README.md](../README.md).
 
-## Documentos
+## Documento principal
 
 | Arquivo | Conteúdo |
 | --- | --- |
-| [documentacao.md](documentacao.md) | Referência técnica: módulos, ITI, configs, research, testes |
-| [trajetoria.md](trajetoria.md) | Histórico experimental run a run (Marcos 0–5) |
-| [sintese_trilha_a.md](sintese_trilha_a.md) | **Fechamento Trilha A** — resultados, limitações, redação da tese |
+| **[trajetoria.md](trajetoria.md)** | **Documento único da pesquisa** — enquadramento, ITI, fases F0–F6, **resultados (Parte 4)**, lacunas, próximo ciclo, apêndices |
+| [documentacao.md](documentacao.md) | Referência técnica: módulos, fórmulas ITI, configs, research |
+| [referencias/](referencias/) | Bibliografia, BibTeX, notas por artigo, PDFs |
 
 ## Ordem de leitura
 
-1. [README § Entendendo a pesquisa](../README.md#entendendo-a-pesquisa) — visão em 2 minutos
-2. [sintese_trilha_a.md](sintese_trilha_a.md) — onde a pesquisa chegou e o que concluir
-3. [documentacao.md §1.5](documentacao.md#15-conceitos-em-linguagem-acessível) — ITI, baselines, 24 comparações
-4. [trajetoria.md](trajetoria.md) — detalhe por run, quando precisar auditar números
+1. [README § Entendendo a pesquisa](../README.md#entendendo-a-pesquisa)
+2. [trajetoria.md](trajetoria.md) Partes 0–2 — problema, ITI, protocolo
+3. [trajetoria.md Parte 4](trajetoria.md#parte-4--resultados-consolidados-trilha-a) — números oficiais Trilha A
+4. [trajetoria.md Parte 3](trajetoria.md#parte-3--trajetória-por-fases) — storytelling por fase
+5. [documentacao.md §1.5](documentacao.md#15-conceitos-em-linguagem-acessível) — fórmulas e baselines
+6. [referencias/README.md](referencias/README.md) — artigos âncora
 
-## Artefatos numéricos
+## Manutenção
 
-Resultados versionados em `outputs/{run_id}/`. Resumos de campanha em `outputs/campaigns/`. Configs descartáveis pós-tese: `configs/campaigns/`, `scripts/campaigns/`.
+- Novo protocolo ou fase → atualizar `trajetoria.md` (Partes 3 e 4) + `documentacao.md` se necessário
+- Nova literatura → `referencias/` + citação na fase correspondente
+- PDFs → `./scripts/download_referencias.sh` (ou colocar manualmente em `referencias/pdfs/`)
 
-Ao mudar protocolo, atualize [documentacao.md](documentacao.md) e [trajetoria.md](trajetoria.md). Ao fechar uma fase, atualize [sintese_trilha_a.md](sintese_trilha_a.md).
+Artefatos numéricos em `outputs/{run_id}/` e `outputs/campaigns/`.

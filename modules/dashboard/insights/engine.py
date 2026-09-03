@@ -5,7 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 from modules.dashboard.insights.rules import (
+    ACCURACY_GATE,
     CONCENTRATION_THRESHOLD,
+    KAPPA_GATE,
+    SIGNIFICANT_WINS_LOW,
     WIN_RATE_GATE,
     WIN_RATE_IMPROVEMENT_PP,
     Insight,
@@ -31,6 +34,8 @@ def generate(context: dict[str, Any]) -> list[Insight]:
         insights.extend(_research_insights(context))
     elif page == "models":
         insights.extend(_model_insights(context))
+    elif page == "trail":
+        insights.extend(_trail_insights(context))
 
     return insights
 
@@ -141,6 +146,13 @@ def _experiment_insights(ctx: dict[str, Any]) -> list[Insight]:
 
 def _research_insights(ctx: dict[str, Any]) -> list[Insight]:
     out: list[Insight] = []
+    if ctx.get("classifier_gate_failed"):
+        out.append(
+            Insight(
+                "Classificador não passou no gate κ — resultados de research são exploratórios.",
+                InsightLevel.WARNING,
+            )
+        )
     overlap = ctx.get("overlap_days")
     if overlap is not None and overlap < 30:
         out.append(
@@ -151,8 +163,23 @@ def _research_insights(ctx: dict[str, Any]) -> list[Insight]:
         )
     win_rate = ctx.get("win_rate")
     if win_rate is not None:
-        level = InsightLevel.SUCCESS if win_rate >= WIN_RATE_GATE else InsightLevel.INFO
-        out.append(Insight(f"Win rate ITI vs baselines: {win_rate:.1%}.", level))
+        if win_rate < WIN_RATE_GATE:
+            out.append(
+                Insight(
+                    f"Win rate {win_rate:.1%} abaixo do gate exploratório ({WIN_RATE_GATE:.0%}).",
+                    InsightLevel.WARNING,
+                )
+            )
+        else:
+            out.append(Insight(f"Win rate ITI vs baselines: {win_rate:.1%}.", InsightLevel.SUCCESS))
+    sig = ctx.get("significant_wins")
+    if sig is not None and sig <= SIGNIFICANT_WINS_LOW:
+        out.append(
+            Insight(
+                f"Apenas {sig} vitória(s) significativa(s) — sinal estatístico fraco.",
+                InsightLevel.WARNING,
+            )
+        )
     return out
 
 
@@ -165,7 +192,38 @@ def _model_insights(ctx: dict[str, Any]) -> list[Insight]:
                 InsightLevel.WARNING,
             )
         )
+    kappa = ctx.get("kappa")
+    if kappa is not None and kappa < KAPPA_GATE:
+        out.append(
+            Insight(
+                f"FinBERT κ={kappa:.3f} abaixo do gate ({KAPPA_GATE:.2f}) — ITI condicionado.",
+                InsightLevel.DANGER,
+            )
+        )
+    accuracy = ctx.get("accuracy")
+    if accuracy is not None and accuracy < ACCURACY_GATE:
+        out.append(
+            Insight(
+                f"Acurácia {accuracy:.1%} abaixo do gate ({ACCURACY_GATE:.0%}).",
+                InsightLevel.WARNING,
+            )
+        )
     dist = ctx.get("dominant_class")
     if dist:
         out.append(Insight(f"Classe predominante nas previsões: {dist}.", InsightLevel.INFO))
+    return out
+
+
+def _trail_insights(ctx: dict[str, Any]) -> list[Insight]:
+    out: list[Insight] = []
+    if ctx.get("classifier_gate_failed"):
+        out.append(
+            Insight(
+                "Trilha F5: gate do classificador não atendido — veja relatório κ.",
+                InsightLevel.WARNING,
+            )
+        )
+    total = ctx.get("total_runs")
+    if total is not None:
+        out.append(Insight(f"{total} run(s) disponível(is) no dashboard.", InsightLevel.INFO))
     return out

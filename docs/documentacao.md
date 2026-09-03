@@ -135,7 +135,8 @@ Na janela nov/2023–abr/2024 há cerca de **24 semanas** com ITI, baselines e p
 
 - Evento único (privatização Sabesp) — difícil generalizar.
 - Correlação não implica causalidade.
-- Qualidade do sentimento depende do FinBERT; rótulos manuais ainda em validação.
+- **Gate do classificador:** na amostra manual (n=100), FinBERT-PT-BR atingiu 48% de acurácia e κ=0,163 — abaixo do gate (70% / κ≥0,40). Qualquer associação ITI×mercado é **condicional** à validade do sentimento; detalhes numéricos em [trajetoria.md §4.4](trajetoria.md#44-qualidade-do-classificador).
+- Rótulos manuais ainda limitados (n=100).
 
 ### Tipos de rótulo (Trilhas B e C)
 
@@ -329,27 +330,45 @@ Auditoria das correções de robustez e memória no runner. Itens já resolvidos
 
 **Limitação conhecida:** o dataset inteiro ainda é carregado em memória por combinação; inferência já é por lotes no adaptador (`batch_size` em `models.yaml`). Streaming end-to-end fica para fase futura.
 
-#### Relatório de deep research vs. repositório
-
-A seção 6 do relatório externo ainda cita `pipeline/dataset_loader.py` e `pipeline/runner.py`. O lab está em `modules/`. Checklist para **não reabrir** o mesmo backlog:
-
-| Item do relatório | Estado no repo |
-| --- | --- |
-| JSONL `inspect_columns` com `nrows=1` | Feito (`modules/datasets/loader.py`) |
-| `performance_metrics.enabled` | Feito (`CombinationPerformanceMonitor`) |
-| `try/finally` na inicialização do runner | Feito (`prepare()` dentro do `try`) |
-| Não chamar `loaded_dataset.texts` duas vezes | Feito (cache `_texts_cache`) |
-| `save_partial_results` → `save_failure_artifacts` | Feito (YAMLs + alias legado) |
-| Modelos EN (`ProsusAI/finbert`, `yiyanghkust/finbert-tone`) | Já em `configs/models.yaml` (`finbert_en` enabled; `finbert_tone_en` disabled) |
-| Controles PT genéricos (BERTweet-PT, BERTimbau 3-class) | `bertweet_pt_sentiment` e `bertimbau_sentiment`, ambos `enabled: false` |
-
-Esses dois controles **não** são modelos financeiros: servem para comparar PT genérico vs. FinBERT-PT na próxima bateria ITI. Baixar checkpoints sem ligar a matriz:
+Controles PT genéricos (`bertweet_pt_sentiment`, `bertimbau_sentiment`) estão em `configs/models.yaml` com `enabled: false` — fetch opcional para bateria de κ:
 
 ```bash
 python -m modules.models fetch --model bertweet_pt_sentiment --model bertimbau_sentiment
-./scripts/run_experiment.sh --skip-setup --dry-run --model bertweet_pt_sentiment --dataset noticias_exemplo_ptbr
-./scripts/run_experiment.sh --skip-setup --dry-run --model bertimbau_sentiment --dataset noticias_exemplo_ptbr
 ```
+
+#### 3.3.2 Fluxo do runner (`pipeline/runner.py`)
+
+```mermaid
+flowchart TB
+  load[load_configuration] --> preflight[run_preflight]
+  preflight --> loop[Por combinação modelo x dataset]
+  loop --> infer[Inferência em lotes]
+  infer --> schema[OutputSchemaBuilder + prediction_normalization]
+  schema --> agg[SentimentAggregator]
+  agg --> impact[build_news_impact_frame]
+  impact --> daily[compute_daily_company_impact]
+  daily --> iti[compute_iti_daily_series]
+  iti --> baselines[build_baselines_daily]
+  baselines --> save[ResultsManager]
+  save --> outputs[outputs/run_id/]
+```
+
+Ordem de execução por combinação:
+
+1. **Preflight** — valida YAML, arquivos de modelo/dataset, diretório de saída.
+2. **Carregar corpus** — `DatasetLoader` → `LoadedDataset` (cache de `texts`).
+3. **Inferência** — adaptador BERT em lotes (`batch_size`); probabilidades POS/NEG/NEU.
+4. **Padronização** — `OutputSchemaBuilder` + `normalize_model_predictions` → schema fixo (`io/output_schema.py`).
+5. **Agregação de sentimento** — `SentimentAggregator` → `aggregates.csv` (níveis `company_day`, `sector_day`, `market_day`).
+6. **Impacto por notícia** — `build_news_impact_frame`: resolve dimensões (§4.1.1) e calcula \(I_n\), \(R_n\), \(w_n\).
+7. **Agregação diária** — `compute_daily_company_impact` → `impacto_dia`, `risco_dia`, `news_count`.
+8. **EWMA** — `compute_iti_daily_series` → `iti_daily.csv` (+ resample semanal/mensal se habilitado).
+9. **Baselines B0–B2** — `build_baselines_daily` → `baselines_daily.csv`.
+10. **Persistência** — `ResultsManager`: `predictions.csv`, `summary.json`, `resolved_config.yaml`, métricas de classificação se houver `true_label`.
+
+Se `uncertainty.enabled` e ≥2 modelos na run, `merge_uncertainty_across_models` gera `iti_uncertainty_daily.csv` (variância de \(d\) entre modelos).
+
+Ver [Apêndice A](#apêndice-a--contrato-outputs) para colunas de cada arquivo.
 
 ---
 
@@ -397,7 +416,8 @@ flowchart TB
 | Arquivo | Papel |
 | --- | --- |
 | `pipeline/runner.py` | `check_research_inputs`, `run_research` |
-| `io/align.py` | Merge ITI × mercado × retornos futuros |
+| `io/align.py` | Merge ITI × mercado × retornos futuros (modo diário) |
+| `io/weekly_align.py` | Alinhamento semanal W-FRI (modo campanha Sabesp) |
 | `io/experiment.py` | Descobre combinações em `outputs/{run_id}/` |
 | `validation/incremental.py` | ITI vs baselines por horizonte |
 | `validation/market.py` | Correlações série × retorno |
@@ -438,6 +458,45 @@ flowchart LR
 
 ---
 
+### 3.7 `modules/evaluation` — métricas auxiliares
+
+Scripts de análise **fora** do pipeline ITI→research principal. Não alteram `iti_daily.csv`; produzem relatórios em `outputs/campaigns/`.
+
+| Módulo | Função | Script / campanha |
+| --- | --- | --- |
+| `manual_labels.py` | Amostra estratificada PT + comparação humano vs modelo | `sabesp_2026.sh manual-sample`, `manual-compare` |
+| `classifier_eval.py` | Acurácia/κ em `predictions.csv` com `true_label` (EN) | `classifier_eval_en.sh` |
+| `classifier_eval_pt.py` | Bateria FinBERT vs BERTweet/BERTimbau (n=100) | `classifier_eval_pt.sh` |
+| `classifier_error_analysis.py` | Tipologia `focal_sabesp` / `roundup_agenda` | `error_analysis.md` |
+| `significant_wins_report.py` | Tabela das vitórias significativas (2/24) | Marco 2 — `significant_wins_r1_event.md` |
+| `period_breakdown.py` | Correlação ITI×retorno por subperíodo | `period_breakdown_gap2023.md` |
+| `gap2023_summary.py` | Comparação expandido vs evento | `gap2023_comparison.md` |
+| `event_corpus_filter.py` | Remove roundups/agendas do corpus evento | F4 — `sabesp_event_r1_filtered` |
+
+---
+
+### 3.8 Campanhas (`modules/experiment/campaign`)
+
+Orquestra runs R0–R9 da Sabesp sem editar o core do experimento.
+
+| Arquivo | Papel |
+| --- | --- |
+| `init_manifest.py` | Cria `outputs/campaigns/sabesp_2026/manifest.json` com hipóteses R0–R9 |
+| `generate_configs.py` | Gera YAMLs em `configs/campaigns/sabesp_2026/experiments/` |
+| `update_manifest.py` | Atualiza `metrics_summary` e `delta_vs_baseline` após research |
+| `manifest.py` | `CampaignRunRecord`, load/save do manifest |
+| `comparative_analysis.py` | Tabela comparativa para dashboard (página Experimentos) |
+
+**Relação configs ↔ outputs:**
+
+- Configs: `configs/campaigns/sabesp_2026/` (experiment + `research_weekly.yaml`)
+- Manifest e relatórios: `outputs/campaigns/sabesp_2026/`, `outputs/campaigns/sabesp_marco2/`
+- Runs individuais: `outputs/sabesp_r0_baseline/`, …, `outputs/sabesp_r9_ensemble/`
+
+O dashboard lê o manifest via `modules/dashboard/services/campaigns.py`.
+
+---
+
 ## 4. Fórmulas do ITI
 
 Com os conceitos da [§1.5](#15-conceitos-em-linguagem-acessível) em mente, esta seção formaliza o cálculo implementado no código.
@@ -460,6 +519,30 @@ Parâmetros: `configs/experiment.yaml` → `temporal_index`
 | \(q\) | risk | peso de risco (eventos negativos) |
 
 Dimensões resolvem-se na ordem `dataset_columns` → `prediction_metadata` → `heuristics` → `defaults`.
+
+#### 4.1.1 Resolução de dimensões (`dimensions.py`)
+
+Implementação: `resolve_dimensions()` com `provider_order` configurável em `temporal_index.dimensions`.
+
+| Provider | Fonte | Comportamento |
+| --- | --- | --- |
+| `dataset_columns` | Colunas `m,r,e,c,u,q,h` no CSV | Valores numéricos diretos |
+| `prediction_metadata` | JSON em `prediction_metadata` | Aliases por dimensão |
+| `heuristics` | Título + corpo + metadados | Regras abaixo |
+| `defaults` | YAML `dimensions.defaults` | Fallback constante |
+
+**Heurísticas** (`_apply_heuristics`), por notícia:
+
+| Dim | Regra |
+| --- | --- |
+| **r** (relevância) | Ticker no texto → 1,0; nome da empresa no texto → 0,85; só empresa no metadado → 0,65 |
+| **m** (magnitude) | `min(2.0, \|d\|·c + 0.15)` |
+| **e** (event_weight) | Match em `event_keywords` (regulacao, investimento, tarifa, privatizacao) → até 1,15 |
+| **u** (novelty) | Título inédito no run (`seen_titles`) → 1,0; repetido → ≤ 0,75 |
+| **q** (risk) | Palavras de risco (`multa`, `fraude`, `crise`, …) ou d &lt; 0 → 1,1 |
+| **h** (horizon) | Keywords curto prazo → min 0,75; longo prazo → max 1,25 |
+
+`disabled_dimensions` no YAML zera o efeito da dimensão (valor neutro 1,0 na multiplicação) — usado nas ablações R3–R5 (§4.7).
 
 ### 4.2 Impacto por notícia
 
@@ -497,7 +580,16 @@ Para cada `(empresa, setor, data)`:
 
 ### 4.4 Memória EWMA — `iti_liquido` e `iti_risco`
 
-Parâmetro base \(\alpha\) (default `0.85`). Com notícias no dia, usa \(\alpha_{\text{eff}}\):
+Parâmetro base \(\alpha\) (default `0.85`). A série é preenchida em **calendário contínuo** entre a primeira e a última data com notícia da empresa — dias sem notícia aplicam decay puro.
+
+#### Modo `horizon_mode`
+
+| Modo | Config | \(\alpha_{\text{eff}}\) em dia com notícia |
+| --- | --- | --- |
+| `ewma_alpha` | padrão (`experiment.yaml`) | \(\text{clip}(\alpha^{1/h},\ 0.01,\ 0.999)\) com `mean_horizon` do dia |
+| `fixed` | R7 (`r7_horizon_fixed.yaml`) | \(\alpha_{\text{eff}} = \alpha\) — ignora h |
+
+Com notícias no dia (`horizon_mode: ewma_alpha`):
 
 \[
 \alpha_{\text{eff}} = \text{clip}\left(\alpha^{1/h},\ 0.01,\ 0.999\right)
@@ -513,13 +605,31 @@ Parâmetro base \(\alpha\) (default `0.85`). Com notícias no dia, usa \(\alpha_
 \text{iti\_risco}_t = \alpha_{\text{eff}} \cdot \text{iti\_risco}_{t-1} + (1-\alpha_{\text{eff}}) \cdot \text{risco\_dia}_t
 \]
 
-**Dia sem notícia** (decay):
+**Dia sem notícia** (decay com α base):
 
 \[
 \text{iti\_liquido}_t = \alpha \cdot \text{iti\_liquido}_{t-1}, \quad \text{iti\_risco}_t = \alpha \cdot \text{iti\_risco}_{t-1}
 \]
 
-A série é preenchida em calendário contínuo entre a primeira e a última data com notícia da empresa.
+#### Resample (`temporal_index.resample`)
+
+`resample_iti_series()` agrega `iti_daily` para W-FRI, mensal ou trimestral. Colunas geradas por período:
+
+| Coluna | Significado |
+| --- | --- |
+| `iti_liquido_last` | Último valor diário da semana (padrão research semanal) |
+| `iti_liquido_mean` | Média dos dias da semana (testado em R8) |
+| `iti_liquido_min` / `max` / `std` | Estatísticas do período |
+| `impacto_dia_mean` / `sum` | Agregados do impacto bruto |
+
+#### Incerteza multi-modelo (`uncertainty`)
+
+Quando `uncertainty.enabled: true` e ≥ `min_models` (default 2) modelos inferem o mesmo dataset:
+
+1. Variância de \(d\) entre modelos por `news_id`.
+2. Agregação diária → `iti_uncertainty_daily.csv` (`disagreement_mean`, `disagreement_max`).
+
+Usado em análises complementares; **não** é predictor principal na Trilha A.
 
 ### 4.5 Agregação setor e mercado
 
@@ -535,6 +645,15 @@ Médias diárias de `impacto_dia`, `risco_dia`, `iti_liquido`, `iti_risco` entre
 | B3 | `b3_daily_impact_no_memory` | `impacto_dia` (sem EWMA) |
 
 B0–B2 são gerados no experimento; B3 é derivado no research. B0–B2 são avaliados **apenas em dias com notícia** (`baseline_news_only` em `configs/research.yaml`).
+
+**Agregação semanal W-FRI** (`resample_baselines_weekly` em `indexing/baselines.py`):
+
+| Baseline | Regra semanal |
+| --- | --- |
+| B0 | **soma** das contagens diárias |
+| B1 | **média** do sentimento diário |
+| B2 | **média** do ponderado diário |
+| B3 | `impacto_dia` no painel alinhado (sem EWMA; derivado em `validation/baselines.py`) |
 
 ### 4.7 Ablações da equação
 
@@ -555,7 +674,7 @@ Config padrão: `configs/research.yaml`. Campanha Sabesp semanal: `configs/campa
 
 ### 5.0 Modos diário e semanal
 
-**Correções que habilitam o modo semanal.** A rodada broad (Marco 0) misturava frequências: o ITI semanal era gerado mas o research lia só `iti_daily.csv` com baselines diários. A auditoria metodológica (detalhe narrativo em [trajetoria.md § Auditoria](trajetoria.md#auditoria-metodológica--por-que-o-marco-1-existiu)) mapeou seis lacunas; as correções no código incluem `index_frequency: weekly`, alinhamento em `io/weekly_align.py`, `resample_baselines_weekly`, `companies_filter`, dataset strict por evento e horizontes em semanas.
+**Correções que habilitam o modo semanal.** A rodada broad (Marco 0) misturava frequências: o ITI semanal era gerado mas o research lia só `iti_daily.csv` com baselines diários. A auditoria metodológica (detalhe em [trajetoria.md F1](trajetoria.md#f1--auditoria-e-protocolo-comparável)) mapeou seis lacunas; as correções no código incluem `index_frequency: weekly`, alinhamento em `io/weekly_align.py`, `resample_baselines_weekly`, `companies_filter`, dataset strict por evento e horizontes em semanas.
 
 O módulo research suporta dois modos de alinhamento, selecionados por `index_frequency` no YAML de research:
 
@@ -603,7 +722,40 @@ Para cada horizonte e baseline:
 
 (MSE usa \(\Delta = \text{MSE}_{baseline} - \text{MSE}_{ITI}\) — redução de erro favorece ITI.)
 
-**Bootstrap em bloco** (`block_size=5`, `n_bootstrap=500`): reamostra índices contíguos, recalcula \(\Delta\), estima IC 95% e p-value. A conclusão CLI usa **apenas Pearson e Spearman** (`conclusion_metrics`).
+**Bootstrap em bloco** (`block_size=5` no research diário; `block_size=2` na campanha Sabesp semanal; `n_bootstrap=500`): reamostra índices contíguos, recalcula \(\Delta\), estima IC 95% e p-value. A conclusão CLI usa **apenas Pearson e Spearman** (`conclusion_metrics`).
+
+### 5.4 Alinhamento semanal (`io/weekly_align.py`)
+
+Algoritmo usado quando `index_frequency: weekly`:
+
+1. **`_week_end_key`** — converte datas para fim de semana W-FRI.
+2. **ITI e baselines** — colapsa painel diário: `groupby(company, sector, week_end).last()` → valor de sexta.
+3. **`_weekly_market_returns`** — por ticker, soma `log_return` (ou produto de simple returns) na semana.
+4. **`_add_future_weekly_returns`** — para horizonte h em semanas, soma retornos das h semanas seguintes → `future_log_return_{h}`.
+5. **Merge** — ITI + baselines + mercado por `(company, period_end)`.
+6. **`add_b3_column`** — B3 = `impacto_dia` numérico (sem memória EWMA).
+
+Coluna ITI usada no research: `iti_weekly_column` (padrão `iti_liquido_last`; R8 testou `iti_liquido_mean`).
+
+### 5.5 Critério de vitória e significância
+
+**Vitória incremental** (`validation/incremental.py`):
+
+\[
+\Delta = \text{metric}_{ITI} - \text{metric}_{baseline}
+\]
+
+(MSE: \(\Delta = \text{MSE}_{baseline} - \text{MSE}_{ITI}\).)
+
+**Filtro `baseline_news_only`:** para B0–B2, o painel é restrito a semanas/dias com `news_count > 0` antes de correlacionar.
+
+**Bootstrap em bloco** (`validation/inference.py`):
+
+- `_block_bootstrap_indices` — amostra blocos contíguos de tamanho `block_size`.
+- `compute_delta_inference` — reamostra ITI, baseline e retorno **juntos** (pares preservados).
+- `is_significant_favorable_delta` — vitória **significativa** se \(\Delta > 0\) **e** (p &lt; 0,05 **ou** IC 95% não cruza zero).
+
+Win rate = proporção de comparações com \(\Delta > 0\) entre as 24 (4 baselines × 2 métricas × 3 horizontes). Interpretação narrativa: [trajetoria.md Parte 4](trajetoria.md#parte-4--resultados-consolidados-trilha-a).
 
 ---
 
@@ -704,11 +856,7 @@ Fetch de dataset `enabled: false`: `python -m modules.datasets fetch --dataset C
 
 ### Avaliação de rótulos (`modules/evaluation`)
 
-| Módulo | Função |
-| --- | --- |
-| `manual_labels.py` | Amostra estratificada PT + compare (acurácia, kappa) |
-| `classifier_eval.py` | Acurácia/kappa em `predictions.csv` com `true_label` |
-| `period_breakdown.py` | Correlação ITI×retorno por subperíodo (2022 / 2023Q1 / evento) |
+Ver [§3.7](#37-modulesevaluation--métricas-auxiliares) para a lista completa dos 9 módulos e scripts de campanha.
 
 ---
 
@@ -815,19 +963,65 @@ Interface multipage para explorar corpus, runs, modelos, experimentos e research
 # ou: ./scripts/run_dashboard.sh --port 8502
 ```
 
-### Módulos
+### Arquitetura
 
-| Página | Conteúdo |
+```mermaid
+flowchart TB
+  subgraph content [content/]
+    pt_br[pt_br.py]
+    chart_help[chart_help.py]
+    value_labels[value_labels.py]
+  end
+
+  subgraph components [components/]
+    chart_block[chart_block.py]
+    section_block[section_block.py]
+    metric_card[metric_card.py]
+    charts[charts.py]
+  end
+
+  outputs[outputs/ e data/] --> services[dashboard/services/]
+  services --> pages[dashboard/pages/]
+  content --> components
+  components --> pages
+  catalog[metrics/catalog.py] --> metric_card
+  rules[insights/rules.py] --> engine[insights/engine.py]
+  engine --> pages
+```
+
+| Camada | Papel |
 | --- | --- |
-| Visão Geral | KPIs, corpus, campanha Sabesp, atalhos |
-| Datasets e Scraper | Filtros, cobertura, heatmap, tabela de notícias |
-| Modelos | Previsões, distribuição de classes, sentimento por empresa |
-| Runs | Detalhe da execução, config ITI, diff vs baseline |
-| Comparação | Multi-run: parâmetros, win rate, sentimento |
-| Experimentos | Campanha R0–R9, alpha vs win rate, ablações — ver também [trajetoria.md](trajetoria.md) |
-| Research | ITI vs mercado, incremental, drill-down por empresa |
+| `content/chart_help.py` | Textos "O que isto mostra?" por gráfico (`CHART_HELP`) |
+| `content/pt_br.py` | Rótulos de abas, navegação e callouts exploratórios |
+| `content/value_labels.py` | Nomes amigáveis B0–B3, horizontes, runs |
+| `components/chart_block.py` | Título + expander + gráfico com `chart_context` |
+| `components/section_block.py` | Seções com intro e ajuda opcional |
+| `components/metric_card.py` | KPI com catálogo, bands e `metric_row` |
+| `services/catalog.py` | Runs, `run_display_name`, badges de status |
+| `services/classifier.py` | Bateria `classifier_eval_pt` (κ, acurácia, matriz) |
+| `services/research.py` | `research_summary`, `aligned_panel`, win rate |
+| `services/compare.py` | `compare_runs`, `delta_win_rate`, diffs de parâmetros |
+| `services/campaigns.py` | Manifest R0–R9, tabela comparativa |
+| `services/corpus.py` | Estatísticas do corpus scraper |
+| `services/runs.py` | `diff_configs`, `param_diffs_to_dataframe` (Arrow-safe) |
+| `insights/engine.py` | Bullets contextuais (κ, exploratório, win rate) |
 
-Dados lidos de `outputs/` e `data/` via `modules/dashboard/services/`. Insights automáticos em `modules/dashboard/insights/`.
+Inventário completo de gráficos: [docs/dashboard/chart_inventory.md](dashboard/chart_inventory.md).
+
+Tabelas de diff de parâmetros ITI (`run_a`/`run_b`) passam por `param_diffs_to_dataframe()` antes do `st.dataframe` — evita erro PyArrow quando α (float) e `horizon_mode` (string) coexistem na mesma coluna.
+
+### Páginas
+
+| Página | Abas / conteúdo |
+| --- | --- |
+| Visão Geral | KPIs (win rate, κ, corpus), pipeline, corpus, campanha |
+| Datasets e Scraper | Panorama · Cobertura temporal · Amostra |
+| Modelos | Panorama · Distribuição · Qualidade do classificador (κ) |
+| Runs | Resumo · Configuração ITI · Série ITI |
+| Comparação | Win rate, diff ITI, sentimento multi-run |
+| Experimentos | Campanha · Alpha · Ablações |
+| Research | Panorama · ITI vs mercado · Incremental · Séries · Métricas brutas |
+| Trilha da pesquisa | F0–F6, links à documentação, lista de runs |
 
 ---
 
@@ -848,10 +1042,51 @@ Fixtures em `tests/fixtures/` cobrem mercado, research e experimento dry-run.
 | `tests/test_performance_monitor.py` | `CombinationPerformanceMonitor` como no-op quando `performance_metrics.enabled: false` |
 | `tests/test_runner_lifecycle.py` | Restauração de signal handlers em falha cedo; unload de modelo só ao trocar `model_key`; cache de `texts`; unload entre datasets do mesmo modelo |
 
-Outros testes relevantes: `test_research_weekly_align.py` (alinhamento semanal), `test_temporal_index.py` (EWMA), `test_experiment_baselines.py` (B0–B2).
+Outros testes relevantes: `test_research_weekly_align.py` (alinhamento semanal), `test_temporal_index.py` (EWMA), `test_experiment_baselines.py` (B0–B2), `test_dashboard_compare.py` (diffs Arrow-safe), `test_dashboard_catalog.py`, `test_dashboard_corpus.py`, `test_dashboard_insights.py`.
 
 Para rodar só a higiene do pipeline:
 
 ```bash
 pytest tests/test_preflight.py tests/test_performance_monitor.py tests/test_runner_lifecycle.py -q
 ```
+
+---
+
+## Apêndice A — Contrato `outputs/`
+
+Estrutura por run (`outputs/{run_id}/`):
+
+```
+outputs/{run_id}/
+├── summary.json
+├── resolved_config.yaml
+├── models/{model_key}/{dataset_key}/
+│   ├── predictions.csv
+│   ├── aggregates.csv
+│   └── classification_metrics.json   # se true_label presente
+├── indices/{model_key}/{dataset_key}/
+│   ├── iti_daily.csv
+│   ├── baselines_daily.csv
+│   ├── iti_sector_daily.csv        # opcional
+│   └── iti_resampled_weekly.csv    # se resample habilitado
+└── research/{model_key}/{dataset_key}/   # após run_research
+    ├── aligned_panel.csv
+    ├── incremental.csv
+    ├── incremental_deltas.csv
+    ├── market_metrics.csv
+    └── research_summary.json
+```
+
+### Colunas principais
+
+| Arquivo | Colunas essenciais |
+| --- | --- |
+| `predictions.csv` | `news_id`, `text`, `date`, `company`, `continuous_sentiment` (\(d\)), `confidence`, `prob_*`, `prediction_metadata` |
+| `aggregates.csv` | `aggregation_level`, `date`, `company`/`sector`, `sentiment_mean`, `sentiment_count` |
+| `iti_daily.csv` | `date`, `company`, `impacto_dia`, `risco_dia`, `iti_liquido`, `iti_risco`, `news_count` |
+| `baselines_daily.csv` | `date`, `company`, `b0_news_count`, `b1_mean_sentiment`, `b2_confidence_weighted_sentiment` |
+| `aligned_panel.csv` | `date`, `company`, `ticker`, `iti_liquido_last`, baselines B0–B3, `future_log_return_{h}` |
+| `incremental_deltas.csv` | `horizon`, `baseline`, `metric`, `delta`, `p_value`, `significant` |
+| `research_summary.json` | `conclusion`, `combinations[].predictor_stats` (wins, comparisons) |
+
+Schema completo de `predictions.csv`: `OUTPUT_COLUMNS` em `modules/experiment/io/output_schema.py`.

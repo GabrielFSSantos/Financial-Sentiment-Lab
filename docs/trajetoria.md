@@ -1,1192 +1,752 @@
 # Trajetória experimental — Financial Sentiment Lab
 
-Registro versionado da evolução da pesquisa: decisões tomadas, escopo de cada rodada, resultados run a run e o que aprendemos. Este documento é a **narrativa** do projeto; conceitos e fórmulas estão em [documentacao.md](documentacao.md) e comandos em [README.md](../README.md). Índice geral: [docs/README.md](README.md).
+**Documento único da pesquisa (Trilha A, Sabesp).** Narrativa metodológica ancorada em literatura: por que cada decisão foi tomada, o que comparamos, o que respondemos e o que permanece em aberto. Números oficiais na **Parte 4**; fórmulas e módulos em [documentacao.md](documentacao.md); referências em [referencias/](referencias/). Direcionamento original de 20/08: [Apêndice C](#apêndice-c--direcionamento-da-pesquisa-2008).
 
 ---
 
 ## Como ler este documento
 
-Cada **marco** agrupa uma fase metodológica ou campanha. Dentro dele, cada **run** (execução numerada) testa uma hipótese isolada. Os blocos seguem sempre a mesma estrutura:
-
-- **Escopo dos dados** — de onde vieram as notícias, qual empresa, qual período, corpus broad ou strict.
-- **Índice (ITI)** — como o Índice Temporal Informacional foi calculado e agregado.
-- **Validação contra mercado** — como comparamos com a ação real (SBSP3) e com baselines internos.
-- **Resultado** — win rate (taxa de vitória) e vitórias significativas.
-- **ITI vs baselines** — tabela por horizonte; ✓ = ITI correlaciona melhor que o baseline; ★ = vitória significativa (bootstrap).
-- **Relação com a ação** — correlação direta ITI × retorno futuro (não é aposta binária subiu/desceu).
-- **Leitura** — interpretação para a próxima decisão.
-
-Termos em inglês aparecem entre parênteses na primeira menção de cada seção.
-
----
-
-## Glossário rápido
-
-| Termo | Significado |
-|-------|-------------|
-| **ITI** (Information Trend Index) | Índice de sentimento acumulado no tempo a partir das notícias |
-| **α (alpha)** | Parâmetro de memória do EWMA — quanto do passado o índice retém (não é alpha de mercado) |
-| **Baseline** | Alternativa simples calculada só com notícias, para comparar com o ITI |
-| **Win rate** | Proporção de comparações em que o ITI supera um baseline em Pearson ou Spearman |
-| **Overlap** | Semanas em que há simultaneamente ITI, baselines e preço da ação alinhados |
-| **B0–B3** | Quatro baselines internos — ver [documentacao.md §1.5](documentacao.md#15-conceitos-em-linguagem-acessível) |
+| Parte | Conteúdo |
+|-------|----------|
+| **0** | Problema, hipóteses H1–H3, subobjetivos SO1–SO10, referências de base |
+| **1** | O que é o ITI, origem metodológica, definições sem ambiguidade |
+| **2** | Protocolo (24 duelos), 6 camadas de validade, tabela técnica |
+| **3** | Fases F0–F6 — processo, decisões, transições |
+| **4** | **Resultados consolidados** Trilha A (números oficiais) |
+| **5** | O que foi e não foi tratado |
+| **6** | Próximo ciclo — perguntas que podem mudar a conclusão |
+| **Apêndices** | Runs R2–R9, glossário, direcionamento, artefatos, bibliografia |
 
 ---
 
-## Template para novas runs
+# Parte 0 — Enquadramento da pesquisa
 
-Ao adicionar um marco futuro, copie o esqueleto abaixo e preencha com dados do `manifest.json` e de `outputs/{run_id}/research/.../incremental_deltas.csv`.
+## Em uma frase
 
-```markdown
-### Run {id} — {título}
+Construir e validar empiricamente um **Índice Temporal Informacional (ITI)** a partir de notícias corporativas de empresas brasileiras de saneamento de capital aberto, testando se esse índice traz informação incremental sobre retornos futuros além de medidas simples (contagem de notícias e sentimento médio).
 
-**Hipótese** — ...
+## Problema de pesquisa
 
-#### Escopo dos dados
-...
+Notícias financeiras em português carregam informação que o mercado pode precificar (Tetlock, 2007), mas medir isso de forma reprodutível exige: corpus ligado à empresa certa; classificador de domínio (Santos et al., 2023); agregação temporal coerente; comparação honesta com alternativas simples (Loughran & McDonald, 2011). No **saneamento**, o Marco Legal e a privatização da Sabesp geram choques informacionais intensos (Gattai & Souza, 2025 — estudo de evento em EQTL3) — contexto favorável para testar H1, pouco explorado com NLP em PT.
 
-#### Índice (ITI)
-...
+A literatura brasileira motiva o teste, mas não garante resultado: Duarte et al. (2020) comparam horizontes diário, semanal e mensal em 64 ativos; Yoshinaga & Castro Junior (2012) encontram relação entre índice de sentimento e retornos que pode ser **negativa** (reversão), não direcional.
 
-#### Validação contra mercado
-...
+## 0.1 Ancoragem teórica
 
-#### Resultado
-...
+O lab testa **associação incremental exploratória** entre texto agregado e retorno futuro — não eficiência informacional plena nem estratégia de trading. As teorias abaixo orientam hipóteses e limites de interpretação:
 
-#### ITI vs baselines
-(tabela)
+| Teoria | Referência | O que sustenta no lab | O que **não** afirmamos |
+|--------|------------|----------------------|-------------------------|
+| Mídia informa preços | Tetlock (2007) | H1 — texto carrega informação testável | Direção positiva garantida |
+| Finanças comportamentais / sentimento | Yoshinaga (2012); Baker-Wurgler via Yoshinaga | Índice × retorno; reversão possível | ITI replica índice PCA de mercado |
+| EMH forma semiforte | Gattai & Souza (2025) FOCO | Choque institucional relevante (privatização) | Nosso desenho **não** é event study CAR |
+| NLP domínio financeiro | Araci (2019); Santos (2023) | FinBERT-PT-BR + score \(d\) | Acurácia do artigo = corpus saneamento |
+| Correlação defasada BR | Marquezan & Assunção (2025); Duarte (2020) | Horizontes 1/2/4 sem.; lags variam | Causalidade Granger |
 
-#### Relação com a ação
-...
+*Posicionamento:* medimos se um índice com memória (ITI) correlaciona melhor que baselines simples no mesmo painel; qualquer leitura de “mercado eficiente” ou “sentimento move preço” permanece condicional ao classificador e ao caráter exploratório dos resultados.
 
-#### Leitura
-- ...
+## Objetivo geral
 
-#### Artefatos
-- Config: ...
-- Saída: outputs/...
+Construir e validar empiricamente um ITI baseado em notícias corporativas para empresas de saneamento de capital aberto (Sabesp, Copasa, Sanepar no desenho inicial; **Trilha A** focou Sabesp/SBSP3).
+
+## Perguntas e hipóteses
+
+### Pergunta principal (QP1) → H1
+
+Em que medida um ITI derivado de notícias corporativas representa choques informacionais em empresas de saneamento de capital aberto e apresenta associação com retorno, volatilidade e volume **além** de medidas simples de sentimento e frequência? *(Volatilidade/volume: no desenho original do direcionamento; não fechados na Trilha A.)*
+
+**H1:** o ITI em uma semana associa-se ao retorno acumulado nas semanas seguintes **mais fortemente** que B0–B3 sobre as mesmas notícias — não é previsão mecânica de alta/baixa.
+
+Qualquer associação ITI×retorno permanece **hipótese a testar**, não conclusão prévia: o mérito do classificador (FinBERT-PT-BR) limita o canal notícia→índice — ver gate κ em [§4.4](#44-qualidade-do-classificador).
+
+### Perguntas secundárias
+
+| ID | Pergunta | Hipótese | Status Trilha A |
+|----|----------|----------|-----------------|
+| QP2 | Notícias negativas associam-se mais a volatilidade/retorno? | **H2** (assimetria) | Não testada formalmente |
+| QP3 | EWMA melhora validade vs impacto sem memória? | **H3** | Parcial — R1 vs B3, 2 sig. em h=4 |
+| QP4 | Discordância entre modelos informa volatilidade? | Extensão | Não executada |
+
+### Pergunta empírica central
+
+**ITI/B3 acrescentam informação sobre retorno futuro além de B0, B1 e B2?** — medida pelo win rate em 24 duelos por run.
+
+## Subobjetivos operacionais
+
+| Subobjetivo | Pergunta operacional | Saída esperada | Status |
+|-------------|---------------------|----------------|--------|
+| SO1 — coleta | Scraper produz notícias deduplicadas e alinháveis? | Corpus tabular (título, data, link, empresa, texto) | Executado; qualidade residual documentada |
+| SO2 — classificação | FinBERT PT produz sinal utilizável em saneamento? | Probabilidades e score \(d\) | Executado; **gate falhou** |
+| SO3 — índice | Agregação e memória sem misturar frequências? | ITI diário/semanal, líquido e risco | Executado |
+| SO4 — comparação | ITI vence B0–B3? | 24 duelos/run | Executado |
+| SO5 — mercado | Sinal associa-se a retorno em frequência compatível? | Painel semanal Pearson/Spearman | Executado, exploratório |
+| SO6 — ablação | Desempenho depende de α e componentes? | R0–R9 | Executado ([Apêndice A](#apêndice-a--runs-r2r9-condensadas)) |
+| SO7 — robustez | Resultado sobrevive expansão e lacuna 2023? | Evento vs expandido | Executado — **não generaliza** |
+| SO8 — validade modelo | FinBERT concorda com humanos? | Acurácia, F1, κ (n=100) | Executado — κ=0,163 |
+| SO9 — transparência | Evidência, decisão e lacuna distinguíveis? | Este documento | Executado |
+| SO10 — literatura | Decisões ancoradas em refs BR | `referencias/` | Executado |
+
+## 0.2 Matriz de ancoragem bibliográfica
+
+Cada referência abaixo liga decisão metodológica a justificativa e à avaliação no contexto Sabesp.
+
+| Referência | Decisão que sustenta | Justificativa | Avaliação |
+|------------|---------------------|---------------|-----------|
+| Santos (2023) | Classificador `finbert_ptbr` | Domínio PT + índice de sentimento | Justifica escolha; **não** garante κ no saneamento |
+| Araci (2019) | Cadeia FinBERT | Pré-treino domínio EN → adaptação PT | Justifica família de modelos |
+| Loughran (2011) | B0–B3 internos | Baselines simples antes de índice complexo | Parcial — usamos FinBERT, não léxico |
+| Yoshinaga (2012) | Não fixar direção; precedente BR | Relação pode ser negativa (reversão) | Justifica cautela em H1 |
+| Duarte (2020) | Múltiplos horizontes | Persistência da informação varia | Justifica protocolo semanal 1/2/4 |
+| Marquezan & Assunção (2025) | Lags + tipo de notícia | Correlação cruzada BR com LLM | Justifica horizontes; método diferente (emoções LLM) |
+| Gattai & Souza (2025) | Janela evento | Choque Sabesp/privatização | **Parcial** — EQTL3, não SBSP3; não é NLP |
+| Tetlock (2007) | Validação texto×mercado | Mídia não é ruído puro | Inspiracional (métrica diferente) |
+
+## Referências bibliográficas de base (direcionamento 20/08)
+
+| Referência | Contribuição |
+|------------|--------------|
+| Baker, Bloom & Davis — EPU | Texto → índice → validação externa |
+| Caldara & Iacoviello — GPR | Índice de risco jornalístico |
+| Shapiro et al. — Fed News Sentiment | Sentimento diário com decaimento (analogia EWMA) |
+| Araci — FinBERT; Santos et al. — FinBERT-PT-BR | NLP financeiro |
+| FNSPID, FUNNEL | Escala notícia–preço; mapeamento notícia→empresa |
+| Estudos de evento | Choques informacionais |
+| Marco Legal do Saneamento; índices UTIL/ISE B3 | Contexto setorial BR |
+
+## Mapa fase → pergunta → artefato
+
+| Fase | Pergunta | Artefato |
+|------|----------|----------|
+| F0 | Pipeline roda? | `outputs/saneamento_pt_20260824/` |
+| F1 | Protocolo interpretável? | `configs/campaigns/sabesp_2026/` |
+| F2 | ITI vence baselines no evento? | `sabesp_r1_alpha070` |
+| F3 | Sinal generaliza? | `sabesp_gap2023_*`, `period_breakdown_gap2023.md` |
+| F4 | Roundups explicam teto? | `sabesp_event_r1_filtered` |
+| F5 | Classificador confiável? | `manual_label_report.md`, `classifier_eval_pt/` |
+| F6 | O que concluir? | **Parte 4** abaixo |
+
+---
+
+# Parte 1 — ITI: origem metodológica
+
+O ITI **não é um índice publicado nem homônimo importado**. É construção operacional em [temporal_index.py](../modules/experiment/indexing/temporal_index.py) para saneamento: sentimento por notícia → impacto informacional → agregação diária → memória EWMA.
+
+| Elemento | Base bibliográfica | Transferido | Adaptado (Sabesp) |
+|----------|-------------------|-------------|-------------------|
+| Texto → mercado | Tetlock (2007) | Mídia carrega informação | Multiportal PT, NLP |
+| Índice textual temporal | Baker et al. (2016) EPU | Agregação + validação | Microíndice empresa |
+| Sentimento PT | Santos et al. (2023) | FinBERT-PT-BR, \(d=P(pos)-P(neg)\) | Corpus saneamento |
+| Precedente índice BR | Yoshinaga (2012) | Índice sentimento × retorno | ITI não usa PCA agregado |
+| Horizontes múltiplos | Duarte et al. (2020) | Lags diário/semanal/mensal | 1/2/4 semanas |
+| Persistência | Shapiro et al. (2022) | Decaimento temporal | α por ablação (R0 vs R1) |
+| Controles simples | Loughran & McDonald (2011) | Medidas textuais simples | B0–B3 internos |
+| Evento | Gattai & Souza (2025) | Reação a privatização | Alvo SBSP3, não EQTL3 |
+
+**Mensagem:** se ITI não supera B0–B3 no mesmo painel, memória e dimensões extras não demonstram valor incremental. Yoshinaga mostra alternativa (PCA); ITI preserva interpretação operacional empresa×dia.
+
+## 1.1 Definições sem ambiguidade
+
+- **Score por notícia:** \(d = P(\text{pos}) - P(\text{neg})\). Neutro permanece nas probabilidades.
+- **Impacto diário:** combinação de scores e dimensões (`m,r,e,c,u,q,h`) — ver [documentacao.md §4](documentacao.md#4-fórmulas-do-iti).
+- **ITI líquido:** estado EWMA do impacto líquido — predictor principal (`iti_liquido_last` na validação semanal).
+- **ITI risco:** componente negativo/risco — complementar, não usado no resultado principal.
+- **B0:** contagem de notícias; **B1:** média de \(d\); **B2:** média ponderada por confiança; **B3:** impacto diário **sem** memória.
+- **α:** memória EWMA — **não** é alpha de excesso de retorno. α alto = mais passado; α baixo = mais reativo.
+- **Vitória:** ITI correlaciona melhor que baseline (mesmo horizonte e métrica).
+- **Significância:** bootstrap em bloco apoia a diferença — **não** implica causalidade.
+
+## 1.2 Por que FinBERT e não léxico/LSTM
+
+- **Araci → Santos:** Araci (2019) estabelece FinBERT em inglês com vocabulário de domínio; Santos et al. (2023) estendem a português com Gradual Unfreezing e validam índice de sentimento — cadeia que justifica `finbert_ptbr` como classificador principal.
+- **Loughran & McDonald (2011):** dicionários genéricos falham em finanças (polissemia de “liability”, “risk” etc.) — evitamos léxico fixo; B0–B3 derivam do **mesmo** classificador para comparação justa.
+- **LSTM (Araújo et al., 2021):** precedente BR em Twitter com redes recorrentes — **não adotado**: corpus multiportal de notícias + estado da arte BERT (Santos supera baselines no artigo de origem).
+
+## 1.3 Tensões na literatura (o que esperar)
+
+A literatura BR não converge em direção única. Yoshinaga & Castro Junior (2012) encontram relação **negativa** entre índice de sentimento agregado e retorno futuro (padrão de reversão). Marquezan & Assunção (2025), com emoções via LLM e correlação cruzada, reportam lags heterogêneos — sentimento pode **anteceder** preço em alguns ativos e defasagens. **Leitura para Trilha A:** direção e magnitude são empíricas; subperíodos mistos na janela expandido ([§4.3](#43-robustez-janela-expandida)) são compatíveis com ambos os quadros, não prova de inconsistência metodológica.
+
+---
+
+# Parte 2 — Protocolo e critérios de progresso
+
+```mermaid
+flowchart TB
+  subgraph noticias [Mesmas_noticias]
+    finbert[FinBERT_PT_BR]
+    finbert --> iti[ITI_semanal_EWMA]
+    finbert --> b0[B0] --> b1[B1] --> b2[B2] --> b3[B3]
+  end
+  prices[SBSP3_retorno_futuro]
+  iti --> research[24_comparacoes]
+  b0 --> research
+  b1 --> research
+  b2 --> research
+  b3 --> research
+  prices --> research
 ```
 
+**Comparação:** ITI vs B0–B3; Pearson + Spearman; retornos futuros 1, 2 e 4 **semanas** → **24 comparações** (4×2×3). ITI semanal = `iti_liquido_last` (último dia útil da semana); retorno = soma dos log-retornos diários na janela futura alinhada.
+
+## Seis camadas de validade
+
+1. **Execução** — pipeline coleta, classifica, agrega, alinha.
+2. **Comparação** — mesma frequência e painel para predictor e alvo.
+3. **Valor incremental** — ITI vence baselines cabeça a cabeça.
+4. **Robustez** — padrão sobrevive a lacunas e filtros textuais.
+5. **Credibilidade do predictor** — gate de concordância humana (≥70% ou κ≥0,40).
+6. **Interpretação** — resultados positivos, nulos e contraditórios reportados; **busca múltipla** (2/24 sig.) como regra de leitura, não explicação posterior.
+
+## Tabela protocolo (Trilha A)
+
+| Item | Valor |
+|------|-------|
+| Empresa | Sabesp (`SBSP3.SA`) |
+| Corpus strict | `data/saneamento_corpus/noticias_strict_sabesp.csv` |
+| Classificador | `finbert_ptbr` |
+| ITI | EWMA α configurável; `iti_liquido_last` |
+| Baselines | B0–B3 (somente notícias) |
+| Validação | Pearson + Spearman; h ∈ {1,2,4} semanas |
+| Significância | Bootstrap `block_size=2`, `n_bootstrap=500` |
+| Research YAML | `configs/campaigns/sabesp_2026/research_weekly.yaml` |
+
 ---
 
-## Marco 0 — Rodada broad (pré-correção)
+# Parte 3 — Trajetória por fases
 
-**Data:** 24/08/2026  
-**Run:** `saneamento_pt_20260824`  
-**Status:** superada pela campanha Sabesp 2026
+## F0 — Marco amplo: provar que o pipeline roda
 
-Primeira execução completa do pipeline com corpus **broad** (amplo) de saneamento: múltiplas empresas (Sabesp, Copasa, Sanepar), coleta multiportal sem filtro strict rigoroso. O research (validação) rodou em frequência **diária**, enquanto o ITI semanal era gerado mas **não usado** na comparação — baselines diários foram confrontados com séries incompatíveis. Os números desta rodada servem como linha de base histórica, mas **não devem ser interpretados como conclusão científica**.
+### Pergunta
+É possível executar scraping → CSV → inferência → índices → research antes de validade estatística?
 
-### Escopo dos dados
+### Base bibliográfica
+Neuenschwander et al. (2014): extração de sinal de fluxos web é difícil no BR. Duarte et al. (2020): horizontes múltiplos são necessários. UTFPR (2024): causalidade pode ser fraca — expectativa realista. Araci (2019) → Santos (2023): cadeia FinBERT domínio EN→PT.
 
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp, Copasa, Sanepar (multi-empresa) |
-| Período das notícias | janela ampla do corpus `saneamento_corpus` |
-| Modo do corpus | **broad** — inclui ruído e registros sem entidade clara |
-| Dataset YAML | `saneamento_corpus` |
-| Overlap diário | ~380 dias |
+### Literatura → resultado
+
+Neuenschwander (2014) e UTFPR (2024) sustentam que extrair sinal de texto web no BR é difícil e a associação com preços pode ser fraca; Duarte (2020) sustenta testar múltiplos horizontes. **Nosso resultado confirma** que o pipeline executa (SO1), mas **nega** comparação válida com mercado (0% win, frequências incompatíveis).
+
+### Entradas e decisões
+
+| Item | Valor |
+|------|-------|
+| Run | `saneamento_pt_20260824` |
+| Corpus | `saneamento_corpus` multi-empresa (Sabesp, Copasa, Sanepar) |
+| Research | Frequência **diária** (ITI semanal gerado mas não usado na validação) |
+| Modelos | `finbert_ptbr`, `pt_br_financial_sentiment_analysis` |
+
+FinBERT-PT-BR escolhido por domínio financeiro PT (Santos et al., 2023) — modelos especializados superam genéricos para jargão econômico; validação externa via preços é prática recomendada na literatura de sentimento.
+
+### Resultados
+
+| Modelo | Win rate | Significativas |
+|--------|----------|----------------|
+| `finbert_ptbr` | 0% (0/24) | 0 |
+| `pt_br_financial_sentiment_analysis` | 12,5% (3/24) | 0 |
+
+### Obtidas / não obtidas / direcionamento
+
+- **Obtido:** SO1 — pipeline executável.
+- **Não obtido:** H1; comparação inválida (frequências misturadas).
+- **Direcionamento:** auditoria F1.
+
+**Artefatos:** `outputs/saneamento_pt_20260824/`
+
+---
+
+## F1 — Auditoria e protocolo comparável
+
+### Pergunta
+Quais erros impedem comparação defensável ITI × mercado?
+
+### Base bibliográfica
+Duarte et al. (2020): lags variam no tempo. Yoshinaga (2012): associação pode ser reversão — não fixar direção a priori. Tetlock (2007): alinhamento temporal correto.
+
+### Literatura → resultado
+
+Duarte (2020) sustenta múltiplas janelas; Yoshinaga (2012) sustenta não fixar direção; Tetlock (2007) sustenta alinhamento temporal correto; Loughran (2011) sustenta baselines simples pré-definidos. **Nosso resultado confirma** o protocolo semanal comparável; **ainda não confirma** H1.
+
+### Decisões
+
+| Decisão | Alternativa rejeitada | Fundamento |
+|---------|----------------------|------------|
+| Sabesp focal (Trilha A) | Multi-empresa no resultado | Evento institucional específico |
+| Frequência semanal | ITI semanal vs alvo diário | Incompatibilidade eliminada |
+| B0–B3 ex ante | Baselines pós-hoc | Loughran: controles simples pré-definidos |
+| Pearson + Spearman | Só Pearson | Associação linear e monotônica |
+| Horizontes 1/2/4 sem | Lag único | Duarte: múltiplas janelas |
+| Gate pré-evento ≥40% win | Expansão automática | Só expandir com sinal mínimo |
+
+### Obtidas / direcionamento
+
+- **Obtido:** campanha `sabesp_2026`, protocolo semanal, 24 duelos.
+- **Não obtido:** evidência de H1 (ainda).
+- **Direcionamento:** F2 primeira execução interpretável.
+
+**Artefatos:** `configs/campaigns/sabesp_2026/`, `noticias_strict_sabesp.csv`
+
+---
+
+## F2 — Campanha Sabesp evento (R0 / R1)
+
+### Pergunta
+Na janela da privatização, EWMA (α=0,70) acrescenta informação além de B0–B3? (H3)
+
+### Base bibliográfica
+Gattai & Souza (2025): anúncio privatização → retornos anormais EQTL3 (não prova canal notícia→SBSP3). Santos (2023): FinBERT + índice. Yoshinaga (2012): “vencer” ≠ retorno positivo futuro.
+
+### Literatura → resultado
+
+Gattai & Souza (2025) sustentam relevância institucional do evento (EQTL3, não SBSP3); Santos (2023) sustenta FinBERT+índice em PT; Yoshinaga (2012) sustenta cautela com direção. **Nosso resultado confirma parcialmente** H3 (2 sig. vs B3, h=4) e melhor α=0,70; **não confirma** H1 forte nem causalidade — leitura exploratória.
+
+**Distinção metodológica FOCO:** Gattai & Souza (2025) aplicam EMH semiforte com **CAR** em EQTL3 no anúncio da privatização; nós medimos **correlação semanal** ITI×retorno futuro em SBSP3 no mesmo período institucional. Os desenhos são **complementares** (contexto vs canal notícia→índice), não replicáveis um pelo outro.
+
+### Entradas
+
+| Item | Valor |
+|------|-------|
+| Dataset | `saneamento_sabesp_strict_event` |
+| Período | nov/2023 – abr/2024 (~465 artigos) |
+| Runs | R0 `sabesp_r0_baseline` (α=0,85); R1 `sabesp_r1_alpha070` (α=0,70) |
+
+### Resultados
+
+| Run | α | Win rate | Significativas |
+|-----|---|----------|----------------|
+| R0 | 0,85 | 20,8% (5/24) | 0 |
+| **R1** | **0,70** | **41,7% (10/24)** | **2** |
+
+**Vitórias significativas R1:** h=4 vs B3 — Pearson Δ=+0,133 (p=0,040); Spearman Δ=+0,221 (p=0,046).
+
+**ITI vs baselines R1:**
+
+| Baseline | 1 sem (P/S) | 2 sem (P/S) | 4 sem (P/S) |
+|----------|-------------|-------------|-------------|
+| B0 | ✗/✓ | ✗/✗ | ✗/✗ |
+| B1 | ✗/✗ | ✗/✗ | ✗/✓ |
+| B2 | ✗/✗ | ✗/✓ | ✗/✓ |
+| B3 | ✓/✓ | ✓/✓ | **★/★** |
+
+★ = significativa (bootstrap).
+
+### Obtidas / não obtidas / direcionamento
+
+- **Obtido:** melhor config (α=0,70, `iti_liquido_last`); gate ≥40% → autoriza F3; H3 parcial (2 sig. vs B3).
+- **Não obtido:** H1 forte; causalidade; H2; ITI não domina todas as comparações.
+- **Direcionamento:** F3 robustez temporal; F5 qualidade classificador.
+
+**Artefatos:** `outputs/sabesp_r0_baseline/`, `outputs/sabesp_r1_alpha070/`
+
+---
+
+## F3 — Expansão temporal e lacuna 2023
+
+### Pergunta
+O sinal sobrevive mai/2022–abr/2024 com lacuna jan–abr/2023 preenchida?
+
+### Base bibliográfica
+Duarte et al. (2020): persistência da informação varia. RACEf (2022): associação sentimento–mercado mais forte em crises/eventos.
+
+### Literatura → resultado
+
+Duarte (2020) sustenta que persistência varia por horizonte; RACEf (2022) sustenta sensibilidade em períodos de crise/evento. **Nosso resultado confirma** reprodução do evento no sanity; **nega** robustez no expandido (33,3%, 0 sig.).
+
+### Resultados (resumo — detalhe na Parte 4)
+
+| Contexto | R1 win rate | Sig. |
+|----------|-------------|------|
+| Evento (referência) | **41,7%** | **2** |
+| Marco 2 expandido (1.055 art.) | 20,8% | 0 |
+| Gap 2023 (1.254 art.) | 33,3% | 0 |
+| Sanity evento pós-gap | **41,7%** | **2** |
+
+Subperíodos R1 expandido (h=1): pré-evento 2022 Pearson −0,148; interregno 2023Q1 +0,172 (n=15); evento isolado no expandido −0,030.
+
+### Obtidas / direcionamento
+
+- **Obtido:** mais dados ≠ melhor sinal; sanity reproduz evento.
+- **Não obtido:** vitória robusta no expandido.
+- **Direcionamento:** F4 filtro roundups.
+
+**Artefatos:** `outputs/sabesp_gap2023_*`, `gap2023_comparison.md`, `period_breakdown_gap2023.md`
+
+---
+
+## F4 — Robustez textual e múltiplas comparações
+
+### Pergunta
+Remover roundups/agendas melhora o sinal? As 2 sig. resistem à leitura de busca múltipla?
+
+### Base bibliográfica
+Neuenschwander (2014): pré-processamento não trivial. Marquezan & Assunção (2025): sinal varia por tipo de notícia e **lag** — heterogeneidade por defasagem é precedente BR direto.
+
+### Literatura → resultado
+
+Neuenschwander (2014) e Marquezan & Assunção (2025) sustentam que tipo de notícia e pré-processamento afetam o sinal; ERAMIARS prevê heterogeneidade por lag — coerente com vitórias significativas **apenas** em h=4 (não em h=1 ou h=2). **Nosso resultado nega** que roundups expliquem o teto (filtro piora para 25%, 0 sig.); 2/24 sig. permanecem exploratórias.
 
 ### Resultado
 
-| Modelo | Vitórias | Win rate | Significativas |
-|--------|----------|----------|----------------|
-| `finbert_ptbr` | 0/24 | 0% | 0 |
-| `pt_br_financial_sentiment_analysis` | 3/24 | 12,5% | 0 |
+| Run | Artigos | R1 win rate | Sig. |
+|-----|---------|-------------|------|
+| Evento base | 465 | 41,7% | 2 |
+| Evento filtrado | 404 (−61 roundups) | **25,0%** | **0** |
 
-### O que aprendemos
+### Obtidas / direcionamento
 
-- Lacunas metodológicas documentadas na [auditoria metodológica](#auditoria-metodológica--por-que-o-marco-1-existiu) motivaram a campanha corrigida (Marco 1).
-- Win rate baixo (~0–12%) refletia tanto sinal fraco quanto **comparação inválida** (frequências misturadas).
+- Filtro **piora** ITI — teto ~41,7% não é só “lixo textual”.
+- 2/24 sig. permanecem leitura exploratória cautelosa.
+- **Direcionamento:** F5 validade FinBERT.
 
-### Artefatos
-
-- Saída: `outputs/saneamento_pt_20260824/`
-
----
-
-## Auditoria metodológica — por que o Marco 1 existiu
-
-Antes da campanha Sabesp 2026 (Marco 1), revisamos o protocolo da rodada broad e listamos lacunas que tornavam os números difíceis de interpretar. A tabela abaixo resume o estado **pré-correção** e o que mudou no código e nos YAMLs. Detalhes técnicos das correções estão em [documentacao.md §5.0](documentacao.md#50-modos-diário-e-semanal) e [§6](documentacao.md#6-configurações-principais).
-
-| Lacuna | Impacto | Correção |
-|--------|---------|----------|
-| Research usava só `iti_daily.csv` | ITI semanal ignorado na validação | `index_frequency: weekly` + `weekly_align.py` |
-| Baselines só diários | Comparação inválida com ITI semanal | `resample_baselines_weekly` |
-| Sem filtro empresa/janela | Sabesp diluída com outras empresas | `companies_filter` + dataset `saneamento_sabesp_strict_event` |
-| `strict` só na coleta | Ruído broad permanecia no raw | `build_strict_corpus()` offline |
-| Sem `--experiment-config` | Grid alpha/ablação manual | Flag no CLI do runner |
-| Horizontes em dias | Incompatível com ITI semanal | Horizontes `[1, 2, 4]` semanas |
-
-### Decisões fixadas na campanha
-
-**ITI semanal.** Agregação padrão `iti_liquido_last` (estado EWMA no último dia útil da semana). A run R8 testou `iti_liquido_mean` (média dos dias da semana) e performou pior. Retorno semanal = soma dos `log_return` diários alinhada ao `period_end` do ITI.
-
-**Corpus strict.** `noticias_strict.csv` preserva `noticias.csv` broad; reaplica `match_entity(titulo + noticia)` em cada registro de `raw/` e descarta registros sem entidade (sem gerar PENDENTE).
-
-**Equação ITI.** Forma completa documentada em [documentacao.md §4](documentacao.md#4-fórmulas-do-iti). Ablações via `disabled_dimensions` ou `equation_mode: simplified_dc` (R6: `I_n = d·c`, `w_n = c`).
-
-**Entidades e tickers.** Sabesp → `SBSP3.SA`; Copasa → `CSMG3.SA`; Sanepar → `SAPR4.SA`.
-
-### Gate de coleta pré-evento (mai–out/2022)
-
-Avançar a coleta para o período pré-privatização somente se **uma** das condições for atendida:
-
-- ITI vence B1/B2 em ≥40% das comparações em alguma config R1–R8, **ou**
-- FinBERT ≥70% concordância manual **e** correlação semanal ITI×retorno p < 0,05 em h = 2.
-
-A run **R1** atingiu 41,7% de win rate (≥ 40%) — gate atendido. Ver [Decisões tomadas](#decisões-tomadas) no Marco 1.
-
-### Artefatos da auditoria e campanha
-
-- Configs por run: `configs/campaigns/sabesp_2026/experiments/r0..r9.yaml` (antes: `configs/experiments/sabesp/`)
-- Research semanal: `configs/campaigns/sabesp_2026/research_weekly.yaml`
-- Manifest: `outputs/campaigns/sabesp_2026/manifest.json`
-- Orquestração: `scripts/campaigns/sabesp_2026.sh`
+**Artefatos:** `outputs/sabesp_event_r1_filtered/`, `significant_wins_r1_event.md`
 
 ---
 
-## Marco 1 — Campanha Sabesp 2026 (R0–R9)
+## F5 — Validade do classificador
 
-**Data:** 24/08/2026  
-**Campanha:** `sabesp_2026`  
-**Status:** concluída
+### Pergunta
+FinBERT concorda com humanos o suficiente (gate 70% / κ≥0,40)?
 
-Correção metodológica antes de expandir a coleta: corpus **strict** só Sabesp, ITI calculado diariamente mas validado em frequência **semanal** alinhada ao mercado, horizontes em semanas (1, 2, 4), filtro de empresa no research. Dez runs (R0–R9) testam α, ablações da equação, agregação semanal e modelo alternativo.
+### Base bibliográfica
+Santos et al. (2023): FinBERT de domínio financeiro PT; desempenho depende do corpus de aplicação.
 
-### Resumo comparativo
+### Literatura → resultado
 
-| Run | ID | Mudança | Vitórias | Win rate | Δ vs R0 | Significativas |
-|-----|-----|---------|----------|----------|---------|----------------|
-| R0 | `sabesp_r0_baseline` | Referência corrigida | 5/24 | 20,8% | — | 0 |
-| R1 | `sabesp_r1_alpha070` | α = 0,70 | 10/24 | **41,7%** | +20,8 pp | **2** |
-| R2 | `sabesp_r2_alpha095` | α = 0,95 | 2/24 | 8,3% | −12,5 pp | 0 |
-| R3 | `sabesp_r3_no_novelty` | sem novelty `u` | 5/24 | 20,8% | 0 | 0 |
-| R4 | `sabesp_r4_no_event` | sem evento `e` | 6/24 | 25,0% | +4,2 pp | 0 |
-| R5 | `sabesp_r5_no_relevance` | sem relevance `r` | 5/24 | 20,8% | 0 | 0 |
-| R6 | `sabesp_r6_simplified` | equação `d·c` | 5/24 | 20,8% | 0 | 0 |
-| R7 | `sabesp_r7_horizon_fixed` | α fixo por h | 6/24 | 25,0% | +4,2 pp | 0 |
-| R8 | `sabesp_r8_weekly_mean` | média semanal ITI | 1/24 | 4,2% | −16,7 pp | 0 |
-| R9 | `sabesp_r9_ensemble` | modelo PT-BR alt. | 6/24 | 25,0% | +4,2 pp | 0 |
+Santos (2023) sustenta FinBERT de domínio, com ressalva de corpus de aplicação. **Nosso resultado nega** transferência ao saneamento (κ=0,163; nenhum modelo passa gate) — **limita interpretação substantiva** de todo resultado de mercado anterior.
 
-> As 24 comparações por run resultam de 4 baselines × 2 métricas de conclusão (Pearson, Spearman) × 3 horizontes semanais. Detalhe em [documentacao.md §5](documentacao.md#50-modos-diário-e-semanal).
+### Resultado (n=100)
 
-### Run R0 BASELINE — Baseline corrigido
+| Modelo | Acurácia | κ | Passa gate? |
+|--------|----------|---|-------------|
+| `finbert_ptbr` | 48,0% | 0,163 | não |
+| `bertweet_pt_sentiment` | 68,0% | −0,014 | não |
+| `bertimbau_sentiment` | 53,0% | 0,087 | não |
 
-**Hipótese** — Com corpus strict, ITI semanal e escopo Sabesp, o pipeline reproduz resultados interpretáveis.
+κ focal FinBERT: 0,217 (ainda abaixo do gate). Tipologia: 74% focal_sabesp, 26% roundup_agenda.
 
-**Mudança em relação ao R0** — Referência da campanha: α=0,85, equação full, `iti_liquido_last`.
+### Obtidas / direcionamento
 
-#### Escopo dos dados
+- Transferência FinBERT→saneamento **não demonstrada** nesta amostra.
+- ITI condicional com controles PT **não executado** (correto).
+- **Direcionamento:** F6 síntese; sem fine-tune neste ciclo.
 
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,85 |
-| Equação | full (`I_n = d·m·r·c·e·u`) |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **5/24 (20.8%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: —
-- Conclusão automática: _iti_liquido (pearson, spearman): 5/24 vitórias (20.8%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-| Baseline | 1 sem (P / S) | 2 sem (P / S) | 4 sem (P / S) |
-|----------|---------------|---------------|---------------|
-| **B0** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B1** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B2** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B3** | ✓ / ✓ | ✗ / ✓ | ✓ / ✓ |
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r0_baseline/research/finbert_ptbr/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- A correção metodológica elevou o win rate em relação à rodada broad (~12,5%), mas o ITI ainda perde para baselines na maioria das comparações.
-- Vitórias concentradas em B3 no horizonte de 4 semanas — o impacto diário sem memória às vezes supera o EWMA com α alto.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r0_baseline.yaml`
-- Saída: `outputs/sabesp_r0_baseline/`
-- Research: `outputs/sabesp_r0_baseline/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R1 ALPHA070 — Alpha 0,70 (mais reativo)
-
-**Hipótese** — Um EWMA (Exponentially Weighted Moving Average) mais reativo captura melhor o choque da privatização.
-
-**Mudança em relação ao R0** — `alpha: 0.70` (demais parâmetros iguais ao R0).
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,70 |
-| Equação | full |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **10/24 (41.7%)**
-- Vitórias significativas: **2/24**
-- Δ vs R0: +20.8 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 10/24 vitórias (41.7%), 2 significativas (8.3%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-| Baseline | 1 sem (P / S) | 2 sem (P / S) | 4 sem (P / S) |
-|----------|---------------|---------------|---------------|
-| **B0** | ✗ / ✓ | ✗ / ✗ | ✗ / ✗ |
-| **B1** | ✗ / ✗ | ✗ / ✗ | ✗ / ✓ |
-| **B2** | ✗ / ✗ | ✗ / ✓ | ✗ / ✓ |
-| **B3** | ✓ / ✓ | ✓ / ✓ | ★ / ★ |
-
-#### Relação com a ação
-
-A validação mede se o ITI da semana **correlaciona** com o retorno futuro acumulado da `SBSP3.SA` — não se o índice “acerta” direção como aposta. Na melhor run (R1), as correlações diretas ITI×mercado permanecem fracas e não significativas (ex.: Pearson h=4 semanas ≈ −0,21, p≈0,38; Spearman ≈ −0,12, p≈0,60). O ganho do R1 aparece sobretudo **em relação aos baselines de notícias**, não como correlação isolada forte com o preço.
-
-#### Leitura
-
-- Melhor run da campanha: win rate 41,7%, o dobro do R0.
-- Única run com vitórias estatisticamente significativas (2/24): horizonte 4 semanas vs B3.
-- α menor deixa o índice esquecer mais rápido e reagir ao fluxo de notícias do evento.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r1_alpha070.yaml`
-- Saída: `outputs/sabesp_r1_alpha070/`
-- Research: `outputs/sabesp_r1_alpha070/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R2 ALPHA095 — Alpha 0,95 (mais memória)
-
-**Hipótese** — Mais memória no EWMA suaviza ruído semanal.
-
-**Mudança em relação ao R0** — `alpha: 0.95`.
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,95 |
-| Equação | full |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **2/24 (8.3%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: -12.5 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 2/24 vitórias (8.3%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-| Baseline | 1 sem (P / S) | 2 sem (P / S) | 4 sem (P / S) |
-|----------|---------------|---------------|---------------|
-| **B0** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B1** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B2** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B3** | ✓ / ✓ | ✗ / ✗ | ✗ / ✗ |
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r2_alpha095/research/finbert_ptbr/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- Pior run da campanha (8,3%): memória longa apaga o sinal do evento.
-- Confirma que α ≥ 0,95 não é adequado para esta janela Sabesp.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r2_alpha095.yaml`
-- Saída: `outputs/sabesp_r2_alpha095/`
-- Research: `outputs/sabesp_r2_alpha095/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R3 NO NOVELTY — Sem novelty (u)
-
-**Hipótese** — Penalizar títulos repetidos (novelty) agrega informação.
-
-**Mudança em relação ao R0** — `disabled_dimensions: [novelty]`.
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,85 |
-| Equação | full sem `u` |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **5/24 (20.8%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: +0.0 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 5/24 vitórias (20.8%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-_Vitórias: h=1 vs B3 (pearson) ✓, h=1 vs B3 (spearman) ✓, h=2 vs B3 (spearman) ✓, h=4 vs B3 (pearson) ✓, h=4 vs B3 (spearman) ✓._
-
-Tabela completa em `outputs/sabesp_r3_no_novelty/research/finbert_ptbr/saneamento_sabesp_strict_event/incremental_deltas.csv`.
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r3_no_novelty/research/finbert_ptbr/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- Resultado idêntico ao R0 — novelty não move o sinal nesta janela.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r3_no_novelty.yaml`
-- Saída: `outputs/sabesp_r3_no_novelty/`
-- Research: `outputs/sabesp_r3_no_novelty/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R4 NO EVENT — Sem evento (e)
-
-**Hipótese** — Heurísticas de evento melhoram o sinal.
-
-**Mudança em relação ao R0** — `disabled_dimensions: [event_weight]`, heurísticas desligadas.
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,85 |
-| Equação | full sem `e` |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **6/24 (25.0%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: +4.2 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 6/24 vitórias (25.0%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-_Vitórias: h=1 vs B3 (pearson) ✓, h=1 vs B3 (spearman) ✓, h=2 vs B3 (pearson) ✓, h=2 vs B3 (spearman) ✓, h=4 vs B3 (pearson) ✓, h=4 vs B3 (spearman) ✓._
-
-Tabela completa em `outputs/sabesp_r4_no_event/research/finbert_ptbr/saneamento_sabesp_strict_event/incremental_deltas.csv`.
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r4_no_event/research/finbert_ptbr/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- Leve melhora (+4,2 pp) sem significância — peso de evento pode adicionar ruído.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r4_no_event.yaml`
-- Saída: `outputs/sabesp_r4_no_event/`
-- Research: `outputs/sabesp_r4_no_event/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R5 NO RELEVANCE — Sem relevance (r)
-
-**Hipótese** — Relevance estabiliza pesos entre notícias.
-
-**Mudança em relação ao R0** — `disabled_dimensions: [relevance]`.
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,85 |
-| Equação | full sem `r` |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **5/24 (20.8%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: +0.0 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 5/24 vitórias (20.8%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-_Vitórias: h=1 vs B3 (pearson) ✓, h=1 vs B3 (spearman) ✓, h=2 vs B3 (spearman) ✓, h=4 vs B3 (pearson) ✓, h=4 vs B3 (spearman) ✓._
-
-Tabela completa em `outputs/sabesp_r5_no_relevance/research/finbert_ptbr/saneamento_sabesp_strict_event/incremental_deltas.csv`.
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r5_no_relevance/research/finbert_ptbr/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- Idêntico ao R0 — sem efeito mensurável.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r5_no_relevance.yaml`
-- Saída: `outputs/sabesp_r5_no_relevance/`
-- Research: `outputs/sabesp_r5_no_relevance/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R6 SIMPLIFIED — Equação simplificada (d·c)
-
-**Hipótese** — Dimensões extras são ruído.
-
-**Mudança em relação ao R0** — `equation_mode: simplified_dc` (`I_n = d·c`, `w_n = c`).
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,85 |
-| Equação | simplified_dc |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **5/24 (20.8%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: +0.0 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 5/24 vitórias (20.8%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-_Vitórias: h=1 vs B3 (pearson) ✓, h=1 vs B3 (spearman) ✓, h=2 vs B3 (spearman) ✓, h=4 vs B3 (pearson) ✓, h=4 vs B3 (spearman) ✓._
-
-Tabela completa em `outputs/sabesp_r6_simplified/research/finbert_ptbr/saneamento_sabesp_strict_event/incremental_deltas.csv`.
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r6_simplified/research/finbert_ptbr/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- Simplificar a equação não melhora nem piora — gargalo não está nas dimensões extras.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r6_simplified.yaml`
-- Saída: `outputs/sabesp_r6_simplified/`
-- Research: `outputs/sabesp_r6_simplified/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R7 HORIZON FIXED — Horizonte fixo
-
-**Hipótese** — Modulação de α por horizonte inferido (h) confunde a validação.
-
-**Mudança em relação ao R0** — `horizon.mode: fixed`.
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,85 |
-| Equação | full |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **6/24 (25.0%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: +4.2 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 6/24 vitórias (25.0%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-_Vitórias: h=1 vs B3 (pearson) ✓, h=1 vs B3 (spearman) ✓, h=2 vs B3 (pearson) ✓, h=2 vs B3 (spearman) ✓, h=4 vs B3 (pearson) ✓, h=4 vs B3 (spearman) ✓._
-
-Tabela completa em `outputs/sabesp_r7_horizon_fixed/research/finbert_ptbr/saneamento_sabesp_strict_event/incremental_deltas.csv`.
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r7_horizon_fixed/research/finbert_ptbr/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- Leve ganho (+4,2 pp) — modulação por h não é o principal problema.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r7_horizon_fixed.yaml`
-- Saída: `outputs/sabesp_r7_horizon_fixed/`
-- Research: `outputs/sabesp_r7_horizon_fixed/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R8 WEEKLY MEAN — ITI = média semanal
-
-**Hipótese** — Média dos valores diários da semana é mais estável que o último dia.
-
-**Mudança em relação ao R0** — `iti_weekly_column: iti_liquido_mean` (em vez de `iti_liquido_last`).
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_mean` |
-| α (alpha) | 0,85 |
-| Equação | full |
-| Modelo de sentimento | `finbert_ptbr` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **1/24 (4.2%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: -16.7 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 1/24 vitórias (4.2%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-| Baseline | 1 sem (P / S) | 2 sem (P / S) | 4 sem (P / S) |
-|----------|---------------|---------------|---------------|
-| **B0** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B1** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B2** | ✗ / ✗ | ✗ / ✗ | ✗ / ✗ |
-| **B3** | ✗ / ✓ | ✗ / ✗ | ✗ / ✗ |
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r8_weekly_mean/research/finbert_ptbr/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- Pior que R0 (4,2%): agregar por média semanal destrói o estado EWMA do fim da semana.
-- Confirma `iti_liquido_last` como padrão para validação semanal.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r8_weekly_mean.yaml`
-- Saída: `outputs/sabesp_r8_weekly_mean/`
-- Research: `outputs/sabesp_r8_weekly_mean/research/finbert_ptbr/saneamento_sabesp_strict_event/`
-
-### Run R9 ENSEMBLE — Modelo alternativo PT-BR
-
-**Hipótese** — Outro BERT muda o sinal de sentimento.
-
-**Mudança em relação ao R0** — Modelo `pt_br_financial_sentiment_analysis` (demais parâmetros como R0).
-
-#### Escopo dos dados
-
-| Campo | Valor |
-|-------|-------|
-| Empresa(s) | Sabesp apenas |
-| Período das notícias | nov/2023 – abr/2024 (evento de privatização) |
-| Modo do corpus | **strict** — só artigos com entidade Sabesp confirmada |
-| Filtro de entidade | sim — descartados registros sem match de empresa |
-| Artigos | 465 |
-| Dataset YAML | `saneamento_sabesp_strict_event` |
-
-#### Índice (ITI)
-
-| Campo | Valor |
-|-------|-------|
-| Cálculo do índice | **diário** — EWMA (Exponentially Weighted Moving Average) recalculado a cada dia |
-| Frequência na validação | **semanal** — um ponto por semana (sexta-feira, W-FRI) |
-| Coluna na validação | `iti_liquido_last` |
-| α (alpha) | 0,85 |
-| Equação | full |
-| Modelo de sentimento | `pt_br_financial_sentiment_analysis` |
-
-#### Validação contra mercado
-
-| Campo | Valor |
-|-------|-------|
-| Ticker | `SBSP3.SA` — preços reais via yfinance, cache em `data/market/prices.csv` |
-| Retorno alvo | log-return (retorno logarítmico) acumulado nas próximas 1, 2 ou 4 **semanas** |
-| Baselines comparados | B0–B3 — todos derivados das **nossas notícias**, não do mercado |
-| Comparações por run | 24 (= 4 baselines × 2 métricas Pearson/Spearman × 3 horizontes) |
-| Semanas com dados alinhados | ~24 (`overlap_days`) |
-
-#### Resultado
-
-- Win rate: **6/24 (25.0%)**
-- Vitórias significativas: **0/24**
-- Δ vs R0: +4.2 pp
-- Conclusão automática: _iti_liquido (pearson, spearman): 6/24 vitórias (25.0%), 0 significativas (0.0%)_
-
-#### ITI vs baselines (Pearson / Spearman)
-
-Legenda: ✓ vitória do ITI · ★ vitória significativa · ✗ derrota
-
-_Vitórias: h=1 vs B3 (pearson) ✓, h=1 vs B3 (spearman) ✓, h=2 vs B3 (pearson) ✓, h=2 vs B3 (spearman) ✓, h=4 vs B3 (pearson) ✓, h=4 vs B3 (spearman) ✓._
-
-Tabela completa em `outputs/sabesp_r9_ensemble/research/pt_br_financial_sentiment_analysis/saneamento_sabesp_strict_event/incremental_deltas.csv`.
-
-#### Relação com a ação
-
-Mesma lógica do R1: o ITI semanal é confrontado com log-returns futuros da `SBSP3.SA` (dados de mercado via yfinance). Métricas brutas em `outputs/sabesp_r9_ensemble/research/pt_br_financial_sentiment_analysis/saneamento_sabesp_strict_event/market_metrics.csv`.
-
-#### Leitura
-
-- 25,0% (+4,2 pp vs R0) — trocar modelo não resolve o problema estrutural.
-
-#### Artefatos
-
-- Config: `configs/campaigns/sabesp_2026/experiments/r9_ensemble.yaml`
-- Saída: `outputs/sabesp_r9_ensemble/`
-- Research: `outputs/sabesp_r9_ensemble/research/pt_br_financial_sentiment_analysis/saneamento_sabesp_strict_event/`
+**Artefatos:** `manual_label_report.md`, `classifier_eval_pt/`
 
 ---
 
-### Síntese do Marco 1
+## F6 — Síntese processual da Trilha A
 
-**O que funcionou**
+### Literatura → resultado
 
-1. Correção metodológica — strict + semanal + filtro Sabesp elevou win rate de ~12,5% (broad) para 20,8% (R0).
-2. **α = 0,70** (R1) — único eixo com ganho robusto; win rate 41,7% com 2 vitórias significativas.
-3. **`iti_liquido_last`** — último dia útil da semana vence média semanal (R8).
-4. Infraestrutura de campanha — manifest, configs por run, `scripts/campaigns/sabesp_2026.sh`.
+Literatura BR (Yoshinaga, Duarte, UTFPR) sustenta a **pergunta** e o desenho; não garante resultado positivo. **Nosso resultado confirma** prova de conceito de engenharia; **nega** validação confirmatória de H1/H3 fora do patamar exploratório do evento.
 
-**O que não funcionou**
+Prova de conceito de engenharia + resultado exploratório localizado no evento — **não** validação confirmatória. A interpretação substantiva de qualquer associação ITI×mercado fica **limitada** pelo gate κ do classificador ([§4.4](#44-qualidade-do-classificador)). Direção estratégica: (i) preservar evento como exploratório; (ii) não vender expandido como robustez; (iii) sem fine-tune sem ampliar anotação; (iv) separar H2/volatilidade do resultado principal; (v) literatura BR como comparação de desenho, não prova do ITI.
 
-1. ITI ainda perde para baselines na maioria das comparações (exceto R1).
-2. Ablações de dimensões (R3–R6) quase não movem o resultado.
-3. α alto (0,95) degrada fortemente o sinal (R2).
-4. Trocar modelo BERT (R9) não resolve o problema estrutural.
-
-**Limitações**
-
-- Evento único (privatização Sabesp); ~24 semanas de overlap; correlação ≠ causalidade.
-- Rótulos manuais (100 notícias) — ver [Marco 3](#marco-3--qualidade-do-sentimento-trilha-b).
-
-### Decisões tomadas
-
-| Decisão | Motivo |
-|---------|--------|
-| Avançar coleta pré-evento (mai–out/2022) | R1 atingiu 41,7% ≥ 40% (gate atendido); **executado no Marco 2** |
-| Usar α = 0,70 como default na próxima rodada | Melhor resultado + significância |
-| Manter `iti_liquido_last` | R8 provou que média semanal é pior |
-| Não investir em ablações de dimensões por ora | R3–R6 não moveram o resultado |
-
-### Artefatos do marco
-
-| Artefato | Caminho |
-|----------|---------|
-| Manifest | `outputs/campaigns/sabesp_2026/manifest.json` |
-| Análise automática | `outputs/campaigns/sabesp_2026/comparative_analysis.md` |
-| Corpus strict Sabesp | `data/saneamento_corpus/noticias_strict_sabesp.csv` |
-| Research semanal | `configs/campaigns/sabesp_2026/research_weekly.yaml` |
-| Script campanha | `scripts/campaigns/sabesp_2026.sh` |
+Números fechados: **Parte 4**.
 
 ---
 
-## Marco 2 — Amostra PT expandida (Sabesp)
+# Parte 4 — Resultados consolidados Trilha A
 
-**Data:** 31/08/2026  
-**Status:** concluído (coleta + corpus + replay GPU)
+*Números extraídos de `outputs/` — fonte de verdade para tabelas desta seção.*
 
-**Objetivo:** aumentar overlap semanal (meta **≥ 40 semanas**) incorporando notícias **mai–out/2022** (pré-evento) à janela do evento (nov/2023–abr/2024), sem misturar trilhas EN nem trocar preços B3.
+## 4.1 Protocolo
 
-### Protocolo
+Ver [Parte 2](#parte-2--protocolo-e-critérios-de-progresso). Research: `configs/campaigns/sabesp_2026/research_weekly.yaml`.
 
-| Etapa | Comando |
-|-------|---------|
-| Coleta pré-evento | `./scripts/campaigns/sabesp_marco2.sh scrape` |
-| Coleta lacuna 2023 (depois do Marco 2) | `./scripts/campaigns/sabesp_marco2.sh scrape-2023` |
-| Corpus strict expandido | `./scripts/campaigns/sabesp_marco2.sh corpus` |
-| Replay R0 + R1 | `./scripts/campaigns/sabesp_marco2.sh replay` |
-| Sanity check janela evento | `./scripts/campaigns/sabesp_marco2.sh replay-event` |
-| Análise por subperíodo | `./scripts/campaigns/sabesp_marco2.sh analyze-periods` |
+## 4.2 Resultado principal (janela evento)
 
-### Escopo dos dados
+> **Leitura obrigatória:** o resultado principal (41,7%, 2 sig.) é **exploratório**, não confirmatório. Interpretação substantiva do ITI como medida de choque informacional **condiciona-se** à validade do classificador — gate κ falhou (48%, κ=0,163; [§4.4](#44-qualidade-do-classificador)). Não inferir causalidade nem generalização fora da janela evento.
 
-| Campo | Valor |
-|-------|-------|
-| Empresa | Sabesp |
-| Período | 2022-05-01 — 2024-04-30 |
-| Artigos no corpus filtrado | **1.055** no replay ITI (256 em 2022; lacuna jan–abr/2023). Depois: **1.254** — [atualização de corpus](#atualização-de-corpus-31082026-sem-replay-iti) |
-| Dataset YAML | `saneamento_sabesp_strict_expanded` |
-| Corpus | `data/saneamento_corpus/noticias_strict_sabesp.csv` |
-| Research | `configs/campaigns/sabesp_2026/research_weekly.yaml` |
+**Janela:** nov/2023–abr/2024 (`saneamento_sabesp_strict_event`, ~465 artigos).
 
-### Resumo comparativo
+| Run | run_id | Win rate R1 | Significativas |
+|-----|--------|-------------|----------------|
+| Marco 1 | `sabesp_r1_alpha070` | **41,7%** | **2** |
+| Sanity corpus 1.254 | `sabesp_gap2023_event_r1_alpha070` | **41,7%** | **2** |
+| Filtro roundups | `sabesp_event_r1_filtered` | 25,0% | 0 |
 
-| Run | run_id | α | Vitórias | Win rate | Δ vs R0 | Significativas |
-|-----|--------|---|----------|----------|---------|----------------|
-| R0 | `sabesp_marco2_r0_baseline` | 0,85 | 0/24 | 0,0% | — | 0 |
-| R1 | `sabesp_marco2_r1_alpha070` | 0,70 | 5/24 | 20,8% | +20,8 pp | 0 |
+**Vitórias significativas** (`significant_wins_r1_event.md`):
 
-Métrica: `iti_liquido` × baselines B0–B3, Pearson + Spearman, horizontes 1/2/4 semanas (24 comparações).
+| Horizonte | Baseline | Métrica | Δ | p-value |
+|-----------|----------|---------|---|---------|
+| 4 sem. | B3 | Pearson | +0,133 | 0,040 |
+| 4 sem. | B3 | Spearman | +0,221 | 0,046 |
 
-### Overlap
+*Caveat:* 2/24 comparações — compatível com busca múltipla (§4.5).
 
-| Campo | Valor |
-|-------|-------|
-| Semanas alinhadas (ITI + baselines + preço) | **76** (`aligned_panel.csv`) |
-| Meta do marco | ≥ 40 semanas — **atingida** |
-| Marco 1 (janela evento) | ~24 semanas |
+## 4.3 Robustez (janela expandida)
 
-### Marco 1 vs Marco 2 (janela expandida)
+**Janela:** mai/2022–abr/2024 (`saneamento_sabesp_strict_expanded`).
 
-| Run | Marco 1 (nov/23–abr/24, 465 artigos) | Marco 2 expandido (1.055 artigos) | Δ win rate |
-|-----|--------------------------------------|-----------------------------------|------------|
-| R0 | 20,8% | 0,0% | −20,8 pp |
-| R1 | **41,7%** (2 sig.) | 20,8% | −20,9 pp |
+| Corpus | Artigos | R1 win rate | Δ vs Marco 2 |
+|--------|---------|-------------|--------------|
+| Marco 2 (sem lacuna 2023) | 1.055 | 20,8% | — |
+| Gap 2023 preenchido | **1.254** | **33,3%** | +12,5 pp |
 
-Expandir a janela **não reforçou** o sinal ITI×mercado; α=0,70 continua melhor que 0,85 dentro do Marco 2, mas abaixo do Marco 1.
+| Run gap 2023 | R0 | R1 |
+|--------------|----|----|
+| Expandido | 4,2% (1/24) | **33,3%** (8/24) |
 
-### Leitura
+**Subperíodos** (`period_breakdown_gap2023.md`):
 
-- O pré-evento (mai–out/2022) dilui o ITI semanal: notícias fora do choque de privatização não se alinham ao retorno da `SBSP3.SA` da mesma forma que o evento nov/2023–abr/2024.
-- A janela **interpretável** para a tese permanece o evento de privatização; ver [sanity check janela evento](#sanity-check-janela-evento) e [análise por subperíodo](#análise-por-subperíodo).
-- O gate de coleta pré-evento (Marco 1) foi cumprido metodologicamente; o resultado científico é que **mais dados ≠ melhor correlação** neste desenho.
-
-### Decisões do Marco 2
-
-| Decisão | Motivo |
-|---------|--------|
-| Manter α = 0,70 como hipótese preferida | Melhor run dentro do corpus expandido (5/24 vs 0/24) |
-| Não assumir 41,7% do Marco 1 no corpus expandido | Win rate caiu para 20,8% |
-| Priorizar validação de sentimento (Marco 3) | Separar qualidade do classificador de sinal fraco ITI×mercado |
-| Documentar subperíodos 2022 vs evento | Explicar diluição sem reescrever histórico do Marco 1 |
-
-### Sanity check janela evento
-
-Replay R0+R1 só no dataset `saneamento_sabesp_strict_event` (nov/2023–abr/2024, mesmo CSV) para verificar se o corpus atualizado reproduz o Marco 1.
-
-| Run | Marco 1 | Marco 2 event replay | Δ |
-|-----|---------|----------------------|---|
-| R0 | 20,8% | **20,8%** (`sabesp_marco2_event_r0_baseline`) | 0 pp |
-| R1 | 41,7% (2 sig.) | **41,7%** (2 sig., `sabesp_marco2_event_r1_alpha070`) | 0 pp |
-
-O corpus evento no CSV expandido ainda filtra **465 artigos** (nov/2023–abr/2024) — mesma contagem do Marco 1. A divergência aparece **somente** quando o ITI incorpora 2022 (`saneamento_sabesp_strict_expanded`).
-
-### Análise por subperíodo
-
-Correlação exploratória ITI×retorno futuro (h=1 semana) no painel do R1 expandido gap2023 (`analyze-periods`, três buckets):
-
-| Subperíodo | Semanas | Pearson | Spearman |
-|------------|---------|---------|----------|
+| Bucket | Semanas | Pearson | Spearman |
+|--------|---------|---------|----------|
 | `pre_evento_2022` | 25 | −0,148 | −0,110 |
 | `interregno_2023q1` | 15 | +0,172 | +0,304 |
 | `evento_nov23_abr24` | 50 | −0,030 | +0,054 |
 
-Relatório: `outputs/campaigns/sabesp_marco2/period_breakdown_gap2023.md`. O bucket antigo `evento_2023_2024` misturava a lacuna 2023 com o evento — leitura corrigida acima.
+**Leitura:** expandido = teste de limitação (“mais dados ≠ melhor sinal”).
 
-### Artefatos
+## 4.4 Qualidade do classificador
+
+| Métrica FinBERT (100 manual) | Valor | Gate |
+|------------------------------|-------|------|
+| Acurácia | 48% | < 70% |
+| Cohen's κ | 0,163 | — |
+| F1 macro | 0,42 | — |
+
+**Benchmark literatura vs. corpus local** (não re-executado — números do artigo Santos et al., 2023):
+
+| Fonte | Acurácia / F1 | Corpus | Implicação para Trilha A |
+|-------|---------------|--------|--------------------------|
+| Santos et al. (2023) — artigo | ~76% / F1 0,73 | Notícias financeiras PT (treino) | Teto teórico se domínio coincidisse |
+| FinBERT-PT-BR — **este lab** | 48% / F1 0,42 | Saneamento Sabesp (n=100) | Gate κ falhou — limita interpretação substantiva |
+| BERTweet / BERTimbau — controles | 68% / 0,27; 53% / 0,33 | Mesma amostra | κ negativo ou baixo — problema não é só arquitetura |
+
+| Modelo | F1 macro | κ (completa) | κ (focal) |
+|--------|----------|--------------|-----------|
+| `finbert_ptbr` | 0,42 | 0,163 | 0,217 |
+| `bertweet_pt_sentiment` | 0,27 | −0,014 | 0,000 |
+| `bertimbau_sentiment` | 0,33 | 0,087 | 0,032 |
+
+**Tipologia de erro** (`error_analysis.md`, n=100):
+
+| Tipologia | n | % |
+|-----------|---|---|
+| `focal_sabesp` | 74 | 74% |
+| `roundup_agenda` | 26 | 26% |
+
+κ sobe levemente no subconjunto focal do FinBERT (0,163 → 0,217), mas permanece abaixo do gate — contaminação de gênero jornalístico explica parte, não tudo, do desempenho fraco. Filtro de roundups no evento (**25,0%**, 0 sig.) confirma que o teto ~41,7% não é só “lixo textual”.
+
+**Relatórios:** `outputs/campaigns/sabesp_2026/manual_label_report.md` · `outputs/campaigns/classifier_eval_pt/comparative_report.md` · `outputs/campaigns/classifier_eval_pt/error_analysis.md`
+
+## 4.5 Limitações
+
+- Evento único (privatização); overlap ~24 semanas (evento) a ~90 (expandido).
+- Correlação ≠ causalidade; win rate = ITI vs baselines internos.
+- 24 comparações não independentes; 2 sig. compatíveis com busca múltipla.
+- Classificador abaixo do gate; roundups ~26% da amostra manual.
+- n=100 para κ — instável em classes minoritárias.
+- H2, volatilidade, volume, Granger, controles IBOV: **não executados**.
+
+## 4.6 Conclusão operacional
+
+1. **Exploratório e condicionado ao κ:** fechar narrativa com evento + R1 (41,7%, 2 sig.) como resultado principal exploratório.
+2. Citar expandido como robustez/limitação (33,3%, 0 sig.).
+3. **Não** investir em fine-tune/LoRA neste ciclo.
+4. Marcos 4–5 (FNSPID / FinMarBa) opcionais.
+
+## 4.7 Redação da tese
+
+**Figuras sugeridas** (extrair de `outputs/`):
+
+- Série ITI vs retorno h=1: `outputs/sabesp_gap2023_event_r1_alpha070/.../aligned_panel.csv`
+- Matriz confusão: `outputs/.../rotulos_manual_pt_100/confusion_matrix.csv`
+- Win rate por janela: `gap2023_comparison.md`
+
+**Bibliografia sugerida:** ver [Apêndice E](#apêndice-e--bibliografia-comentada).
+
+---
+
+# Parte 5 — O que foi e não foi tratado
+
+| Tema | Tratado | Não tratado / inconcluso |
+|------|---------|--------------------------|
+| Scraping | scraper→raw→CSV; identificação temporal | Recall por portal; republicações |
+| Corpus | strict, expansão, lacuna 2023, filtro roundups | Deduplicação semântica; viés de portais |
+| Modelo | FinBERT; BERTimbau/BERTweet controles | Fine-tune, ensemble, calibração |
+| Índice | score, impacto, ITI líquido/risco, EWMA | Validação dimensão a dimensão |
+| α | Ablação R0–R9 | Estimação out-of-sample; pré-registro |
+| Mercado | SBSP3, retorno futuro, Pearson/Spearman | Causalidade; volume; volatilidade fechados |
+| Notícias | corpus Sabesp; filtro roundups | Regra final materialidade por fonte |
+| Estatística | bootstrap; cabeça a cabeça | Correção multiplicidade; poder |
+| Setor | contexto privatização | Copasa/Sanepar painel setorial |
+| Teoria de mercado | EMH citada via FOCO (evento EQTL3) | Desenho é correlação exploratória, não teste de eficiência |
+
+---
+
+# Parte 6 — Próximo ciclo
+
+Perguntas que podem **mudar** a conclusão (não repetir fine-tune/LLM como prioridade deste ciclo):
+
+1. **Validação humana maior** — estratificar por gênero, fonte, classe, período (n>100).
+2. **Teste fora da janela** — ganho vs B3 em período futuro pré-definido (evidência out-of-sample).
+3. **H2 separada** — assimetria neg/pos em retorno, volatilidade ou volume.
+4. **Controles de mercado** — sinal residual após IBOV, setor, dia da semana, volatilidade.
+5. **Generalização** — Copasa e Sanepar com protocolo idêntico.
+6. **Parcimônia do índice** — cada dimensão melhora métrica pré-especificada ou só graus de liberdade?
+
+**Formulação estreita atual:** pipeline funciona; ITI teve vantagem exploratória localizada sobre B3 no evento; vantagem não robusta na expansão; classificador limita interpretação substantiva.
+
+---
+
+# Apêndice A — Runs R2–R9 condensadas
+
+Campanha `sabesp_2026`, dataset evento, 465 artigos.
+
+| Run | ID | Mudança | Win rate | Δ vs R0 | Sig. |
+|-----|-----|---------|----------|---------|------|
+| R2 | `sabesp_r2_alpha095` | α=0,95 | 8,3% | −12,5 pp | 0 |
+| R3 | `sabesp_r3_no_novelty` | sem u | 20,8% | 0 | 0 |
+| R4 | `sabesp_r4_no_event` | sem e | 25,0% | +4,2 pp | 0 |
+| R5 | `sabesp_r5_no_relevance` | sem r | 20,8% | 0 | 0 |
+| R6 | `sabesp_r6_simplified` | d·c | 20,8% | 0 | 0 |
+| R7 | `sabesp_r7_horizon_fixed` | α por h | 25,0% | +4,2 pp | 0 |
+| R8 | `sabesp_r8_weekly_mean` | média semanal | 4,2% | −16,7 pp | 0 |
+| R9 | `sabesp_r9_ensemble` | modelo PT alt. | 25,0% | +4,2 pp | 0 |
+
+Só **α=0,70** (R1) produz ganho relevante. R8 confirma `iti_liquido_last`.
+
+Configs: `configs/campaigns/sabesp_2026/experiments/r*.yaml`
+
+---
+
+# Apêndice B — Glossário e ordem de leitura
+
+| Termo | Significado |
+|-------|-------------|
+| ITI | Índice Temporal Informacional |
+| α | Memória EWMA (não alpha de mercado) |
+| B0–B3 | Baselines internos — Parte 1 |
+| Win rate | % vitórias em 24 duelos |
+| Significativa | Bootstrap apoia diferença vs baseline |
+
+**Ordem:** Parte 0 → 1 → 2 → 3 → **4** (números) → 5 → 6 → [documentacao.md](documentacao.md) para fórmulas.
+
+---
+
+# Apêndice C — Direcionamento da pesquisa (20/08)
+
+Texto integral do direcionamento inicial da pesquisa (agosto/2025).
+
+## Em uma frase
+
+Construir e validar empiricamente um **Índice Temporal Informacional (ITI)** a partir de notícias corporativas de empresas brasileiras de saneamento de capital aberto (Sabesp, Copasa, Sanepar), testando se esse índice traz informação incremental sobre retornos futuros além de medidas simples (contagem de notícias e sentimento médio).
+
+## Objetivo principal
+
+Construir e validar empiricamente um Índice Temporal Informacional baseado em notícias corporativas para empresas brasileiras de saneamento de capital aberto.
+
+## Pergunta de pesquisa
+
+### Pergunta principal (H1)
+
+Em que medida um Índice Temporal Informacional derivado de notícias corporativas é capaz de representar choques informacionais em empresas de saneamento de capital aberto e apresentar associação com retorno, volatilidade e volume negociado, além de medidas simples de sentimento e frequência de notícias?
+
+*Notas de escopo do direcionamento:* janela de dados de 2–3 meses; definir fontes e construir base de dados; avaliar impacto do modelo em relação às ações; matriz de correlação com IBOV para medir valor incremental da notícia além do movimento macro. Unidade notícia: header, link e sentimento.
+
+### Perguntas secundárias
+
+| ID | Pergunta | Hipótese / extensão |
+|----|----------|---------------------|
+| QP2 | Notícias negativas associam-se mais a volatilidade/retorno? | **H2** — assimetria |
+| QP3 | Persistência temporal (EWMA) melhora validade vs agregação sem memória? | **H3** |
+| QP4 | Discordância entre modelos (`iti_risco`/incerteza) informa volatilidade? | Extensão futura |
+
+## Metodologia
+
+### Unidade de análise
+
+Empresa × dia, depois agregação setorial.
+
+**Empresas-alvo:** Sabesp (SBSP3), Copasa (CSMG3), Sanepar (SAPR4).
+
+### Pipeline científico
+
+scraping → classificação NLP (FinBERT-PT-BR) → score contínuo \(d = P(pos) - P(neg)\) → impacto por notícia (dimensões \(m,r,e,c,u,q,h\)) → agregação diária (`impacto_dia`, `risco_dia`) → ITI com memória EWMA (`iti_liquido`, `iti_risco`) → alinhamento com preços B3 → validação vs baselines B0–B3.
+
+### Baselines
+
+| Baseline | O que é |
+|----------|---------|
+| B0 | Número de notícias no dia |
+| B1 | Sentimento médio diário |
+| B2 | Sentimento ponderado por confiança |
+| B3 | Impacto diário sem memória |
+| ITI | Impacto com persistência EWMA |
+
+**Pergunta empírica central:** B3/ITI acrescentam informação sobre retorno futuro além de B0, B1 e B2?
+
+## Referências bibliográficas de base
+
+### Índices textuais macro (metodologia)
+
+| Referência | Contribuição |
+|------------|--------------|
+| Baker, Bloom & Davis — Economic Policy Uncertainty | Frequência/cobertura jornalística → índice → validação externa |
+| Caldara & Iacoviello — Geopolitical Risk Index | Índice de risco a partir de jornais |
+| Shapiro, Sudhof & Wilson — Daily News Sentiment Index (Fed) | Sentimento diário com decaimento temporal — próximo da lógica EWMA do ITI |
+
+### Sentimento financeiro e NLP
+
+| Referência | Contribuição |
+|------------|--------------|
+| Araci et al. — FinBERT (ProsusAI) | Vocabulário financeiro; baseline para modelos EN |
+| FinBERT-PT-BR (Santos et al.) | Modelo usado no projeto para notícias em português |
+| FNSPID (2024) | Integração notícia–preço em escala; infraestrutura de dados |
+| FUNNEL (2025) | Mapear notícia → empresa corretamente; deduplicação |
+
+### Mercado e validação empírica
+
+| Referência | Contribuição |
+|------------|--------------|
+| Estudos de evento (event study) | Metodologia clássica para reação a choques informacionais |
+| Literatura ESG + mercado | Assimetria: notícias negativas reagem mais |
+| Trabalhos petróleo + sentimento | Referência comparativa (mostra o que não repetir como foco principal) |
+
+### Contexto setorial Brasil
+
+| Referência / fonte | Contribuição |
+|--------------------|--------------|
+| Marco Legal do Saneamento | Justificativa regulatória e volume de notícias |
+| Índice UTIL B3 | Controle setorial amplo (energia + saneamento + gás) |
+| ISE B3 | Referência de sustentabilidade, não de sentimento |
+
+---
+
+# Apêndice D — Índice de artefatos `outputs/`
 
 | Artefato | Caminho |
 |----------|---------|
-| Script Marco 2 | `scripts/campaigns/sabesp_marco2.sh` |
-| Dataset expandido | `configs/campaigns/datasets.yaml` → `saneamento_sabesp_strict_expanded` |
-| Saída R0 | `outputs/sabesp_marco2_r0_baseline/` |
-| Saída R1 | `outputs/sabesp_marco2_r1_alpha070/` |
-| Research | `outputs/sabesp_marco2_r*/research/finbert_ptbr/saneamento_sabesp_strict_expanded/` |
+| Comparação gap 2023 | `outputs/campaigns/sabesp_marco2/gap2023_comparison.md` |
+| Subperíodos | `outputs/campaigns/sabesp_marco2/period_breakdown_gap2023.md` |
+| Vitórias sig. R1 | `outputs/campaigns/sabesp_marco2/significant_wins_r1_event.md` |
+| Erro classificador | `outputs/campaigns/classifier_eval_pt/error_analysis.md` |
+| Runs expandidas | `outputs/sabesp_gap2023_r0_baseline/`, `sabesp_gap2023_r1_alpha070/` |
+| Runs evento sanity | `outputs/sabesp_gap2023_event_r0_baseline/`, `sabesp_gap2023_event_r1_alpha070/` |
+| Run filtrada | `outputs/sabesp_event_r1_filtered/` |
+| Bateria κ | `outputs/campaigns/classifier_eval_pt/` |
+| Scripts | `scripts/campaigns/sabesp_marco2.sh`, `classifier_eval_pt.sh` |
+| Manifest Marco 1 | `outputs/campaigns/sabesp_2026/manifest.json` |
 
-### Atualização de corpus (31/08/2026, sem replay ITI)
-
-Coleta histórica da lacuna **jan–abr/2023** (`./scripts/campaigns/sabesp_marco2.sh scrape-2023`) + `corpus` (build-strict + filtro Sabesp mai/22–abr/24). **Não** houve replay R0–R9: os números do Marco 2 acima continuam válidos para o CSV de 1.055 artigos.
-
-| Campo | Antes (Marco 2 / ITI) | Depois da coleta 2023 |
-|-------|----------------------|------------------------|
-| Strict Sabesp (`noticias_strict_sabesp.csv`) | 1.055 | **1.254** |
-| 2022 (mai–out) | 256 | **256** (janela intacta) |
-| jan–abr/2023 | 0 (lacuna) | **199** (jan 50, fev 56, mar 44, abr 49) |
-| Duplicatas de URL | — | 0 |
-| Pendentes | 1.026 | 1.248 |
-| Falsos PENDENTE com Sabesp/SBSP3 no título ou corpo | — | **0/1.248** |
-
-Fontes na janela jan–abr/2023 (Sabesp strict): Money Times 60, InfoMoney 52, G1 44, Valor 32, Exame 11. Portais ativos inalterados: Valor, InfoMoney, Money Times, G1, Exame.
-
-**Pendentes.** Amostra confirma PENDENTE = saneamento setorial sem empresa B3 no texto (PPPs, Enel, Veolia, censo, tarifa social genérica). Não há ganho claro em endurecer `match_entity` além do alias já existente da razão social da Sabesp. Não rotular os 1.248 à mão.
-
-**Estadão / Folha.** Permanecem `enabled: false` em `configs/scrapers.yaml`. A busca Playwright do Estadão devolve páginas de marketing; a da Folha exige login/paywall. O `SiteScraper` atual cobre o padrão, mas sem smoke live confiável — sem adapter novo.
-
-**Controles PT (inferência, `enabled: false`).** `bertweet_pt_sentiment` e `bertimbau_sentiment` entram no YAML para a próxima bateria; fetch/dry-run em [documentacao.md §3.3.1](documentacao.md#331-higiene-do-pipeline-estado-atual). Bateria κ executada — ver [síntese Trilha A](sintese_trilha_a.md#4-qualidade-do-classificador-marco-3--bateria-pt).
-
-### Fechamento Trilha A (gap 2023 + κ PT)
-
-Runs novas no corpus **1.254** (`sabesp_gap2023_*`) — runs Marco 2 (`sabesp_marco2_*`) **intactas**.
-
-| Pergunta | Resposta |
-|----------|----------|
-| Lacuna 2023 muda Marco 2 expandido? | R1 sobe **20,8% → 33,3%**; ainda **0 sig.** |
-| Sanity evento reproduz Marco 1? | **Sim** — R1 **41,7%**, **2 sig.** (`sabesp_gap2023_event_r1_alpha070`) |
-| Janela na tese | **Evento** = principal; **expandido** = robustez/limitação |
-| Controles PT passam gate (70% ou κ≥0,40)? | **Não** — ITI condicional omitido |
-
-Comandos: `./scripts/campaigns/sabesp_marco2.sh replay-gap2023`, `replay-event-gap2023`, `analyze-periods`; `./scripts/campaigns/classifier_eval_pt.sh run`.
-
-Relatórios: `outputs/campaigns/sabesp_marco2/gap2023_comparison.md`, `outputs/campaigns/classifier_eval_pt/comparative_report.md`, [docs/sintese_trilha_a.md](sintese_trilha_a.md).
+Reprodução: [configs/campaigns/sabesp_marco2/README.md](../configs/campaigns/sabesp_marco2/README.md)
 
 ---
 
-## Marco 3 — Qualidade do sentimento (Trilha B)
+# Apêndice E — Bibliografia comentada
 
-**Data:** 31/08/2026  
-**Status:** concluído (100 rótulos manuais + compare)
+| Referência | Uso | PDF local | Nota |
+|------------|-----|-----------|------|
+| Santos et al. (2023) | FinBERT-PT-BR, índice | [pdfs/santos2023_finbert_ptbr.pdf](referencias/pdfs/santos2023_finbert_ptbr.pdf) | [notas/santos2023.md](referencias/notas/santos2023.md) |
+| Yoshinaga & Castro Junior (2012) | Índice BR × retorno | [pdfs/yoshinaga2012_bar.pdf](referencias/pdfs/yoshinaga2012_bar.pdf) | [notas/yoshinaga2012.md](referencias/notas/yoshinaga2012.md) |
+| Duarte et al. (2020) | Horizontes BR | [pdfs/duarte2020_quedas_b3.pdf](referencias/pdfs/duarte2020_quedas_b3.pdf) | [notas/duarte2020.md](referencias/notas/duarte2020.md) |
+| Tetlock (2007) | Mídia × mercado | [pdfs/tetlock2007_media.pdf](referencias/pdfs/tetlock2007_media.pdf) | [notas/tetlock2007.md](referencias/notas/tetlock2007.md) |
+| Loughran & McDonald (2011) | Baselines | [pdfs/loughran2011_baselines.pdf](referencias/pdfs/loughran2011_baselines.pdf) | [notas/loughran2011.md](referencias/notas/loughran2011.md) |
+| Gattai & Souza (2025) FOCO | Evento Sabesp | [pdfs/sabesp_evento_eqtl3_foco.pdf](referencias/pdfs/sabesp_evento_eqtl3_foco.pdf) | [notas/foco2025.md](referencias/notas/foco2025.md) |
+| Araci (2020) | FinBERT EN | [pdfs/araci2020_finbert.pdf](referencias/pdfs/araci2020_finbert.pdf) | [notas/araci2020.md](referencias/notas/araci2020.md) |
+| Demais | Ver [referencias/README.md](referencias/README.md) | link only | `bibliografia.bib` |
 
-### Rótulos manuais PT
-
-| Etapa | Comando |
-|-------|---------|
-| Amostra (já gerada) | `./scripts/campaigns/sabesp_2026.sh manual-sample` |
-| Preencher CSV | coluna `rotulo_manual` (POS / NEG / NEU) em `data/saneamento_corpus/rotulos_manual_100.csv` |
-| Comparar com FinBERT | `./scripts/campaigns/sabesp_2026.sh manual-compare` |
-
-Predictions usadas: `outputs/sabesp_marco2_r0_baseline/.../predictions.csv` (fallback se Marco 1 R0 ausente).
-
-### Distribuição da amostra
-
-| Fonte | POS | NEU | NEG |
-|-------|-----|-----|-----|
-| FinBERT (estratificação) | 19 | 43 | 38 |
-| Rótulo manual | 19 | 69 | 12 |
-
-### Resultado concordância manual
-
-| Métrica | Valor | Gate (auditoria) |
-|---------|-------|------------------|
-| Amostra rotulada | 100 | — |
-| Acurácia | **48,0%** | ≥ 70% — **não atingido** |
-| Cohen's kappa | **0,163** | — |
-
-Matriz de confusão (manual × FinBERT):
-
-| manual \\ finbert | NEG | NEU | POS |
-|-------------------|-----|-----|-----|
-| NEG | 11 | 1 | 0 |
-| NEU | 23 | 32 | 14 |
-| POS | 4 | 10 | 5 |
-
-Relatório completo: `outputs/campaigns/sabesp_2026/manual_label_report.md`.
-
-### Leitura
-
-- FinBERT classifica como **NEG** muitas menções neutras (roundups de ibovespa, agendas de mercado) — principal fonte de erro.
-- Notícias claramente positivas (aprovação Alesp, analistas otimistas) frequentemente saem como **NEU**.
-- Acurácia abaixo de 70% indica **limitação do classificador** como componente do ITI; não invalida sozinha o sinal fraco ITI×mercado, mas reforça cautela na interpretação.
-
-### Avaliação EN opcional (sem ITI)
-
-| Dataset | Uso | Comando |
-|---------|-----|---------|
-| PhraseBank | Rótulo humano EN | `./scripts/campaigns/classifier_eval_en.sh phrasebank` |
-| NOSIBLE (amostra) | Rótulo LLM EN | `./scripts/campaigns/classifier_eval_en.sh nosible` |
-
-**Não** fine-tunar FinBERT-PT no NOSIBLE. **Não** alimentar research semanal com esses datasets.
+Fora de escopo Trilha A (trabalhos futuros): FNSPID, FinMarBa, PhraseBank/NOSIBLE.
 
 ---
 
-## Síntese Marcos 1–3
-
-### Linha do tempo
-
-1. **Marco 1** — protocolo corrigido (strict, semanal, Sabesp); R1 com 41,7% win rate e 2 vitórias significativas na janela do evento.
-2. **Marco 2** — gate pré-evento executado; overlap 76 semanas; **sinal enfraquece** no corpus expandido original (R1: 20,8%). Com lacuna 2023 preenchida (gap2023), R1 expandido sobe para **33,3%** (8/24), ainda **0 sig.**
-3. **Marco 3** — FinBERT vs humano: 48% acurácia, κ=0,163; classificador não atinge gate de 70%. Bateria PT (BERTweet/BERTimbau) também falha o gate.
-
-### O que funcionou
-
-- Infraestrutura reprodutível (configs/campaigns, scripts, research semanal).
-- α=0,70 consistentemente melhor que 0,85 (Marcos 1 e 2).
-- Sanity check `replay-event-gap2023` **reproduz** Marco 1 na janela evento (41,7% / 2 sig. no R1).
-
-### O que não funcionou
-
-- ITI×mercado no corpus **expandido** (R1: 20,8% Marco 2 → 33,3% gap2023; nenhuma sig.).
-- Concordância FinBERT×humano (48% < 70%; F1 macro 0,42).
-- Pré-evento 2022 correlaciona negativamente com retorno futuro no painel expandido.
-- Filtro de roundups no evento (`sabesp_event_r1_filtered`): win rate cai para **25,0%**, 0 sig.
-
-### Narrativa para a tese
-
-O gate metodológico do Marco 1 autorizou a coleta pré-evento, mas o **re-teste com janela expandida não reforçou** a hipótese ITI×mercado (melhora parcial com lacuna 2023, sem significância). A privatização (nov/2023–abr/2024) permanece a janela economicamente interpretável; o ruído de 2022 dilui o índice semanal. A baixa concordância manual e a run filtrada (25%) sugerem que o teto ~41,7% reflete mais **relação notícia–preço no evento** do que apenas ruído de roundups ou erro do classificador.
-
-### Próximos passos opcionais
-
-- **Marco 4** — `./scripts/campaigns/fnspid_pilot.sh run` (réplica US, CC-BY-NC).
-- **Marco 5** — `./scripts/campaigns/finmarba_diag.sh run` (sentimento × mercado D+1).
-- Não bloqueiam conclusão da Trilha A Sabesp.
-
----
-
-## Marco 4 — Piloto FNSPID (Trilha C, opcional)
-
-**Status:** configs e script prontos; execução opcional (licença **CC-BY-NC**).
-
-Replica o protocolo ITI (α=0,70, `iti_liquido_last`, B0–B3) em **painel US separado** — não mistura com Sabesp.
-
-| Etapa | Comando |
-|-------|---------|
-| Fetch + run | `./scripts/campaigns/fnspid_pilot.sh run` |
-
-| Campo | Valor |
-|-------|-------|
-| Dataset | `fnspid_pilot` (5 tickers, ~2000 linhas) |
-| Modelo | `finbert_en` |
-| Preços | `configs/campaigns/fnspid_pilot/market.yaml` |
-| Research | `configs/campaigns/fnspid_pilot/research_weekly.yaml` |
-| run_id | `fnspid_r0_pilot` |
-
-### Resultado
-
-_A preencher após execução do piloto._
-
----
-
-## Marco 5 — Diagnóstico FinMarBa (Trilha C, opcional)
-
-**Status:** script pronto; execução opcional.
-
-Mede concordância **FinBERT × rótulo de mercado** (retorno D+1). O rótulo FinMarBa **não** entra no ITI Sabesp nem no research B3 — evita vazamento de alvo.
-
-| Etapa | Comando |
-|-------|---------|
-| Inferência + relatório | `./scripts/campaigns/finmarba_diag.sh run` |
-
-| Campo | Valor |
-|-------|-------|
-| Dataset | `finmarba_headlines_en` |
-| Experimento | `configs/campaigns/trilha_b/classifier_diag.yaml` (`temporal_index.enabled: false`) |
-| Relatório | `outputs/campaigns/finmarba_diag/concordance_report.md` |
-
-**Leitura didática:** discordância não prova que o FinBERT está “errado” — prova que sentimento textual ≠ reação de mercado no dia seguinte.
-
-### Resultado
-
-_A preencher após execução._
-
----
-
-## Como atualizar este documento
-
-1. Ao concluir uma campanha, adicione um novo **Marco** no final (antes desta seção).
-2. Para cada run, copie o [template](#template-para-novas-runs) e preencha com dados de `outputs/campaigns/{campanha}/manifest.json` e `incremental_deltas.csv`.
-3. Atualize a tabela resumo do marco e a síntese (o que funcionou / não funcionou / decisões).
-4. Se o protocolo mudar (frequência, filtros, equação), atualize também [documentacao.md](documentacao.md) nas seções §4–§6.
-5. Rode `./scripts/campaigns/sabesp_2026.sh` (ou equivalente) e confira no dashboard (páginas **Experimentos** e **Research**) antes de commitar.
-6. Mantenha números consistentes com o manifest — não editar `outputs/` manualmente.
+*Última consolidação: documento único Trilha A — Financial Sentiment Lab.*

@@ -30,3 +30,30 @@ def test_dataset_concentration_alert() -> None:
         }
     )
     assert len(insights) >= 1
+
+
+def test_research_kappa_caveat() -> None:
+    insights = insights_engine.generate(
+        {
+            "page": "research",
+            "win_rate": 0.42,
+            "overlap_days": 24,
+            "classifier_gate_failed": True,
+            "significant_wins": 2,
+        }
+    )
+    assert any("exploratório" in i.message.lower() or "κ" in i.message for i in insights)
+
+
+def test_model_kappa_insight() -> None:
+    insights = insights_engine.generate(
+        {"page": "models", "has_labels": False, "kappa": 0.16, "accuracy": 0.48}
+    )
+    assert any(i.level.value == "danger" for i in insights)
+
+
+def test_trail_insights() -> None:
+    insights = insights_engine.generate(
+        {"page": "trail", "total_runs": 5, "classifier_gate_failed": True}
+    )
+    assert len(insights) >= 1

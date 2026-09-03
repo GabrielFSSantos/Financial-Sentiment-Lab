@@ -88,6 +88,73 @@ METRICS: dict[str, MetricInfo] = {
         higher_is_better=True,
         bands=((0, 0.5, "baixa"), (0.5, 0.75, "moderada"), (0.75, 1.0, "alta")),
     ),
+    "kappa": MetricInfo(
+        key="kappa",
+        label="Cohen's κ (classificador)",
+        description="Concordância entre rótulos manuais e previsões, além do acaso.",
+        interpretation_guide="Gate da pesquisa: κ ≥ 0,40 na amostra n=100.",
+        higher_is_better=True,
+        bands=((-1, 0.2, "fraco — gate falhou"), (0.2, 0.4, "abaixo do gate"), (0.4, 1.0, "gate atendido")),
+    ),
+    "accuracy": MetricInfo(
+        key="accuracy",
+        label="Acurácia (classificador)",
+        description="Proporção de previsões corretas na amostra manual.",
+        interpretation_guide="Gate da pesquisa: acurácia ≥ 70% na amostra n=100.",
+        higher_is_better=True,
+        bands=((0, 0.5, "fraca"), (0.5, 0.7, "abaixo do gate"), (0.7, 1.0, "gate atendido")),
+    ),
+    "delta_win_rate": MetricInfo(
+        key="delta_win_rate",
+        label="Δ win rate vs baseline",
+        description="Diferença de win rate entre run candidata e baseline R0.",
+        interpretation_guide="Valores positivos indicam melhoria incremental na campanha.",
+        higher_is_better=True,
+        bands=((-1, -0.05, "piora relevante"), (-0.05, 0.05, "estável"), (0.05, 1.0, "melhoria")),
+    ),
+    "overlap_weeks": MetricInfo(
+        key="overlap_weeks",
+        label="Semanas alinhadas (overlap)",
+        description="Pontos semanais com ITI e retorno futuro disponíveis.",
+        interpretation_guide="Poucos pontos (~24) limitam poder estatístico.",
+        higher_is_better=True,
+        bands=((0, 15, "muito baixo"), (15, 30, "moderado"), (30, 500, "adequado")),
+    ),
+    "alpha_ewma": MetricInfo(
+        key="alpha_ewma",
+        label="Parâmetro α (EWMA)",
+        description="Peso da observação atual na memória exponencial do ITI.",
+        interpretation_guide="α maior reage mais rápido a notícias recentes; α menor suaviza o histórico.",
+        higher_is_better=False,
+        bands=((0, 0.3, "memória longa"), (0.3, 0.6, "intermediário"), (0.6, 1.0, "memória curta")),
+    ),
+    "significant_wins": MetricInfo(
+        key="significant_wins",
+        label="Vitórias significativas",
+        description="Comparações com delta favorável e significância estatística (bootstrap).",
+        interpretation_guide="Ex.: 2/24 comparações significativas na campanha Sabesp.",
+        higher_is_better=True,
+        bands=((0, 2, "muito baixo"), (2, 8, "moderado"), (8, 100, "alto")),
+    ),
+    "exploratory_caveat": MetricInfo(
+        key="exploratory_caveat",
+        label="Aviso exploratório",
+        description=(
+            "Resultados de research são exploratórios e condicionados ao classificador "
+            "não validado (κ abaixo do gate)."
+        ),
+        interpretation_guide="Use para gerar hipóteses, não conclusões causais ou de investimento.",
+        higher_is_better=False,
+        bands=((0, 1, "sempre aplicável neste recorte")),
+    ),
+    "runs_count": MetricInfo(
+        key="runs_count",
+        label="Runs concluídas",
+        description="Execuções de experimento disponíveis em outputs/.",
+        interpretation_guide="Mais runs permitem comparação de α e ablações.",
+        higher_is_better=True,
+        bands=((0, 3, "inicial"), (3, 8, "campanha parcial"), (8, 100, "campanha completa")),
+    ),
 }
 
 

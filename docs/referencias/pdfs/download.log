@@ -1,0 +1,31 @@
+==> santos2023_finbert_ptbr.pdf
+    URL: https://sol.sbc.org.br/index.php/bwaif/article/download/24960/16609
+curl: (22) The requested URL returned error: 500
+    FAIL: curl error
+==> eramiars2025_correlacao_b3.pdf
+    URL: https://sol.sbc.org.br/index.php/eramiars/article/download/16502/16403
+curl: (22) The requested URL returned error: 500
+    FAIL: curl error
+==> sabesp_evento_eqtl3_foco.pdf
+    URL: https://ojs.focopublicacoes.com.br/foco/article/download/12166/8493
+    OK: 466657 bytes
+==> yoshinaga2012_bar.pdf
+    URL: https://www.scielo.br/pdf/bar/v9n4/1807-7692-bar-9-04-00390.pdf
+curl: (22) The requested URL returned error: 404
+    FAIL: curl error
+==> araci2020_finbert.pdf
+    URL: https://arxiv.org/pdf/1908.10063.pdf
+    OK: 889324 bytes
+==> racef2022_sentimento.pdf
+    URL: https://doi.org/10.13059/racef.v13i3.985
+    FAIL: not PDF (HTML document, Unicode text, UTF-8 text, with very long lines (1034))
+==> utfpr2024_bert.pdf
+    URL: http://repositorio.utfpr.edu.br/jspui/bitstream/1/40390/1/UTFPR%20BERT%20noticias.pdf
+curl: (22) The requested URL returned error: 403
+    FAIL: curl error
+==> neuenschwander2014_webmedia.pdf
+    URL: https://www.researchgate.net/profile/Rafael-Neuenschwander/publication/267749000_Sentiment_Analysis_for_Streams_of_Web_Data_A_Case_Study_of_Brazilian_Financial_Markets/links/545a3e0e0cf26d5090a3c8c0/Sentiment-Analysis-for-Streams-of-Web-Data-A-Case-Study-of-Brazilian-Financial-Markets.pdf
+curl: (22) The requested URL returned error: 403
+    FAIL: curl error
+
+Concluído com 6 falha(s). Ver /home/gabrielfssantos/GitHub/Financial-Sentiment-Lab/docs/referencias/pdfs/download.log

@@ -133,3 +133,25 @@ def get_combination_output_files(run_id: str) -> dict[str, str]:
         for name, rel in (combo.get("output_files") or {}).items():
             files[name] = rel
     return files
+
+
+def run_display_name(run_id: str) -> str:
+    labels = {
+        "sabesp_r0_baseline": "R0 — Baseline",
+        "sabesp_r1_alpha070": "R1 — α=0,70",
+        "sabesp_r7_alpha_opt": "R7 — α ótimo",
+    }
+    return labels.get(run_id, run_id.replace("_", " ").title())
+
+
+def run_has_research(run_id: str) -> bool:
+    run = get_run(run_id)
+    return bool(run and run.has_research)
+
+
+def run_status_badge(run: RunSummary) -> str:
+    if run.has_research:
+        return "research ✓"
+    if run.status == "completed":
+        return "experimento"
+    return run.status

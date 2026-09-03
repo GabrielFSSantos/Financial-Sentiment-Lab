@@ -4,10 +4,9 @@ Laboratório de **análise de sentimento em notícias financeiras** (PT e EN) pa
 
 A pesquisa parte de notícias (datasets versionados ou coletados por scraper), aplica modelos FinBERT, agrega impacto por empresa/setor/mercado e compara o ITI com baselines simples e preços B3 via validação estatística incremental.
 
-- **Índice da documentação:** [docs/README.md](docs/README.md)
-- **Fechamento Trilha A (resultados e tese):** [docs/sintese_trilha_a.md](docs/sintese_trilha_a.md)
-- **Histórico experimental:** [docs/trajetoria.md](docs/trajetoria.md)
+- **Documento único da pesquisa (Trilha A):** [docs/trajetoria.md](docs/trajetoria.md) — Parte 4 = resultados oficiais
 - **Referência técnica:** [docs/documentacao.md](docs/documentacao.md)
+- **Bibliografia:** [docs/referencias/](docs/referencias/)
 
 ---
 
