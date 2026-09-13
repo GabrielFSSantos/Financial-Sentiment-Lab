@@ -2,6 +2,8 @@
 
 # Souza, Nogueira & Lotufo (2020) — BERTimbau
 
+**PDF local:** [pdfs/souza2020_bertimbau.pdf](../pdfs/souza2020_bertimbau.pdf)
+
 **Citação:** Souza, F.; Nogueira, R.; Lotufo, R. BERTimbau: Pretrained BERT Models for Brazilian Portuguese. BRACIS 2020. DOI: [10.1007/978-3-030-61377-8_28](https://doi.org/10.1007/978-3-030-61377-8_28)
 
 ## Tese central

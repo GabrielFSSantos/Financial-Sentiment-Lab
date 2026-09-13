@@ -741,7 +741,7 @@ Reprodução: [configs/campaigns/sabesp_marco2/README.md](../configs/campaigns/s
 | Duarte et al. (2020) | Horizontes BR | [pdfs/duarte2020_quedas_b3.pdf](referencias/pdfs/duarte2020_quedas_b3.pdf) | [notas/duarte2020.md](referencias/notas/duarte2020.md) |
 | Tetlock (2007) | Mídia × mercado | [pdfs/tetlock2007_media.pdf](referencias/pdfs/tetlock2007_media.pdf) | [notas/tetlock2007.md](referencias/notas/tetlock2007.md) |
 | Loughran & McDonald (2011) | Baselines | [pdfs/loughran2011_baselines.pdf](referencias/pdfs/loughran2011_baselines.pdf) | [notas/loughran2011.md](referencias/notas/loughran2011.md) |
-| Gattai & Souza (2025) FOCO | Evento Sabesp | [pdfs/sabesp_evento_eqtl3_foco.pdf](referencias/pdfs/sabesp_evento_eqtl3_foco.pdf) | [notas/foco2025.md](referencias/notas/foco2025.md) |
+| Gattai & Souza (2025) FOCO | Evento Sabesp | [pdfs/gattai2025_privatizacao_sabesp.pdf](referencias/pdfs/gattai2025_privatizacao_sabesp.pdf) | [notas/foco2025.md](referencias/notas/foco2025.md) |
 | Araci (2020) | FinBERT EN | [pdfs/araci2020_finbert.pdf](referencias/pdfs/araci2020_finbert.pdf) | [notas/araci2020.md](referencias/notas/araci2020.md) |
 | Demais | Ver [referencias/README.md](referencias/README.md) | link only | `bibliografia.bib` |
 

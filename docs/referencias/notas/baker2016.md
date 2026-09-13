@@ -2,6 +2,8 @@
 
 # Baker, Bloom & Davis (2016) — Economic Policy Uncertainty
 
+**PDF local:** [pdfs/baker2016_epu.pdf](../pdfs/baker2016_epu.pdf)
+
 **Citação:** Baker, S. R.; Bloom, N.; Davis, S. J. Measuring Economic Policy Uncertainty. *QJE*, 131(4), 1593–1636. DOI: [10.1093/qje/qjw024](https://doi.org/10.1093/qje/qjw024)
 
 ## Tese central

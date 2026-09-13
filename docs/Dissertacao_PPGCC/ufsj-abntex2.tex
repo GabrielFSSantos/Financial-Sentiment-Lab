@@ -1,0 +1,104 @@
+\documentclass[
+	12pt,
+	openright,
+	oneside,
+	a4paper,
+	english,
+	brazilian,
+	]{ufsj-abntex2}
+
+\usepackage{cmap}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lastpage}
+\usepackage{indentfirst}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{float}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\providecommand{\htmladdnormallink}[2]{\href{#2}{#1}}
+
+\usepackage[brazilian,hyperpageref]{backref}
+\usepackage[alf]{abntex2cite}
+
+\renewcommand{\backrefpagesname}{Citado na(s) página(s):~}
+\renewcommand{\backref}{}
+\renewcommand*{\backrefalt}[4]{
+	\ifcase #1 %
+		Nenhuma citação no texto.%
+	\or
+		Citado na página #2.%
+	\else
+		Citado #1 vezes nas páginas #2.%
+	\fi}%
+
+\titulo{Índice temporal informacional a partir de notícias corporativas: uma proposta para empresas brasileiras de saneamento}
+\autor{Gabriel Felipe Souza Santos}
+\local{São João del-Rei}
+\data{\the\year}
+\orientador{Michel Carlo Rodrigues Leles}
+\instituicao{%
+  Universidade Federal de São João del-Rei -- UFSJ
+  \par
+  Programa de Pós-Graduação em Ciência da Computação -- PPGCC
+  \par
+  Mestrado em Ciência da Computação}
+\tipotrabalho{Dissertação (Mestrado)}
+\preambulo{Dissertação apresentada como requisito para obtenção do título de mestre em Ciência da Computação no Programa de Pós-Graduação em Ciência da Computação da Universidade Federal de São João del-Rei.}
+
+\definecolor{blue}{RGB}{41,5,195}
+
+\makeatletter
+\hypersetup{
+		pdftitle={\@title},
+		pdfauthor={\@author},
+    	pdfsubject={\imprimirpreambulo},
+	    pdfcreator={LaTeX with abnTeX2},
+		pdfkeywords={sentimento, noticias, saneamento, indice temporal, NLP},
+		colorlinks=true,
+    	linkcolor=blue,
+    	citecolor=blue,
+    	filecolor=magenta,
+		urlcolor=blue,
+		bookmarksdepth=4
+}
+\makeatother
+
+\setlength{\parindent}{1.3cm}
+\setlength{\parskip}{0.2cm}
+
+\makeindex
+
+\begin{document}
+
+\frenchspacing
+
+\pretextual
+\imprimircapa
+\imprimirfolhaderosto*{Folha de rosto}
+\input{00_pretextual}
+
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+\textual
+\include{01_introducao}
+\include{02_revisao}
+\include{03_proposta}
+\include{04_metodologia}
+\include{05_andamentos}
+\include{06_proximos_passos}
+
+\bookmarksetup{startatroot}
+
+\postextual
+\bibliographystyle{abntex2-alf}
+\bibliography{referencias}
+
+\end{document}

@@ -1,0 +1,43 @@
+\chapter{Proposta do índice}
+\label{cap:proposta}
+
+Este capítulo descreve o objeto que queremos construir. A intenção é deixar claro, em palavras, o que o Índice Temporal Informacional é --- e, sobretudo, o que ele não pretende ser. O desenho operacional (fórmulas, baselines, duelos) está no Capítulo~\ref{cap:metodologia}; os andamentos, no Capítulo~\ref{cap:andamentos}.
+
+\section{O que o ITI é}
+
+Chamamos de ITI uma série temporal por empresa, obtida a partir de notícias. Cada matéria recebe um escore de sentimento de domínio em português. Os escores de um mesmo dia se agregam. A série diária ganha memória: o passado recente pesa mais do que o passado remoto, na lógica de uma média móvel exponencial. O resultado é um índice \emph{líquido} de impacto informacional --- uma tentativa de resumir ``o que a cobertura está dizendo sobre esta companhia agora'', sem confundir isso com uma recomendação de compra.
+
+O ITI \textbf{não é} um índice publicado sob esse nome em revista, nem um homônimo importado. É uma construção operacional inspirada em cadeias metodológicas da literatura, adaptada ao saneamento brasileiro.
+
+\section{De onde veio a ideia}
+
+A ideia nasceu de um desconforto simples. Se Tetlock ensina que a mídia pode informar preços, e se Baker e Shapiro ensinam a transformar texto em série, por que o saneamento brasileiro --- regulado, visível na imprensa, atravessado por um marco legal novo --- continuaria sem um instrumento desse tipo? O FinBERT-PT-BR \cite{santos2023finbert} tornou o escore por notícia factível em português. Yoshinaga mostrou que no Brasil já se testa índice de sentimento contra retorno, embora com PCA de mercado, não com notícia de uma empresa de água. Duarte e Marquezan e Assunção mostraram que horizonte e atraso importam. Gattai e Souza mostraram que o episódio Sabesp é evento de mercado. Faltava juntar essas peças num objeto só, no setor certo.
+
+Não estamos ``levando um índice de petróleo para o saneamento''. Não há, nas referências que usamos, um ITI setorial de óleo que estejamos transpondo. O movimento é outro: levar a \emph{lógica} de índices textuais temporais (quase sempre macro ou de mercado amplo) para o \emph{micro} de uma empresa de saneamento, com coleta própria e classificador de domínio em PT.
+
+\section{Cadeia conceitual}
+
+O desenho que propomos tem cinco elos, cada um com um objetivo específico correspondente.
+
+\begin{enumerate}
+  \item \textbf{Coleta.} Raspagem de portais, normalização de data e empresa, exclusão de matérias que não tratam de fato da companhia. Sem esse elo, o índice mede a agenda da imprensa, não a empresa.
+  \item \textbf{Classificação.} Um modelo de sentimento financeiro em português atribui probabilidades positivo/negativo/neutro e o escore \(d\) \cite{santos2023finbert}.
+  \item \textbf{Agregação.} Do dia da notícia para a série da empresa.
+  \item \textbf{Memória.} Decaimento do tipo EWMA, analogia a \citeonline{shapiro2022fed}, com parâmetro tratado como escolha operacional --- não como resultado de mercado.
+  \item \textbf{Comparação futura.} O ITI só se justifica se, nas mesmas notícias, disser mais do que contar matérias ou média de \(d\). Essa é a dívida com \citeonline{loughran2011liability}.
+\end{enumerate}
+
+O recorte privilegiado é o saneamento listado. Sabesp entra como caso âncora porque o choque de privatização é documentado \cite{foco2025sabesp} e a cobertura jornalística é densa. Copasa e Sanepar permanecem no desenho como extensão natural, não como resultado já obtido.
+
+\section{O que deliberadamente não replicamos}
+
+\begin{itemize}
+  \item Não replicamos o EPU \cite{baker2016epu}: não medimos incerteza de política nacional.
+  \item Não replicamos o índice PCA de \citeonline{yoshinaga2012sentimento}: não misturamos variáveis de mercado no índice; o insumo é notícia.
+  \item Não replicamos o estudo de evento de \citeonline{foco2025sabesp}: não calculamos retorno anormal acumulado em janela de anúncio como teste principal.
+  \item Não tratamos o FinBERT-PT-BR como garantia de qualidade no saneamento: o modelo é ferramenta, sujeito a validação humana posterior.
+\end{itemize}
+
+\section{Limites que já aceitamos}
+
+Mesmo antes de experimentar, a literatura impõe limites de interpretação. Correlação não é causalidade \cite{utfpr2024bert}. Relação sentimento--retorno pode inverter o sinal \cite{yoshinaga2012sentimento}. Lags heterogêneos são a regra, não a exceção \cite{eramiars2025correlacao}. O ITI, se funcionar, será um instrumento exploratório de associação incremental --- não uma prova de ineficiência de mercado nem um sistema de trading.

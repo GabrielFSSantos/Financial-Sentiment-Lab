@@ -1,0 +1,78 @@
+\chapter{Revisão da literatura}
+\label{cap:revisao}
+
+Não organizamos esta revisão artigo a artigo. Percorremos linhas de trabalho: quem pesquisa, em que mercado ou setor, o que isso nos empresta e o que não devemos copiar. No fim, a lacuna fica visível por contraste.
+
+\section{Mídia, sentimento e preços}
+
+\citeonline{tetlock2007media} parte de uma pergunta clássica: o conteúdo da imprensa apenas espelha o que o mercado já sabe, ou carrega informação que se associa a preço e volume? Usando colunas de jornal nos Estados Unidos e uma medida lexical de pessimismo, o autor conclui que a mídia não é ruído puro. Para nós, isso autoriza a hipótese de trabalho --- texto noticioso \emph{pode} informar --- sem ditar a direção do efeito nem o instrumento (nós não usamos o mesmo léxico nem o mesmo veículo).
+
+No Brasil, \citeonline{yoshinaga2012sentimento} trabalham sentimento de mercado em outro registro. Constroem um índice por análise de componentes principais sobre variáveis observadas, analisam 1999--2008 e relacionam o índice a retornos em painel. Duas lições importam. Primeira: já existe precedente nacional para a cadeia ``índice de sentimento $\rightarrow$ retorno''. Segunda: a relação encontrada pode ser negativa --- reversão --- o que impede tratar ``tom positivo'' como sinônimo de ``alta futura''. O índice deles é agregado de mercado; o nosso, se existir, será micro, empresa a empresa, baseado em notícia.
+
+\section{Índices textuais temporais}
+
+Uma segunda família de trabalhos não classifica o tom de uma matéria isolada: agrega cobertura jornalística ao longo do tempo e só então valida o índice contra o mundo.
+
+\citeonline{baker2016epu} medem incerteza de política econômica pela frequência de termos em jornais e confrontam a série com variáveis macro e de mercado. O gesto metodológico --- texto $\rightarrow$ índice temporal $\rightarrow$ validação externa --- é o que tomamos emprestado. O objeto deles é incerteza agregada de política; o nosso seria informação corporativa de saneamento. Copiar a fórmula do EPU não faria sentido.
+
+\citeonline{shapiro2022fed} constroem um índice diário de sentimento de notícias, associado ao Federal Reserve, no qual notícias recentes pesam mais (decaimento temporal). Essa persistência é a analogia conceitual da memória que queremos no ITI. De novo, analogia não é réplica: não estimamos o índice do Fed nem usamos o mesmo corpus norte-americano.
+
+Esses dois artigos respondem a uma dúvida recorrente: ``por que não ficar só na classificação de cada notícia?''. Porque o objeto de interesse, para o mercado, é uma \emph{série}, não um rótulo isolado.
+
+\section{Texto financeiro de domínio}
+
+\citeonline{loughran2011liability} mostraram que listas de palavras do inglês geral distorcem o tom de relatórios 10-K: ``liability'' não é pessimismo em contabilidade. A lição, para além do léxico específico, é disciplinar: medidas textuais simples têm lugar, e um índice complexo precisa se justificar contra elas.
+
+A linha de modelos de linguagem segue o mesmo princípio de domínio. \citeonline{araci2020finbert} popularizou o Fine-tuning de BERT em sentimento financeiro em inglês (FinBERT). \citeonline{santos2023finbert} deslocam essa ideia para o português: Fine-tuning em volume grande de notícias financeiras em PT e um classificador treinado em amostra anotada. Os autores discutem o uso do modelo para \emph{índices de sentimento}, o que autoriza nossa leitura --- o FinBERT-PT-BR é candidato natural a escore por notícia, da forma \(d = P(\mathrm{positivo}) - P(\mathrm{negativo})\). O que o artigo \emph{não} garante é desempenho no corpus de saneamento, que não é o corpus de treino deles.
+
+\citeonline{souza2020bertimbau} entram só como base linguística: BERT para o português brasileiro, sem ser modelo de mercado. Não substituem o FinBERT-PT-BR; explicam por que a família BERT em PT existe.
+
+\section{Notícias e mercado brasileiro}
+
+Quem trabalha notícia e preço no Brasil não forma um único laboratório. Os recortes mudam.
+
+\citeonline{duarte2020news} combinam notícias públicas e preços para antecipar \emph{quedas} em dezenas de ativos da B3, comparando horizontes diário, semanal e mensal. O estudo é de previsão supervisionada, não de índice operacional. O que nos serve é o aviso empírico: persistência da informação varia com o horizonte. Por isso o desenho futuro do ITI prevê mais de um prazo, em vez de um único lag.
+
+\citeonline{eramiars2025correlacao} classificam emoções em títulos com modelos de linguagem e correlacionam o sinal com preços de alguns papéis da B3. A correlação muda com o atraso e com o porte da empresa. Outra vez: sinal heterogêneo no tempo, método diferente do nosso (emoções via LLM, não sentimento FinBERT; várias empresas, não saneamento).
+
+\citeonline{neuenschwander2014webmedia} tratam sentimento em fluxos contínuos da web no mercado brasileiro e deixam claro que extração e alinhamento são parte do problema científico, não um detalhe de infraestrutura. Isso justifica um objetivo específico de coleta --- raspagem, deduplicação, data da matéria --- em vez de assumir que o corpus ``já existe limpo''.
+
+\citeonline{racef2022sentimento} associam sentimento do investidor a ciclos do Ibovespa, com efeito mais visível em crises. Não medimos o mesmo proxy, mas o artigo reforça uma intuição: janelas de alta tensão informacional não se confundem com períodos ordinários. A privatização da Sabesp, no nosso recorte, é candidata a janela densa --- hipótese de contexto, não resultado.
+
+\section{Saneamento e choque institucional}
+
+O Marco Legal do Saneamento \cite{lei14026} reorganizou metas, titularidade e incentivos à prestação regionalizada. Não é um paper de NLP; é o pano de fundo regulatório. Sem ele, ``setor de saneamento'' seria um rótulo vago.
+
+\citeonline{foco2025sabesp} fazem estudo de evento clássico: anúncio da Equatorial como investidora de referência na privatização da Sabesp e retornos anormais em EQTL3. O trabalho assume, no desenho, a forma semiforte de eficiência --- informação inesperada deveria se refletir em preço na janela do anúncio. Duas precisões importam para não misturar métodos. Primeira: o alvo deles é EQTL3, não SBSP3. Segunda: não há índice de notícias nem classificador. O que tomamos é a relevância institucional do choque. O que não tomamos é o protocolo de retorno anormal acumulado como se fosse o nosso teste.
+
+Ninguém, no conjunto que lemos, constrói um índice NLP empresa a empresa para água e esgoto no Brasil.
+
+\section{Síntese da lacuna}
+
+O Quadro~\ref{tab:lacuna} resume o contraste.
+
+\begin{table}[htbp]
+\caption{O que a literatura já oferece e o que esta pesquisa pretende cobrir.}
+\label{tab:lacuna}
+\begin{tabular}{|p{0.28\textwidth}|p{0.32\textwidth}|p{0.32\textwidth}|}
+\hline
+\textbf{Linha} & \textbf{O que existe} & \textbf{O que não é o ITI} \\
+\hline
+Mídia e preço & Tetlock (EUA, colunas) & Não usamos o mesmo léxico nem o mesmo mercado \\
+\hline
+Índice textual macro & EPU; sentimento Fed & Não é incerteza de política nem índice dos EUA \\
+\hline
+Sentimento BR agregado & Yoshinaga (PCA de mercado) & Não é microíndice de notícia por empresa \\
+\hline
+NLP financeiro PT & FinBERT-PT-BR & Modelo de entrada, não o índice setorial \\
+\hline
+Notícia $\times$ B3 & Duarte; Marquezan e Assunção & Previsão de quedas ou emoções LLM; outros setores \\
+\hline
+Saneamento e mercado & FOCO (evento EQTL3) & Event study, sem NLP em SBSP3 \\
+\hline
+\end{tabular}
+\end{table}
+
+Fonte: elaboração própria a partir das referências discutidas neste capítulo.
+
+Em uma frase: \textbf{já há sentimento de mercado brasileiro, já há notícia versus preço na B3 e já há um modelo financeiro em português; não há índice informacional temporal baseado em notícias para o saneamento de capital aberto.} Esse é o vazio em que a proposta se encaixa. Um contraponto permanece à vista: associação textual e retorno futuro no Brasil pode ser fraca ou inconsistente \cite{utfpr2024bert}. A lacuna autoriza a pergunta; não autoriza a resposta.

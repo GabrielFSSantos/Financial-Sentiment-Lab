@@ -1,0 +1,25 @@
+# Artefatos LaTeX (não versionar)
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.pdf
+
+# Manter memoir antigo fora do caminho de compilação
+memoir.cls
+memoir.cls.bak
+*.bak
+
+# Figuras do modelo UFSJ (não são desta pesquisa)
+imgs/

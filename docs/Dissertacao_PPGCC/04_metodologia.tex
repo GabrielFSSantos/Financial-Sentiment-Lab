@@ -1,0 +1,117 @@
+\chapter{Metodologia operacional}
+\label{cap:metodologia}
+
+Este capítulo descreve o desenho que o laboratório já montou: corpus, escore, memória, alternativas simples e protocolo de comparação. É o \emph{como}, não o veredito. Números de desempenho entram só no Capítulo~\ref{cap:andamentos}, e mesmo lá como andamento, não como prova de hipótese.
+
+\section{Recorte e corpus}
+
+O recorte privilegiado é o saneamento de capital aberto, com a Sabesp (\texttt{SBSP3}) como caso âncora. O corpus \emph{strict} restringe matérias à empresa, com data, fonte e texto alinháveis no tempo. Copasa e Sanepar permanecem no desenho como extensão, não como amostra já fechada neste manuscrito.
+
+A coleta é parte do problema científico \cite{neuenschwander2014webmedia}: raspagem de portais, normalização de data, deduplicação e exclusão de textos que não tratam de fato da companhia. Sem esse filtro, o índice mede a agenda da imprensa, não a empresa.
+
+\section{Do texto ao índice}
+
+Cada notícia recebe um escore de sentimento de domínio em português, na linha de \citeonline{santos2023finbert}. Sejam $P(\mathrm{pos})$ e $P(\mathrm{neg})$ as probabilidades atribuídas pelo classificador. O escore contínuo por matéria é
+\[
+d = P(\mathrm{pos}) - P(\mathrm{neg}).
+\]
+O neutro permanece nas probabilidades; não o descartamos à força.
+
+Os escores de um mesmo dia se combinam em um impacto diário. A série da empresa ganha memória por média móvel exponencial (EWMA), analogia conceitual ao decaimento de \citeonline{shapiro2022fed}, não réplica do índice do Federal Reserve. Em forma resumida,
+\[
+\mathrm{ITI}_t = \alpha_{\mathrm{eff}} \cdot \mathrm{ITI}_{t-1} + (1 - \alpha_{\mathrm{eff}}) \cdot \mathrm{impacto}_t,
+\]
+em que $\alpha$ controla memória --- valor alto retém mais passado; valor baixo reage mais ao dia --- e \textbf{não} é o alfa de excesso de retorno da literatura financeira. Dias sem notícia aplicam decaimento sobre o estado anterior. O predictor principal previsto para a comparação semanal é o estado líquido no último dia útil da semana.
+
+\section{Alternativas simples (B0--B3)}
+
+Qualquer índice mais elaborado precisa se justificar contra medidas cruas extraídas das \emph{mesmas} notícias \cite{loughran2011liability}. Definimos quatro baselines internos; nenhum usa preço de mercado.
+
+\begin{table}[htbp]
+\caption{Baselines internos derivados do mesmo corpus de notícias.}
+\label{tab:baselines}
+\begin{tabular}{|p{0.12\textwidth}|p{0.78\textwidth}|}
+\hline
+\textbf{Código} & \textbf{Conteúdo} \\
+\hline
+B0 & Contagem de notícias no período \\
+\hline
+B1 & Média do escore $d$ \\
+\hline
+B2 & Média de $d$ ponderada por confiança do classificador \\
+\hline
+B3 & Impacto diário \emph{sem} memória EWMA \\
+\hline
+\end{tabular}
+
+\vspace{0.4em}
+{\footnotesize Fonte: elaboração própria, a partir do protocolo operacional do laboratório.}
+
+\end{table}
+
+\section{Protocolo de comparação}
+
+O preço da ação entra só como variável alvo. O alinhamento é \textbf{semanal}: o ITI da semana confronta a soma dos log-retornos diários nas $h$ semanas seguintes, com $h \in \{1,2,4\}$, na linha de horizontes múltiplos da evidência brasileira \cite{duarte2020news,eramiars2025correlacao}.
+
+Há quatro baselines, duas métricas de associação (Pearson e Spearman) e três horizontes --- vinte e quatro confrontos cabeça a cabeça por execução. ``Vitória'' significa apenas que o ITI correlaciona \emph{melhor} que aquele baseline naquela métrica e naquele horizonte. Significância prevista: bootstrap em bloco, não causalidade \cite{utfpr2024bert}.
+
+Antes de interpretar associação com o mercado, o desenho exige um \textbf{gate} de qualidade do classificador no corpus de saneamento: concordância com anotação humana (acurácia da ordem de 70\% ou $\kappa \geq 0{,}40$). O modelo de \citeonline{santos2023finbert} é ferramenta, não garantia nesse setor.
+
+O Quadro~\ref{tab:protocolo} resume o recorte operacional. A Figura~\ref{fig:pipeline} situa os elos em sequência.
+
+\begin{table}[htbp]
+\caption{Protocolo operacional do caso âncora (Sabesp).}
+\label{tab:protocolo}
+\begin{tabular}{|p{0.28\textwidth}|p{0.64\textwidth}|}
+\hline
+\textbf{Item} & \textbf{Especificação} \\
+\hline
+Empresa & Sabesp (\texttt{SBSP3}) \\
+\hline
+Classificador & FinBERT-PT-BR; escore $d$ \\
+\hline
+Índice & EWMA; estado líquido no fim da semana \\
+\hline
+Baselines & B0--B3 (somente notícias) \\
+\hline
+Alvo & Retorno futuro semanal, $h \in \{1,2,4\}$ \\
+\hline
+Comparação & Pearson e Spearman; 24 duelos \\
+\hline
+Incerteza & Bootstrap em bloco \\
+\hline
+Gate de qualidade & Concordância humana (acurácia ou $\kappa$) \\
+\hline
+\end{tabular}
+
+\vspace{0.4em}
+{\footnotesize Fonte: elaboração própria.}
+
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rectangle, rounded corners=1pt, align=center, inner sep=6pt, minimum height=1.15cm, text width=2.15cm},
+  arr/.style={->, thick}
+]
+\node[box] (c) {Coleta\\corpus};
+\node[box, right=0.35cm of c] (s) {Escore $d$\\FinBERT-PT};
+\node[box, right=0.35cm of s] (e) {EWMA\\ITI};
+\node[box, right=0.35cm of e] (b) {B0--B3\\mesmas\\notícias};
+\node[box, right=0.35cm of b] (r) {Duelos\\semanais};
+\draw[arr] (c) -- (s);
+\draw[arr] (s) -- (e);
+\draw[arr] (s) -- (b);
+\draw[arr] (e) -- (r);
+\draw[arr] (b) -- (r);
+\end{tikzpicture}
+\caption{Fluxo operacional: das notícias aos duelos do ITI com alternativas simples.}
+\label{fig:pipeline}
+
+\vspace{0.4em}
+{\footnotesize Fonte: elaboração própria.}
+\end{figure}
+
+Nada neste capítulo afirma que o ITI acrescente informação ao mercado. Afirma só o compromisso de método: coletar com critério, classificar com modelo de domínio, agregar com memória explícita e só então perguntar se o índice diz mais do que contar matérias.

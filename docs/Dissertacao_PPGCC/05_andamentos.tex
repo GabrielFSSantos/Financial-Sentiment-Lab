@@ -1,0 +1,48 @@
+\chapter{Andamentos experimentais}
+\label{cap:andamentos}
+
+O que segue não é resultado de dissertação, nem teste de H1. É o registro do que o laboratório \textbf{já executou} e do que isso \textbf{ainda não autoriza} a concluir. O gate de concordância humana no corpus de saneamento \textbf{não foi atingido}; sem ele, associação com retorno permanece exercício de protocolo.
+
+\section{O pipeline roda}
+
+Conseguimos encadear raspagem, corpus tabular, inferência, série do ITI e rotina de comparação semanal. Isso responde a uma pergunta estreita: o desenho do Capítulo~\ref{cap:metodologia} é executável, não só conceitual. Não responde se o índice informa preço.
+
+\section{Classificador no corpus local}
+
+Anotamos cem notícias do recorte Sabesp e comparamos o FinBERT-PT-BR com essa anotação. No artigo de origem, o modelo reporta desempenho bem mais alto em noticiário financeiro amplo \cite{santos2023finbert}. No saneamento, na amostra manual, os números caem abaixo do gate previsto (acurácia da ordem de 70\% ou $\kappa \geq 0{,}40$).
+
+\begin{table}[htbp]
+\caption{Concordância do FinBERT-PT-BR com anotação humana no corpus de saneamento (n = 100), ainda exploratória.}
+\label{tab:kappa}
+\begin{tabular}{|p{0.46\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+\textbf{Métrica} & \textbf{Valor} & \textbf{Gate} \\
+\hline
+Acurácia & 48\% & abaixo de 70\% \\
+\hline
+$\kappa$ de Cohen & 0,163 & abaixo de 0,40 \\
+\hline
+F1 macro & 0,42 & --- \\
+\hline
+\end{tabular}
+
+\vspace{0.4em}
+{\footnotesize Fonte: elaboração própria a partir da amostra manual do laboratório.}
+
+\end{table}
+
+Dois controles na mesma amostra --- um modelo de tweets em português e um BERT genérico em PT \cite{souza2020bertimbau} --- também ficaram aquém do gate (e, em $\kappa$, piores ou semelhantes). O problema, portanto, não se reduz a ``trocar a arquitetura''. Parte das matérias é \emph{roundup} (agenda de várias empresas no mesmo texto): cerca de um quarto da amostra manual. No subconjunto focal da Sabesp, $\kappa$ sobe um pouco (da ordem de 0,22) e continua abaixo do critério. Contaminação de gênero jornalístico explica parte, não tudo.
+
+Enquanto o gate falhar, o escore $d$ no saneamento é uma ferramenta preliminar. Não tratamos o classificador como validado para o setor.
+
+\section{Campanhas R0 e R1 como exercício de protocolo}
+
+Rodamos o protocolo de vinte e quatro duelos em janelas do caso Sabesp, variando a memória $\alpha$ (por exemplo 0,85 e 0,70) para ver se o pipeline de comparação se comporta de ponta a ponta. Isso é \textbf{ablação operacional}, não estimação definitiva de $\alpha$ e não teste de H1.
+
+Alguns confrontos favorecem o ITI frente a um baseline; a maior parte não. Poucas diferenças passam o bootstrap --- em quantidade compatível com busca múltipla em vinte e quatro testes correlacionados. Sem classificador acima do gate, \textbf{não interpretamos} esses duelos como evidência de que o índice acrescente informação sobre retorno futuro.
+
+O que os exercícios mostram, no máximo, é que o protocolo é reproduzível: mesmas notícias, mesmas métricas, mesmos horizontes, baselines internos, memória explícita. Direção do efeito, magnitude e robustez a outras empresas ficam em aberto, como já alertavam a literatura de reversão \cite{yoshinaga2012sentimento} e a de lags heterogêneos \cite{eramiars2025correlacao}.
+
+\section{O que deliberadamente não fechamos}
+
+Não afirmamos vitória do ITI. Não afirmamos causalidade \cite{utfpr2024bert}. Não promovemos o painel de visualização do laboratório a evidência. Não tratamos Copasa, Sanepar, Granger, volume ou controles de mercado amplo. O Capítulo~\ref{cap:proximos} lista o que ainda falta para a avaliação que a dissertação deverá sustentar perante a banca.

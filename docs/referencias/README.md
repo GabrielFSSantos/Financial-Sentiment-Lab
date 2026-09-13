@@ -2,6 +2,8 @@
 
 Índice de artigos usados para ancorar decisões em [trajetoria.md](../trajetoria.md). BibTeX: [bibliografia.bib](bibliografia.bib). Notas: [notas/](notas/). Download: `./scripts/download_referencias.sh`.
 
+Convenção de arquivo: `autorANO_tema-curto.pdf` (minúsculas, sem IDs de OJS, DOI ou working paper).
+
 ## Três referências âncora metodológicas (BR)
 
 | # | Referência | Uso no lab | PDF local |
@@ -16,29 +18,36 @@
 |------------|-----|--------------|
 | Tetlock (2007) | Mídia e preços — H1 | [pdfs/tetlock2007_media.pdf](pdfs/tetlock2007_media.pdf) · [nota](notas/tetlock2007.md) |
 | Loughran & McDonald (2011) | Baselines textuais | [pdfs/loughran2011_baselines.pdf](pdfs/loughran2011_baselines.pdf) · [nota](notas/loughran2011.md) |
-| ERAMIARS (2025) — Marquezan & Assunção | Correlação emoções × preços B3 | [DOI](https://doi.org/10.5753/eramiars.2025.16502) · link only · [nota](notas/eramiars2025.md) |
-| Baker et al. (2016) EPU | Índice textual temporal | [nota](notas/baker2016.md) |
-| Shapiro et al. (2022) Fed | EWMA / decaimento | [nota](notas/shapiro2022.md) |
+| ERAMIARS (2025) — Marquezan & Assunção | Correlação emoções × preços B3 | [pdfs/marquezan2025_eramiars.pdf](pdfs/marquezan2025_eramiars.pdf) · [nota](notas/eramiars2025.md) |
+| Baker et al. (2016) EPU | Índice textual temporal | [pdfs/baker2016_epu.pdf](pdfs/baker2016_epu.pdf) · [nota](notas/baker2016.md) |
+| Shapiro et al. (2022) Fed | EWMA / decaimento | [pdfs/shapiro2022_news_sentiment.pdf](pdfs/shapiro2022_news_sentiment.pdf) · [nota](notas/shapiro2022.md) |
 | RACEf (2022) | Sentimento × ciclos BR | [DOI](https://doi.org/10.13059/racef.v13i3.985) · link only · [nota](notas/racef2022.md) |
-| UTFPR (2024) | Contraponto causalidade BERT | [RI](http://repositorio.utfpr.edu.br/jspui/handle/1/40390) · link only · [nota](notas/utfpr2024.md) |
-| FOCO (2025) — Gattai & Souza | Evento institucional Sabesp/EQTL3 | [pdfs/sabesp_evento_eqtl3_foco.pdf](pdfs/sabesp_evento_eqtl3_foco.pdf) · [nota](notas/foco2025.md) |
+| UTFPR (2024) | Contraponto causalidade BERT | [pdfs/utfpr2024_noticias_acoes.pdf](pdfs/utfpr2024_noticias_acoes.pdf) · [nota](notas/utfpr2024.md) |
+| FOCO (2025) — Gattai & Souza | Evento institucional Sabesp/EQTL3 | [pdfs/gattai2025_privatizacao_sabesp.pdf](pdfs/gattai2025_privatizacao_sabesp.pdf) · [nota](notas/foco2025.md) |
 | Araci (2020) FinBERT EN | Contexto transformers | [pdfs/araci2020_finbert.pdf](pdfs/araci2020_finbert.pdf) · [nota](notas/araci2020.md) |
-| Souza et al. (2020) BERTimbau | Base linguística PT | link only (Springer) · [nota](notas/souza2020.md) |
+| Souza et al. (2020) BERTimbau | Base linguística PT | [pdfs/souza2020_bertimbau.pdf](pdfs/souza2020_bertimbau.pdf) · [nota](notas/souza2020.md) |
 | Barbieri (2020) BERTweet | Controle κ | [nota](notas/barbieri2020.md) |
 | Neuenschwander et al. (2014) | Scraping BR difícil | link only · [nota](notas/neuenschwander2014.md) |
+| Lei 14.026/2020 | Marco legal do saneamento | [pdfs/brasil2020_lei_14026.pdf](pdfs/brasil2020_lei_14026.pdf) |
 
 ## Status dos PDFs locais (`pdfs/`)
 
-| Arquivo | Status | Referência | Fases |
-|---------|--------|------------|-------|
-| `santos2023_finbert_ptbr.pdf` | **OK** | Santos et al. (2023) | F2, F5 |
-| `duarte2020_quedas_b3.pdf` | **OK** | Duarte et al. (2020) | F0, F1, F3 |
-| `tetlock2007_media.pdf` | **OK** | Tetlock (2007) | Parte 0, F1 |
-| `loughran2011_baselines.pdf` | **OK** | Loughran & McDonald (2011) | Parte 0, F1, F2 |
-| `yoshinaga2012_bar.pdf` | **OK** | Yoshinaga & Castro Junior (2012) | F1, F2 |
-| `sabesp_evento_eqtl3_foco.pdf` | **OK** | Gattai & Souza (2025) FOCO | Parte 0, F2 |
-| `araci2020_finbert.pdf` | **OK** | Araci (2020) | Parte 0 |
-| Baker, Shapiro, RACEf, ERAMIARS, UTFPR, Neuenschwander, Souza, Barbieri | link only | ver notas | conforme notas |
+| Arquivo | Status | Referência |
+|---------|--------|------------|
+| `santos2023_finbert_ptbr.pdf` | OK | Santos et al. (2023) |
+| `duarte2020_quedas_b3.pdf` | OK | Duarte et al. (2020) |
+| `tetlock2007_media.pdf` | OK | Tetlock (2007) |
+| `loughran2011_baselines.pdf` | OK | Loughran & McDonald (2011) |
+| `yoshinaga2012_bar.pdf` | OK | Yoshinaga & Castro Junior (2012) |
+| `gattai2025_privatizacao_sabesp.pdf` | OK | Gattai & Souza (2025) FOCO |
+| `araci2020_finbert.pdf` | OK | Araci (2020) |
+| `marquezan2025_eramiars.pdf` | OK | Marquezan & Assunção (2025) |
+| `baker2016_epu.pdf` | OK | Baker, Bloom & Davis (2016) |
+| `souza2020_bertimbau.pdf` | OK | Souza et al. (2020) |
+| `brasil2020_lei_14026.pdf` | OK | Lei 14.026/2020 |
+| `utfpr2024_noticias_acoes.pdf` | OK | UTFPR (2024) |
+| `shapiro2022_news_sentiment.pdf` | OK | Shapiro et al. (working paper Fed; versão jornal 2022) |
+| RACEf, Neuenschwander, Barbieri | link only | ver notas |
 
 Log de download: [pdfs/download.log](pdfs/download.log). Reexecutar: `./scripts/download_referencias.sh` (pula arquivos já presentes).
 

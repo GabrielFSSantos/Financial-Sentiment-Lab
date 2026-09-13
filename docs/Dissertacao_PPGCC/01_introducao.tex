@@ -1,0 +1,59 @@
+\chapter{Introdução}
+
+A cada dia, portais de notícia descrevem decisões regulatórias, disputas tarifárias, obras, privatizações e balanços de empresas de água e esgoto. Quem acompanha o mercado brasileiro sabe que esse fluxo não é decoração: em alguns episódios, o anúncio institucional chega a se refletir em preços \cite{foco2025sabesp}. A pergunta que nos move é mais estreita e, ao mesmo tempo, mais trabalhosa. Não perguntamos se ``notícia importa'' em abstrato. Perguntamos se é possível construir, em português e para o saneamento de capital aberto, uma série temporal que resuma essa informação de forma honesta --- e se essa série diz algo além do que já se obteria contando matérias ou tirando a média do tom do dia.
+
+Esta dissertação ainda não fecha desempenho. O que segue é a fundamentação da ideia --- problema, literatura, lacuna e objeto --- o desenho operacional já montado no laboratório e os andamentos experimentais, estes últimos sem pretensão de resultado definitivo.
+
+\section{Contextualização}
+
+Há pelo menos duas décadas a literatura financeira trata o conteúdo da mídia como objeto mensurável. \citeonline{tetlock2007media} mostrou, no mercado norte-americano, que o tom de colunas jornalísticas se associa a movimentos de preço e volume --- o texto não é ruído puro. No Brasil, a cadeia ``sentimento observado $\rightarrow$ índice $\rightarrow$ retorno'' já apareceu em finanças, ainda que com construção distinta da nossa: \citeonline{yoshinaga2012sentimento} relacionam um índice de sentimento de mercado, obtido por componentes principais, a retornos em painel.
+
+Paralelamente, a computação passou a oferecer ferramentas de domínio. Dicionários genéricos falham em relatórios financeiros \cite{loughran2011liability}. Modelos de linguagem pré-treinados em textos de mercado, primeiro em inglês \cite{araci2020finbert} e depois em português \cite{santos2023finbert}, tornaram viável classificar o tom de notícias sem montar léxicos à mão. Há também uma tradição de transformar cobertura jornalística em \emph{índice temporal} e só então confrontá-lo com o mundo externo --- incerteza de política econômica \cite{baker2016epu} ou sentimento diário de notícias com decaimento \cite{shapiro2022fed}.
+
+O saneamento brasileiro mistura regulação, serviço essencial e, nos últimos anos, um rearranjo institucional intenso. A Lei n\textsuperscript{o} 14.026/2020 alterou o marco do setor \cite{lei14026}. A privatização da Sabesp tornou-se episódio de mercado mensurável, embora o estudo de evento mais citado no nosso conjunto de referências analise a reação em EQTL3, não um índice de notícias da própria Sabesp \cite{foco2025sabesp}. É nesse recorte --- setor regulado, noticioso e ainda pouco coberto por processamento de linguagem natural --- que situamos a pesquisa.
+
+\section{Problema}
+
+O problema não é a falta de notícias. É a falta de um objeto científico intermediário: uma série que ligue \emph{esta} matéria \emph{a esta} empresa, em português, no tempo certo, sem misturar o que o modelo de sentimento acha com o que uma contagem crua já diria.
+
+Para chegar lá, várias peças precisam encaixar. A coleta na web brasileira é ruidosa: extração, deduplicação e alinhamento temporal não são triviais \cite{neuenschwander2014webmedia}. O classificador precisa ser de domínio financeiro em português \cite{santos2023finbert}, não um BERT genérico treinado em outro gênero. A agregação precisa de memória --- notícia de ontem ainda pesa hoje, em grau a definir --- na linha do decaimento usado em índices de sentimento jornalístico \cite{shapiro2022fed}. E qualquer índice mais elaborado tem de se comparar com alternativas simples, na tradição de \citeonline{loughran2011liability}: se a construção sofisticada não disser mais do que a média do dia, o mérito está no discurso, não na medida.
+
+Em uma frase: \textbf{como construir, de forma reprodutível, um índice temporal informacional a partir de notícias corporativas de saneamento, de modo que ele possa ser testado, mais adiante, contra medidas simples e contra o mercado --- sem presumir o resultado desse teste?}
+
+\section{Justificativa}
+
+Três motivos nos convenceram a não tratar o tema como ``mais um classificador de sentimento''.
+
+O primeiro é metodológico. Índices textuais existentes ou são macro (incerteza agregada de jornais) \cite{baker2016epu}, ou são sentimento de mercado brasileiro obtido por PCA de variáveis financeiras \cite{yoshinaga2012sentimento}, ou são aplicações do FinBERT-PT-BR em noticiário financeiro amplo \cite{santos2023finbert}. Nenhum deles é um microíndice empresa a empresa para água e esgoto. Estudos brasileiros de notícia e preço existem --- quedas na B3 com vários horizontes \cite{duarte2020news}, correlação cruzada de emoções extraídas por modelos de linguagem em alguns tickers \cite{eramiars2025correlacao} --- mas o setor e o objeto (índice operacional com memória) não coincidem.
+
+O segundo é contextual. O saneamento vive choques regulatórios e de propriedade. \citeonline{foco2025sabesp} documentam reação de mercado a um anúncio da privatização da Sabesp. Isso não prova que um índice de sentimento da Sabesp antecipe SBSP3; prova que o episódio é informacionalmente denso o bastante para merecer um instrumento de medição. \citeonline{racef2022sentimento} lembram, em outro recorte, que sentimento e mercado brasileiro se associam de modo desigual ao longo do ciclo --- períodos de atenção elevada não se comportam como períodos calmos.
+
+O terceiro é de Ciência da Computação. O trabalho envolve coleta estruturada na web, desambiguação notícia--empresa, modelo de linguagem de domínio, representação temporal e um protocolo de comparação. São problemas de engenharia de dados e de avaliação, não apenas de narrativa econômica.
+
+Há um contraponto que levamos a sério desde o início: trabalhos com BERT em portais brasileiros já reportaram ausência de causalidade consistente entre sentimento de notícia e desempenho futuro de ações \cite{utfpr2024bert}. Isso não invalida a pergunta; calibra a expectativa. Associação incremental, se existir, terá de ser demonstrada com régua clara --- e pode não existir.
+
+\section{Objetivo geral}
+
+Projetar e fundamentar um \textbf{Índice Temporal Informacional (ITI)} a partir de notícias corporativas de empresas brasileiras de saneamento de capital aberto, deixando explícito o que a literatura nos empresta, o que adaptamos ao setor e o que só poderá ser testado empiricamente depois.
+
+\section{Objetivos específicos}
+
+\begin{enumerate}
+  \item \textbf{Coleta.} Especificar um processo de extração na web (raspagem de portais) que produza um corpus tabular --- título, data, fonte, empresa, texto --- deduplicado e alinhável no tempo \cite{neuenschwander2014webmedia}.
+  \item \textbf{Classificação.} Adotar um classificador de sentimento de domínio em português, com escore contínuo por notícia, na linha de \citeonline{santos2023finbert}.
+  \item \textbf{Agregação temporal.} Definir como scores diários se combinam em um índice com memória (média móvel exponencial), analogia conceitual ao decaimento de \citeonline{shapiro2022fed}, sem copiar o índice do Federal Reserve.
+  \item \textbf{Comparação honesta.} Operacionalizar o confronto do ITI com medidas simples derivadas das mesmas notícias (contagem, sentimento médio, ponderações), na tradição de baselines textuais \cite{loughran2011liability} --- o que o laboratório já montou como protocolo, não como prova.
+  \item \textbf{Validação empírica.} Especificar um teste de associação com retorno em mais de um horizonte, como a literatura brasileira de notícia e preço recomenda \cite{duarte2020news,eramiars2025correlacao}, e registrar andamentos sem tratar H1 como resolvida.
+\end{enumerate}
+
+\section{Hipótese de trabalho}
+
+A hipótese que pretendemos testar mais adiante, e que \emph{não} tratamos como resultado, é a seguinte.
+
+\textbf{H1.} Um índice temporal com memória, construído sobre notícias da empresa, associa-se ao retorno futuro de forma incremental em relação a medidas simples extraídas do mesmo corpus --- contagem de matérias e sentimento médio, entre outras.
+
+Não afirmamos direção (alta após notícia positiva). \citeonline{yoshinaga2012sentimento} encontram, em outro índice, relação que pode ser negativa (reversão). Também não afirmamos causalidade \cite{utfpr2024bert}. H1 é um programa de teste, não uma conclusão.
+
+\section{Organização do texto}
+
+O Capítulo~\ref{cap:revisao} percorre as linhas de literatura e fecha na lacuna. O Capítulo~\ref{cap:proposta} descreve o ITI como objeto: o que é, de onde veio a ideia, o que deliberadamente não replica. O Capítulo~\ref{cap:metodologia} detalha o protocolo operacional (corpus, escore, memória, baselines, duelos semanais). O Capítulo~\ref{cap:andamentos} registra o que já rodou, com ressalvas. O Capítulo~\ref{cap:proximos} indica o que falta para uma avaliação que possa ser lida como resultado. Referências bibliográficas encerram o volume.

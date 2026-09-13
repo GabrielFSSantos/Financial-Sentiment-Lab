@@ -1,5 +1,7 @@
 # Yoshinaga & Castro Junior (2012) — índice de sentimento e retornos
 
+**PDF local:** [pdfs/yoshinaga2012_bar.pdf](../pdfs/yoshinaga2012_bar.pdf)
+
 **Referência:** Yoshinaga, C. E.; Castro Junior, F. H. F. *The relationship between market sentiment index and stock rates of return: a panel data analysis*. Brazilian Administration Review, 2012. DOI/link: https://www.scielo.br/j/bar/a/mYcPXrTgXGFWDRrybdQZrSJ/
 
 ## Pergunta e desenho

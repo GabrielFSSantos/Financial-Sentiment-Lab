@@ -2,6 +2,8 @@
 
 # Marquezan & Assunção (2025) — Correlação emoções × preços B3
 
+**PDF local:** [pdfs/marquezan2025_eramiars.pdf](../pdfs/marquezan2025_eramiars.pdf)
+
 **Citação:** Marquezan, G. & Assunção, J. V. C. Análise de Correlação Cruzada entre Emoções de Notícias e Preços de Ações com Grandes Modelos de Linguagem. ERAMIARS 2025. DOI: [10.5753/eramiars.2025.16502](https://doi.org/10.5753/eramiars.2025.16502)
 
 ## Tese central

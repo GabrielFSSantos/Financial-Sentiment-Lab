@@ -2,6 +2,8 @@
 
 # Shapiro, Sudhof & Wilson (2022) — Fed News Sentiment
 
+**PDF local:** [pdfs/shapiro2022_news_sentiment.pdf](../pdfs/shapiro2022_news_sentiment.pdf) (working paper Fed)
+
 **Citação:** Shapiro, A. H.; Sudhof, M.; Wilson, D. J. Measuring News Sentiment. *Journal of Econometrics*, 228(2), 221–243.
 
 ## Tese central

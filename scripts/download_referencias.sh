@@ -47,12 +47,12 @@ download_pdf() {
 download_pdf "santos2023_finbert_ptbr.pdf" \
   "https://sol.sbc.org.br/index.php/bwaif/article/download/24960/16609" || true
 
-# ERAMIARS 2025 — tentar endpoint download SBC
-download_pdf "eramiars2025_correlacao_b3.pdf" \
+# ERAMIARS 2025
+download_pdf "marquezan2025_eramiars.pdf" \
   "https://sol.sbc.org.br/index.php/eramiars/article/download/16502/16403" || true
 
 # FOCO — privatização Sabesp
-download_pdf "sabesp_evento_eqtl3_foco.pdf" \
+download_pdf "gattai2025_privatizacao_sabesp.pdf" \
   "https://ojs.focopublicacoes.com.br/foco/article/download/12166/8493" || true
 
 # SciELO — Yoshinaga 2012 BAR
@@ -68,7 +68,7 @@ download_pdf "racef2022_sentimento.pdf" \
   "https://doi.org/10.13059/racef.v13i3.985" || true
 
 # UTFPR — repositório (pode exigir interação)
-download_pdf "utfpr2024_bert.pdf" \
+download_pdf "utfpr2024_noticias_acoes.pdf" \
   "http://repositorio.utfpr.edu.br/jspui/bitstream/1/40390/1/UTFPR%20BERT%20noticias.pdf" || true
 
 # WebMedia / SBC — Neuenschwander 2014 (repositório USP comum)

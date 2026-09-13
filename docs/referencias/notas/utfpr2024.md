@@ -2,6 +2,8 @@
 
 # UTFPR (2024) — Notícias BERT × performance ações BR
 
+**PDF local:** [pdfs/utfpr2024_noticias_acoes.pdf](../pdfs/utfpr2024_noticias_acoes.pdf)
+
 **Fonte:** [RI UTFPR](http://repositorio.utfpr.edu.br/jspui/handle/1/40390)
 
 ## Tese central
