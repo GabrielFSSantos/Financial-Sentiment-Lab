@@ -118,13 +118,17 @@ export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 
 section "2. ESTRUTURA"
 
+if [[ -x "${PROJECT_ROOT}/scripts/migrate_data_paths.sh" ]]; then
+    "${PROJECT_ROOT}/scripts/migrate_data_paths.sh" || true
+fi
+
 EXPECTED_FILES=(
     README.md pyproject.toml requirements.txt requirements-base.txt pytest.ini requirements-dev.txt
     configs/experiment.yaml configs/models.yaml configs/datasets.yaml configs/scrapers.yaml
     configs/market.yaml configs/research.yaml
     data/noticias_exemplo_ptbr/noticias.csv
     data/news_example_en/news.csv
-    data/saneamento_corpus/noticias.csv
+    data/water_utilities_corpus/articles.csv
     scripts/setup_env.sh scripts/run_service.sh scripts/run_experiment.sh scripts/run_research.sh scripts/audit_project.sh
     jobs/sdumont/run_experiment.srm
     modules/experiment/__main__.py modules/experiment/common.py
@@ -164,6 +168,11 @@ EXPECTED_FILES=(
     tests/test_research_incremental.py tests/test_research_runner.py
     tests/test_scrapers_config.py tests/test_scrapers_schema.py tests/test_scrapers_search.py
     tests/test_scrapers_cron.py tests/test_scrapers_corpus.py tests/test_scrapers_live.py
+    tests/test_preflight.py tests/test_performance_monitor.py tests/test_runner_lifecycle.py
+    tests/test_output_schema.py tests/test_experiment_dry_run_outputs.py
+    tests/test_combination_executor.py tests/test_label_judges.py
+    tests/test_evaluation_config.py tests/test_campaign_config_merge.py
+    tests/test_event_corpus_filter.py
 )
 
 for relative_path in "${EXPECTED_FILES[@]}"; do
@@ -228,11 +237,15 @@ if [[ ! -d tests ]]; then
     fail "Diretório tests/ ausente"
 elif [[ -x "${VENV_DIR}/bin/pytest" ]]; then
     run_check "pytest (sem rede)" "${VENV_DIR}/bin/pytest" tests -m "not network"
+elif [[ -x "${VENV_DIR}/bin/python" ]]; then
+    run_check "pytest (sem rede)" "${VENV_DIR}/bin/python" -m pytest tests -m "not network"
 elif command -v pytest >/dev/null 2>&1; then
     run_check "pytest (sem rede)" pytest tests -m "not network"
 else
     fail "pytest não encontrado (pip install -r requirements-dev.txt)"
 fi
+
+info "Testes live (scrapers): SCRAPERS_LIVE=1 ${VENV_DIR}/bin/python -m pytest tests/test_scrapers_live.py"
 
 section "6. INTEGRAÇÃO"
 

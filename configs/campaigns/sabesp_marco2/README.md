@@ -14,7 +14,7 @@ Dataset: `saneamento_sabesp_strict_expanded` (overlay em `../datasets.yaml`).
 ./modules/scrapers/scripts/run_scrape.sh build-strict
 python -m modules.scrapers filter-corpus --company Sabesp \
   --since 2022-05-01 --until 2024-04-30 \
-  -o data/saneamento_corpus/noticias_strict_sabesp.csv
+  -o data/water_utilities_corpus/articles_strict_sabesp.csv
 
 # Fechamento Trilha A (corpus 1.254, run_ids novos — não sobrescreve Marco 2)
 ./scripts/campaigns/sabesp_marco2.sh replay-gap2023

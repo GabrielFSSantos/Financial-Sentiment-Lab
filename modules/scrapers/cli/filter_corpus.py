@@ -16,7 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--input",
-        default="data/saneamento_corpus/noticias_strict.csv",
+        default="data/water_utilities_corpus/articles_strict.csv",
         help="CSV de entrada",
     )
     parser.add_argument(

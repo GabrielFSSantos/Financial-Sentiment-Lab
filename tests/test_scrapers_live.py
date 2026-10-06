@@ -44,8 +44,14 @@ def test_site_live_smoke_playwright(project_root, site_key: str) -> None:
         until=ANCHOR_UNTIL,
     )
     in_window = sum(item.in_window_count for item in debug_stats)
+    if in_window == 0:
+        pytest.skip(
+            f"{site_key}: nenhum link na janela {ANCHOR_SINCE}–{ANCHOR_UNTIL} "
+            "(site ou busca indisponível)."
+        )
     scraper = SiteScraper(configuration, site)
     records = scraper.scrape(since=ANCHOR_SINCE, until=ANCHOR_UNTIL)
     assert isinstance(records, list)
-    if in_window > 0:
-        assert len(records) >= 1, f"{site_key}: {in_window} links na janela mas 0 coletados"
+    assert len(records) >= 1, (
+        f"{site_key}: {in_window} links na janela mas 0 coletados"
+    )

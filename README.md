@@ -4,9 +4,12 @@ Laboratório de **análise de sentimento em notícias financeiras** (PT e EN) pa
 
 A pesquisa parte de notícias (datasets versionados ou coletados por scraper), aplica modelos FinBERT, agrega impacto por empresa/setor/mercado e compara o ITI com baselines simples e preços B3 via validação estatística incremental.
 
-- **Documento único da pesquisa (Trilha A):** [docs/trajetoria.md](docs/trajetoria.md) — Parte 4 = resultados oficiais
-- **Referência técnica:** [docs/documentacao.md](docs/documentacao.md)
-- **Bibliografia:** [docs/referencias/](docs/referencias/)
+- **Documentação (índice):** [docs/README.md](docs/README.md)
+- **Histórico e resultados da pesquisa (Trilha A):** [docs/research_trail/](docs/research_trail/README.md) — [Parte 4](docs/research_trail/part-04-results.md) = resultados oficiais
+- **Referência técnica (código e fluxos):** [docs/documentation/](docs/documentation/README.md)
+- **Bibliografia:** [docs/references/](docs/references/)
+
+**Ampliar o lab:** [CONTRIBUTING.md](CONTRIBUTING.md) · [quickstart pesquisador](docs/documentation/00_quickstart_researcher.md) · [backlog de engenharia](docs/documentation/engineering_backlog.md)
 
 ---
 
@@ -18,7 +21,7 @@ O fluxo usa três fontes de dado distintas. As **notícias** vêm do nosso scrap
 
 O índice é atualizado **todo dia** (EWMA — *Exponentially Weighted Moving Average*). Na validação semanal da campanha Sabesp, usamos um ponto por semana (valor do último dia útil, `iti_liquido_last`). Cada run da campanha gera 24 comparações: o ITI contra quatro baselines internos, em duas métricas de correlação (Pearson, Spearman) e três horizontes (1, 2 e 4 semanas). O **win rate** (taxa de vitória) indica em quantas dessas comparações o ITI supera o baseline.
 
-Para conceitos detalhados e fórmulas, veja [docs/documentacao.md §1.5](docs/documentacao.md#15-conceitos-em-linguagem-acessível). Para o histórico run a run, veja [docs/trajetoria.md](docs/trajetoria.md).
+Para conceitos detalhados e fórmulas, veja [docs/documentation/01_visao_e_conceitos.md §1.5](docs/documentation/01_visao_e_conceitos.md#15-conceitos-em-linguagem-acessível). Para o histórico run a run, veja [docs/research_trail/](docs/research_trail/README.md) (Partes 3 e 4).
 
 ---
 
@@ -74,7 +77,7 @@ Por padrão roda **combinações `enabled: true`** em `configs/models.yaml` × `
 ./scripts/run_experiment.sh
 
 # Uma combinação específica
-./scripts/run_experiment.sh --model finbert_ptbr --dataset saneamento_corpus
+./scripts/run_experiment.sh --model finbert_ptbr --dataset water_utilities_corpus
 
 # Run ID fixo
 ./scripts/run_experiment.sh --run-id meu_experimento --model finbert_ptbr --dataset noticias_exemplo_ptbr
@@ -93,13 +96,9 @@ Por padrão roda **combinações `enabled: true`** em `configs/models.yaml` × `
 ./modules/scrapers/scripts/run_scrape.sh build-corpus
 ./modules/scrapers/scripts/run_scrape.sh report
 ./modules/scrapers/scripts/run_scrape.sh debug-search --site valor --since 2023-11-01 --until 2023-11-30 --query Sabesp
-
-# Wrappers de compatibilidade na raiz (delegam ao run_scrape.sh)
-./scripts/scrape_historical.sh --since 2023-11-01 --until 2024-04-30
-./scripts/scrape_smoke_site.sh exame 2023-11-01 2023-11-30
 ```
 
-Saídas: `data/saneamento_corpus/noticias.csv` (empresa + ticker) e `noticias_pendentes.csv` (modo `broad`, revisão manual). Config: `configs/scrapers.yaml` (`collection_mode: broad`, 6 portais).
+Saídas: `data/water_utilities_corpus/articles.csv` (empresa + ticker) e `noticias_pendentes.csv` (modo `broad`, revisão manual). Config: `configs/scrapers.yaml` (`collection_mode: broad`, 6 portais).
 
 Nas primeiras coletas é comum o corpus ser dominado por uma empresa; ampliar Copasa/Sanepar exige janela temporal maior e múltiplos portais.
 
@@ -128,7 +127,7 @@ python -m modules.research validate --run-id <run_id> --model finbert_ptbr --dat
 python -m modules.scrapers --since 2020-01-01 --until 2024-12-31
 ./modules/scrapers/scripts/run_scrape.sh build-corpus
 python -m modules.market fetch
-./scripts/run_experiment.sh --model finbert_ptbr --dataset saneamento_corpus
+./scripts/run_experiment.sh --model finbert_ptbr --dataset water_utilities_corpus
 python -m modules.research validate --run-id <run_id>
 ```
 
@@ -170,7 +169,7 @@ Controles PT (`enabled: false`): `python -m modules.models fetch --model bertwee
 | --- | --- |
 | `noticias_exemplo_ptbr` | CSV versionado (`data/noticias_exemplo_ptbr/`) — exemplo PT com rótulos |
 | `news_example_en` | CSV versionado (`data/news_example_en/`) — exemplo EN com rótulos |
-| `saneamento_corpus` | Corpus multiportal gerado por `modules/scrapers` |
+| `water_utilities_corpus` | Corpus multiportal (`saneamento_corpus` = alias) |
 
 Tickers de mercado (research): Sabesp `SBSP3.SA`, Copasa `CSMG3.SA`, Sanepar `SAPR4.SA` — ver [configs/market.yaml](configs/market.yaml) e [configs/research.yaml](configs/research.yaml).
 

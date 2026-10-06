@@ -58,6 +58,20 @@ from modules.experiment.indexing.temporal_index import (
     TemporalIndexError,
     merge_uncertainty_across_models,
 )
+from modules.experiment.pipeline.errors import (
+    ExperimentInterruptedError,
+    PreflightError,
+    RunnerError,
+)
+from modules.experiment.pipeline.combination_executor import (
+    CombinationRunResult,
+    execute_combination,
+)
+from modules.experiment.pipeline.preflight import PreflightReport, run_preflight
+from modules.experiment.pipeline.runner_support import (
+    format_combination_progress,
+    release_python_and_cuda_memory,
+)
 
 if TYPE_CHECKING:
     from modules.models.registry import ModelRegistry, RegisteredModel
@@ -69,54 +83,6 @@ EXIT_SUCCESS = 0
 EXIT_CONFIGURATION_ERROR = 1
 EXIT_EXECUTION_ERROR = 2
 EXIT_INTERRUPTED = 130
-
-
-class RunnerError(RuntimeError):
-    """Erro-base da orquestração do experimento."""
-
-
-class PreflightError(RunnerError):
-    """Uma validação anterior à inferência falhou."""
-
-
-class ExperimentInterruptedError(RunnerError):
-    """A execução foi interrompida por sinal ou pelo usuário."""
-
-
-@dataclass(frozen=True)
-class PreflightReport:
-    """Resultado das verificações anteriores à inferência."""
-
-    model_reports: tuple[dict[str, Any], ...]
-    dataset_reports: tuple[dict[str, Any], ...]
-    combination_count: int
-    started_at: str
-    finished_at: str
-    duration_seconds: float
-    valid: bool = True
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass(frozen=True)
-class CombinationRunResult:
-    """Resumo interno de uma combinação executada."""
-
-    combination_id: str
-    model_key: str
-    dataset_key: str
-    status: str
-    duration_seconds: float
-    row_count: int | None
-    valid_text_count: int | None
-    device: str | None
-    error_type: str | None = None
-    error_message: str | None = None
-    warnings: tuple[str, ...] = field(default_factory=tuple)
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
 
 
 @dataclass(frozen=True)
@@ -309,7 +275,7 @@ class ExperimentRunner:
                 self.logger.error(
                     "Experimento concluído: %s, %d sucesso, %d falha(s), "
                     "%d ignorada(s).",
-                    _format_combination_progress(
+                    format_combination_progress(
                         total_combinations,
                         total_combinations,
                     ),
@@ -321,7 +287,7 @@ class ExperimentRunner:
                 self.logger.info(
                     "Experimento concluído: %s, %d sucesso, %d falha(s), "
                     "%d ignorada(s).",
-                    _format_combination_progress(
+                    format_combination_progress(
                         total_combinations,
                         total_combinations,
                     ),
@@ -379,91 +345,14 @@ class ExperimentRunner:
             self._restore_signal_handlers()
 
     def run_preflight(self) -> PreflightReport:
-        """Valida adaptadores, arquivos e colunas dos datasets.
+        """Valida adaptadores, arquivos e colunas dos datasets."""
 
-        Invariantes de configuração (YAML válido, matriz não vazia) já
-        foram aplicadas no loader. ``preflight_checks.enabled: false``
-        desliga apenas o I/O caro desta etapa.
-        """
-
-        started_counter = perf_counter()
-        started_at = _experiment_now_iso(self.configuration)
-        checks = self.configuration.preflight_checks
-        if not bool(checks.get("enabled", True)):
-            finished_at = _experiment_now_iso(self.configuration)
-            duration = perf_counter() - started_counter
-            self.logger.info(
-                "Preflight de I/O desativado "
-                "(preflight_checks.enabled=false)."
-            )
-            return PreflightReport(
-                model_reports=(),
-                dataset_reports=(),
-                combination_count=len(
-                    self.configuration.combinations
-                ),
-                started_at=started_at,
-                finished_at=finished_at,
-                duration_seconds=round(duration, 6),
-                valid=True,
-            )
-
-        self.logger.info("Executando verificações de preflight.")
-
-        try:
-            model_reports = self.registry.validate_all(
-                validate_declared_files=bool(
-                    self.configuration.preflight_checks.get(
-                        "validate_model_files",
-                        True,
-                    )
-                ),
-                validate_adapter_files=True,
-            )
-
-            dataset_reports: list[dict[str, Any]] = []
-            for dataset in self.configuration.datasets:
-                columns = self.dataset_loader.inspect_columns(
-                    dataset
-                )
-                dataset_report: dict[str, Any] = {
-                    "dataset_key": dataset.key,
-                    "dataset_name": dataset.dataset_name,
-                    "path": str(dataset.path),
-                    "columns": list(columns),
-                    "valid": True,
-                }
-
-                if self.configuration.dry_run:
-                    loaded = self.dataset_loader.load(dataset)
-                    dataset_report["load"] = loaded.metadata()
-
-                dataset_reports.append(dataset_report)
-
-        except Exception as error:
-            raise PreflightError(
-                f"Falha nas verificações de preflight: {error}"
-            ) from error
-
-        finished_at = _experiment_now_iso(self.configuration)
-        duration = perf_counter() - started_counter
-        preflight_report = PreflightReport(
-            model_reports=tuple(model_reports),
-            dataset_reports=tuple(dataset_reports),
-            combination_count=len(
-                self.configuration.combinations
-            ),
-            started_at=started_at,
-            finished_at=finished_at,
-            duration_seconds=round(duration, 6),
-            valid=True,
+        return run_preflight(
+            self.configuration,
+            self.registry,
+            self.dataset_loader,
+            self.logger,
         )
-
-        self.logger.info(
-            "Preflight concluído em %.3f s.",
-            duration,
-        )
-        return preflight_report
 
     def _execute_combinations(self) -> None:
         fail_fast = bool(
@@ -546,312 +435,11 @@ class ExperimentRunner:
         *,
         next_model_key: str | None = None,
     ) -> CombinationRunResult:
-        model_configuration = self.configuration.get_model(
-            combination.model_key
-        )
-        dataset_configuration = self.configuration.get_dataset(
-            combination.dataset_key
-        )
-
-        self.results.start_combination(
+        return execute_combination(
+            self,
             combination,
-            extra={
-                "model_name": model_configuration.model_name,
-                "dataset_name": dataset_configuration.dataset_name,
-            },
+            next_model_key=next_model_key,
         )
-
-        started_counter = perf_counter()
-        loaded_dataset: LoadedDataset | None = None
-        registered_model: RegisteredModel | None = None
-        monitor: CombinationPerformanceMonitor | None = None
-        standardized: StandardizedPredictions | None = None
-        classification: ClassificationMetricsResult | None = None
-        aggregation: AggregationResult | None = None
-
-        total_combinations = len(self.configuration.combinations)
-        combination_number = combination.index + 1
-
-        self.logger.info(
-            "Progresso geral: %s — iniciando %s × %s.",
-            _format_combination_progress(
-                combination_number,
-                total_combinations,
-            ),
-            combination.model_key,
-            combination.dataset_key,
-        )
-
-        try:
-            monitor = CombinationPerformanceMonitor(
-                device=str(
-                    model_configuration.parameters.get(
-                        "device",
-                        "auto",
-                    )
-                ),
-                timezone_name=str(
-                    self.configuration.experiment.get(
-                        "timezone",
-                        "UTC",
-                    )
-                ),
-                settings=self.configuration.performance_metrics,
-            )
-            monitor.start()
-
-            self._raise_if_interrupted()
-            loaded_dataset = self.dataset_loader.load(
-                dataset_configuration
-            )
-
-            self._raise_if_interrupted()
-            # Arquivos já validados no preflight; evita I/O repetida.
-            registered_model = self.registry.create(
-                model_configuration,
-                load=False,
-                validate_declared_files=False,
-                validate_adapter_files=False,
-            )
-
-            with monitor.measure_load():
-                registered_model.load(skip_file_validation=True)
-
-            self._raise_if_interrupted()
-            texts = loaded_dataset.texts
-            with monitor.measure_inference(
-                text_count=len(texts)
-            ):
-                raw_predictions = registered_model.predict(texts)
-
-            self._raise_if_interrupted()
-            standardized = self.output_builder.build(
-                run_id=self.configuration.run_id,
-                environment=self.configuration.environment,
-                combination=combination,
-                model_configuration=model_configuration,
-                loaded_dataset=loaded_dataset,
-                predictions=raw_predictions,
-                device_used=registered_model.device_type,
-            )
-
-            classification = self.classification_calculator.calculate(
-                standardized
-            )
-            aggregation = self.aggregator.aggregate(
-                standardized
-            )
-
-            monitor.stop()
-            execution_metrics = monitor.build_execution_metrics(
-                configuration=self.configuration,
-                combination=combination,
-                model_configuration=model_configuration,
-                loaded_dataset=loaded_dataset,
-                status="success",
-                device_type=registered_model.device_type,
-                device_name=registered_model.device_name,
-                num_valid_texts=standardized.row_count,
-            )
-
-            metadata = self._success_metadata(
-                combination=combination,
-                model=registered_model,
-                dataset=loaded_dataset,
-                standardized=standardized,
-                classification=classification,
-                aggregation=aggregation,
-                monitor=monitor,
-            )
-
-            self.results.save_combination_results(
-                combination,
-                predictions=standardized.dataframe,
-                classification_metrics=classification.summary,
-                per_class_metrics=classification.per_class,
-                confusion_matrix=classification.confusion_matrix,
-                class_distribution=(
-                    classification.class_distribution
-                ),
-                execution_metrics=execution_metrics,
-                aggregates=aggregation.dataframe,
-                metadata=metadata,
-                confusion_labels=tuple(
-                    self.classification_calculator.labels
-                ),
-            )
-
-            if self.temporal_index_builder.enabled:
-                try:
-                    index_artifacts = self.temporal_index_builder.build(
-                        combination=combination,
-                        predictions=standardized.dataframe,
-                    )
-                    self.results.save_temporal_index(
-                        combination,
-                        index_artifacts,
-                    )
-                except TemporalIndexError as error:
-                    if self.temporal_index_builder.fail_on_error:
-                        raise
-                    self.logger.warning(
-                        "ITI não gerado para %s: %s",
-                        combination.combination_id,
-                        error,
-                    )
-
-            duration = perf_counter() - started_counter
-            warnings = deduplicate(
-                [
-                    *loaded_dataset.warnings,
-                    *standardized.warnings,
-                    *classification.warnings,
-                    *aggregation.warnings,
-                ]
-            )
-            valid_text_count = (
-                loaded_dataset.statistics.valid_row_count
-            )
-
-            self.results.complete_combination(
-                combination,
-                duration_seconds=duration,
-                row_count=standardized.row_count,
-                valid_text_count=valid_text_count,
-                device=registered_model.device_type,
-                extra={
-                    "model_display_name": (
-                        model_configuration.display_name
-                    ),
-                    "dataset_display_name": (
-                        dataset_configuration.display_name
-                    ),
-                    "classification_available": (
-                        classification.available
-                    ),
-                    "aggregate_rows": aggregation.row_count,
-                    "texts_per_second": (
-                        monitor.snapshot.texts_per_second
-                    ),
-                    "warnings": list(warnings),
-                },
-            )
-
-            del raw_predictions, loaded_dataset, texts
-            _release_python_and_cuda_memory()
-
-            self.logger.info(
-                "Progresso geral: %s — %s × %s concluída em %.3f s "
-                "(%d linha(s)).",
-                _format_combination_progress(
-                    combination_number,
-                    total_combinations,
-                ),
-                combination.model_key,
-                combination.dataset_key,
-                duration,
-                standardized.row_count,
-            )
-
-            return CombinationRunResult(
-                combination_id=combination.combination_id,
-                model_key=combination.model_key,
-                dataset_key=combination.dataset_key,
-                status="success",
-                duration_seconds=round(duration, 6),
-                row_count=standardized.row_count,
-                valid_text_count=valid_text_count,
-                device=registered_model.device_type,
-                warnings=tuple(warnings),
-            )
-
-        except ExperimentInterruptedError:
-            raise
-        except Exception as error:
-            duration = perf_counter() - started_counter
-            self._log_combination_error(combination, error)
-
-            if monitor is not None:
-                try:
-                    monitor.stop()
-                except Exception:
-                    self.logger.debug(
-                        "Não foi possível finalizar o monitor após erro.",
-                        exc_info=True,
-                    )
-
-            self._save_failure_artifacts(
-                combination=combination,
-                model_configuration=model_configuration,
-                dataset_configuration=dataset_configuration,
-                loaded_dataset=loaded_dataset,
-                registered_model=registered_model,
-                monitor=monitor,
-                error=error,
-            )
-
-            self.results.fail_combination(
-                combination,
-                error,
-                duration_seconds=duration,
-                row_count=(
-                    standardized.row_count
-                    if standardized is not None
-                    else None
-                ),
-                valid_text_count=(
-                    loaded_dataset.statistics.valid_row_count
-                    if loaded_dataset is not None
-                    else None
-                ),
-                device=(
-                    registered_model.device_type
-                    if registered_model is not None
-                    else None
-                ),
-            )
-
-            self.logger.error(
-                "Progresso geral: %s — %s × %s falhou em %.3f s.",
-                _format_combination_progress(
-                    combination_number,
-                    total_combinations,
-                ),
-                combination.model_key,
-                combination.dataset_key,
-                duration,
-            )
-
-            return CombinationRunResult(
-                combination_id=combination.combination_id,
-                model_key=combination.model_key,
-                dataset_key=combination.dataset_key,
-                status="failed",
-                duration_seconds=round(duration, 6),
-                row_count=(
-                    standardized.row_count
-                    if standardized is not None
-                    else None
-                ),
-                valid_text_count=(
-                    loaded_dataset.statistics.valid_row_count
-                    if loaded_dataset is not None
-                    else None
-                ),
-                device=(
-                    registered_model.device_type
-                    if registered_model is not None
-                    else None
-                ),
-                error_type=type(error).__name__,
-                error_message=str(error),
-            )
-
-        finally:
-            self._release_model_after_combination(
-                combination.model_key,
-                next_model_key=next_model_key,
-            )
 
     def _success_metadata(
         self,
@@ -1122,7 +710,7 @@ class ExperimentRunner:
                 exc_info=self.show_tracebacks,
             )
         finally:
-            _release_python_and_cuda_memory()
+            release_python_and_cuda_memory()
 
     def _release_all_models(self) -> None:
         if self._registry is not None:
@@ -1135,7 +723,7 @@ class ExperimentRunner:
                     "Falha ao liberar todos os modelos.",
                     exc_info=self.show_tracebacks,
                 )
-        _release_python_and_cuda_memory()
+        release_python_and_cuda_memory()
 
     def _raise_if_interrupted(self) -> None:
         if self._interrupted:
@@ -1547,27 +1135,6 @@ def _monitor_has_snapshot(
     except Exception:
         return False
     return True
-
-
-def _release_python_and_cuda_memory() -> None:
-    gc.collect()
-    if torch.cuda.is_available():
-        torch.cuda.empty_cache()
-        try:
-            torch.cuda.ipc_collect()
-        except RuntimeError:
-            pass
-
-
-def _format_combination_progress(
-    current: int,
-    total: int,
-) -> str:
-    if total <= 0:
-        return "0/0 combinações (0%)"
-
-    percentage = int(round(100 * current / total))
-    return f"{current}/{total} combinações ({percentage}%)"
 
 
 def _experiment_now_iso(

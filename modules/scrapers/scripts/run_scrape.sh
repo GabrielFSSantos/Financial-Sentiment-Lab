@@ -192,9 +192,9 @@ HELP
         --until "${until}" \
         --site "${site}"
 
-    local raw_file="${PROJECT_ROOT}/data/saneamento_corpus/raw/${site}.csv"
+    local raw_file="${PROJECT_ROOT}/data/water_utilities_corpus/raw/${site}.csv"
     if [[ "${site}" == "g1_economia" ]]; then
-        raw_file="${PROJECT_ROOT}/data/saneamento_corpus/raw/g1.csv"
+        raw_file="${PROJECT_ROOT}/data/water_utilities_corpus/raw/g1.csv"
     fi
 
     if [[ -f "${raw_file}" ]]; then

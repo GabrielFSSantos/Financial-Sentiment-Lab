@@ -178,19 +178,21 @@ def build_parser() -> argparse.ArgumentParser:
     sample = sub.add_parser("sample", help="Gera amostra estratificada para rotulação")
     sample.add_argument(
         "--corpus",
-        default=str(PROJECT_ROOT / "data/saneamento_corpus/noticias_strict_sabesp.csv"),
+        default=str(
+            PROJECT_ROOT / "data/water_utilities_corpus/articles_strict_sabesp.csv"
+        ),
     )
     sample.add_argument("--predictions", required=True)
     sample.add_argument(
         "--output",
-        default=str(PROJECT_ROOT / "data/saneamento_corpus/rotulos_manual_100.csv"),
+        default=str(PROJECT_ROOT / "data/water_utilities_corpus/manual_labels_100.csv"),
     )
     sample.add_argument("--n", type=int, default=100)
 
     compare = sub.add_parser("compare", help="Compara rótulos manuais com predictions")
     compare.add_argument(
         "--manual",
-        default=str(PROJECT_ROOT / "data/saneamento_corpus/rotulos_manual_100.csv"),
+        default=str(PROJECT_ROOT / "data/water_utilities_corpus/manual_labels_100.csv"),
     )
     compare.add_argument("--predictions", required=True)
     compare.add_argument(

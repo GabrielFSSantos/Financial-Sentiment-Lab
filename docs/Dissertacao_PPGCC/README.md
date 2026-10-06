@@ -23,10 +23,10 @@ PDF: `ufsj-abntex2.pdf`
 | `04_metodologia.tex` | Protocolo operacional (corpus, EWMA, B0–B3, 24 duelos) |
 | `05_andamentos.tex` | O que já rodou, com ressalvas (gate κ, exercício R0/R1) |
 | `06_proximos_passos.tex` | O que falta para avaliação de desempenho |
-| `referencias.bib` | Symlink → `../referencias/bibliografia.bib` |
+| `referencias.bib` | Symlink → `../references/bibliografia.bib` |
 | `abntex2-options.bib` | Opções abnTeX2 (BibTeX) |
 | `abntex2-alf.bst` | Estilo autor-data ABNT |
 
 Não restaurar `memoir.cls.bak`: o `memoir.cls` de 2015 quebra o TeX Live 2025.
 
-PDFs das referências: `docs/referencias/pdfs/`, nomes no padrão `autorANO_tema.pdf` (ver `docs/referencias/README.md`).
+PDFs das referências: `docs/references/pdfs/`, nomes no padrão `autorANO_tema.pdf` (ver `docs/references/README.md`).

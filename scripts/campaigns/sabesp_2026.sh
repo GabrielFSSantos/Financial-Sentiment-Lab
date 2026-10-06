@@ -57,9 +57,9 @@ cmd_corpus() {
         --company Sabesp \
         --since 2023-11-01 \
         --until 2024-04-30 \
-        -o data/saneamento_corpus/noticias_strict_sabesp.csv
+        -o data/water_utilities_corpus/articles_strict_sabesp.csv
     python -m modules.scrapers report \
-        --corpus data/saneamento_corpus/noticias_strict_sabesp.csv
+        --corpus data/water_utilities_corpus/articles_strict_sabesp.csv
 }
 
 run_single() {
@@ -99,7 +99,7 @@ cmd_r0() {
 cmd_all() {
     activate_venv
     cmd_init
-    if [[ ! -f "${PROJECT_ROOT}/data/saneamento_corpus/noticias_strict_sabesp.csv" ]]; then
+    if [[ ! -f "${PROJECT_ROOT}/data/water_utilities_corpus/articles_strict_sabesp.csv" ]]; then
         cmd_corpus
     fi
     for entry in "${RUNS[@]}"; do

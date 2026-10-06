@@ -15,7 +15,7 @@ CAMPAIGN_DIR="${PROJECT_ROOT}/outputs/campaigns/sabesp_marco2"
 DATASET="saneamento_sabesp_strict_expanded"
 RESEARCH_CONFIG="${PROJECT_ROOT}/configs/campaigns/sabesp_2026/research_weekly.yaml"
 EXPERIMENTS_DIR="configs/campaigns/sabesp_2026/experiments"
-CORPUS_PATH="data/saneamento_corpus/noticias_strict_sabesp.csv"
+CORPUS_PATH="data/water_utilities_corpus/articles_strict_sabesp.csv"
 
 activate_venv() {
     if [[ -f "${VENV_DIR}/bin/activate" ]]; then

@@ -15,7 +15,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--output",
-        default="data/saneamento_corpus/noticias_strict.csv",
+        default="data/water_utilities_corpus/articles_strict.csv",
         help="Caminho do corpus strict",
     )
     parser.add_argument(

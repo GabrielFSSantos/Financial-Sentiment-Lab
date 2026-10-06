@@ -26,7 +26,7 @@ Ou manualmente com `run_experiment.sh` / `run_research.sh` apontando para os YAM
 
 ## Remoção segura (após consolidar resultados)
 
-Quando os números estiverem em `docs/trajetoria.md` e `outputs/` arquivados:
+Quando os números estiverem em `docs/research_trail/part-04-results.md` e `outputs/` arquivados:
 
 ```bash
 rm -rf configs/campaigns scripts/campaigns

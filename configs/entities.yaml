@@ -1,0 +1,49 @@
+# Listed entities for scraper enrichment (water utilities — Brazil B3)
+# Display names may stay in Portuguese; keys are English.
+
+schema_version: "1.0"
+
+sector_keywords:
+  - saneamento
+  - esgoto
+  - abastecimento
+  - tarifa
+  - concessão
+  - concessao
+  - marco do saneamento
+  - tratamento de esgoto
+  - água e esgoto
+  - agua e esgoto
+
+entities:
+  - company: Sabesp
+    sector: Saneamento
+    ticker: SBSP3
+  - company: Copasa
+    sector: Saneamento
+    ticker: CSMG3
+  - company: Sanepar
+    sector: Saneamento
+    ticker: SAPR4
+  - company: Companhia de Saneamento Básico do Estado de Minas Gerais
+    sector: Saneamento
+    ticker: CSMG3
+  - company: Companhia de Saneamento de Minas Gerais
+    sector: Saneamento
+    ticker: CSMG3
+  - company: Companhia de Saneamento do Paraná
+    sector: Saneamento
+    ticker: SAPR4
+
+name_aliases:
+  - match: Companhia de Saneamento Básico do Estado de São Paulo
+    company: Sabesp
+    sector: Saneamento
+    ticker: SBSP3
+
+ticker_aliases:
+  SBSP3: { company: Sabesp, sector: Saneamento, ticker: SBSP3 }
+  CSMG3: { company: Copasa, sector: Saneamento, ticker: CSMG3 }
+  SAPR4: { company: Sanepar, sector: Saneamento, ticker: SAPR4 }
+  SAPR3: { company: Sanepar, sector: Saneamento, ticker: SAPR4 }
+  SAPR11: { company: Sanepar, sector: Saneamento, ticker: SAPR4 }

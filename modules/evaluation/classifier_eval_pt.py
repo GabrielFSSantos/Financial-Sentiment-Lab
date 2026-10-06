@@ -13,12 +13,14 @@ from modules.evaluation.classifier_eval import (
     evaluate_predictions_csv,
     format_evaluation_report,
 )
-from modules.experiment import PROJECT_ROOT
+from modules.common.paths import PROJECT_ROOT
+from modules.evaluation.core.settings import load_evaluation_settings
 
-MANUAL_PATH = PROJECT_ROOT / "data/saneamento_corpus/rotulos_manual_100.csv"
-CORPUS_PATH = PROJECT_ROOT / "data/saneamento_corpus/noticias_strict_sabesp.csv"
-EVAL_PATH = PROJECT_ROOT / "data/saneamento_corpus/rotulos_manual_100_eval.csv"
-REPORT_DIR = PROJECT_ROOT / "outputs/campaigns/classifier_eval_pt"
+_SETTINGS = load_evaluation_settings()
+MANUAL_PATH = _SETTINGS.manual_labels_path
+CORPUS_PATH = _SETTINGS.strict_corpus_path
+EVAL_PATH = _SETTINGS.eval_joined_path
+REPORT_DIR = _SETTINGS.report_dir
 CLASSIFIER_CONFIG = (
     PROJECT_ROOT / "configs/campaigns/trilha_b/classifier_diag.yaml"
 )
@@ -29,14 +31,14 @@ RESEARCH_CONFIG = (
     PROJECT_ROOT / "configs/campaigns/sabesp_2026/research_weekly.yaml"
 )
 
-MODELS: tuple[str, ...] = (
+MODELS: tuple[str, ...] = _SETTINGS.battery_models or (
     "finbert_ptbr",
     "bertweet_pt_sentiment",
     "bertimbau_sentiment",
 )
 
-GATE_ACCURACY = 0.70
-GATE_KAPPA = 0.40
+GATE_ACCURACY = _SETTINGS.gate_accuracy
+GATE_KAPPA = _SETTINGS.gate_kappa
 
 
 def build_eval_dataset(

@@ -17,6 +17,7 @@ from modules.experiment.common import CANONICAL_LABELS, to_serializable
 from modules.datasets.config.loader import (
     ConfigurationError as DatasetsConfigurationError,
     DatasetConfiguration,
+    SUPPORTED_SOURCE_PROVIDERS,
     load_datasets_configuration,
 )
 from modules.models.config.loader import (
@@ -28,12 +29,6 @@ from modules.models.config.loader import (
 
 SUPPORTED_SCHEMA_VERSION = "2.0"
 SUPPORTED_ENVIRONMENTS = {"local", "sdumont"}
-SUPPORTED_DATASET_FORMATS = {"csv", "jsonl", "parquet", "huggingface"}
-SUPPORTED_SOURCE_PROVIDERS = {
-    "huggingface_hub",
-    "huggingface_hub_file",
-    "huggingface_dataset",
-}
 SUPPORTED_DEVICES = {"auto", "cpu", "cuda"}
 SUPPORTED_LANGUAGES = {"pt", "en"}
 SUPPORTED_AGGREGATION_LEVELS = {

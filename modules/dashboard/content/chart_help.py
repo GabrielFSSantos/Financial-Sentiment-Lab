@@ -263,7 +263,7 @@ Visão do fluxo da pesquisa Financial Sentiment Lab: do corpus ao research.
 2. **FinBERT** — classificação POS/NEG/NEU
 3. **ITI** — índice EWMA por empresa/dia
 4. **Research** — validação vs baselines e mercado (W-FRI)
-5. **Conclusão** — síntese exploratória (trajetoria.md)
+5. **Conclusão** — síntese exploratória (research_trail, Parte 4)
 
 **Limitação**
 

@@ -29,12 +29,14 @@ class ScrapersConfiguration:
 
     @property
     def raw_dir(self) -> Path:
-        return self.project_root / str(self.defaults.get("raw_dir", "data/saneamento_corpus/raw"))
+        return self.project_root / str(
+            self.defaults.get("raw_dir", "data/water_utilities_corpus/raw")
+        )
 
     @property
     def corpus_path(self) -> Path:
         return self.project_root / str(
-            self.defaults.get("corpus_path", "data/saneamento_corpus/noticias.csv")
+            self.defaults.get("corpus_path", "data/water_utilities_corpus/articles.csv")
         )
 
     @property
@@ -42,14 +44,16 @@ class ScrapersConfiguration:
         return self.project_root / str(
             self.defaults.get(
                 "pending_corpus_path",
-                "data/saneamento_corpus/noticias_pendentes.csv",
+                "data/water_utilities_corpus/articles_pending.csv",
             )
         )
 
     @property
     def state_path(self) -> Path:
         return self.project_root / str(
-            self.defaults.get("state_path", "data/saneamento_corpus/.scrape_state.json")
+            self.defaults.get(
+                "state_path", "data/water_utilities_corpus/.scrape_state.json"
+            )
         )
 
     def enabled_sites(self, *, site_key: str | None = None) -> tuple[SiteConfiguration, ...]:

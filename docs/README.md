@@ -1,28 +1,55 @@
 # Documentação — Financial Sentiment Lab
 
-Entrada rápida na raiz: [README.md](../README.md).
+Entrada na raiz do repositório: [README.md](../README.md).
 
-## Documento principal
+## Três pilares
 
-| Arquivo | Conteúdo |
+| Pasta | Papel |
 | --- | --- |
-| **[trajetoria.md](trajetoria.md)** | **Documento único da pesquisa** — enquadramento, ITI, fases F0–F6, **resultados (Parte 4)**, lacunas, próximo ciclo, apêndices |
-| [documentacao.md](documentacao.md) | Referência técnica: módulos, fórmulas ITI, configs, research |
-| [referencias/](referencias/) | Bibliografia, BibTeX, notas por artigo, PDFs |
+| **[research_trail/](research_trail/README.md)** | Histórico completo — decisões, fases F0–F6, runs, **Parte 4 = números oficiais** |
+| **[documentation/](documentation/README.md)** | Código e operação — módulos, fórmulas, regras de negócio, fluxos, testes |
+| **[tracking/](tracking/README.md)** | Qualificação (04/11/2026), protocolo de anotação, pós-qualificação |
 
-## Ordem de leitura
+## Público-alvo
+
+| Leitor | Começar por |
+| --- | --- |
+| **Desenvolvedor** | [documentation/13_guia_leitura_dev_e_agente.md](documentation/13_guia_leitura_dev_e_agente.md) → [11_fluxo_ponta_a_ponta.md](documentation/11_fluxo_ponta_a_ponta.md) |
+| **Agente (IA)** | [13_guia_leitura_dev_e_agente.md](documentation/13_guia_leitura_dev_e_agente.md) → [10_arquitetura_e_manutencao.md](documentation/10_arquitetura_e_manutencao.md) → [12_regras_de_negocio.md](documentation/12_regras_de_negocio.md) |
+| **Pesquisador / banca** | [research_trail/](research_trail/README.md) Partes 0–4 · [tracking/qualification_schedule.md](tracking/qualification_schedule.md) |
+| **Operação cluster** | [documentation/07_santos_dumont.md](documentation/07_santos_dumont.md) |
+
+**Entrada rápida:** [Parte 4 (números)](research_trail/part-04-results.md) · [quickstart](documentation/00_quickstart_researcher.md) · [decision-register](research_trail/decision-register.md)
+
+**Idioma:** código e paths em inglês; documentação ao pesquisador em PT-BR — [CONTRIBUTING.md](../CONTRIBUTING.md#idioma).
+
+## Outros
+
+| Caminho | Conteúdo |
+| --- | --- |
+| [references/](references/) | Bibliografia, BibTeX, notas por artigo |
+| [Dissertacao_PPGCC/](Dissertacao_PPGCC/) | Manuscrito LaTeX (qualificação / defesa) |
+
+## Ordem de leitura sugerida (pesquisa)
 
 1. [README § Entendendo a pesquisa](../README.md#entendendo-a-pesquisa)
-2. [trajetoria.md](trajetoria.md) Partes 0–2 — problema, ITI, protocolo
-3. [trajetoria.md Parte 4](trajetoria.md#parte-4--resultados-consolidados-trilha-a) — números oficiais Trilha A
-4. [trajetoria.md Parte 3](trajetoria.md#parte-3--trajetória-por-fases) — storytelling por fase
-5. [documentacao.md §1.5](documentacao.md#15-conceitos-em-linguagem-acessível) — fórmulas e baselines
-6. [referencias/README.md](referencias/README.md) — artigos âncora
+2. [research_trail Partes 0–2](research_trail/part-00-framing.md)
+3. [research_trail Parte 4](research_trail/part-04-results.md)
+4. [research_trail Parte 3](research_trail/part-03-phases.md)
+5. [documentation §1.5](documentation/01_visao_e_conceitos.md#15-conceitos-em-linguagem-acessível)
+6. [references/README.md](references/README.md)
 
-## Manutenção
+## Manutenção (matriz ampliada)
 
-- Novo protocolo ou fase → atualizar `trajetoria.md` (Partes 3 e 4) + `documentacao.md` se necessário
-- Nova literatura → `referencias/` + citação na fase correspondente
-- PDFs → `./scripts/download_referencias.sh` (ou colocar manualmente em `referencias/pdfs/`)
+| Tipo de mudança | Onde documentar |
+| --- | --- |
+| Fase F*, run oficial, decisão metodológica | [research_trail/part-03](research_trail/part-03-phases.md) + [decision-register](research_trail/decision-register.md) |
+| Regra de negócio (duelos, gates, dry-run) | [documentation/12_regras_de_negocio.md](documentation/12_regras_de_negocio.md) |
+| Módulo, fluxo, contrato CSV | [documentation/03_modulos.md](documentation/03_modulos.md), [appendix_output_contract](documentation/appendix_output_contract.md) |
+| Fórmula ITI ↔ código | [documentation/04_formulas_iti.md](documentation/04_formulas_iti.md) |
+| YAML / campanha | [documentation/06_configuracoes.md](documentation/06_configuracoes.md) |
+| Teste novo | [documentation/09_testes.md](documentation/09_testes.md) |
+| Marco qualificação / anotação | [tracking/](tracking/qualification_schedule.md) |
+| Literatura | [references/](references/) |
 
-Artefatos numéricos em `outputs/{run_id}/` e `outputs/campaigns/`.
+Artefatos numéricos: `outputs/{run_id}/`, `outputs/campaigns/`.

@@ -17,7 +17,10 @@ def test_load_datasets_configuration(project_root: Path) -> None:
     assert configuration.schema_version == "2.0"
     assert len(configuration.datasets) >= 3
     assert configuration.get_dataset("noticias_exemplo_ptbr").path is not None
-    assert configuration.get_dataset("saneamento_corpus").path is not None
+    canonical = configuration.get_dataset("water_utilities_corpus")
+    assert canonical.path is not None
+    alias = configuration.get_dataset("saneamento_corpus")
+    assert alias.path == canonical.path
     expanded = configuration.get_dataset("saneamento_sabesp_strict_expanded")
     assert expanded.limits["date_from"] == "2022-05-01"
     assert configuration.get_dataset("fnspid_pilot").enabled is False

@@ -62,7 +62,7 @@ case "${MODE}" in
 Uso: ./scripts/campaigns/classifier_eval_pt.sh <subcomando>
 
 Subcomandos:
-  prepare      Gera data/saneamento_corpus/rotulos_manual_100_eval.csv
+  prepare      Gera data/water_utilities_corpus/manual_labels_100_eval.csv
   run          Inferência (sem ITI) + kappa para finbert_ptbr, bertweet, bertimbau
   error-analysis  F1 por classe + tipologia roundup vs focal
   iti-if-gate  ITI evento alpha=0,70 só se algum modelo passar o gate

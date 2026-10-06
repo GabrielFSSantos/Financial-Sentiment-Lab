@@ -2,6 +2,10 @@
 
 schema_version: "2.0"
 
+# English alias keys resolve to the same dataset config (see docs/documentation/06_configuracoes.md).
+dataset_aliases:
+  saneamento_corpus: water_utilities_corpus
+
 defaults:
   language: pt
   format: csv
@@ -137,12 +141,12 @@ datasets:
       source_type: synthetic
       description: Exemplo EN com rótulos para validação da pipeline.
 
-  saneamento_corpus:
+  water_utilities_corpus:
     enabled: true
     order: 3
-    dataset_name: saneamento_corpus
-    display_name: Corpus de saneamento (scraper)
-    path: data/saneamento_corpus/noticias.csv
+    dataset_name: water_utilities_corpus
+    display_name: Water utilities corpus (scraper)
+    path: data/water_utilities_corpus/articles.csv
     format: csv
     limits:
       max_rows: max

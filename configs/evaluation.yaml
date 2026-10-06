@@ -1,0 +1,36 @@
+# Evaluation and manual-label workflows (schema 1.0)
+
+schema_version: "1.0"
+
+paths:
+  manual_labels: data/water_utilities_corpus/manual_labels_100.csv
+  manual_labels_v2: data/water_utilities_corpus/manual_labels_100_v2.csv
+  strict_corpus: data/water_utilities_corpus/articles_strict_sabesp.csv
+  eval_joined: data/water_utilities_corpus/manual_labels_100_eval.csv
+  report_dir: outputs/campaigns/classifier_eval_pt
+
+column_aliases:
+  human_label:
+    - rotulo_manual
+    - manual_label
+  model_label:
+    - rotulo_finbert
+    - rotulo_finbert_pred
+    - model_label
+  title:
+    - titulo
+    - title
+
+classifier_gate:
+  accuracy: 0.70
+  kappa: 0.40
+
+classifier_battery_models:
+  - finbert_ptbr
+  - bertweet_pt_sentiment
+  - bertimbau_sentiment
+
+llm_judge_pilot:
+  enabled: false
+  output_csv: outputs/campaigns/llm_judge_pilot/llm_judge_pilot.csv
+  prompt_version: prompt_v1_quali

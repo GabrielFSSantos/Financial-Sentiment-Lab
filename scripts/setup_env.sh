@@ -145,6 +145,10 @@ printf 'Ambiente pronto: %s\n' "${VENV_DIR}"
 printf 'Python: %s | PyTorch: %s\n' "${PYTHON_VERSION}" "${TORCH_VARIANT}"
 printf 'Próximo passo sugerido: ./scripts/audit_project.sh\n'
 
+if [[ -x "${PROJECT_ROOT}/scripts/migrate_data_paths.sh" ]]; then
+    "${PROJECT_ROOT}/scripts/migrate_data_paths.sh" || true
+fi
+
 if [[ "${FETCH_ASSETS}" == true ]]; then
     export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
     "${VENV_DIR}/bin/python" - <<'PY'

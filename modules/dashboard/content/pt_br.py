@@ -31,7 +31,7 @@ CHART_HELP_EXPANDER = HELP_EXPANDER
 EXPLORATORY_CALLOUT = (
     "Os resultados de research são **exploratórios** e condicionados à qualidade do classificador. "
     "O gate de κ (≥ 0,40) e acurácia (≥ 70%) **não foi atingido** na amostra manual n=100 — "
-    "consulte a aba *Qualidade do classificador* e a [trajetória da pesquisa](docs/trajetoria.md) (Parte 4)."
+    "consulte a aba *Qualidade do classificador* e a [trajetória da pesquisa](docs/research_trail/part-04-results.md) (Parte 4)."
 )
 
 PIPELINE_STEPS = [
@@ -39,7 +39,7 @@ PIPELINE_STEPS = [
     ("FinBERT", "Classificação de sentimento PT-BR por notícia (POS/NEG/NEU)."),
     ("ITI", "Índice temporal EWMA: impacto informacional líquido por empresa/dia."),
     ("Research", "Validação ITI vs baselines B0–B3 e retornos futuros (W-FRI)."),
-    ("Conclusão", "Síntese exploratória — ver trajetoria.md Parte 4."),
+    ("Conclusão", "Síntese exploratória — ver research_trail Parte 4."),
 ]
 
 RESEARCH_PHASES = [

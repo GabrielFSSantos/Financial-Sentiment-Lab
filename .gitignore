@@ -31,8 +31,24 @@ data/**
 !data/noticias_exemplo_ptbr/**
 !data/news_example_en/
 !data/news_example_en/**
-!data/saneamento_corpus/
-!data/saneamento_corpus/noticias.csv
+!data/water_utilities_corpus/
+!data/water_utilities_corpus/articles.csv
+
+# LaTeX (docs/Dissertacao_PPGCC — manter só fontes versionadas)
+docs/Dissertacao_PPGCC/*.aux
+docs/Dissertacao_PPGCC/*.log
+docs/Dissertacao_PPGCC/*.out
+docs/Dissertacao_PPGCC/*.toc
+docs/Dissertacao_PPGCC/*.lof
+docs/Dissertacao_PPGCC/*.lot
+docs/Dissertacao_PPGCC/*.bbl
+docs/Dissertacao_PPGCC/*.blg
+docs/Dissertacao_PPGCC/*.brf
+docs/Dissertacao_PPGCC/*.fls
+docs/Dissertacao_PPGCC/*.fdb_latexmk
+docs/Dissertacao_PPGCC/*.synctex.gz
+docs/Dissertacao_PPGCC/*.ilg
+docs/Dissertacao_PPGCC/*.ind
 
 # SO e editores
 .DS_Store

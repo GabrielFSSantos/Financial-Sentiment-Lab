@@ -21,6 +21,18 @@ from modules.evaluation.classifier_eval_pt import (
 from modules.evaluation.manual_labels import compare_manual_labels
 
 
+def test_classifier_eval_en_column_aliases() -> None:
+    frame = pd.DataFrame(
+        {
+            "rotulo_manual": ["POSITIVE", "NEGATIVE"],
+            "rotulo_finbert": ["POSITIVE", "NEGATIVE"],
+        }
+    )
+    metrics = evaluate_predictions_frame(frame)
+    assert metrics["n_labeled"] == 2
+    assert metrics["accuracy"] == 1.0
+
+
 def test_classifier_eval_accuracy_and_kappa() -> None:
     frame = pd.DataFrame(
         {
@@ -73,11 +85,11 @@ def test_classifier_eval_requires_labels() -> None:
 
 
 def test_build_eval_dataset_joins_corpus(project_root: Path) -> None:
-    manual = project_root / "data/saneamento_corpus/rotulos_manual_100.csv"
-    corpus = project_root / "data/saneamento_corpus/noticias_strict_sabesp.csv"
+    manual = project_root / "data/water_utilities_corpus/manual_labels_100.csv"
+    corpus = project_root / "data/water_utilities_corpus/articles_strict_sabesp.csv"
     if not manual.is_file() or not corpus.is_file():
         pytest.skip("Artefatos de rótulos manuais ausentes")
-    output = project_root / "data/saneamento_corpus/rotulos_manual_100_eval.csv"
+    output = project_root / "data/water_utilities_corpus/manual_labels_100_eval.csv"
     path = build_eval_dataset(
         manual_path=manual,
         corpus_path=corpus,

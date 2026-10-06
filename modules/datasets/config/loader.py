@@ -862,6 +862,33 @@ def _merge_campaign_datasets_overlay(
     return merged
 
 
+def _apply_dataset_aliases(raw_config: dict[str, Any]) -> None:
+    """Duplicate dataset entries for alias keys (same config, new key)."""
+
+    aliases = raw_config.get("dataset_aliases")
+    if not isinstance(aliases, Mapping):
+        return
+
+    datasets = _require_mapping(
+        raw_config.get("datasets"),
+        "datasets",
+    )
+    for alias_key, target_key in aliases.items():
+        alias = _require_string(alias_key, "dataset_aliases.<key>")
+        target = _require_string(target_key, f"dataset_aliases.{alias}")
+        if alias in datasets:
+            continue
+        if target not in datasets:
+            raise ConfigurationError(
+                f"dataset_aliases.{alias} aponta para {target!r}, "
+                "mas esse dataset não existe."
+            )
+        cloned = copy.deepcopy(datasets[target])
+        cloned["dataset_name"] = alias
+        datasets[alias] = cloned
+    raw_config["datasets"] = datasets
+
+
 def load_datasets_configuration(
     *,
     project_root: str | Path | None = None,
@@ -881,6 +908,7 @@ def load_datasets_configuration(
     resolved_path = _resolve_path(root, config_path)
     raw_config = _load_yaml_file(resolved_path)
     raw_config = _merge_campaign_datasets_overlay(root, raw_config)
+    _apply_dataset_aliases(raw_config)
     _validate_schema_version(raw_config, resolved_path)
 
     defaults = _require_mapping(

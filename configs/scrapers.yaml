@@ -13,10 +13,10 @@ defaults:
   delay_seconds: 2.0
   request_timeout: 30.0
   min_article_chars: 40
-  raw_dir: data/saneamento_corpus/raw
-  corpus_path: data/saneamento_corpus/noticias.csv
-  pending_corpus_path: data/saneamento_corpus/noticias_pendentes.csv
-  state_path: data/saneamento_corpus/.scrape_state.json
+  raw_dir: data/water_utilities_corpus/raw
+  corpus_path: data/water_utilities_corpus/articles.csv
+  pending_corpus_path: data/water_utilities_corpus/articles_pending.csv
+  state_path: data/water_utilities_corpus/.scrape_state.json
 
 # Queries compartilhadas — copiar em cada site (YAML sem âncoras)
 _shared_queries: &shared_queries

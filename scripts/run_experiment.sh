@@ -6,6 +6,7 @@
 #   ./scripts/run_experiment.sh --skip-setup
 #   ./scripts/run_experiment.sh --model finbert_ptbr --dataset noticias_exemplo_ptbr
 #   ./scripts/run_experiment.sh --run-id meu_experimento
+#   ./scripts/run_experiment.sh --campaign sabesp_2026 --campaign-run r0_baseline
 
 set -euo pipefail
 
@@ -14,6 +15,8 @@ PROJECT_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd -P)"
 VENV_DIR="${PROJECT_ROOT}/venv"
 
 SKIP_SETUP=false
+CAMPAIGN=""
+CAMPAIGN_RUN=""
 RUNNER_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -21,6 +24,14 @@ while [[ $# -gt 0 ]]; do
         --skip-setup)
             SKIP_SETUP=true
             shift
+            ;;
+        --campaign)
+            CAMPAIGN="${2:-}"
+            shift 2
+            ;;
+        --campaign-run)
+            CAMPAIGN_RUN="${2:-}"
+            shift 2
             ;;
         --dry-run)
             printf 'Use ./scripts/audit_project.sh para validação sem inferência.\n' >&2
@@ -32,8 +43,13 @@ Uso:
   ./scripts/run_experiment.sh [opções] [-- argumentos do runner]
 
 Opções:
-  --skip-setup   Não recria o venv (usado no job Slurm)
-  -h, --help     Mostra esta ajuda
+  --skip-setup        Não recria o venv (usado no job Slurm)
+  --campaign ID       Campanha experimental (ex.: sabesp_2026)
+  --campaign-run KEY  Run da campanha (ex.: r0_baseline)
+  -h, --help          Mostra esta ajuda
+
+Com --campaign e --campaign-run, o script define --experiment-config,
+--run-id, --model e --dataset conforme configs/campaigns/<ID>/.
 
 Argumentos repassados ao runner:
   --model CHAVE
@@ -54,6 +70,22 @@ HELP
             ;;
     esac
 done
+
+if [[ -n "${CAMPAIGN}" || -n "${CAMPAIGN_RUN}" ]]; then
+    if [[ -z "${CAMPAIGN}" || -z "${CAMPAIGN_RUN}" ]]; then
+        printf 'Use --campaign e --campaign-run juntos.\n' >&2
+        exit 1
+    fi
+    # shellcheck disable=SC1090
+    eval "$("${SCRIPT_DIR}/lib/resolve_campaign_run.sh" "${CAMPAIGN}" "${CAMPAIGN_RUN}")"
+    RUNNER_ARGS=(
+        --experiment-config "${PROJECT_ROOT}/${CAMPAIGN_EXPERIMENT_CONFIG}"
+        --run-id "${CAMPAIGN_RUN_ID}"
+        --model "${CAMPAIGN_MODEL}"
+        --dataset "${CAMPAIGN_DATASET}"
+        "${RUNNER_ARGS[@]}"
+    )
+fi
 
 if [[ "${SKIP_SETUP}" == false && ! -f "${VENV_DIR}/bin/activate" ]]; then
     "${PROJECT_ROOT}/scripts/setup_env.sh"
