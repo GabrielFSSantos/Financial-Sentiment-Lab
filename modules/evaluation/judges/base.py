@@ -20,5 +20,5 @@ class BaseLabelJudge(ABC):
     """Second opinion on news sentiment for a target company."""
 
     @abstractmethod
-    def judge(self, texts: Sequence[tuple[str, str]]) -> list[JudgePrediction]:
-        """Map (news_id, text) to predictions."""
+    def judge(self, texts: Sequence[tuple[str, str, str]]) -> list[JudgePrediction]:
+        """Map (news_id, title, body) to predictions."""

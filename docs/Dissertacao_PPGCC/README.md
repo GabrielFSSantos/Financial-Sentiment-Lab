@@ -2,6 +2,12 @@
 
 Manuscrito: problema, revisão, lacuna, proposta do ITI, metodologia operacional e andamentos experimentais (sem conclusão de desempenho).
 
+## Qualificação parcial vs. tese completa
+
+Em `ufsj-abntex2.tex`, a flag `\qualificacaoparcialtrue` (padrão atual) compila **somente** os capítulos 1–2, o apêndice (`99_apendices.tex`) e a bibliografia — versão para envio à qualificação.
+
+Para o manuscrito completo, comente `\qualificacaoparcialtrue` (ou use `\qualificacaoparcialfalse`) para incluir também `03_proposta`, `04_metodologia` e `05_andamentos`. O arquivo `06_proximos_passos.tex` permanece fora da compilação oficial (rascunho interno).
+
 ## Compilar
 
 ```bash

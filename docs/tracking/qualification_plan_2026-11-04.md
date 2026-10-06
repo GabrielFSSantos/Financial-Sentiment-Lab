@@ -4,7 +4,9 @@
 **Janela operacional:** 07/10/2026 a 04/11/2026 (28 dias)  
 **Última atualização do plano:** 07/10/2026  
 
-Este é o **guia operacional** (detalhe técnico) até a entrega do manuscrito de qualificação. **Progresso semanal e checkboxes:** atualizar primeiro [qualification_schedule.md](qualification_schedule.md), depois espelhar marcos relevantes no Status rápido abaixo. Cruza escrita, revisão bibliográfica, código, testes, **LLM-judge (piloto)** e uso do **Santos Dumont (SDumont)**.
+Este é o **guia operacional** (detalhe técnico) até a entrega do manuscrito de qualificação — diretrizes do orientador (§1.6), DoD, scripts e pilares A–G. **[qualification_schedule.md](qualification_schedule.md)** é o **acompanhamento semanal com o orientador** (registro por semana, checkboxes e entregas; sem tutorial nem operação interna). **Progresso:** atualizar primeiro o schedule, depois espelhar marcos relevantes no Status rápido abaixo. Cruza escrita, revisão bibliográfica, código, testes, **LLM-judge (piloto)** e uso do **Santos Dumont (SDumont)**.
+
+Documentação técnica interna (pilares A–G, guia para desenvolvimento): ver `docs/documentation/` e capítulos 10–13 em `docs/README.md` — não faz parte do cronograma enviado ao orientador.
 
 ---
 
@@ -13,14 +15,16 @@ Este é o **guia operacional** (detalhe técnico) até a entrega do manuscrito d
 | Item | Status | Notas |
 |------|--------|-------|
 | PDF `ufsj-abntex2.pdf` compilável | ☐ | |
-| Caps. 1–6 revisados | ☐ | |
-| Protocolo anotação v2 | ☐ | |
+| Caps. 1–2 + apêndice (PDF quali parcial) | ☐ | caps. 3–5 quando `\qualificacaoparcialfalse` |
+| Protocolo de anotação (amostra formal) | ☐ | |
 | Relabel ≥ 80% (n=100) | ☐ | |
 | Piloto mensuração empresa-alvo | ☐ | |
 | PQs explícitas em `01_introducao.tex` | ☐ | |
 | Contato / IAA Rafael (subconjunto ~30) | ☐ | |
 | Piloto LLM-judge (CSV + prompt documentado) | ☐ | |
-| PDF enviado ao orientador (sem. 1 / 2 / 3) | ☐ | ver cronograma |
+| PDF enviado ao orientador (sem. 1 / 2 / 3) | ☐ | sem. 1: caps. 1–2 + apêndice protocolo — ver [schedule § Semana 1](qualification_schedule.md#semana-1-07-a-13out) |
+| Catálogo juízes LLM + CLI piloto | ☑ | `docs/references/notas/llm_judge.md`, DR-011, `python -m modules.evaluation llm-judge-pilot` |
+| CSV amostra formal criado | ☐ | `scripts/bootstrap_manual_labels.py` + revisão humana 25–35 |
 | `audit_project.sh` verde | ☐ | |
 | Job SDumont (ou adiado documentado) | ☐ | |
 | `run_id` pós-piloto registrado | ☐ | |
@@ -44,9 +48,9 @@ Entrega acordada: **manuscrito atual** (capítulos 1–6, **sem** capítulo de r
 | Entrega | Critério |
 |---------|----------|
 | Manuscrito coerente | QPs, método, números = [`../research_trail/README.md`](../research_trail/README.md) Parte 4 |
-| Protocolo de anotação v2 | Escrito; amostra para **validar pipeline**, não para fechar gate na qualificação |
+| Protocolo de anotação | Escrito; amostra para **validar pipeline**, não para fechar gate na qualificação |
 | Relabel da amostra manual | ≥ 80% das 100 notícias **ou** amostra estratificada documentada |
-| Piloto LLM-judge | 10–20 notícias, prompt `prompt_v1_quali` em [annotation_protocol_v2.md](annotation_protocol_v2.md) §7 |
+| Piloto LLM-judge | 10–20 notícias, prompt `prompt_v1_quali` em [annotation_protocol.md](annotation_protocol.md) §7 |
 | Piloto código empresa-alvo | 1–2 estratégias **sem fine-tune**, se relabel avançar até ~18/10 (opcional vs LLM) |
 | Qualidade de repositório | `./scripts/audit_project.sh` passando |
 | SDumont | Inferência em GPU **ou** adiamento explícito com motivo neste arquivo |
@@ -64,12 +68,12 @@ Entrega acordada: **manuscrito atual** (capítulos 1–6, **sem** capítulo de r
 
 | Documento | Função |
 |-----------|--------|
-| [`qualification_schedule.md`](qualification_schedule.md) | **Status vivo** — checkboxes e entrega por semana (orientador) |
+| [`qualification_schedule.md`](qualification_schedule.md) | **Acompanhamento semanal** — registro, checkboxes e entrega (reunião com orientador) |
 | [`../Dissertacao_PPGCC/`](../Dissertacao_PPGCC/) | Narrativa acadêmica (caps. 1–6) para qualificação |
 | [`../research_trail/README.md`](../research_trail/README.md) | Números oficiais, runs, limitações |
 | [`../documentation/README.md`](../documentation/README.md) | Comandos, módulos, fórmulas ITI |
 | [`docs/references/README.md`](references/README.md) | Bibliografia e notas |
-| [`annotation_protocol_v2.md`](annotation_protocol_v2.md) | Anotação, IAA, LLM-judge |
+| [`annotation_protocol.md`](annotation_protocol.md) | Anotação, IAA, LLM-judge |
 | [`../Dissertacao_PPGCC/README.md`](../Dissertacao_PPGCC/README.md) | Compilação LaTeX |
 
 ### 1.5 Fluxo de dependências
@@ -78,7 +82,7 @@ Entrega acordada: **manuscrito atual** (capítulos 1–6, **sem** capítulo de r
 flowchart TB
   subgraph quali [Até 04/11]
     tex[Manuscrito PDF]
-    proto[Protocolo anotação v2]
+    proto[Protocolo anotação]
     relabel[Relabel n=100]
     llm[Piloto LLM-judge]
     pilot[Piloto empresa-alvo]
@@ -103,13 +107,13 @@ Feedback consolidado (Michel Leles) — prioridade até 04/11:
 
 | # | Diretriz | Onde registrar |
 |---|----------|----------------|
-| 1 | **Setup experimental** correto e **avenida de pesquisa** clara | Caps. 1–4; [qualification_schedule.md](qualification_schedule.md) §2 |
+| 1 | **Setup experimental** correto e **avenida de pesquisa** clara | `01_introducao.tex`–`04_metodologia.tex`; marcos nas [Semanas 1–4](qualification_schedule.md#1-cronograma-por-semanas-0710-a-04112026) do schedule |
 | 2 | Revisão bibliográfica, **lacuna**, **perguntas de pesquisa**, objetivos, hipótese | `01_introducao.tex`, `02_revisao.tex` |
 | 3 | **Desenho experimental** para avaliar a hipótese (sem prometer resultado) | `04_metodologia.tex` |
 | 4 | **Resultados iniciais** — andamento honesto, não conclusão de mercado | `05_andamentos.tex` |
 | 5 | Texto do colegiado → **formato dissertação** (PDF caps. 1–6) | `latexmk` sem. 3–4 |
-| 6 | Anotação manual: crítica possível (não especialista); usar amostra para **validar pipeline** | [annotation_protocol_v2.md](annotation_protocol_v2.md) §0 |
-| 7 | Mitigar: **Rafael** (IAA) + **LLM-judge** (piloto documentado) | Semana 1–2 no cronograma |
+| 6 | Anotação manual: crítica possível (não especialista); usar amostra para **validar pipeline** | [annotation_protocol.md](annotation_protocol.md) §0 |
+| 7 | Mitigar: **Rafael** (IAA) + **LLM-judge** (piloto documentado) | [Semana 1](qualification_schedule.md#semana-1-07-a-13out)–[Semana 2](qualification_schedule.md#semana-2-14-a-20out) no schedule |
 
 **Opcional semana 1 (LaTeX):** subseção `Questões de pesquisa` em `01_introducao.tex` (QP1–QP3, espelhar trajetoria Parte 0); parágrafo limitação anotador em `04_metodologia.tex` ou `05_andamentos.tex`.
 
@@ -122,8 +126,8 @@ Marque **sim** em todos antes do envio:
 - [ ] **PDF** gerado: `cd ../Dissertacao_PPGCC && latexmk -pdf ufsj-abntex2.tex` — sem erro fatal (avisos de underfull hbox aceitáveis).
 - [ ] **Capítulos 1–6** revisados; tabela κ e win rate em `05_andamentos.tex` = trajetoria §4.2–4.4.
 - [ ] **Resumo/abstract** (`00_pretextual.tex`) coerente com limitações do gate.
-- [ ] **Protocolo anotação v2** em [`annotation_protocol_v2.md`](annotation_protocol_v2.md) ou apêndice em `99_apendices.tex`.
-- [ ] **Relabel:** arquivo `data/water_utilities_corpus/rotulos_manual_100_v2.csv` (ou `_v2` incremental) com ≥ 80 linhas revisadas segundo o protocolo.
+- [ ] **Protocolo de anotação** em [`annotation_protocol.md`](annotation_protocol.md) ou apêndice em `99_apendices.tex`.
+- [ ] **Revisão da amostra:** `data/water_utilities_corpus/manual_labels_100.csv` com ≥ 80 linhas revisadas segundo o protocolo (exploratório arquivado em `manual_labels_100_exploratorio.csv`).
 - [ ] **`./scripts/audit_project.sh`** executado com sucesso após últimas mudanças de código (se houver).
 - [ ] **SDumont:** job concluído **ou** seção “Adiamento SDumont” preenchida no [Status rápido](#status-rápido-atualizar-semanalmente) com data e motivo.
 - [ ] **Fase 2** lida e aceita como roteiro pós-qualificação (Seção 11).
@@ -188,7 +192,7 @@ Checklist LaTeX (antes do envio):
 | 5 Andamentos | `05_andamentos.tex` | **Sincronizar números** (tabela abaixo) | trajetoria Parte 4 |
 | 6 Próximos passos | `06_proximos_passos.tex` | Ponte para Fase 2 (Seção 11); datas relativas nov–dez/2026 | Este plano §11 |
 | Pretextual | `00_pretextual.tex` | Revisão final 30–31/10; resumo = sem conclusão de desempenho | — |
-| Apêndices | `99_apendices.tex` | **Recomendado:** protocolo anotação v2 resumido | `annotation_protocol_v2.md` |
+| Apêndices | `99_apendices.tex` | **Recomendado:** protocolo resumido | `annotation_protocol.md` |
 
 ### 4.2 Números obrigatórios em `05_andamentos.tex` (trajetoria Parte 4)
 
@@ -231,7 +235,7 @@ Santos et al. (2023), Yoshinaga & Castro Junior (2012), Duarte et al. (2020), Te
 | Tema | Referência sugerida | Ação | Onde citar |
 |------|---------------------|------|------------|
 | Concordância κ | Cohen, J. (1960). *Educational and Psychological Measurement* | Criar `notas/cohen1960.md`; entrada em `bibliografia.bib` | `04_metodologia.tex` (gate); `05_andamentos.tex` |
-| Acordo anotação / IAA | Artstein, R. & Poesio, M. (2008). *Language Resources and Evaluation* | Criar `notas/artstein2008.md`; bib | Protocolo v2; cap. 4 se IAA parcial |
+| Acordo anotação / IAA | Artstein, R. & Poesio, M. (2008). *Language Resources and Evaluation* | Criar `notas/artstein2008.md`; bib | Protocolo formal; cap. 4 se IAA parcial |
 | Sentimento por aspecto/entidade | Buscar 1 artigo ABSA em finanças ou “target-specific sentiment” (ex.: trabalhos em aspect-based financial sentiment) | Nota `notas/absa_finance.md`; bib | `02_revisao.tex` lacuna; justificar piloto empresa-alvo |
 | Transferência de domínio | Reusar Santos 2023 + parágrafo em Souza 2020 | Nota já existente | `05_andamentos.tex` — κ no saneamento |
 
@@ -275,13 +279,13 @@ Enquanto anotação for **solo**, o manuscrito deve declarar limitação. Se ori
 
 ## 6. Trilha C — Código, dados e experimentos
 
-### 6.1 Protocolo de anotação v2
+### 6.1 Protocolo de anotação (amostra formal)
 
-**Protocolo canônico:** [`annotation_protocol_v2.md`](annotation_protocol_v2.md)
+**Protocolo canônico:** [`annotation_protocol.md`](annotation_protocol.md)
 
-**Base atual:** [`data/water_utilities_corpus/rotulos_manual_100.csv`](../../data/water_utilities_corpus/rotulos_manual_100.csv) — colunas: `news_id`, `titulo`, `url`, `data`, `rotulo_finbert`, `rotulo_manual`, `notas`.
+**Exploratório arquivado:** [`data/water_utilities_corpus/manual_labels_100_exploratorio.csv`](../../data/water_utilities_corpus/manual_labels_100_exploratorio.csv) — schema simples (`rotulo_manual`); métricas 48%/κ na [trilha §4.4.2](../research_trail/part-04-results.md#442-métricas-na-rodada-exploratória-finbert--anotação-solo).
 
-**Schema v2 sugerido** (novo CSV `rotulos_manual_100_v2.csv`):
+**Amostra formal (canônica):** [`data/water_utilities_corpus/manual_labels_100.csv`](../../data/water_utilities_corpus/manual_labels_100.csv) — schema:
 
 | Coluna | Tipo | Regra |
 |--------|------|--------|
@@ -294,7 +298,7 @@ Enquanto anotação for **solo**, o manuscrito deve declarar limitação. Se ori
 | `rotulo_finbert` | label | Congelar ou atualizar após piloto |
 | `notas` | texto | Casos limite, multiempresa |
 | `anotador` | string | Seu nome; `anotador_2` se IAA |
-| `versao_protocolo` | string | Ex.: `v2-2026-10-08` |
+| `versao_protocolo` | string | Ex.: `2026-10-08` |
 
 **Regras multiempresa (resumo):**
 
@@ -313,7 +317,7 @@ Enquanto anotação for **solo**, o manuscrito deve declarar limitação. Se ori
 Após cada lote, opcional:
 
 ```bash
-# Regenerar eval join manual + corpus (quando v2 estiver estável)
+# Regenerar eval join manual + corpus (quando a amostra formal estiver estável)
 python -m modules.evaluation.classifier_eval_pt prepare
 python -m modules.evaluation.classifier_eval_pt run
 ```
@@ -336,7 +340,7 @@ Paths padrão em `classifier_eval_pt.py`: `MANUAL_PATH`, `CORPUS_PATH` = `notici
 
 ### 6.4 Piloto LLM-judge (semana 2)
 
-Documentação canônica: [annotation_protocol_v2.md](annotation_protocol_v2.md) §7 · nota: [llm_judge.md](../references/notas/llm_judge.md).
+Documentação canônica: [annotation_protocol.md](annotation_protocol.md) §7 · nota: [llm_judge.md](../references/notas/llm_judge.md).
 
 | Etapa | Ação |
 |-------|------|
@@ -426,7 +430,7 @@ Prioridade: pós-04/11 ou quando tocados para rerun de campanha.
 
 ## 7.5 Documentação no repositório (`docs/`)
 
-Marcos por pilar (não duplicar a research_trail). Índice: [docs/README.md](../README.md). Checkboxes vivos: [qualification_schedule.md §5](qualification_schedule.md#5-documentação-no-repositório-docs).
+Marcos por pilar (não duplicar a research_trail). Índice: [docs/README.md](../README.md). Progresso semanal com orientador: [qualification_schedule.md](qualification_schedule.md).
 
 | Pilar | Artefatos principais | Gate de leitura (agente/dev) |
 | --- | --- | --- |
@@ -451,7 +455,7 @@ Job Slurm: [`jobs/sdumont/run_experiment.srm`](../../jobs/sdumont/run_experiment
 | Usar SDumont | Não usar SDumont |
 |--------------|------------------|
 | Inferência FinBERT em corpus evento/expandido completo | Anotação humana |
-| Reprocessar após **estratégia empresa-alvo fixa** | Enquanto protocolo v2 ainda muda |
+| Reprocessar após **estratégia empresa-alvo fixa** | Enquanto o protocolo formal ainda muda |
 | Múltiplas combinações modelo×dataset enabled | Research leve (pode rodar local após baixar `outputs/`) |
 
 **Janela sugerida neste plano:** 22–28/10/2026, **se** decisão de estratégia até 21/10.
@@ -537,7 +541,7 @@ Se não rodar SDumont até 04/11, copiar no Status rápido:
 
 | Semana | Datas | Foco | Entregável forte |
 |--------|-------|------|------------------|
-| 1 | 07–13/10 | Intro + revisão + **PQs**; protocolo; contato Rafael | 25–35 relabel v2; PDF parcial ao orientador |
+| 1 | 07–13/10 | Intro + revisão + **PQs**; protocolo; contato Rafael | 25–35 linhas revisadas na amostra; PDF parcial ao orientador |
 | 2 | 14–20/10 | Metodologia + **setup experimental** | ~80 relabel; **LLM-judge 10–20**; IAA Rafael ~30 se ok |
 | 3 | 21–27/10 | SDumont (opcional) + revisão LaTeX | PDF intermediário |
 | 4 | 28/10–04/11 | Apêndice + leitura + audit + envio | PDF final |
@@ -546,11 +550,11 @@ Se não rodar SDumont até 04/11, copiar no Status rápido:
 
 | Dia | Data | Trilha A (escrita) | Trilha B (biblio) | Trilha C (lab) | Trilha D (testes) |
 |-----|------|--------------------|-------------------|----------------|-------------------|
-| 1 | Ter 07/10 | Ler estrutura caps.; alinhar com orientador (feedback 06/10) | — | Kickoff; protocolo v2 final | `audit_project.sh` baseline |
-| 2 | Qua 08/10 | Esboço **PQs** em `01_introducao.tex` | Cohen 1960 — nota curta | Criar `rotulos_manual_100_v2.csv`; e-mail Rafael | pytest -q |
+| 1 | Ter 07/10 | Ler estrutura caps.; alinhar com orientador (feedback 06/10) | — | Kickoff; protocolo formal | `audit_project.sh` baseline |
+| 2 | Qua 08/10 | Esboço **PQs** em `01_introducao.tex` | Cohen 1960 — nota curta | Planilha `manual_labels_100.csv`; e-mail Rafael | pytest -q |
 | 3 | Qui 09/10 | — | — | Relabel lote 1 (15–20) | — |
 | 4 | Sex 10/10 | — | Artstein 2008 — esboço | Relabel lote 1 (15–20) | — |
-| 5 | Sáb 11/10 | — | 1 artigo ABSA — nota | Fechar lote 1 | `classifier_eval_pt prepare` se v2 estável |
+| 5 | Sáb 11/10 | — | 1 artigo ABSA — nota | Fechar lote 1 | `classifier_eval_pt prepare` se amostra estável |
 | 6 | Dom 12/10 | Cap. 2 lacuna + tabela | — | — | — |
 | 7 | Seg 13/10 | Cap. 5 números sync trajetoria | Revisar citações cap. 2 | Ritual semanal | audit |
 | 8 | Ter 14/10 | — | — | Relabel lote 2 início | — |
@@ -580,7 +584,7 @@ Se não rodar SDumont até 04/11, copiar no Status rápido:
 
 | Se atrasar… | Cortar primeiro | Não cortar |
 |-------------|-----------------|------------|
-| Relabel | Piloto C; SDumont | Protocolo v2 escrito; cap. 5 honesto |
+| Relabel | Piloto C; SDumont | Protocolo formal escrito; cap. 5 honesto |
 | Escrita | Apêndice longo | PDF compilável caps. 1–6 |
 | SDumont | Rerun completo | Documentar adiamento + manter números trajetoria atuais |
 | Piloto código | Segunda estratégia | `audit_project.sh` verde |
@@ -609,7 +613,7 @@ Mapeamento da consolidação experimental pós-qualificação (8 semanas) — es
 
 | Semana | Período aprox. | Etapa | Atividades |
 |--------|----------------|-----------------|------------|
-| P2-1 | 05–11/11 | Etapa 1 | Revisão diretrizes; dupla anotação se houver par; gold v2 |
+| P2-1 | 05–11/11 | Etapa 1 | Revisão diretrizes; dupla anotação se houver par; gold consolidado |
 | P2-2 | 12–18/11 | Etapa 2 | Protocolo multiempresa formal; flags no corpus |
 | P2-3 | 19–25/11 | Etapa 3 | Classificação empresa-alvo definitiva; comparar métricas |
 | P2-4 | 26/11–02/12 | Etapa 3 cont. | SDumont rerun corpus; error analysis |
@@ -640,9 +644,9 @@ flowchart TD
 
 ---
 
-## 12. Template — Protocolo de anotação v2 (extrato)
+## 12. Template — Protocolo de anotação (extrato)
 
-Ver [`annotation_protocol_v2.md`](annotation_protocol_v2.md) §7 para o prompt LLM-judge.
+Ver [`annotation_protocol.md`](annotation_protocol.md) §7 para o prompt LLM-judge.
 
 ### 12.1 Definições de classe (`impacto_alvo`)
 

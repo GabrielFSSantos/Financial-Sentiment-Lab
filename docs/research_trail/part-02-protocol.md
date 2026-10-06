@@ -48,7 +48,7 @@ flowchart TB
 | 2 Comparação | `research/io/weekly_align.py`, `index_frequency: weekly` |
 | 3 Incremental | `research/validation/incremental.py`, `incremental_deltas.csv` |
 | 4 Robustez | campanhas Marco 2, `evaluation/gap2023_summary.py` |
-| 5 Credibilidade | `evaluation/classifier_eval_pt.py`, [annotation_protocol_v2](../tracking/annotation_protocol_v2.md) |
+| 5 Credibilidade | `evaluation/classifier_eval_pt.py`, [annotation_protocol](../tracking/annotation_protocol.md) |
 | 6 Interpretação | manifest + Parte 4; regra busca múltipla em [01_visao §1.5](../documentation/01_visao_e_conceitos.md) |
 
 Matriz 24 duelos (referência):

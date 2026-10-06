@@ -34,7 +34,7 @@ declare -A FILE_MAP=(
     [noticias_strict_sabesp.csv]=articles_strict_sabesp.csv
     [noticias_strict_sabesp_event_filtered.csv]=articles_strict_sabesp_event_filtered.csv
     [rotulos_manual_100.csv]=manual_labels_100.csv
-    [rotulos_manual_100_v2.csv]=manual_labels_100_v2.csv
+    [rotulos_manual_100_exploratorio.csv]=manual_labels_100_exploratorio.csv
     [rotulos_manual_100_eval.csv]=manual_labels_100_eval.csv
     [.scrape_state.json]=.scrape_state.json
 )

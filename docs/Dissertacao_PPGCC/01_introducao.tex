@@ -2,7 +2,7 @@
 
 A cada dia, portais de notícia descrevem decisões regulatórias, disputas tarifárias, obras, privatizações e balanços de empresas de água e esgoto. Quem acompanha o mercado brasileiro sabe que esse fluxo não é decoração: em alguns episódios, o anúncio institucional chega a se refletir em preços \cite{foco2025sabesp}. A pergunta que nos move é mais estreita e, ao mesmo tempo, mais trabalhosa. Não perguntamos se ``notícia importa'' em abstrato. Perguntamos se é possível construir, em português e para o saneamento de capital aberto, uma série temporal que resuma essa informação de forma honesta --- e se essa série diz algo além do que já se obteria contando matérias ou tirando a média do tom do dia.
 
-Esta dissertação ainda não fecha desempenho. O que segue é a fundamentação da ideia --- problema, literatura, lacuna e objeto --- o desenho operacional já montado no laboratório e os andamentos experimentais, estes últimos sem pretensão de resultado definitivo.
+Esta dissertação ainda não fecha desempenho. Nesta entrega de qualificação apresentam-se a fundamentação da ideia --- problema, literatura e lacuna ---; a proposta do ITI, a metodologia e os andamentos experimentais compõem etapas seguintes do mesmo manuscrito, sem pretensão de resultado definitivo sobre o mercado.
 
 \section{Contextualização}
 
@@ -42,9 +42,29 @@ Projetar e fundamentar um \textbf{Índice Temporal Informacional (ITI)} a partir
   \item \textbf{Coleta.} Especificar um processo de extração na web (raspagem de portais) que produza um corpus tabular --- título, data, fonte, empresa, texto --- deduplicado e alinhável no tempo \cite{neuenschwander2014webmedia}.
   \item \textbf{Classificação.} Adotar um classificador de sentimento de domínio em português, com escore contínuo por notícia, na linha de \citeonline{santos2023finbert}.
   \item \textbf{Agregação temporal.} Definir como scores diários se combinam em um índice com memória (média móvel exponencial), analogia conceitual ao decaimento de \citeonline{shapiro2022fed}, sem copiar o índice do Federal Reserve.
-  \item \textbf{Comparação honesta.} Operacionalizar o confronto do ITI com medidas simples derivadas das mesmas notícias (contagem, sentimento médio, ponderações), na tradição de baselines textuais \cite{loughran2011liability} --- o que o laboratório já montou como protocolo, não como prova.
+  \item \textbf{Comparação honesta.} Operacionalizar o confronto do ITI com medidas simples derivadas das mesmas notícias (contagem, sentimento médio, ponderações), na tradição de baselines textuais \cite{loughran2011liability} --- como protocolo de pesquisa, não como prova.
   \item \textbf{Validação empírica.} Especificar um teste de associação com retorno em mais de um horizonte, como a literatura brasileira de notícia e preço recomenda \cite{duarte2020news,eramiars2025correlacao}, e registrar andamentos sem tratar H1 como resolvida.
 \end{enumerate}
+
+\section{Questões de pesquisa}
+
+A pergunta principal (QP1) orienta o desenho do ITI e do protocolo de comparação com o mercado:
+
+\begin{quote}
+\textbf{QP1.} Em que medida um índice temporal informacional derivado de notícias corporativas representa choques informacionais em empresas de saneamento de capital aberto e apresenta associação com retorno, volatilidade e volume \emph{além} de medidas simples de sentimento e frequência?
+\end{quote}
+
+\textbf{H1} (em aberto, não tratada como conclusão nesta qualificação): o ITI em uma semana associa-se ao retorno acumulado nas semanas seguintes mais fortemente que baselines internos (B0--B3) sobre as mesmas notícias.
+
+Perguntas secundárias registradas para ciclos futuros:
+
+\begin{itemize}
+  \item \textbf{QP2} --- assimetria de notícias negativas e volatilidade/retorno (\textbf{H2}); ainda não testada formalmente na Trilha A.
+  \item \textbf{QP3} --- memória EWMA versus impacto sem memória (\textbf{H3}); parcialmente explorada nas ablações R0--R1.
+  \item \textbf{QP4} --- discordância entre modelos e volatilidade; extensão não executada.
+\end{itemize}
+
+A validação do classificador (concordância humano--modelo) é critério operacional distinto da QP1: a amostra manual e eventual segunda opinião (humana ou classificação automatizada com instrução fixa) servem para verificar o procedimento de anotação, não para fechar H1 na qualificação.
 
 \section{Hipótese de trabalho}
 
@@ -56,4 +76,4 @@ Não afirmamos direção (alta após notícia positiva). \citeonline{yoshinaga20
 
 \section{Organização do texto}
 
-O Capítulo~\ref{cap:revisao} percorre as linhas de literatura e fecha na lacuna. O Capítulo~\ref{cap:proposta} descreve o ITI como objeto: o que é, de onde veio a ideia, o que deliberadamente não replica. O Capítulo~\ref{cap:metodologia} detalha o protocolo operacional (corpus, escore, memória, baselines, duelos semanais). O Capítulo~\ref{cap:andamentos} registra o que já rodou, com ressalvas. O Capítulo~\ref{cap:proximos} indica o que falta para uma avaliação que possa ser lida como resultado. Referências bibliográficas encerram o volume.
+Nesta versão de qualificação, o Capítulo~\ref{cap:revisao} percorre as linhas de literatura e fecha na lacuna; o apêndice resume o protocolo de anotação manual da amostra Sabesp. Os capítulos seguintes do manuscrito --- proposta do ITI, metodologia operacional e registro de andamentos experimentais --- serão incorporados nas entregas subsequentes até a defesa. As referências bibliográficas encerram o volume.

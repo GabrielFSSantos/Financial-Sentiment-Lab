@@ -1,8 +1,8 @@
-# Protocolo de anotação v2 — corpus Sabesp (Trilha A)
+# Protocolo de anotação — amostra Sabesp (Trilha A)
 
-**Versão:** v2-2026-10-07  
-**Status:** pronto para semana 1 da qualificação  
-**Amostra:** 100 notícias (`rotulos_manual_100.csv` → `rotulos_manual_100_v2.csv`)  
+**Versão do protocolo:** 2026-10-07  
+**Status:** em uso na qualificação (pós-orientação 06/10/2026)  
+**Amostra canônica:** 100 notícias em `data/water_utilities_corpus/manual_labels_100.csv`  
 **Acompanhamento:** [qualification_schedule.md](qualification_schedule.md) · **Detalhe operacional:** [qualification_plan_2026-11-04.md](qualification_plan_2026-11-04.md)
 
 ---
@@ -14,7 +14,13 @@
 | Para que serve esta amostra? | **Validar o pipeline**: planilha anotada → junção com corpus → métricas (`classifier_eval_pt`) → relatório. |
 | É “verdade absoluta” sobre o mercado? | **Não.** O anotador principal não é especialista em mercado financeiro; a amostra é **referência operacional** para testar o fluxo. |
 | O que não fazer na qualificação? | Não apresentar κ ou acurácia como prova de que o índice explica a ação; não fechar hipótese H1. |
-| Mitigações | (1) **Segundo anotador humano** (ex.: Rafael) em subconjunto; (2) **LLM como juiz** com prompt fixo em subconjunto — triangulação, não substituto do humano. |
+| Mitigações | (1) **Segundo anotador humano** (ex.: Rafael) em **subconjunto** (~30 notícias); (2) **Segunda classificação automatizada** com instrução fixa em 10–20 casos — triangulação, não substituto do humano. |
+
+---
+
+## Referência exploratória (arquivo)
+
+Rodada anterior solo, critério simplificado, métricas históricas (48%, κ≈0,16): `data/water_utilities_corpus/manual_labels_100_exploratorio.csv`. Linha do tempo: [research_trail part-04 §4.4.1](../research_trail/part-04-results.md#441-linha-do-tempo-da-anotação-manual) · [DR-012](../research_trail/decision-register.md).
 
 ---
 
@@ -49,7 +55,7 @@
 
 ---
 
-## 4. Campos do CSV v2
+## 4. Campos do CSV (amostra formal)
 
 | Coluna | Obrigatório | Descrição |
 |--------|-------------|-----------|
@@ -60,23 +66,23 @@
 | `sentimento_global` | não | Tom da matéria inteira (opcional, diagnóstico) |
 | `ambiguo` | não | `true` se houver dúvida persistente |
 | `rotulo_finbert` | não | Saída do classificador (referência) |
-| `rotulo_llm_juiz` | não | Piloto LLM-juiz (§7) |
+| `rotulo_llm_juiz` | não | Piloto segunda classificação (§7) |
 | `notas` | não | Casos limite, multiempresa |
-| `notas_llm` | não | Justificativa curta retornada pelo LLM (piloto) |
+| `notas_llm` | não | Justificativa curta retornada pelo modelo (piloto) |
 | `anotador` | sim | Identificador do anotador |
 | `anotador_2` | não | Segundo humano (IAA) |
 | `impacto_alvo_2` | não | Rótulo do segundo anotador |
-| `versao_protocolo` | sim | Ex.: `v2-2026-10-07` |
+| `versao_protocolo` | sim | Ex.: `2026-10-07` |
 
 ---
 
 ## 5. Fluxo do anotador
 
-1. Abrir notícia pelo `news_id` em `noticias_strict_sabesp.csv`.
+1. Abrir notícia pelo `news_id` em `noticias_strict_sabesp.csv` (ou `articles_strict_sabesp.csv`).
 2. Preencher `empresa_alvo` e `tipologia`.
 3. Atribuir `impacto_alvo` com foco na empresa-alvo.
 4. Se incerto: `ambiguo=true` e descrever em `notas`.
-5. Salvar incrementalmente em `data/water_utilities_corpus/rotulos_manual_100_v2.csv`.
+5. Salvar incrementalmente em `data/water_utilities_corpus/manual_labels_100.csv`.
 
 Avaliação do pipeline (quando houver linhas suficientes):
 
@@ -91,9 +97,9 @@ Interpretar métricas como **diagnóstico do fluxo**, não como conclusão de pe
 
 ## 6. Concordância entre anotadores (IAA) — Rafael ou outro
 
-**Meta (semana 2):** segundo anotador em **30** notícias estratificadas (misturar `focal_sabesp` e `roundup_agenda`).
+**Meta (semana 2):** segundo anotador em **~30** notícias estratificadas (misturar `focal_sabesp` e `roundup_agenda`).
 
-1. Escolher `news_id` fixos; copiar linhas para planilha compartilhada ou preencher `anotador_2` / `impacto_alvo_2`.
+1. Escolher `news_id` fixos; preencher `anotador_2` / `impacto_alvo_2` na mesma linha.
 2. Calcular concordância (kappa de Cohen) **entre humanos**, separado de humano × FinBERT.
 3. Divergências → revisar instruções deste protocolo (não “forçar” consenso sem registrar).
 
@@ -101,7 +107,7 @@ Registrar no [qualification_schedule.md](qualification_schedule.md) se o apoio f
 
 ---
 
-## 7. LLM-judge (piloto — semana 2)
+## 7. Segunda classificação automatizada (piloto — semana 2)
 
 ### 7.1 Objetivo
 
@@ -109,11 +115,11 @@ Obter **segunda opinião automatizada** em notícias difíceis; comparar com `im
 
 ### 7.2 Escopo do piloto
 
-Contrato técnico: [module_plugin_contract.md](../documentation/module_plugin_contract.md) · regras κ: [12_regras_de_negocio.md](../documentation/12_regras_de_negocio.md) §12.6 · código: `modules/evaluation/judges/base.py`, `llm_stub.py` · config: `configs/evaluation.yaml` · teste: `tests/test_label_judges.py` · backlog: [engineering_backlog.md](../documentation/engineering_backlog.md).
+Contrato técnico: [module_plugin_contract.md](../documentation/module_plugin_contract.md) · regras κ: [12_regras_de_negocio.md](../documentation/12_regras_de_negocio.md) §12.6 · código: `modules/evaluation/judges/` · config: `configs/evaluation.yaml` · teste: `tests/test_label_judges.py`.
 
 - **10 a 20** `news_id` (priorizar `ambiguo=true` ou `roundup_agenda`).
 - **Não** commitar chaves de API no repositório.
-- Salvar saída sugerida: `outputs/campaigns/llm_judge_pilot/llm_judge_pilot.csv` (colunas: `news_id`, `impacto_alvo`, `rotulo_llm_juiz`, `notas_llm`, `modelo`, `prompt_versao`).
+- Salvar saída sugerida: `outputs/campaigns/llm_judge_pilot/llm_judge_pilot.csv`.
 
 ### 7.3 Prompt template (versão `prompt_v1_quali`)
 
@@ -141,17 +147,17 @@ Texto: {TEXTO}
 ### 7.4 Critérios de sucesso do piloto (qualificação)
 
 - Prompt e modelo usados **documentados** no CSV ou em nota de 1 parágrafo no texto (metodologia/andamentos).
-- Lista de discordâncias humano × LLM × FinBERT para discussão qualitativa (não precisa integrar ao `classifier_eval_pt` até pós-qualificação).
+- Lista de discordâncias humano × modelo × FinBERT para discussão qualitativa.
 
-Implementação em código (`modules/evaluation/llm_judge_pilot.py`) é **opcional** na semana 2; prioridade = CSV + prompt reprodutível.
+Implementação: `python -m modules.evaluation llm-judge-pilot` (opcional na semana 2; prioridade = CSV + prompt reprodutível).
 
 ---
 
 ## 8. Limitações declaradas na qualificação
 
-- Amostra n=100; anotação principalmente individual.
-- Gate operacional do laboratório (acurácia ~70% ou κ ≥ 0,40 vs gold) **não** é meta da entrega de 04/11/2026.
-- LLM-juiz pode alucinar ou repetir vieses do modelo; uso **auxiliar** apenas.
+- Amostra n=100; anotação principalmente individual até IAA no subconjunto.
+- Gate operacional (acurácia ~70% ou κ ≥ 0,40 vs gold) **não** é meta da entrega de 04/11/2026.
+- Classificação automatizada auxiliar pode repetir vieses do modelo; uso **exploratório** apenas.
 
 ---
 
@@ -159,5 +165,5 @@ Implementação em código (`modules/evaluation/llm_judge_pilot.py`) é **opcion
 
 - Cronograma vivo: [qualification_schedule.md](qualification_schedule.md)
 - Plano mestre: [qualification_plan_2026-11-04.md](qualification_plan_2026-11-04.md)
-- Nota bibliográfica (LLM-juiz): [references/notas/llm_judge.md](../references/notas/llm_judge.md)
+- Nota bibliográfica: [references/notas/llm_judge.md](../references/notas/llm_judge.md)
 - Metodologia no manuscrito: [Dissertacao_PPGCC/04_metodologia.tex](../Dissertacao_PPGCC/04_metodologia.tex)

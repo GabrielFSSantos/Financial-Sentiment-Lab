@@ -25,4 +25,4 @@ def test_judge_prediction_fields() -> None:
 def test_llm_judge_stub_raises_not_implemented() -> None:
     judge = LlmJudgeStub()
     with pytest.raises(NotImplementedError, match="Juiz LLM"):
-        judge.judge([("n1", "texto de teste")])
+        judge.judge([("n1", "Título", "texto de teste")])

@@ -51,6 +51,14 @@ def build_eval_dataset(
     corpus = pd.read_csv(corpus_path)
     if "news_id" not in manual.columns:
         raise ValueError("rotulos_manual_100.csv precisa da coluna news_id.")
+    if "impacto_alvo" in manual.columns:
+        impact = manual["impacto_alvo"].astype(str).str.strip()
+        mapped = impact.replace(
+            {"POSITIVE": "POS", "NEGATIVE": "NEG", "NEUTRAL": "NEU"}
+        )
+        if "rotulo_manual" not in manual.columns:
+            manual["rotulo_manual"] = ""
+        manual["rotulo_manual"] = mapped.where(impact.ne(""), manual["rotulo_manual"])
     if "id" not in corpus.columns:
         raise ValueError("Corpus strict precisa da coluna id.")
 

@@ -72,6 +72,10 @@
 \setlength{\parindent}{1.3cm}
 \setlength{\parskip}{0.2cm}
 
+% Qualificação parcial: só caps. 1--2 + apêndice. Para tese completa, comente a linha abaixo.
+\newif\ifqualificacaoparcial
+\qualificacaoparcialtrue
+
 \makeindex
 
 \begin{document}
@@ -90,14 +94,18 @@
 \textual
 \include{01_introducao}
 \include{02_revisao}
+\ifqualificacaoparcial
+\else
 \include{03_proposta}
 \include{04_metodologia}
 \include{05_andamentos}
-\include{06_proximos_passos}
+\fi
 
 \bookmarksetup{startatroot}
 
 \postextual
+\appendix
+\include{99_apendices}
 \bibliographystyle{abntex2-alf}
 \bibliography{referencias}
 

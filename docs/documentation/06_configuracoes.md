@@ -124,7 +124,8 @@ Identificadores de **código, pastas e arquivos de config** em inglês; **conte�
 | `data/saneamento_corpus/` | `data/water_utilities_corpus/` | [`scripts/migrate_data_paths.sh`](../../scripts/migrate_data_paths.sh) |
 | `noticias.csv` | `articles.csv` | Idem |
 | `noticias_strict_sabesp.csv` | `articles_strict_sabesp.csv` | Idem |
-| `rotulos_manual_100.csv` | `manual_labels_100.csv` | Idem + `configs/evaluation.yaml` paths |
+| `rotulos_manual_100.csv` | `manual_labels_100.csv` | Amostra formal (qualificação); `configs/evaluation.yaml` |
+| `rotulos_manual_100_exploratorio.csv` | `manual_labels_100_exploratorio.csv` | Rodada exploratória arquivada (referência κ histórico) |
 | `rotulo_manual`, `rotulo_finbert` | `human_label`, `model_label` | `column_aliases` em `configs/evaluation.yaml` |
 | `visao_geral.py`, … | `overview.py`, `research_trail.py`, … | `modules/dashboard/pages/` (URLs Streamlit em PT — [08_dashboard_streamlit.md](08_dashboard_streamlit.md)) |
 | Estrutura `docs/` | `README.md` (índice) + `tracking/`, `documentation/`, `research_trail/`, `references/` | Pastas canônicas |

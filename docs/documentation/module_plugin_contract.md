@@ -27,7 +27,7 @@ Permitir que um pesquisador adicione um **modelo de sentimento**, um **juiz de r
 
 - Interface: [`modules/evaluation/judges/base.py`](../../modules/evaluation/judges/base.py) — `BaseLabelJudge`
 - Stub: [`modules/evaluation/judges/llm_stub.py`](../../modules/evaluation/judges/llm_stub.py)
-- Protocolo de pesquisa: [annotation_protocol_v2.md](../tracking/annotation_protocol_v2.md) §7
+- Protocolo de pesquisa: [annotation_protocol.md](../tracking/annotation_protocol.md) §7
 - Saída piloto: `outputs/campaigns/llm_judge_pilot/llm_judge_pilot.csv`
 
 Comportamento esperado: processar apenas `news_id` **sem** rótulo de juiz; idempotente (pular já julgados).
