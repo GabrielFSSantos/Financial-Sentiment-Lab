@@ -8,7 +8,41 @@ from pathlib import Path
 import pandas as pd
 from sklearn.metrics import cohen_kappa_score
 
+from modules.evaluation.core.settings import load_evaluation_settings
 from modules.experiment import PROJECT_ROOT
+
+DEFAULT_WORKSHEET_OUTPUT = (
+    PROJECT_ROOT / "outputs/campaigns/qualification/manual_labels_100_para_rotulacao.csv"
+)
+
+# (coluna canônica no manual_labels_100.csv, cabeçalho PT no export Drive)
+WORKSHEET_COLUMN_MAP: tuple[tuple[str, str], ...] = (
+    ("news_id", "id_noticia"),
+    ("data", "data"),
+    ("fonte", "fonte"),
+    ("titulo", "titulo"),
+    ("url", "link"),
+    ("impacto_alvo", "impacto_sabesp_anotador_1"),
+    ("tipologia", "tipologia"),
+    ("sentimento_global", "tom_da_materia"),
+    ("ambiguo", "caso_ambiguo"),
+    ("notas", "notas_anotador_1"),
+    ("anotador", "nome_anotador_1"),
+    ("anotador_2", "nome_anotador_2"),
+    ("impacto_alvo_2", "impacto_sabesp_anotador_2"),
+    ("rotulo_finbert", "referencia_finbert"),
+    ("rotulo_llm_juiz", "referencia_llm_juiz"),
+    ("notas_llm", "justificativa_llm"),
+    ("versao_protocolo", "versao_protocolo"),
+)
+
+WORKSHEET_COLUMNS: tuple[str, ...] = tuple(
+    canonical for canonical, _ in WORKSHEET_COLUMN_MAP
+)
+WORKSHEET_HEADERS_PT: dict[str, str] = dict(WORKSHEET_COLUMN_MAP)
+WORKSHEET_HEADERS_PT_ORDER: tuple[str, ...] = tuple(
+    pt for _, pt in WORKSHEET_COLUMN_MAP
+)
 
 LABEL_MAP = {
     "POSITIVE": "POS",
@@ -171,6 +205,64 @@ def compare_manual_labels(
     return {"accuracy": accuracy, "cohen_kappa": kappa, "n_labeled": len(merged)}
 
 
+def export_annotation_worksheet(
+    manual_path: Path,
+    corpus_path: Path,
+    output_path: Path,
+    *,
+    subset_news_ids_path: Path | None = None,
+    use_portuguese_headers: bool = True,
+) -> pd.DataFrame:
+    """Junta amostra formal com título/URL do corpus para rotulação no Drive."""
+    manual = pd.read_csv(manual_path)
+    if "news_id" not in manual.columns:
+        raise ValueError("Amostra manual precisa da coluna news_id.")
+
+    if subset_news_ids_path is not None and subset_news_ids_path.is_file():
+        subset = pd.read_csv(subset_news_ids_path)
+        id_col = "news_id" if "news_id" in subset.columns else subset.columns[0]
+        allowed = set(subset[id_col].astype(str).str.strip())
+        manual = manual[manual["news_id"].astype(str).str.strip().isin(allowed)].copy()
+        if manual.empty:
+            raise ValueError("Subconjunto news_id não intersecta a amostra manual.")
+
+    corpus = _prepare_corpus(pd.read_csv(corpus_path))
+    if "id" not in corpus.columns:
+        raise ValueError("Corpus strict precisa da coluna id.")
+    for column in ("data", "fonte", "titulo", "url"):
+        if column not in corpus.columns:
+            raise ValueError(f"Corpus strict precisa da coluna {column}.")
+
+    context = corpus[["id", "data", "fonte", "titulo", "url"]].drop_duplicates(
+        subset=["id"]
+    )
+    merged = manual.merge(
+        context,
+        left_on="news_id",
+        right_on="id",
+        how="left",
+    )
+    missing = int(merged["url"].isna().sum())
+    if missing:
+        bad = merged.loc[merged["url"].isna(), "news_id"].astype(str).tolist()
+        preview = ", ".join(bad[:5])
+        suffix = "..." if len(bad) > 5 else ""
+        raise ValueError(
+            f"{missing} news_id da amostra manual sem match no corpus strict: "
+            f"{preview}{suffix}"
+        )
+
+    for column in WORKSHEET_COLUMNS:
+        if column not in merged.columns:
+            merged[column] = ""
+    frame = merged[list(WORKSHEET_COLUMNS)].copy()
+    if use_portuguese_headers:
+        frame = frame.rename(columns=WORKSHEET_HEADERS_PT)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(output_path, index=False)
+    return frame
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Rótulos manuais vs FinBERT")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -198,6 +290,35 @@ def build_parser() -> argparse.ArgumentParser:
     compare.add_argument(
         "--report",
         default=str(PROJECT_ROOT / "outputs/campaigns/sabesp_2026/manual_label_report.md"),
+    )
+
+    export_ws = sub.add_parser(
+        "export-worksheet",
+        help="CSV para Google Sheets (título + URL + colunas de anotação)",
+    )
+    settings = load_evaluation_settings()
+    export_ws.add_argument(
+        "--manual",
+        default=str(settings.manual_labels_path),
+    )
+    export_ws.add_argument(
+        "--corpus",
+        default=str(settings.strict_corpus_path),
+    )
+    export_ws.add_argument(
+        "--output",
+        default=str(DEFAULT_WORKSHEET_OUTPUT),
+    )
+    export_ws.add_argument(
+        "--subset-news-ids",
+        type=Path,
+        default=None,
+        help="CSV com coluna news_id (ex.: lote IAA ~30)",
+    )
+    export_ws.add_argument(
+        "--english-headers",
+        action="store_true",
+        help="Cabeçalhos técnicos (canônicos) em vez de português",
     )
     return parser
 
@@ -227,6 +348,17 @@ def main(argv: list[str] | None = None) -> int:
             f"kappa: {metrics['cohen_kappa']:.3f} "
             f"({metrics['n_labeled']} rotulados)"
         )
+        return 0
+
+    if args.command == "export-worksheet":
+        export_annotation_worksheet(
+            Path(args.manual),
+            Path(args.corpus),
+            Path(args.output),
+            subset_news_ids_path=args.subset_news_ids,
+            use_portuguese_headers=not args.english_headers,
+        )
+        print(f"Planilha de rotulação salva em {args.output}")
         return 0
 
     return 1

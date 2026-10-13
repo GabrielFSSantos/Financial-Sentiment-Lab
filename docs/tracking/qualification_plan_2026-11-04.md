@@ -234,9 +234,9 @@ Santos et al. (2023), Yoshinaga & Castro Junior (2012), Duarte et al. (2020), Te
 
 | Tema | Referência sugerida | Ação | Onde citar |
 |------|---------------------|------|------------|
-| Concordância κ | Cohen, J. (1960). *Educational and Psychological Measurement* | Criar `notas/cohen1960.md`; entrada em `bibliografia.bib` | `04_metodologia.tex` (gate); `05_andamentos.tex` |
-| Acordo anotação / IAA | Artstein, R. & Poesio, M. (2008). *Language Resources and Evaluation* | Criar `notas/artstein2008.md`; bib | Protocolo formal; cap. 4 se IAA parcial |
-| Sentimento por aspecto/entidade | Buscar 1 artigo ABSA em finanças ou “target-specific sentiment” (ex.: trabalhos em aspect-based financial sentiment) | Nota `notas/absa_finance.md`; bib | `02_revisao.tex` lacuna; justificar piloto empresa-alvo |
+| Concordância κ | Cohen, J. (1960). *Educational and Psychological Measurement* | Feito: `notas/cohen1960.md` + `bibliografia.bib` | `04_metodologia.tex` (gate); `05_andamentos.tex` |
+| Acordo anotação / IAA | Artstein, R. & Poesio, M. (2008). *Computational Linguistics* | Feito: `notas/artstein2008.md` + bib + PDF | Protocolo formal; cap. 4 se IAA parcial |
+| Sentimento por aspecto/entidade | Yuan 2020; Sinha SEntFiN 2022; Cortis SemEval-5; índice `notas/rotulacao_entity_sentiment.md` | Feito out/2026 | `04_metodologia.tex` § anotação; justificar `impacto_alvo` |
 | Transferência de domínio | Reusar Santos 2023 + parágrafo em Souza 2020 | Nota já existente | `05_andamentos.tex` — κ no saneamento |
 
 **Leitura mínima (qualificação):** Cohen (κ); Artstein (limites IAA); 1 artigo ABSA/entity-target (30–60 min + nota de meia página).

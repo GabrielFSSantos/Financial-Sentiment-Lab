@@ -18,5 +18,6 @@ Template de fase: [phase-template.md](phase-template.md).
 | DR-008 | 2026-10 | Dry-run: valida preflight, **não grava** `outputs/` | Dry-run escrever árvore parcial | — | `experiment/io/results.py` `write_enabled` |
 | DR-009 | 2026-10 | Docs canônicas no repo; harness meta só índice | Duplicar arquitetura só no meta-workspace | `docs/documentation/10_`, `13_` | — |
 | DR-011 | 2026-10 | Piloto juiz: `HfCausalLabelJudge` + CLI `llm-judge-pilot`; Mistral 7B padrão em YAML | Só CSV manual sem código | `outputs/campaigns/llm_judge_pilot/` | `modules/evaluation/judges/hf_causal_judge.py`, `configs/evaluation.yaml` |
+| DR-013 | 2026-10 | Base bib. rotulação entity/target documentada (Yuan, SEntFiN, FinLin, Aguda + κ/IAA) | Decidir anotação só por intuição / só FinBERT | [rotulacao_entity_sentiment.md](../references/notas/rotulacao_entity_sentiment.md) · PDFs `docs/references/pdfs/` | `annotation_protocol.md` · harness `decision-bibliography.md` |
 
 Ao registrar nova decisão: uma linha na tabela + parágrafo curto na fase correspondente em [part-03-phases.md](part-03-phases.md).

@@ -5,6 +5,8 @@
 **Amostra canônica:** 100 notícias em `data/water_utilities_corpus/manual_labels_100.csv`  
 **Acompanhamento:** [qualification_schedule.md](qualification_schedule.md) · **Detalhe operacional:** [qualification_plan_2026-11-04.md](qualification_plan_2026-11-04.md)
 
+**Fundamentação bibliográfica (avaliadores, escopo, LLM):** [rotulacao_entity_sentiment.md](../references/notas/rotulacao_entity_sentiment.md) · PDFs: `./scripts/download_references.sh`
+
 ---
 
 ## 0. Finalidade na qualificação (orientador, 06/10/2026)
@@ -78,11 +80,36 @@ Rodada anterior solo, critério simplificado, métricas históricas (48%, κ≈0
 
 ## 5. Fluxo do anotador
 
-1. Abrir notícia pelo `news_id` em `noticias_strict_sabesp.csv` (ou `articles_strict_sabesp.csv`).
-2. Preencher `empresa_alvo` e `tipologia`.
-3. Atribuir `impacto_alvo` com foco na empresa-alvo.
-4. Se incerto: `ambiguo=true` e descrever em `notas`.
-5. Salvar incrementalmente em `data/water_utilities_corpus/manual_labels_100.csv`.
+**Planilha para Drive (título + URL):** gerar CSV derivado (não versionado no Git):
+
+```bash
+cd Financial-Sentiment-Lab
+./venv/bin/python -m modules.evaluation export-worksheet
+```
+
+Saída padrão: `outputs/campaigns/qualification/manual_labels_100_para_rotulacao.csv` — importar no Google Sheets (cabeçalhos em **português**). Subconjunto IAA (~30 `news_id`): `--subset-news-ids caminho.csv`. Cabeçalhos técnicos: `export-worksheet --english-headers`.
+
+**Mapa Drive ↔ canônico** (`manual_labels_100.csv`):
+
+| Coluna no Drive | Coluna no repo | Quem preenche |
+|-----------------|----------------|---------------|
+| `id_noticia` | `news_id` | (chave) |
+| `link` | — | só no export; contexto |
+| `impacto_sabesp_anotador_1` | `impacto_alvo` | Anotador 1 (Gabriel) |
+| `notas_anotador_1` | `notas` | Anotador 1 |
+| `nome_anotador_1` | `anotador` | Anotador 1 |
+| `nome_anotador_2` | `anotador_2` | Anotador 2 (Raphael, IAA) |
+| `impacto_sabesp_anotador_2` | `impacto_alvo_2` | Anotador 2 |
+| `referencia_finbert` | `rotulo_finbert` | modelo (não editar) |
+| `referencia_llm_juiz` | `rotulo_llm_juiz` | piloto LLM |
+| `justificativa_llm` | `notas_llm` | piloto LLM |
+| `tipologia`, `tom_da_materia`, `caso_ambiguo`, `versao_protocolo` | mesmos nomes canônicos | ver §4 |
+
+1. Abrir a matéria pela coluna **`link`** na planilha de rotulação (ou, no repo, localizar `news_id` em `articles_strict_sabesp.csv`).
+2. Preencher `tipologia` (e `empresa_alvo` no canônico, se editar no repo).
+3. Atribuir **`impacto_sabesp_anotador_1`** / `impacto_alvo` com foco na empresa-alvo.
+4. Se incerto: `caso_ambiguo=true` e descrever em `notas_anotador_1`.
+5. No repo, salvar em `data/water_utilities_corpus/manual_labels_100.csv` (sem `titulo`/`url`). Após editar no Drive: exportar CSV e copiar de volta usando a tabela acima por `id_noticia` / `news_id`.
 
 Avaliação do pipeline (quando houver linhas suficientes):
 

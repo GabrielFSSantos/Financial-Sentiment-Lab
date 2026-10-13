@@ -25,6 +25,20 @@ def _build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("manual-sample", help="Stratified manual label sample")
 
+    export_ws = sub.add_parser(
+        "export-worksheet",
+        help="CSV para rotulação manual (título + URL do corpus)",
+    )
+    export_ws.add_argument("--manual", type=Path, default=None)
+    export_ws.add_argument("--corpus", type=Path, default=None)
+    export_ws.add_argument("--output", type=Path, default=None)
+    export_ws.add_argument("--subset-news-ids", type=Path, default=None)
+    export_ws.add_argument(
+        "--english-headers",
+        action="store_true",
+        help="Cabeçalhos canônicos em inglês/técnicos",
+    )
+
     pilot = sub.add_parser("llm-judge-pilot", help="LLM-as-judge pilot batch (qualification)")
     pilot.add_argument("--limit", type=int, default=10)
     pilot.add_argument("--model-id", default=None)
@@ -45,6 +59,22 @@ def main(argv: list[str] | None = None) -> int:
         from modules.evaluation.manual_labels import main as manual_main
 
         return manual_main([])
+
+    if args.command == "export-worksheet":
+        from modules.evaluation.manual_labels import main as manual_main
+
+        argv = ["export-worksheet"]
+        if args.manual is not None:
+            argv.extend(["--manual", str(args.manual)])
+        if args.corpus is not None:
+            argv.extend(["--corpus", str(args.corpus)])
+        if args.output is not None:
+            argv.extend(["--output", str(args.output)])
+        if args.subset_news_ids is not None:
+            argv.extend(["--subset-news-ids", str(args.subset_news_ids)])
+        if args.english_headers:
+            argv.append("--english-headers")
+        return manual_main(argv)
 
     if args.command == "llm-judge-pilot":
         from modules.evaluation.core.settings import load_evaluation_settings

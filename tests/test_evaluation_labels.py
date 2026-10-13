@@ -18,7 +18,10 @@ from modules.evaluation.classifier_eval_pt import (
     passes_gate,
     pick_winner,
 )
-from modules.evaluation.manual_labels import compare_manual_labels
+from modules.evaluation.manual_labels import (
+    compare_manual_labels,
+    export_annotation_worksheet,
+)
 
 
 def test_classifier_eval_en_column_aliases() -> None:
@@ -46,6 +49,34 @@ def test_classifier_eval_accuracy_and_kappa() -> None:
     assert isinstance(metrics["cohen_kappa"], float)
     report = format_evaluation_report(metrics)
     assert "Cohen's kappa" in report
+
+
+def test_export_annotation_worksheet_joins_context(tmp_path: Path) -> None:
+    manual = tmp_path / "manual.csv"
+    corpus = tmp_path / "corpus.csv"
+    output = tmp_path / "worksheet.csv"
+
+    manual.write_text(
+        "news_id,empresa_alvo,tipologia,impacto_alvo,rotulo_finbert,"
+        "rotulo_llm_juiz,notas_llm,versao_protocolo\n"
+        "abc,Sabesp,focal_sabesp,POSITIVE,NEU,,,2026-10-07\n",
+        encoding="utf-8",
+    )
+    corpus.write_text(
+        "id,data,empresa,setor,ticker,titulo,noticia,fonte,url\n"
+        "abc,2024-01-01,Sabesp,Saneamento,SBSP3,Titulo teste,corpo,Valor,https://example.com/a\n",
+        encoding="utf-8",
+    )
+
+    frame = export_annotation_worksheet(manual, corpus, output)
+    assert output.is_file()
+    assert frame.iloc[0]["titulo"] == "Titulo teste"
+    assert frame.iloc[0]["link"] == "https://example.com/a"
+    assert frame.iloc[0]["impacto_sabesp_anotador_1"] == "POSITIVE"
+    assert "referencia_llm_juiz" in frame.columns
+    from modules.evaluation.manual_labels import WORKSHEET_HEADERS_PT_ORDER
+
+    assert list(frame.columns) == list(WORKSHEET_HEADERS_PT_ORDER)
 
 
 def test_manual_labels_compare_includes_kappa(tmp_path: Path) -> None:

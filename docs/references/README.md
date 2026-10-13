@@ -30,6 +30,23 @@ Convenção de arquivo: `autorANO_tema-curto.pdf` (minúsculas, sem IDs de OJS, 
 | Neuenschwander et al. (2014) | Scraping BR difícil | link only · [nota](notas/neuenschwander2014.md) |
 | Lei 14.026/2020 | Marco legal do saneamento | [pdfs/brasil2020_lei_14026.pdf](pdfs/brasil2020_lei_14026.pdf) |
 
+## Rotulação / entity sentiment (qualificação)
+
+Índice: [notas/rotulacao_entity_sentiment.md](notas/rotulacao_entity_sentiment.md) (mapa decisão ↔ literatura, texto para Raphael).
+
+| Referência | Nota | PDF |
+|------------|------|-----|
+| Yuan et al. (2020) target-based | [yuan2020.md](notas/yuan2020.md) | [yuan2020_target_financial.pdf](pdfs/yuan2020_target_financial.pdf) |
+| Sinha et al. (2022) SEntFiN | [sinha2022_sentfin.md](notas/sinha2022_sentfin.md) | [sinha2022_sentfin.pdf](pdfs/sinha2022_sentfin.pdf) |
+| Daudert (2022) FinLin | [daudert2022_finlin.md](notas/daudert2022_finlin.md) | [daudert2022_finlin.pdf](pdfs/daudert2022_finlin.pdf) ou [DOI Springer](https://doi.org/10.1007/s10579-021-09555-3) |
+| Aguda et al. (2024) LLM anotador | [aguda2024.md](notas/aguda2024.md) | [aguda2024_llm_annotators.pdf](pdfs/aguda2024_llm_annotators.pdf) |
+| Malo (2014) PhraseBank | [malo2014_phrasebank.md](notas/malo2014_phrasebank.md) | [malo2014_phrasebank.pdf](pdfs/malo2014_phrasebank.pdf) |
+| Artstein & Poesio (2008) IAA | [artstein2008.md](notas/artstein2008.md) | [artstein2008_intercoder.pdf](pdfs/artstein2008_intercoder.pdf) |
+| Cohen (1960) κ | [cohen1960.md](notas/cohen1960.md) | [cohen1960_kappa.pdf](pdfs/cohen1960_kappa.pdf) |
+| Cortis et al. (2017) SemEval-5 | [cortis2017_semeval5.md](notas/cortis2017_semeval5.md) | [cortis2017_semeval5.pdf](pdfs/cortis2017_semeval5.pdf) |
+| Tang et al. (2023) FinEntity | [tang2023_finentity.md](notas/tang2023_finentity.md) | [tang2023_finentity.pdf](pdfs/tang2023_finentity.pdf) |
+| Zheng et al. (2023) LLM-judge | [zheng2023.md](notas/zheng2023.md) | [zheng2023_llm_judge.pdf](pdfs/zheng2023_llm_judge.pdf) |
+
 ## Status dos PDFs locais (`pdfs/`)
 
 | Arquivo | Status | Referência |
@@ -47,6 +64,16 @@ Convenção de arquivo: `autorANO_tema-curto.pdf` (minúsculas, sem IDs de OJS, 
 | `brasil2020_lei_14026.pdf` | OK | Lei 14.026/2020 |
 | `utfpr2024_noticias_acoes.pdf` | OK | UTFPR (2024) |
 | `shapiro2022_news_sentiment.pdf` | OK | Shapiro et al. (working paper Fed; versão jornal 2022) |
+| `yuan2020_target_financial.pdf` | OK | Yuan et al. (2020) |
+| `sinha2022_sentfin.pdf` | OK | Sinha et al. (2022) pré-print |
+| `daudert2022_finlin.pdf` | OK | Daudert (2022) FinLin |
+| `cohen1960_kappa.pdf` | OK | Cohen (1960) |
+| `aguda2024_llm_annotators.pdf` | OK | Aguda et al. (2024) |
+| `malo2014_phrasebank.pdf` | OK | Malo et al. (2014) |
+| `artstein2008_intercoder.pdf` | OK | Artstein & Poesio (2008) |
+| `zheng2023_llm_judge.pdf` | OK | Zheng et al. (2023) |
+| `cortis2017_semeval5.pdf` | OK | Cortis et al. (2017) |
+| `tang2023_finentity.pdf` | OK | Tang et al. (2023) |
 | RACEf, Neuenschwander, Barbieri | link only | ver notas |
 
 Log de download: [pdfs/download.log](pdfs/download.log). Reexecutar: `./scripts/download_references.sh` (pula arquivos já presentes).

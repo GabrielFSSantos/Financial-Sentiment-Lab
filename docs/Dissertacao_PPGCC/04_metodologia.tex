@@ -55,7 +55,11 @@ O preço da ação entra só como variável alvo. O alinhamento é \textbf{seman
 
 Há quatro baselines, duas métricas de associação (Pearson e Spearman) e três horizontes --- vinte e quatro confrontos cabeça a cabeça por execução. ``Vitória'' significa apenas que o ITI correlaciona \emph{melhor} que aquele baseline naquela métrica e naquele horizonte. Significância prevista: bootstrap em bloco, não causalidade \cite{utfpr2024bert}.
 
-Antes de interpretar associação com o mercado, o desenho exige um \textbf{gate} de qualidade do classificador no corpus de saneamento: concordância com anotação humana (acurácia da ordem de 70\% ou $\kappa \geq 0{,}40$). O modelo de \citeonline{santos2023finbert} é ferramenta, não garantia nesse setor.
+Antes de interpretar associação com o mercado, o desenho exige um \textbf{gate} de qualidade do classificador no corpus de saneamento: concordância com anotação humana (acurácia da ordem de 70\% ou $\kappa \geq 0{,}40$, no sentido de \citeonline{cohen1960kappa}, com interpretação cautelosa conforme \citeonline{artstein2008agreement}). O modelo de \citeonline{santos2023finbert} é ferramenta, não garantia nesse setor.
+
+\section{Anotação de referência (amostra Sabesp)}
+
+A validação do classificador usa uma amostra de cem notícias com rótulo humano orientado à \textbf{empresa-alvo} (impacto informacional para a Sabesp), e não apenas o tom global da matéria --- em linha com corpora de sentimento financeiro por entidade \citeonline{yuan2020target,sinha2022sentfin,cortis2017semeval5}. O protocolo prevê segundo anotador humano em subconjunto e piloto de modelo de linguagem como opinião automatizada independente \citeonline{aguda2024llmannot}, sem substituir a referência humana na qualificação. Detalhes operacionais e fundamentação: nota \texttt{rotulacao\_entity\_sentiment} em \texttt{docs/references/notas/}.
 
 O Quadro~\ref{tab:protocolo} resume o recorte operacional. A Figura~\ref{fig:pipeline} situa os elos em sequência.
 

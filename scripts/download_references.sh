@@ -75,6 +75,34 @@ download_pdf "utfpr2024_noticias_acoes.pdf" \
 download_pdf "neuenschwander2014_webmedia.pdf" \
   "https://www.researchgate.net/profile/Rafael-Neuenschwander/publication/267749000_Sentiment_Analysis_for_Streams_of_Web_Data_A_Case_Study_of_Brazilian_Financial_Markets/links/545a3e0e0cf26d5090a3c8c0/Sentiment-Analysis-for-Streams-of-Web-Data-A-Case-Study-of-Brazilian-Financial-Markets.pdf" || true
 
+# --- Rotulação / entity sentiment (qualificação) ---
+download_pdf "yuan2020_target_financial.pdf" \
+  "https://aclanthology.org/2020.lrec-1.620.pdf" || true
+
+download_pdf "sinha2022_sentfin.pdf" \
+  "https://arxiv.org/pdf/2305.12257.pdf" || true
+
+download_pdf "daudert2022_finlin.pdf" \
+  "https://link.springer.com/content/pdf/10.1007/s10579-021-09555-3.pdf" || true
+
+download_pdf "aguda2024_llm_annotators.pdf" \
+  "https://aclanthology.org/2024.lrec-main.885.pdf" || true
+
+download_pdf "malo2014_phrasebank.pdf" \
+  "https://arxiv.org/pdf/1307.5336.pdf" || true
+
+download_pdf "artstein2008_intercoder.pdf" \
+  "https://aclanthology.org/J08-4004.pdf" || true
+
+download_pdf "zheng2023_llm_judge.pdf" \
+  "https://arxiv.org/pdf/2306.05685.pdf" || true
+
+download_pdf "cortis2017_semeval5.pdf" \
+  "https://aclanthology.org/S17-2082.pdf" || true
+
+download_pdf "tang2023_finentity.pdf" \
+  "https://aclanthology.org/2023.emnlp-main.956.pdf" || true
+
 echo "" | tee -a "$LOG"
 if [[ "$FAILED" -gt 0 ]]; then
   echo "Concluído com $FAILED falha(s). Ver $LOG" | tee -a "$LOG"
