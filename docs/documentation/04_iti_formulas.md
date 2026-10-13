@@ -182,6 +182,6 @@ O modo simplificado e as dimensões desabilitadas alteram apenas o cálculo de i
 | B3 | `add_b3_column()` em `research/validation/baselines.py` | `aligned_panel.csv` |
 | Sentimento \(d\) | `calculate_continuous_sentiment()` | `continuous_sentiment` em `predictions.csv` |
 
-Regras de negócio (24 duelos, modos diário/semanal): [12_regras_de_negocio.md](12_regras_de_negocio.md).
+Regras de negócio (24 duelos, modos diário/semanal): [12_business_rules.md](12_business_rules.md).
 
 ---

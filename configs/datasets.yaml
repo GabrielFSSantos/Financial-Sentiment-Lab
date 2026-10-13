@@ -2,7 +2,7 @@
 
 schema_version: "2.0"
 
-# English alias keys resolve to the same dataset config (see docs/documentation/06_configuracoes.md).
+# English alias keys resolve to the same dataset config (see docs/documentation/06_configuration.md).
 dataset_aliases:
   saneamento_corpus: water_utilities_corpus
 

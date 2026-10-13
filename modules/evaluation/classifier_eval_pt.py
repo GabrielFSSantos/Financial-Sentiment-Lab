@@ -1,4 +1,4 @@
-"""Bateria PT: rótulos manuais × FinBERT / BERTweet / BERTimbau."""
+"""PT evaluation battery: manual labels vs FinBERT / BERTweet / BERTimbau."""
 
 from __future__ import annotations
 

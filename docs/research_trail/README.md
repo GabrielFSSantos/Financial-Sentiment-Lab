@@ -41,7 +41,7 @@
 | Público | Rota |
 | --- | --- |
 | **Banca / orientador** | Partes 0–2, 4 + [Dissertacao](../Dissertacao_PPGCC/) |
-| **Dev / reprodução** | Parte 4 § reproduzir + [11_fluxo](../documentation/11_fluxo_ponta_a_ponta.md) |
-| **Agente** | [13_guia](../documentation/13_guia_leitura_dev_e_agente.md) + [12_regras](../documentation/12_regras_de_negocio.md) |
+| **Dev / reprodução** | Parte 4 § reproduzir + [11_end_to_end_flow](../documentation/11_end_to_end_flow.md) |
+| **Agente** | [13_dev_and_agent_reading_guide](../documentation/13_dev_and_agent_reading_guide.md) + [12_business_rules](../documentation/12_business_rules.md) |
 
 **Qualificação:** [tracking](../tracking/README.md) · **Código:** [documentation](../documentation/README.md) · **Índice geral:** [docs/README.md](../README.md)

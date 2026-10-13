@@ -1,4 +1,4 @@
-"""Extrai vitórias significativas (métricas de conclusão) para relatório da tese."""
+"""Extract significant wins (completion metrics) for thesis reporting."""
 
 from __future__ import annotations
 

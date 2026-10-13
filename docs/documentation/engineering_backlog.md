@@ -4,7 +4,7 @@ Itens de melhoria **não bloqueantes** para o uso diário do lab (pipeline, audi
 
 **Gate diário:** [`./scripts/audit_project.sh`](../../scripts/audit_project.sh)
 
-**Testes com rede / Playwright:** [`09_testes.md`](09_testes.md) (`SCRAPERS_LIVE=1`).
+**Testes com rede / Playwright:** [`09_tests.md`](09_tests.md) (`SCRAPERS_LIVE=1`).
 
 ## Itens em aberto
 

@@ -1,1 +1,1 @@
-"""Avaliação de classificadores e rótulos (humano, LLM, mercado)."""
+"""Classifier and label evaluation (human, LLM, market)."""

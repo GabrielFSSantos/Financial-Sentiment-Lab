@@ -152,11 +152,11 @@ Comandos Trilha B: `./scripts/campaigns/sabesp_2026.sh manual-sample`, `./script
 
 | Termo | Documentação técnica | Trajetória experimental |
 | --- | --- | --- |
-| ITI / α / EWMA | [04_formulas_iti.md](04_formulas_iti.md) | [part-01-iti.md](../research_trail/part-01-iti.md) |
-| B0–B3, 24 duelos, win rate | [12_regras_de_negocio.md](12_regras_de_negocio.md) | [part-02-protocol.md](../research_trail/part-02-protocol.md) |
-| Fases F0–F6 | [11_fluxo_ponta_a_ponta.md](11_fluxo_ponta_a_ponta.md) | [part-03-phases.md](../research_trail/part-03-phases.md) |
-| κ / gate classificador | [12_regras_de_negocio.md](12_regras_de_negocio.md) §12.6 | [part-04-results.md](../research_trail/part-04-results.md) |
+| ITI / α / EWMA | [04_iti_formulas.md](04_iti_formulas.md) | [part-01-iti.md](../research_trail/part-01-iti.md) |
+| B0–B3, 24 duelos, win rate | [12_business_rules.md](12_business_rules.md) | [part-02-protocol.md](../research_trail/part-02-protocol.md) |
+| Fases F0–F6 | [11_end_to_end_flow.md](11_end_to_end_flow.md) | [part-03-phases.md](../research_trail/part-03-phases.md) |
+| κ / gate classificador | [12_business_rules.md](12_business_rules.md) §12.6 | [part-04-results.md](../research_trail/part-04-results.md) |
 
-Fluxo operacional único: [11_fluxo_ponta_a_ponta.md](11_fluxo_ponta_a_ponta.md) (diagrama alinhado ao §1 acima).
+Fluxo operacional único: [11_end_to_end_flow.md](11_end_to_end_flow.md) (diagrama alinhado ao §1 acima).
 
 ---

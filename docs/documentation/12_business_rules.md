@@ -15,7 +15,7 @@ Não afirmar **causalidade** nem **eficiência de mercado** — estudo explorat�
 
 ## 12.2 Sentimento e ITI
 
-- \(d = P_{pos} - P_{neg}\) por notícia — [04_formulas_iti.md](04_formulas_iti.md).
+- \(d = P_{pos} - P_{neg}\) por notícia — [04_iti_formulas.md](04_iti_formulas.md).
 - **ITI líquido** (`iti_liquido`): EWMA de `impacto_dia` com α configurável.
 - **ITI risco** (`iti_risco`): lado negativo; alvo pode ser \|retorno\|.
 - **B3**: impacto diário **sem** memória EWMA — derivado no research, não no experiment.
@@ -37,7 +37,7 @@ Por run de campanha:
 
 - 4 baselines × 2 métricas de conclusão (Pearson, Spearman) × 3 horizontes semanais (1, 2, 4) = **24 comparações** ITI vs cada baseline.
 
-Config: `conclusion_metrics`, `horizons` em `research_weekly.yaml`. Detalhe: [05_validacao_research.md](05_validacao_research.md), [part-02-protocol](../research_trail/part-02-protocol.md).
+Config: `conclusion_metrics`, `horizons` em `research_weekly.yaml`. Detalhe: [05_research_validation.md](05_research_validation.md), [part-02-protocol](../research_trail/part-02-protocol.md).
 
 **Win** (vitória ITI): δ incremental favorável ao ITI com significância conforme bootstrap — ver `incremental_deltas.csv` e relatórios de campanha.
 

@@ -248,9 +248,9 @@ flowchart LR
 | `cli/build_strict.py` | Corpus strict por entidade |
 | `cli/filter_corpus.py` | Filtros ad hoc |
 
-**Operação:** `python -m modules.scrapers`, scripts em `modules/scrapers/scripts/`. Entidades e tickers: [06_configuracoes.md](06_configuracoes.md).
+**Operação:** `python -m modules.scrapers`, scripts em `modules/scrapers/scripts/`. Entidades e tickers: [06_configuration.md](06_configuration.md).
 
-**Testes:** `test_scrapers_*.py` — live com `SCRAPERS_LIVE=1` ([09_testes.md](09_testes.md)). Offline: config, schema, entities, corpus.
+**Testes:** `test_scrapers_*.py` — live com `SCRAPERS_LIVE=1` ([09_tests.md](09_tests.md)). Offline: config, schema, entities, corpus.
 
 **Pós-coleta:** datasets apontam para `data/water_utilities_corpus/` — não importar scrapers em `experiment` ou `research`.
 
@@ -274,7 +274,7 @@ Scripts de análise **fora** do pipeline ITI→research principal. Não alteram 
 | `event_corpus_filter.py` | Remove roundups/agendas do corpus evento | F4 — `sabesp_event_r1_filtered` |
 | `judges/base.py`, `llm_stub.py` | Contrato LLM-as-judge | Piloto qualificação — [tracking](../tracking/annotation_protocol.md) §7 |
 
-Fluxo típico: `manual_labels` → join corpus → `classifier_eval_pt` / κ gate. Saídas em `outputs/campaigns/`. Regras: [12_regras_de_negocio.md](12_regras_de_negocio.md) §12.6.
+Fluxo típico: `manual_labels` → join corpus → `classifier_eval_pt` / κ gate. Saídas em `outputs/campaigns/`. Regras: [12_business_rules.md](12_business_rules.md) §12.6.
 
 ---
 

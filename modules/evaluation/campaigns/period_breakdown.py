@@ -1,4 +1,4 @@
-"""Análise exploratória ITI×retorno por subperíodo (aligned_panel)."""
+"""Exploratory ITI×return breakdown by subperiod (aligned_panel)."""
 
 from __future__ import annotations
 

@@ -85,6 +85,6 @@ Detalhe de flags: `--help` em cada módulo; campanhas encapsulam sequências em 
 | `PYTHONPATH` | Raiz do repo (scripts já exportam) |
 | Secrets (API juiz) | `.env` — nunca commitar |
 
-Fluxo completo: [11_fluxo_ponta_a_ponta.md](11_fluxo_ponta_a_ponta.md).
+Fluxo completo: [11_end_to_end_flow.md](11_end_to_end_flow.md).
 
 ---

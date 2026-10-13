@@ -236,7 +236,7 @@ Santos et al. (2023), Yoshinaga & Castro Junior (2012), Duarte et al. (2020), Te
 |------|---------------------|------|------------|
 | Concordância κ | Cohen, J. (1960). *Educational and Psychological Measurement* | Feito: `notas/cohen1960.md` + `bibliografia.bib` | `04_metodologia.tex` (gate); `05_andamentos.tex` |
 | Acordo anotação / IAA | Artstein, R. & Poesio, M. (2008). *Computational Linguistics* | Feito: `notas/artstein2008.md` + bib + PDF | Protocolo formal; cap. 4 se IAA parcial |
-| Sentimento por aspecto/entidade | Yuan 2020; Sinha SEntFiN 2022; Cortis SemEval-5; índice `notas/rotulacao_entity_sentiment.md` | Feito out/2026 | `04_metodologia.tex` § anotação; justificar `impacto_alvo` |
+| Sentimento por aspecto/entidade | Yuan 2020; Sinha SEntFiN 2022; Cortis SemEval-5; índice `notas/entity_sentiment_labeling.md` | Feito out/2026 | `04_metodologia.tex` § anotação; justificar `impacto_alvo` |
 | Transferência de domínio | Reusar Santos 2023 + parágrafo em Souza 2020 | Nota já existente | `05_andamentos.tex` — κ no saneamento |
 
 **Leitura mínima (qualificação):** Cohen (κ); Artstein (limites IAA); 1 artigo ABSA/entity-target (30–60 min + nota de meia página).
@@ -434,7 +434,7 @@ Marcos por pilar (não duplicar a research_trail). Índice: [docs/README.md](../
 
 | Pilar | Artefatos principais | Gate de leitura (agente/dev) |
 | --- | --- | --- |
-| A | `10_arquitetura`, `13_guia_leitura_dev_e_agente`, `decision-register` | Antes de editar `modules/` |
+| A | `10_architecture_and_maintenance`, `13_dev_and_agent_reading_guide`, `decision-register` | Antes de editar `modules/` |
 | B | `03` §3.2/3.6, `06`, `11` (coleta) | Antes de scrapers/datasets |
 | C | `04`, `12`, `appendix_output_contract` | Antes de ITI/experiment |
 | D | `05`, `12` §duelos, part-02/04 | Antes de `research/` |

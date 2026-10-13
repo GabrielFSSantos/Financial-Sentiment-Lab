@@ -1,4 +1,4 @@
-"""Métricas de concordância entre rótulos de referência e predições."""
+"""Agreement metrics between reference labels and predictions."""
 
 from __future__ import annotations
 

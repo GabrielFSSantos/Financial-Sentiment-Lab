@@ -1,6 +1,6 @@
 # 11 Fluxo ponta a ponta
 
-Um único percurso do dado bruto ao relatório de research. Detalhe por módulo: [03_modulos.md](03_modulos.md).
+Um único percurso do dado bruto ao relatório de research. Detalhe por módulo: [03_modules.md](03_modules.md).
 
 ```mermaid
 flowchart LR
@@ -112,4 +112,4 @@ Somente leitura de `outputs/` e manifests — ver [08_dashboard_streamlit.md](08
 | Research sem overlap | `weekly_align`, ticker em `market.yaml`, `companies_filter` |
 | κ / manual labels | `configs/evaluation.yaml`, paths em tracking |
 
-Regras de negócio: [12_regras_de_negocio.md](12_regras_de_negocio.md).
+Regras de negócio: [12_business_rules.md](12_business_rules.md).

@@ -297,7 +297,22 @@ PY
     fi
 fi
 
-section "7. RESUMO"
+section "7. NOMENCLATURA (DR-014)"
+
+if [[ -x "${PROJECT_ROOT}/scripts/check_naming_conventions.sh" ]]; then
+    naming_output="$(mktemp)"
+    if "${PROJECT_ROOT}/scripts/check_naming_conventions.sh" >"${naming_output}" 2>&1; then
+        ok "Convenções de nomenclatura (paths EN)"
+    else
+        warn "Convenções de nomenclatura — ver CONTRIBUTING.md / DR-014"
+        sed 's/^/       /' "${naming_output}"
+    fi
+    rm -f -- "${naming_output}"
+else
+    warn "check_naming_conventions.sh ausente"
+fi
+
+section "8. RESUMO"
 info "OK: ${PASS_COUNT} | AVISO: ${WARN_COUNT} | ERRO: ${FAIL_COUNT}"
 info "Relatório: ${REPORT_FILE}"
 

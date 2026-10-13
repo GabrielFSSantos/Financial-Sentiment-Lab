@@ -49,7 +49,7 @@ flowchart TB
 | 3 Incremental | `research/validation/incremental.py`, `incremental_deltas.csv` |
 | 4 Robustez | campanhas Marco 2, `evaluation/gap2023_summary.py` |
 | 5 Credibilidade | `evaluation/classifier_eval_pt.py`, [annotation_protocol](../tracking/annotation_protocol.md) |
-| 6 Interpretação | manifest + Parte 4; regra busca múltipla em [01_visao §1.5](../documentation/01_visao_e_conceitos.md) |
+| 6 Interpretação | manifest + Parte 4; regra busca múltipla em [01_visao §1.5](../documentation/01_vision_and_concepts.md) |
 
 Matriz 24 duelos (referência):
 
@@ -57,7 +57,7 @@ Matriz 24 duelos (referência):
 | --- | --- | --- |
 | 1, 2, 4 | B0, B1, B2, B3 | Pearson, Spearman |
 
-Regras formais: [12_regras_de_negocio.md](../documentation/12_regras_de_negocio.md) §12.4.
+Regras formais: [12_business_rules.md](../documentation/12_business_rules.md) §12.4.
 
 Bibliografia âncora: [references/README.md](../references/README.md) (mapa artigo → fase → doc).
 

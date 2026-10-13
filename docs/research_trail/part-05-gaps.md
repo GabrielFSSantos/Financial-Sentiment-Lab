@@ -11,7 +11,7 @@
 | Notícias | corpus Sabesp; filtro roundups | Regra final materialidade por fonte |
 | Estatística | bootstrap; cabeça a cabeça | Correção multiplicidade; poder |
 
-Regras e limites de interpretação no código/docs: [12_regras_de_negocio.md](../documentation/12_regras_de_negocio.md). Backlog engenharia: [engineering_backlog.md](../documentation/engineering_backlog.md).
+Regras e limites de interpretação no código/docs: [12_business_rules.md](../documentation/12_business_rules.md). Backlog engenharia: [engineering_backlog.md](../documentation/engineering_backlog.md).
 | Setor | contexto privatização | Copasa/Sanepar painel setorial |
 | Teoria de mercado | EMH citada via FOCO (evento EQTL3) | Desenho é correlação exploratória, não teste de eficiência |
 

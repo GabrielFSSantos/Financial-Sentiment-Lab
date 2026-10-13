@@ -116,7 +116,7 @@ Ver [§3.7](#37-modulesevaluation--métricas-auxiliares) para a lista completa d
 
 ### Nomenclatura e paths
 
-Identificadores de **código, pastas e arquivos de config** em inglês; **conteúdo** de pesquisa e UI do dashboard em PT-BR. CSVs legados podem manter colunas em português — loaders aplicam aliases.
+Identificadores de **código, pastas e arquivos** em inglês (incl. slugs em `docs/documentation/` — DR-014); **conteúdo** de prosa em PT-BR. CSVs legados podem manter colunas em português no canônico `manual_labels_100.csv` — loaders aplicam aliases; renomear colunas para inglês é **roadmap** (exige migração + planilha Drive).
 
 | Legado (PT) | Canônico (EN) | Onde |
 | --- | --- | --- |

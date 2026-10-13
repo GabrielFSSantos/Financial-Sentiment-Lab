@@ -9,7 +9,7 @@ A pesquisa parte de notícias (datasets versionados ou coletados por scraper), a
 - **Referência técnica (código e fluxos):** [docs/documentation/](docs/documentation/README.md)
 - **Bibliografia:** [docs/references/](docs/references/)
 
-**Ampliar o lab:** [CONTRIBUTING.md](CONTRIBUTING.md) · [quickstart pesquisador](docs/documentation/00_quickstart_researcher.md) · [backlog de engenharia](docs/documentation/engineering_backlog.md)
+**Ampliar o lab:** [CONTRIBUTING.md](CONTRIBUTING.md) · [AUTHORS.md](AUTHORS.md) · [quickstart pesquisador](docs/documentation/00_quickstart_researcher.md) · [backlog de engenharia](docs/documentation/engineering_backlog.md)
 
 ---
 
@@ -21,7 +21,7 @@ O fluxo usa três fontes de dado distintas. As **notícias** vêm do nosso scrap
 
 O índice é atualizado **todo dia** (EWMA — *Exponentially Weighted Moving Average*). Na validação semanal da campanha Sabesp, usamos um ponto por semana (valor do último dia útil, `iti_liquido_last`). Cada run da campanha gera 24 comparações: o ITI contra quatro baselines internos, em duas métricas de correlação (Pearson, Spearman) e três horizontes (1, 2 e 4 semanas). O **win rate** (taxa de vitória) indica em quantas dessas comparações o ITI supera o baseline.
 
-Para conceitos detalhados e fórmulas, veja [docs/documentation/01_visao_e_conceitos.md §1.5](docs/documentation/01_visao_e_conceitos.md#15-conceitos-em-linguagem-acessível). Para o histórico run a run, veja [docs/research_trail/](docs/research_trail/README.md) (Partes 3 e 4).
+Para conceitos detalhados e fórmulas, veja [docs/documentation/01_vision_and_concepts.md §1.5](docs/documentation/01_vision_and_concepts.md#15-conceitos-em-linguagem-acessível). Para o histórico run a run, veja [docs/research_trail/](docs/research_trail/README.md) (Partes 3 e 4).
 
 ---
 

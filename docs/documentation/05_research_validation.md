@@ -102,6 +102,6 @@ Win rate = proporção de comparações com \(\Delta > 0\) entre as 24 (4 baseli
 
 Exemplo mínimo (ilustrativo): se Pearson ITI = 0,20 e Pearson B3 = 0,07 no horizonte 4, \(\Delta = 0{,}13\); significância depende do bootstrap com `block_size=2` na campanha semanal.
 
-Regras de negócio consolidadas: [12_regras_de_negocio.md](12_regras_de_negocio.md).
+Regras de negócio consolidadas: [12_business_rules.md](12_business_rules.md).
 
 ---

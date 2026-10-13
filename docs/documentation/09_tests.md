@@ -61,15 +61,15 @@ Outros testes relevantes: `test_research_weekly_align.py` (alinhamento semanal),
 
 | Doc | Invariante | Teste(s) |
 | --- | --- | --- |
-| [04_formulas_iti](04_formulas_iti.md) | EWMA, baselines B0–B2 | `test_temporal_index.py`, `test_experiment_baselines.py` |
-| [05_validacao_research](05_validacao_research.md) | Alinhamento semanal W-FRI | `test_research_weekly_align.py` |
+| [04_iti_formulas](04_iti_formulas.md) | EWMA, baselines B0–B2 | `test_temporal_index.py`, `test_experiment_baselines.py` |
+| [05_research_validation](05_research_validation.md) | Alinhamento semanal W-FRI | `test_research_weekly_align.py` |
 | [appendix_output_contract](appendix_output_contract.md) | Schema `predictions.csv`, dry-run sem disco | `test_output_schema.py`, `test_experiment_dry_run_outputs.py` |
-| [06_configuracoes](06_configuracoes.md) | Merge overlay campanha | `test_campaign_config_merge.py` |
-| [12_regras_de_negocio](12_regras_de_negocio.md) §corpus evento | Filtro roundups | `test_event_corpus_filter.py` |
+| [06_configuration](06_configuration.md) | Merge overlay campanha | `test_campaign_config_merge.py` |
+| [12_business_rules](12_business_rules.md) §corpus evento | Filtro roundups | `test_event_corpus_filter.py` |
 | [module_plugin_contract](module_plugin_contract.md) | Juízes LLM | `test_label_judges.py` |
-| [03_modulos](03_modulos.md) §executor | Combinação modelo×dataset | `test_combination_executor.py` |
+| [03_modules](03_modules.md) §executor | Combinação modelo×dataset | `test_combination_executor.py` |
 
-Ordem de leitura antes de novos testes: [13_guia_leitura_dev_e_agente](13_guia_leitura_dev_e_agente.md).
+Ordem de leitura antes de novos testes: [13_dev_and_agent_reading_guide](13_dev_and_agent_reading_guide.md).
 
 Matriz completa: `harness/quality/test-traceability-matrix.md` no **meta-workspace** do lab (abrir o `workspace.code-workspace` focado do Financial Sentiment Lab).
 

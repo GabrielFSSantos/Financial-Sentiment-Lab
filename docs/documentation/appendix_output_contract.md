@@ -46,7 +46,7 @@ Schema completo de `predictions.csv`: `OUTPUT_COLUMNS` em `modules/experiment/io
 | `dry_run: true` | **Não** — `ResultsManager.write_enabled` false | Preflight, contagem de linhas, combinações em `summary` em memória |
 | Run normal | Sim — árvore abaixo | Inferência, ITI, CSVs |
 
-Comando dry-run: `./scripts/run_service.sh --dry-run --model ... --dataset ...`. Ver [12_regras_de_negocio.md](12_regras_de_negocio.md) §12.7.
+Comando dry-run: `./scripts/run_service.sh --dry-run --model ... --dataset ...`. Ver [12_business_rules.md](12_business_rules.md) §12.7.
 
 ### Fixtures de teste (sem run GPU)
 

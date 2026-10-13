@@ -16,7 +16,7 @@ Guia para **onde colocar código** e **o que não misturar** entre pacotes. Comp
 | UI | `dashboard` | Streamlit — **somente leitura** de `outputs/` |
 | Utilitários | `common` | `paths.py` — mínimo |
 
-Fluxo de dados: [11_fluxo_ponta_a_ponta.md](11_fluxo_ponta_a_ponta.md).
+Fluxo de dados: [11_end_to_end_flow.md](11_end_to_end_flow.md).
 
 ## 10.2 Regras de dependência
 
@@ -45,7 +45,7 @@ Fluxo de dados: [11_fluxo_ponta_a_ponta.md](11_fluxo_ponta_a_ponta.md).
 | Novo dataset | `configs/datasets.yaml` ou overlay campanha | `pytest tests/test_datasets_config.py` |
 | α ITI, dimensões | `configs/experiment.yaml` ou overlay `configs/campaigns/*/experiments/` | `pytest tests/test_temporal_index.py` |
 | Horizontes / semanal | `configs/research.yaml` ou `research_weekly.yaml` | `pytest tests/test_research_config.py` |
-| Nova campanha | Copiar `configs/campaigns/_template/` | [06_configuracoes.md](06_configuracoes.md) |
+| Nova campanha | Copiar `configs/campaigns/_template/` | [06_configuration.md](06_configuration.md) |
 | Contrato CSV saída | `modules/experiment/io/output_schema.py` | `pytest tests/test_output_schema.py` |
 | Plugin juiz LLM | `modules/evaluation/judges/`, `configs/evaluation.yaml` | `pytest tests/test_label_judges.py` |
 
@@ -63,4 +63,4 @@ Fluxo de dados: [11_fluxo_ponta_a_ponta.md](11_fluxo_ponta_a_ponta.md).
 ./venv/bin/python -m pytest -m "not network"
 ```
 
-Ordem de leitura para agentes: [13_guia_leitura_dev_e_agente.md](13_guia_leitura_dev_e_agente.md).
+Ordem de leitura para agentes: [13_dev_and_agent_reading_guide.md](13_dev_and_agent_reading_guide.md).

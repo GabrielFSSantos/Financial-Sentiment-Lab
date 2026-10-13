@@ -131,7 +131,7 @@ Pré-requisitos: `./scripts/setup_env.sh --fetch-assets`, `./scripts/audit_proje
 | Manifest / relatórios | `outputs/campaigns/sabesp_2026/`, Marco 2 em `sabesp_marco2/` |
 | κ manual | `./scripts/campaigns/classifier_eval_pt.sh` |
 
-YAML: `configs/campaigns/sabesp_2026/research_weekly.yaml`, experiments em `configs/campaigns/sabesp_2026/experiments/`. Fluxo detalhado: [11_fluxo_ponta_a_ponta.md](../documentation/11_fluxo_ponta_a_ponta.md).
+YAML: `configs/campaigns/sabesp_2026/research_weekly.yaml`, experiments em `configs/campaigns/sabesp_2026/experiments/`. Fluxo detalhado: [11_end_to_end_flow.md](../documentation/11_end_to_end_flow.md).
 
 **Não** reexecutar números desta Parte 4 sem registrar novo `run_id` e atualizar tabelas aqui.
 

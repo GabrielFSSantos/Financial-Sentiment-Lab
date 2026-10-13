@@ -25,7 +25,7 @@
 
 Ao fim da primeira semana ficou pronto o **PDF parcial** da dissertação (introdução, revisão e apêndice com o protocolo de anotação), em linha com a reunião de **06/10**. No capítulo introdutório estão as **perguntas de pesquisa**, objetivos e **hipótese H1 em aberto**; na revisão, a **lacuna** de um microíndice por empresa no saneamento. Iniciamos a **amostra de validação** (cem notícias Sabesp) com critério de **impacto para a empresa**; testes exploratórios feitos antes, sozinho, mostraram concordância baixa entre classificador e anotação inicial (cerca de **48%**, *kappa* ≈ **0,16**), o que motivou refinar o roteiro — sem descartar o que aprendemos no pipeline. Parte das linhas da planilha ainda aguarda revisão humana. **Raphael** deve anotar um **subconjunto** (mesmas notícias, segunda opinião) a combinar nesta semana ou na seguinte.
 
-Montamos também a **base bibliográfica da rotulação** (precedentes entity/target, IAA e LLM): índice em [`docs/references/notas/rotulacao_entity_sentiment.md`](../references/notas/rotulacao_entity_sentiment.md), com âncoras **Yuan et al. (2020)**, **SEntFiN (Sinha et al., 2022)**, **FinLin (Daudert, 2022)** e **Aguda et al. (2024)**; complementos **Santos et al. (2023)** (FinBERT-PT-BR), **Artstein & Poesio (2008)**, **Cohen (1960)** (κ). Planilha para Drive: `outputs/campaigns/qualification/manual_labels_100_para_rotulacao.csv` (regenerar com `python -m modules.evaluation export-worksheet` após mudanças no canônico).
+Montamos também a **base bibliográfica da rotulação** (precedentes entity/target, IAA e LLM): índice em [`docs/references/notas/entity_sentiment_labeling.md`](../references/notas/entity_sentiment_labeling.md), com âncoras **Yuan et al. (2020)**, **SEntFiN (Sinha et al., 2022)**, **FinLin (Daudert, 2022)** e **Aguda et al. (2024)**; complementos **Santos et al. (2023)** (FinBERT-PT-BR), **Artstein & Poesio (2008)**, **Cohen (1960)** (κ). Planilha para Drive: `outputs/campaigns/qualification/manual_labels_100_annotation_worksheet.csv` (regenerar com `python -m modules.evaluation export-worksheet` após mudanças no canônico).
 
 **Entregas**
 
@@ -34,14 +34,14 @@ Montamos também a **base bibliográfica da rotulação** (precedentes entity/ta
 - [x] Lacuna bibliográfica no capítulo de revisão  
 - [x] Protocolo de anotação resumido no apêndice  
 - [x] Planilha da amostra (100 notícias) criada — revisão em andamento  
-- [x] Base bibliográfica da rotulação (notas + PDFs; mapa decisão ↔ literatura) — [`rotulacao_entity_sentiment.md`](../references/notas/rotulacao_entity_sentiment.md)  
+- [x] Base bibliográfica da rotulação (notas + PDFs; mapa decisão ↔ literatura) — [`entity_sentiment_labeling.md`](../references/notas/entity_sentiment_labeling.md)  
 - [ ] Entre **25 e 35** notícias revisadas com o protocolo acordado  
 - [ ] Raphael contatado e combinado para subconjunto na semana 2  
 
 **Entrega da semana**
 
 - Data de envio ao orientador: _a preencher_  
-- Encaminhado: manuscrito em PDF com introdução, revisão e apêndice do protocolo de anotação; opcional ao colaborador (Raphael): resumo `rotulacao_entity_sentiment.md` + 2–3 PDFs âncora (Yuan, SEntFiN, Aguda).
+- Encaminhado: manuscrito em PDF com introdução, revisão e apêndice do protocolo de anotação; opcional ao colaborador (Raphael): resumo `entity_sentiment_labeling.md` + 2–3 PDFs âncora (Yuan, SEntFiN, Aguda).
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## 8. Dashboard (Streamlit)
 
-Interface multipage para explorar corpus, runs, modelos, experimentos e research sem abrir CSVs manualmente. **Não recalcula** ITI nem research — só lê `outputs/` e `data/` (detalhe: [03_modulos §3.9](03_modulos.md)). Campanhas: [02_entrypoints_scripts](02_entrypoints_scripts.md).
+Interface multipage para explorar corpus, runs, modelos, experimentos e research sem abrir CSVs manualmente. **Não recalcula** ITI nem research — só lê `outputs/` e `data/` (detalhe: [03_modules §3.9](03_modules.md)). Campanhas: [02_entrypoints_scripts](02_entrypoints_scripts.md).
 
 ```bash
 ./scripts/run_dashboard.sh

@@ -1,4 +1,4 @@
-"""Filtro heurístico de roundups/agendas no corpus evento Sabesp."""
+"""Heuristic roundup/agenda filter for Sabesp event corpus."""
 
 from __future__ import annotations
 

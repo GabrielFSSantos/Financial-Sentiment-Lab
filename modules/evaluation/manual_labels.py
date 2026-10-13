@@ -1,4 +1,4 @@
-"""Amostragem e comparação de rótulos manuais vs FinBERT."""
+"""Manual label sampling and agreement vs FinBERT."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from modules.evaluation.core.settings import load_evaluation_settings
 from modules.experiment import PROJECT_ROOT
 
 DEFAULT_WORKSHEET_OUTPUT = (
-    PROJECT_ROOT / "outputs/campaigns/qualification/manual_labels_100_para_rotulacao.csv"
+    PROJECT_ROOT / "outputs/campaigns/qualification/manual_labels_100_annotation_worksheet.csv"
 )
 
 # (coluna canônica no manual_labels_100.csv, cabeçalho PT no export Drive)
@@ -213,7 +213,7 @@ def export_annotation_worksheet(
     subset_news_ids_path: Path | None = None,
     use_portuguese_headers: bool = True,
 ) -> pd.DataFrame:
-    """Junta amostra formal com título/URL do corpus para rotulação no Drive."""
+    """Join formal sample with corpus title/URL for Drive annotation worksheet."""
     manual = pd.read_csv(manual_path)
     if "news_id" not in manual.columns:
         raise ValueError("Amostra manual precisa da coluna news_id.")

@@ -32,7 +32,7 @@ Convenção de arquivo: `autorANO_tema-curto.pdf` (minúsculas, sem IDs de OJS, 
 
 ## Rotulação / entity sentiment (qualificação)
 
-Índice: [notas/rotulacao_entity_sentiment.md](notas/rotulacao_entity_sentiment.md) (mapa decisão ↔ literatura, texto para Raphael).
+Índice: [notas/entity_sentiment_labeling.md](notas/entity_sentiment_labeling.md) (mapa decisão ↔ literatura, texto para Raphael).
 
 | Referência | Nota | PDF |
 |------------|------|-----|
@@ -88,13 +88,13 @@ Log de download: [pdfs/download.log](pdfs/download.log). Reexecutar: `./scripts/
 
 | Referência (nota) | Fase research_trail | Capítulo documentation |
 | --- | --- | --- |
-| Santos (2023) | F2 classificação, F0 corpus | [04_formulas_iti](../documentation/04_formulas_iti.md), [03_modulos §3.1](../documentation/03_modulos.md) |
-| Yoshinaga (2012) | F1 protocolo | [05_validacao_research](../documentation/05_validacao_research.md), part-02 |
-| Duarte (2020) | F1 horizontes | [05_validacao_research](../documentation/05_validacao_research.md), [12_regras §12.4](../documentation/12_regras_de_negocio.md) |
-| Loughran (2011) | F2 baselines B0–B3 | [04_formulas_iti](../documentation/04_formulas_iti.md) §4.3 |
-| Shapiro (2022) | F2 α EWMA | [04_formulas_iti](../documentation/04_formulas_iti.md), part-01 |
-| Gattai (2025) | F4 evento | part-03 F4, [06_configuracoes](../documentation/06_configuracoes.md) |
-| Tetlock (2007) | F0 enquadramento | part-00, [01_visao](../documentation/01_visao_e_conceitos.md) |
-| Marquezan (2025) | F1 lags | part-02, [05_validacao](../documentation/05_validacao_research.md) |
+| Santos (2023) | F2 classificação, F0 corpus | [04_iti_formulas](../documentation/04_iti_formulas.md), [03_modules §3.1](../documentation/03_modules.md) |
+| Yoshinaga (2012) | F1 protocolo | [05_research_validation](../documentation/05_research_validation.md), part-02 |
+| Duarte (2020) | F1 horizontes | [05_research_validation](../documentation/05_research_validation.md), [12_business_rules §12.4](../documentation/12_business_rules.md) |
+| Loughran (2011) | F2 baselines B0–B3 | [04_iti_formulas](../documentation/04_iti_formulas.md) §4.3 |
+| Shapiro (2022) | F2 α EWMA | [04_iti_formulas](../documentation/04_iti_formulas.md), part-01 |
+| Gattai (2025) | F4 evento | part-03 F4, [06_configuration](../documentation/06_configuration.md) |
+| Tetlock (2007) | F0 enquadramento | part-00, [01_visao](../documentation/01_vision_and_concepts.md) |
+| Marquezan (2025) | F1 lags | part-02, [05_validacao](../documentation/05_research_validation.md) |
 
 Registro de decisões derivadas: [decision-register.md](../research_trail/decision-register.md).

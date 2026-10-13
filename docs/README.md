@@ -14,8 +14,8 @@ Entrada na raiz do repositório: [README.md](../README.md).
 
 | Leitor | Começar por |
 | --- | --- |
-| **Desenvolvedor** | [documentation/13_guia_leitura_dev_e_agente.md](documentation/13_guia_leitura_dev_e_agente.md) → [11_fluxo_ponta_a_ponta.md](documentation/11_fluxo_ponta_a_ponta.md) |
-| **Agente (IA)** | [13_guia_leitura_dev_e_agente.md](documentation/13_guia_leitura_dev_e_agente.md) → [10_arquitetura_e_manutencao.md](documentation/10_arquitetura_e_manutencao.md) → [12_regras_de_negocio.md](documentation/12_regras_de_negocio.md) |
+| **Desenvolvedor** | [documentation/13_dev_and_agent_reading_guide.md](documentation/13_dev_and_agent_reading_guide.md) → [11_end_to_end_flow.md](documentation/11_end_to_end_flow.md) |
+| **Agente (IA)** | [13_dev_and_agent_reading_guide.md](documentation/13_dev_and_agent_reading_guide.md) → [10_architecture_and_maintenance.md](documentation/10_architecture_and_maintenance.md) → [12_business_rules.md](documentation/12_business_rules.md) |
 | **Pesquisador / banca** | [research_trail/](research_trail/README.md) Partes 0–4 · [tracking/qualification_schedule.md](tracking/qualification_schedule.md) |
 | **Operação cluster** | [documentation/07_santos_dumont.md](documentation/07_santos_dumont.md) |
 
@@ -36,7 +36,7 @@ Entrada na raiz do repositório: [README.md](../README.md).
 2. [research_trail Partes 0–2](research_trail/part-00-framing.md)
 3. [research_trail Parte 4](research_trail/part-04-results.md)
 4. [research_trail Parte 3](research_trail/part-03-phases.md)
-5. [documentation §1.5](documentation/01_visao_e_conceitos.md#15-conceitos-em-linguagem-acessível)
+5. [documentation §1.5](documentation/01_vision_and_concepts.md#15-conceitos-em-linguagem-acessível)
 6. [references/README.md](references/README.md)
 
 ## Manutenção (matriz ampliada)
@@ -44,11 +44,11 @@ Entrada na raiz do repositório: [README.md](../README.md).
 | Tipo de mudança | Onde documentar |
 | --- | --- |
 | Fase F*, run oficial, decisão metodológica | [research_trail/part-03](research_trail/part-03-phases.md) + [decision-register](research_trail/decision-register.md) |
-| Regra de negócio (duelos, gates, dry-run) | [documentation/12_regras_de_negocio.md](documentation/12_regras_de_negocio.md) |
-| Módulo, fluxo, contrato CSV | [documentation/03_modulos.md](documentation/03_modulos.md), [appendix_output_contract](documentation/appendix_output_contract.md) |
-| Fórmula ITI ↔ código | [documentation/04_formulas_iti.md](documentation/04_formulas_iti.md) |
-| YAML / campanha | [documentation/06_configuracoes.md](documentation/06_configuracoes.md) |
-| Teste novo | [documentation/09_testes.md](documentation/09_testes.md) |
+| Regra de negócio (duelos, gates, dry-run) | [documentation/12_business_rules.md](documentation/12_business_rules.md) |
+| Módulo, fluxo, contrato CSV | [documentation/03_modules.md](documentation/03_modules.md), [appendix_output_contract](documentation/appendix_output_contract.md) |
+| Fórmula ITI ↔ código | [documentation/04_iti_formulas.md](documentation/04_iti_formulas.md) |
+| YAML / campanha | [documentation/06_configuration.md](documentation/06_configuration.md) |
+| Teste novo | [documentation/09_tests.md](documentation/09_tests.md) |
 | Marco qualificação / anotação | [tracking/](tracking/qualification_schedule.md) |
 | Literatura | [references/](references/) |
 

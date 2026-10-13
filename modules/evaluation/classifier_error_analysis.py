@@ -1,4 +1,4 @@
-"""Análise de erro das 100 notícias rotuladas manualmente (bateria PT)."""
+"""Error analysis for the 100-item manual label sample (PT battery)."""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ ROUNDUP_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 
 
 def classify_typology(row: pd.Series) -> str:
-    """Classifica notícia como roundup/agenda ou focal Sabesp."""
+    """Classify article as roundup/agenda vs Sabesp-focal."""
     notas = str(row.get("notas", "") or "").strip().lower()
     titulo = str(row.get("titulo", "") or "").strip().lower()
     combined = f"{notas} {titulo}"

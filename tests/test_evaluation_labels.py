@@ -1,4 +1,4 @@
-"""Testes de concordância de rótulos (manual_labels, classifier_eval)."""
+"""Label agreement tests (manual_labels, classifier_eval)."""
 
 from __future__ import annotations
 

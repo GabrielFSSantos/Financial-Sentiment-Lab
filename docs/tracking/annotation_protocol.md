@@ -5,7 +5,7 @@
 **Amostra canônica:** 100 notícias em `data/water_utilities_corpus/manual_labels_100.csv`  
 **Acompanhamento:** [qualification_schedule.md](qualification_schedule.md) · **Detalhe operacional:** [qualification_plan_2026-11-04.md](qualification_plan_2026-11-04.md)
 
-**Fundamentação bibliográfica (avaliadores, escopo, LLM):** [rotulacao_entity_sentiment.md](../references/notas/rotulacao_entity_sentiment.md) · PDFs: `./scripts/download_references.sh`
+**Fundamentação bibliográfica (avaliadores, escopo, LLM):** [entity_sentiment_labeling.md](../references/notas/entity_sentiment_labeling.md) · PDFs: `./scripts/download_references.sh`
 
 ---
 
@@ -87,7 +87,7 @@ cd Financial-Sentiment-Lab
 ./venv/bin/python -m modules.evaluation export-worksheet
 ```
 
-Saída padrão: `outputs/campaigns/qualification/manual_labels_100_para_rotulacao.csv` — importar no Google Sheets (cabeçalhos em **português**). Subconjunto IAA (~30 `news_id`): `--subset-news-ids caminho.csv`. Cabeçalhos técnicos: `export-worksheet --english-headers`.
+Saída padrão: `outputs/campaigns/qualification/manual_labels_100_annotation_worksheet.csv` — importar no Google Sheets (cabeçalhos em **português**). Subconjunto IAA (~30 `news_id`): `--subset-news-ids caminho.csv`. Cabeçalhos técnicos: `export-worksheet --english-headers`.
 
 **Mapa Drive ↔ canônico** (`manual_labels_100.csv`):
 
@@ -142,7 +142,7 @@ Obter **segunda opinião automatizada** em notícias difíceis; comparar com `im
 
 ### 7.2 Escopo do piloto
 
-Contrato técnico: [module_plugin_contract.md](../documentation/module_plugin_contract.md) · regras κ: [12_regras_de_negocio.md](../documentation/12_regras_de_negocio.md) §12.6 · código: `modules/evaluation/judges/` · config: `configs/evaluation.yaml` · teste: `tests/test_label_judges.py`.
+Contrato técnico: [module_plugin_contract.md](../documentation/module_plugin_contract.md) · regras κ: [12_business_rules.md](../documentation/12_business_rules.md) §12.6 · código: `modules/evaluation/judges/` · config: `configs/evaluation.yaml` · teste: `tests/test_label_judges.py`.
 
 - **10 a 20** `news_id` (priorizar `ambiguo=true` ou `roundup_agenda`).
 - **Não** commitar chaves de API no repositório.

@@ -18,11 +18,11 @@ O ITI **não é um índice publicado nem homônimo importado**. É construção 
 ## 1.1 Definições sem ambiguidade
 
 - **Score por notícia:** \(d = P(\text{pos}) - P(\text{neg})\). Neutro permanece nas probabilidades.
-- **Impacto diário:** combinação de scores e dimensões (`m,r,e,c,u,q,h`) — ver [documentacao §4](../documentation/04_formulas_iti.md).
+- **Impacto diário:** combinação de scores e dimensões (`m,r,e,c,u,q,h`) — ver [documentacao §4](../documentation/04_iti_formulas.md).
 - **ITI líquido:** estado EWMA do impacto líquido — predictor principal (`iti_liquido_last` na validação semanal).
 - **ITI risco:** componente negativo/risco — complementar, não usado no resultado principal.
 - **B0:** contagem de notícias; **B1:** média de \(d\); **B2:** média ponderada por confiança; **B3:** impacto diário **sem** memória.
-- **α:** memória EWMA — **não** é alpha de excesso de retorno. α alto = mais passado; α baixo = mais reativo. Escolha operacional α=0,70 (R1) vs 0,85 (R0): ablação F2 em [part-03](part-03-phases.md) e [appendices](appendices.md); fórmulas e colunas: [04_formulas_iti §4.2](../documentation/04_formulas_iti.md).
+- **α:** memória EWMA — **não** é alpha de excesso de retorno. α alto = mais passado; α baixo = mais reativo. Escolha operacional α=0,70 (R1) vs 0,85 (R0): ablação F2 em [part-03](part-03-phases.md) e [appendices](appendices.md); fórmulas e colunas: [04_formulas_iti §4.2](../documentation/04_iti_formulas.md).
 - **Vitória:** ITI correlaciona melhor que baseline (mesmo horizonte e métrica).
 - **Significância:** bootstrap em bloco apoia a diferença — **não** implica causalidade.
 
