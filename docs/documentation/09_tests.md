@@ -71,7 +71,7 @@ Outros testes relevantes: `test_research_weekly_align.py` (alinhamento semanal),
 
 Ordem de leitura antes de novos testes: [13_dev_and_agent_reading_guide](13_dev_and_agent_reading_guide.md).
 
-Matriz completa: `harness/quality/test-traceability-matrix.md` no **meta-workspace** do lab (abrir o `workspace.code-workspace` focado do Financial Sentiment Lab).
+Rastreabilidade teste ↔ módulo: tabela acima e [03_modules.md](03_modules.md).
 
 Para rodar só a higiene do pipeline:
 

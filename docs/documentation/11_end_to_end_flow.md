@@ -110,6 +110,6 @@ Somente leitura de `outputs/` e manifests — ver [08_dashboard_streamlit.md](08
 | Preflight falha | `configs/*.yaml`, `model_store/`, colunas dataset |
 | Combinação skipped (idioma) | `compatibility` em experiment loader |
 | Research sem overlap | `weekly_align`, ticker em `market.yaml`, `companies_filter` |
-| κ / manual labels | `configs/evaluation.yaml`, paths em tracking |
+| κ / manual labels | `configs/evaluation.yaml`, [14_manual_annotation.md](14_manual_annotation.md) |
 
 Regras de negócio: [12_business_rules.md](12_business_rules.md).

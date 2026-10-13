@@ -210,7 +210,7 @@ Neuenschwander (2014) e Marquezan & Assunção (2025) sustentam que tipo de not�
 
 **Artefatos:** `outputs/sabesp_event_r1_filtered/`, `significant_wins_r1_event.md`
 
-**Código tocado:** `modules/evaluation/event_corpus_filter.py`, overlay datasets em `configs/campaigns/sabesp_2026/`.
+**Código tocado:** `modules/evaluation/campaigns/event_corpus_filter.py`, overlay datasets em `configs/campaigns/sabesp_2026/`.
 
 **Gatilho F4→F5:** filtro de roundups não explica vitórias significativas; próximo passo é gate κ (SO8).
 

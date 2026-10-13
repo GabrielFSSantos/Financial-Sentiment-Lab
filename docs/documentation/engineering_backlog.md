@@ -16,4 +16,4 @@ Itens de melhoria **não bloqueantes** para o uso diário do lab (pipeline, audi
 | Campanhas | Aliases EN para dataset keys `saneamento_sabesp_*` (se renomear; manter compat via `dataset_aliases`) |
 | CLI | `run_experiment.sh --campaign-with-research` (paridade com `run_single` em `scripts/campaigns/sabesp_2026.sh`) |
 
-Atualize esta lista quando um item for concluído; não duplique o mesmo backlog em `research_trail/` ou `tracking/`.
+Atualize esta lista quando um item for concluído; não duplique o mesmo backlog em `research_trail/`.

@@ -20,7 +20,7 @@
 | **Registro** | [decision-register.md](decision-register.md) — decisões (ADR-lite) |
 | **Template** | [phase-template.md](phase-template.md) — padronizar fases em Parte 3 |
 
-**Qualificação (PPGCC):** narrativa e argumentação para a banca = manuscrito em [Dissertacao](../Dissertacao_PPGCC/); números oficiais = **Parte 4** deste documento. Progresso semanal (checkboxes) = [cronograma](../tracking/qualification_schedule.md); detalhe técnico até 04/11/2026 = [plano](../tracking/qualification_plan_2026-11-04.md).
+**Qualificação (PPGCC):** manuscrito em [Dissertacao](../Dissertacao_PPGCC/); números oficiais = **Parte 4**. Anotação manual: [14_manual_annotation.md](../documentation/14_manual_annotation.md).
 
 ---
 
@@ -44,4 +44,4 @@
 | **Dev / reprodução** | Parte 4 § reproduzir + [11_end_to_end_flow](../documentation/11_end_to_end_flow.md) |
 | **Agente** | [13_dev_and_agent_reading_guide](../documentation/13_dev_and_agent_reading_guide.md) + [12_business_rules](../documentation/12_business_rules.md) |
 
-**Qualificação:** [tracking](../tracking/README.md) · **Código:** [documentation](../documentation/README.md) · **Índice geral:** [docs/README.md](../README.md)
+**Código:** [documentation](../documentation/README.md) · **Índice geral:** [docs/README.md](../README.md)

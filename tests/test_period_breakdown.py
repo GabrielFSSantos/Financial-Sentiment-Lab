@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import pandas as pd
 
-from modules.evaluation.period_breakdown import analyze_periods, assign_temporal_bucket
+from modules.evaluation.campaigns.period_breakdown import (
+    analyze_periods,
+    assign_temporal_bucket,
+)
 
 
 def test_assign_temporal_bucket_three_way() -> None:

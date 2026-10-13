@@ -4,7 +4,7 @@
 
 **Objetivo:** segunda opinião automatizada na classificação de notícias **para a Sabesp** (POSITIVE / NEGATIVE / NEUTRAL), com **prompt fixo** e registro em CSV — triangulação com anotação humana e FinBERT, **não** substituto de especialista nem gold standard de mercado.
 
-**Onde está operacionalizado:** [annotation_protocol.md](../../tracking/annotation_protocol.md) §7 · cronograma em [qualification_schedule.md](../../tracking/qualification_schedule.md).
+**Onde está operacionalizado:** [14_manual_annotation.md](../../documentation/14_manual_annotation.md) · `configs/evaluation.yaml` → `llm_judge_pilot`.
 
 **Saída:** `outputs/campaigns/llm_judge_pilot/llm_judge_pilot.csv`
 

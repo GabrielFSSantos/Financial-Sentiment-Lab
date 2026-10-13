@@ -12,6 +12,6 @@ class LlmJudgeStub(BaseLabelJudge):
 
     def judge(self, texts: Sequence[tuple[str, str, str]]) -> list[JudgePrediction]:
         raise NotImplementedError(
-            "Juiz LLM ainda não implementado. Ver docs/tracking/annotation_protocol.md "
+            "Juiz LLM ainda não implementado. Ver docs/documentation/14_manual_annotation.md "
             "e modules/evaluation/judges/base.py; backlog em docs/documentation/engineering_backlog.md."
         )

@@ -87,7 +87,7 @@ cmd_replay() {
 cmd_significant_wins() {
     activate_venv
     mkdir -p "${CAMPAIGN_DIR}"
-    python -m modules.evaluation.significant_wins_report \
+    python -m modules.evaluation.campaigns.significant_wins_report \
         --run-id sabesp_gap2023_event_r1_alpha070 \
         --output-dir "${CAMPAIGN_DIR}"
 }
@@ -126,7 +126,7 @@ cmd_replay_event_filtered() {
         echo "Contaminação roundup < 25% — run filtrada omitida (ver error_analysis.md)."
         return 0
     fi
-    python -m modules.evaluation.event_corpus_filter
+    python -m modules.evaluation.campaigns.event_corpus_filter
     run_replay_event_dataset \
         "r1_alpha070" \
         "sabesp_event_r1_filtered" \
@@ -173,7 +173,7 @@ cmd_replay_gap2023() {
     fi
     run_replay "r0_baseline" "sabesp_gap2023_r0_baseline" "finbert_ptbr"
     run_replay "r1_alpha070" "sabesp_gap2023_r1_alpha070" "finbert_ptbr"
-    python -m modules.evaluation.gap2023_summary write
+    python -m modules.evaluation.campaigns.gap2023_summary write
     echo "Resultados em outputs/sabesp_gap2023_r*/"
 }
 
@@ -182,7 +182,7 @@ cmd_replay_event_gap2023() {
     mkdir -p "${CAMPAIGN_DIR}"
     run_replay_event "r0_baseline" "sabesp_gap2023_event_r0_baseline" "finbert_ptbr"
     run_replay_event "r1_alpha070" "sabesp_gap2023_event_r1_alpha070" "finbert_ptbr"
-    python -m modules.evaluation.gap2023_summary write
+    python -m modules.evaluation.campaigns.gap2023_summary write
     echo "Resultados em outputs/sabesp_gap2023_event_r*/"
 }
 
@@ -195,7 +195,7 @@ cmd_analyze_periods() {
             *) shift ;;
         esac
     done
-    python -m modules.evaluation.period_breakdown \
+    python -m modules.evaluation.campaigns.period_breakdown \
         --run-id "${run_id}" \
         --dataset saneamento_sabesp_strict_expanded \
         --model finbert_ptbr \

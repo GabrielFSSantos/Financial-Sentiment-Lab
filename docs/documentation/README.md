@@ -21,6 +21,7 @@ Referência para **código**, **fluxos**, **fórmulas**, **configs**, **dashboar
 | 10 | [10_architecture_and_maintenance.md](10_architecture_and_maintenance.md) | DDD, dependências, onde editar |
 | 11 | [11_end_to_end_flow.md](11_end_to_end_flow.md) | Coleta → dashboard |
 | 12 | [12_business_rules.md](12_business_rules.md) | 24 duelos, gates, escopo |
+| 14 | [14_manual_annotation.md](14_manual_annotation.md) | Amostra manual, κ, juiz piloto |
 | — | [engineering_backlog.md](engineering_backlog.md) | Backlog engenharia |
 | — | [appendix_output_contract.md](appendix_output_contract.md) | Layout `outputs/` |
 

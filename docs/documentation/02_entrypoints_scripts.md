@@ -40,7 +40,6 @@ flowchart TB
 | `scripts/setup_env.sh` | Cria `venv/`, instala deps; `--fetch-assets` baixa modelos, datasets e mercado |
 | `scripts/audit_project.sh` | Estrutura, YAML, pytest, dry-run |
 | `scripts/run_experiment.sh` | Chama `python -m modules.experiment`; `--campaign sabesp_2026 --campaign-run r0_baseline` resolve config/run/model/dataset |
-| `scripts/migrate_data_paths.sh` | Migra `data/saneamento_corpus/` → `data/water_utilities_corpus/` (idempotente) |
 | `scripts/run_research.sh` | Chama `python -m modules.research validate` |
 | `scripts/run_dashboard.sh` | Dashboard Streamlit de exploração da pesquisa |
 | `modules/scrapers/scripts/scrape.sh` | Wrapper de coleta |

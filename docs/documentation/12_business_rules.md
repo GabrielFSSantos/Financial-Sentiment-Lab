@@ -59,7 +59,7 @@ Em `configs/evaluation.yaml` (não bloqueiam experiment):
 | Acurácia | 0,70 | `classifier_gate` |
 | Cohen κ | 0,40 | bateria PT (`classifier_eval_pt.py`) |
 
-Amostra n=100: **validar procedimento** até a qualificação — ver [tracking](../tracking/annotation_protocol.md).
+Amostra n=100: **validar procedimento** (DR-006) — ver [14_manual_annotation.md](14_manual_annotation.md).
 
 ## 12.7 Dry-run vs run completa
 

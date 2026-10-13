@@ -112,7 +112,7 @@ Fetch de dataset `enabled: false`: `python -m modules.datasets fetch --dataset C
 
 ### Avaliação de rótulos (`modules/evaluation`)
 
-Ver [§3.7](#37-modulesevaluation--métricas-auxiliares) para a lista completa dos 9 módulos e scripts de campanha.
+Ver [§3.7](#37-modulesevaluation--métricas-auxiliares) e [14_manual_annotation.md](14_manual_annotation.md). Canônico: `data/water_utilities_corpus/manual_labels_100.csv` (`impacto_alvo`, `rotulo_finbert`, …).
 
 ### Nomenclatura e paths
 
@@ -121,14 +121,14 @@ Identificadores de **código, pastas e arquivos** em inglês (incl. slugs em `do
 | Legado (PT) | Canônico (EN) | Onde |
 | --- | --- | --- |
 | `saneamento_corpus` | `water_utilities_corpus` | `dataset_aliases` em `configs/datasets.yaml` |
-| `data/saneamento_corpus/` | `data/water_utilities_corpus/` | [`scripts/migrate_data_paths.sh`](../../scripts/migrate_data_paths.sh) |
+| `data/saneamento_corpus/` | `data/water_utilities_corpus/` | migração histórica (paths EN atuais) |
 | `noticias.csv` | `articles.csv` | Idem |
 | `noticias_strict_sabesp.csv` | `articles_strict_sabesp.csv` | Idem |
 | `rotulos_manual_100.csv` | `manual_labels_100.csv` | Amostra formal (qualificação); `configs/evaluation.yaml` |
 | `rotulos_manual_100_exploratorio.csv` | `manual_labels_100_exploratorio.csv` | Rodada exploratória arquivada (referência κ histórico) |
 | `rotulo_manual`, `rotulo_finbert` | `human_label`, `model_label` | `column_aliases` em `configs/evaluation.yaml` |
 | `visao_geral.py`, … | `overview.py`, `research_trail.py`, … | `modules/dashboard/pages/` (URLs Streamlit em PT — [08_dashboard_streamlit.md](08_dashboard_streamlit.md)) |
-| Estrutura `docs/` | `README.md` (índice) + `tracking/`, `documentation/`, `research_trail/`, `references/` | Pastas canônicas |
+| Estrutura `docs/` | `README.md` + `documentation/`, `research_trail/`, `references/` | Pastas canônicas |
 
 Melhorias de engenharia pendentes: [engineering_backlog.md](engineering_backlog.md).
 

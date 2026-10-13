@@ -8,12 +8,7 @@ from pathlib import Path
 import pandas as pd
 from sklearn.metrics import cohen_kappa_score
 
-from modules.evaluation.core.settings import load_evaluation_settings
 from modules.experiment import PROJECT_ROOT
-
-DEFAULT_WORKSHEET_OUTPUT = (
-    PROJECT_ROOT / "outputs/campaigns/qualification/manual_labels_100_annotation_worksheet.csv"
-)
 
 # (coluna canônica no manual_labels_100.csv, cabeçalho PT no export Drive)
 WORKSHEET_COLUMN_MAP: tuple[tuple[str, str], ...] = (
@@ -292,34 +287,6 @@ def build_parser() -> argparse.ArgumentParser:
         default=str(PROJECT_ROOT / "outputs/campaigns/sabesp_2026/manual_label_report.md"),
     )
 
-    export_ws = sub.add_parser(
-        "export-worksheet",
-        help="CSV para Google Sheets (título + URL + colunas de anotação)",
-    )
-    settings = load_evaluation_settings()
-    export_ws.add_argument(
-        "--manual",
-        default=str(settings.manual_labels_path),
-    )
-    export_ws.add_argument(
-        "--corpus",
-        default=str(settings.strict_corpus_path),
-    )
-    export_ws.add_argument(
-        "--output",
-        default=str(DEFAULT_WORKSHEET_OUTPUT),
-    )
-    export_ws.add_argument(
-        "--subset-news-ids",
-        type=Path,
-        default=None,
-        help="CSV com coluna news_id (ex.: lote IAA ~30)",
-    )
-    export_ws.add_argument(
-        "--english-headers",
-        action="store_true",
-        help="Cabeçalhos técnicos (canônicos) em vez de português",
-    )
     return parser
 
 
@@ -348,17 +315,6 @@ def main(argv: list[str] | None = None) -> int:
             f"kappa: {metrics['cohen_kappa']:.3f} "
             f"({metrics['n_labeled']} rotulados)"
         )
-        return 0
-
-    if args.command == "export-worksheet":
-        export_annotation_worksheet(
-            Path(args.manual),
-            Path(args.corpus),
-            Path(args.output),
-            subset_news_ids_path=args.subset_news_ids,
-            use_portuguese_headers=not args.english_headers,
-        )
-        print(f"Planilha de rotulação salva em {args.output}")
         return 0
 
     return 1

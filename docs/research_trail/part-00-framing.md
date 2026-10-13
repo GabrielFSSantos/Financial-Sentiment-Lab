@@ -74,10 +74,10 @@ Qualquer associação ITI×retorno permanece **hipótese a testar**, não conclu
 | SO3 | `experiment` | [04_formulas](../documentation/04_iti_formulas.md) |
 | SO4–SO5 | `research`, `market` | [05_validacao](../documentation/05_research_validation.md) |
 | SO6–SO7 | `experiment`, campanhas | [part-03 F2/F4](part-03-phases.md), [appendices](appendices.md) |
-| SO8 | `evaluation` | [annotation_protocol](../tracking/annotation_protocol.md) |
+| SO8 | `evaluation` | [14_manual_annotation](../documentation/14_manual_annotation.md) |
 | SO9–SO10 | `docs/` | [research_trail](README.md), [references](../references/README.md) |
 
-Pós-qualificação: [post_qualification_roadmap.md](../tracking/post_qualification_roadmap.md).
+Pós-qualificação: [part-06-next-cycle.md](part-06-next-cycle.md).
 
 ## 0.2 Matriz de ancoragem bibliográfica
 

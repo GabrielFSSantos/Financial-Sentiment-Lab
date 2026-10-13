@@ -118,10 +118,6 @@ export PYTHONPATH="${PROJECT_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
 
 section "2. ESTRUTURA"
 
-if [[ -x "${PROJECT_ROOT}/scripts/migrate_data_paths.sh" ]]; then
-    "${PROJECT_ROOT}/scripts/migrate_data_paths.sh" || true
-fi
-
 EXPECTED_FILES=(
     README.md pyproject.toml requirements.txt requirements-base.txt pytest.ini requirements-dev.txt
     configs/experiment.yaml configs/models.yaml configs/datasets.yaml configs/scrapers.yaml
@@ -297,22 +293,7 @@ PY
     fi
 fi
 
-section "7. NOMENCLATURA (DR-014)"
-
-if [[ -x "${PROJECT_ROOT}/scripts/check_naming_conventions.sh" ]]; then
-    naming_output="$(mktemp)"
-    if "${PROJECT_ROOT}/scripts/check_naming_conventions.sh" >"${naming_output}" 2>&1; then
-        ok "Convenções de nomenclatura (paths EN)"
-    else
-        warn "Convenções de nomenclatura — ver CONTRIBUTING.md / DR-014"
-        sed 's/^/       /' "${naming_output}"
-    fi
-    rm -f -- "${naming_output}"
-else
-    warn "check_naming_conventions.sh ausente"
-fi
-
-section "8. RESUMO"
+section "7. RESUMO"
 info "OK: ${PASS_COUNT} | AVISO: ${WARN_COUNT} | ERRO: ${FAIL_COUNT}"
 info "Relatório: ${REPORT_FILE}"
 

@@ -1,6 +1,6 @@
 # Referências bibliográficas — Financial Sentiment Lab
 
-Índice de artigos usados para ancorar decisões em [research_trail](../research_trail/README.md). BibTeX: [bibliografia.bib](bibliografia.bib). Notas: [notas/](notas/). Download: `./scripts/download_references.sh`.
+Índice de artigos usados para ancorar decisões em [research_trail](../research_trail/README.md). BibTeX: [bibliografia.bib](bibliografia.bib). Notas: [notas/](notas/). PDFs versionados em [pdfs/](pdfs/) (sem script de download no repo).
 
 Convenção de arquivo: `autorANO_tema-curto.pdf` (minúsculas, sem IDs de OJS, DOI ou working paper).
 
@@ -30,9 +30,9 @@ Convenção de arquivo: `autorANO_tema-curto.pdf` (minúsculas, sem IDs de OJS, 
 | Neuenschwander et al. (2014) | Scraping BR difícil | link only · [nota](notas/neuenschwander2014.md) |
 | Lei 14.026/2020 | Marco legal do saneamento | [pdfs/brasil2020_lei_14026.pdf](pdfs/brasil2020_lei_14026.pdf) |
 
-## Rotulação / entity sentiment (qualificação)
+## Rotulação / entity sentiment
 
-Índice: [notas/entity_sentiment_labeling.md](notas/entity_sentiment_labeling.md) (mapa decisão ↔ literatura, texto para Raphael).
+Mapa decisão ↔ literatura: notas abaixo + [14_manual_annotation.md](../documentation/14_manual_annotation.md).
 
 | Referência | Nota | PDF |
 |------------|------|-----|
@@ -75,8 +75,6 @@ Convenção de arquivo: `autorANO_tema-curto.pdf` (minúsculas, sem IDs de OJS, 
 | `cortis2017_semeval5.pdf` | OK | Cortis et al. (2017) |
 | `tang2023_finentity.pdf` | OK | Tang et al. (2023) |
 | RACEf, Neuenschwander, Barbieri | link only | ver notas |
-
-Log de download: [pdfs/download.log](pdfs/download.log). Reexecutar: `./scripts/download_references.sh` (pula arquivos já presentes).
 
 ## Como citar na trajetória
 

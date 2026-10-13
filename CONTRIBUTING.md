@@ -6,7 +6,7 @@
 | --- | --- |
 | **Nomes de arquivo e pasta** (todo o repo) | Inglês |
 | **Código** (módulos, testes, identificadores, chaves YAML, flags CLI, paths) | Inglês |
-| **Prosa** — README, este arquivo, `docs/README.md`, `docs/documentation/*`, `research_trail/`, `tracking/`, `references/notas/`, erros voltados ao pesquisador | Português (BR) |
+| **Prosa** — README, este arquivo, `docs/README.md`, `docs/documentation/*`, `research_trail/`, `references/notas/`, erros voltados ao pesquisador | Português (BR) |
 | **Dashboard (UI)** | Português em `modules/dashboard/content/pt_br.py` |
 | **Prompts de juiz / anotador** | Português quando o leitor é humano no fluxo de rotulação |
 
@@ -16,10 +16,8 @@ Não traduzir identificadores YAML (`finbert_ptbr`, `water_utilities_corpus`) ne
 
 - `docs/Dissertacao_PPGCC/` — manuscrito ABNT (nomes de capítulo `.tex` em português).
 - Módulos com sufixo de idioma/domínio: `classifier_eval_pt.py`, `pt_br.py`.
-- `export-worksheet`: cabeçalhos em português para Google Sheets; `--english-headers` para export técnico.
 - Aliases em `configs/evaluation.yaml` e `dataset_aliases` até renomeação completa (ver [06_configuration.md](docs/documentation/06_configuration.md#nomenclatura-e-paths)).
-
-Autoria do repositório: [AUTHORS.md](AUTHORS.md). Gate de nomes: `./scripts/check_naming_conventions.sh` (avisos no `audit_project.sh`).
+Autoria do repositório: [AUTHORS.md](AUTHORS.md).
 
 ## Princípios de engenharia
 

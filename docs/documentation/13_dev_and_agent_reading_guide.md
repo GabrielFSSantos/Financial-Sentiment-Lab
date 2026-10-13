@@ -6,9 +6,7 @@
 | --- | --- | --- |
 | **Dev novo** | Rodar pipeline e manter módulo | §13.2 → [00_quickstart](00_quickstart_researcher.md) → [11_end_to_end_flow](11_end_to_end_flow.md) → [03_modules](03_modules.md) |
 | **Agente (Cursor)** | Patch seguro, plugins, gates | §13.3 → [10_architecture_and_maintenance](10_architecture_and_maintenance.md) → [12_business_rules](12_business_rules.md) → [module_plugin_contract](module_plugin_contract.md) |
-| **Pesquisador / banca** | Método e números | [research_trail](../research_trail/README.md) Partes 0–4, [tracking](../tracking/README.md) |
-
-Documentação canônica fica **neste repositório**. O meta-workspace do lab (fora do repo) pode ter harness com prompts e matriz de testes — use apenas como atalho operacional, não como fonte duplicada de arquitetura.
+| **Pesquisador / banca** | Método e números | [research_trail](../research_trail/README.md) Partes 0–4 · [14_manual_annotation](14_manual_annotation.md) |
 
 ## 13.2 Roteiro mínimo (dev)
 
@@ -45,8 +43,6 @@ Marcadores úteis: `contract`, `pipeline`, `slow` — ver [09_tests.md](09_tests
 | Overlay campanha datasets | [06_configuration.md](06_configuration.md) | `test_campaign_config_merge.py` |
 | Juiz LLM (stub) | [module_plugin_contract](module_plugin_contract.md) | `test_label_judges.py` |
 
-Detalhe expandido da suíte: matriz `test-traceability-matrix` no meta-workspace do lab (pasta harness/quality).
-
 ## 13.5 Idioma e commits
 
 - Prosa para pesquisador: **PT-BR** em `docs/`.
@@ -58,4 +54,4 @@ Detalhe expandido da suíte: matriz `test-traceability-matrix` no meta-workspace
 | --- | --- |
 | Run oficial, fase F*, decisão metodológica | [research_trail](../research_trail/README.md), [decision-register](../research_trail/decision-register.md) |
 | Módulo, config, teste | [documentation/](README.md) |
-| Prazo qualificação, protocolo anotação | [tracking](../tracking/README.md) |
+| Anotação manual, juiz piloto | [14_manual_annotation.md](14_manual_annotation.md) |

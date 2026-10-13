@@ -2,7 +2,7 @@
 
 ## 7. Apêndice — execução no Santos Dumont (desenvolvimento)
 
-O cluster SDumont é um **ambiente de teste HPC** para rodar o experimento com GPU; não faz parte do desenho científico em si. O job Slurm executa apenas `./scripts/run_experiment.sh --skip-setup` (sem scraper nem research no nó). Playbook operacional até a qualificação: [qualification_plan §8](../tracking/qualification_plan_2026-11-04.md#8-santos-dumont-sdumont--playbook). Fluxo local equivalente: [11_end_to_end_flow](11_end_to_end_flow.md).
+O cluster SDumont é um **ambiente de teste HPC** para rodar o experimento com GPU; não faz parte do desenho científico em si. O job Slurm executa apenas `./scripts/run_experiment.sh --skip-setup` (sem scraper nem research no nó). Fluxo local equivalente: [11_end_to_end_flow](11_end_to_end_flow.md).
 
 ### 7.1 Fluxo resumido
 

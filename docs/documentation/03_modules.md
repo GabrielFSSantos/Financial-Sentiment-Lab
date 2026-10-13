@@ -272,7 +272,7 @@ Scripts de análise **fora** do pipeline ITI→research principal. Não alteram 
 | `period_breakdown.py` | Correlação ITI×retorno por subperíodo | `period_breakdown_gap2023.md` |
 | `gap2023_summary.py` | Comparação expandido vs evento | `gap2023_comparison.md` |
 | `event_corpus_filter.py` | Remove roundups/agendas do corpus evento | F4 — `sabesp_event_r1_filtered` |
-| `judges/base.py`, `llm_stub.py` | Contrato LLM-as-judge | Piloto qualificação — [tracking](../tracking/annotation_protocol.md) §7 |
+| `judges/base.py`, `llm_stub.py` | Contrato LLM-as-judge | [14_manual_annotation.md](14_manual_annotation.md) |
 
 Fluxo típico: `manual_labels` → join corpus → `classifier_eval_pt` / κ gate. Saídas em `outputs/campaigns/`. Regras: [12_business_rules.md](12_business_rules.md) §12.6.
 

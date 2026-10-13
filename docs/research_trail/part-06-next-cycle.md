@@ -11,7 +11,7 @@ Perguntas que podem **mudar** a conclusão (não repetir fine-tune/LLM como prio
 
 **Formulação estreita atual:** pipeline funciona; ITI teve vantagem exploratória localizada sobre B3 no evento; vantagem não robusta na expansão; classificador limita interpretação substantiva.
 
-Roadmap operacional pós-04/11: [post_qualification_roadmap.md](../tracking/post_qualification_roadmap.md). Implementação futura (juiz, κ, out-of-sample) deve atualizar [decision-register.md](decision-register.md).
+Implementação futura (juiz, κ ampliado, out-of-sample) deve atualizar [decision-register.md](decision-register.md) e [part-03-phases.md](part-03-phases.md).
 
 ---
 
