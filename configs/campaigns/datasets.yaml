@@ -18,9 +18,14 @@ datasets:
       date_to: "2024-04-30"
       companies:
         - Sabesp
+    text_compose:
+      template: "{title}\n\n{body}"
+      fields:
+        title: titulo
+        body: noticia
     columns:
       news_id: id
-      text: noticia
+      text: null
       date: data
       company: empresa
       sector: setor
@@ -49,6 +54,7 @@ datasets:
       source_type: scraper
       description: >-
         Corpus strict filtrado para Sabesp na janela do evento (nov/2023–abr/2024).
+        Entrada do classificador: título + corpo (text_compose).
 
   saneamento_sabesp_strict_event_filtered:
     enabled: false
@@ -59,9 +65,14 @@ datasets:
     format: csv
     limits:
       max_rows: max
+    text_compose:
+      template: "{title}\n\n{body}"
+      fields:
+        title: titulo
+        body: noticia
     columns:
       news_id: id
-      text: noticia
+      text: null
       date: data
       company: empresa
       sector: setor
@@ -90,6 +101,7 @@ datasets:
       source_type: scraper
       description: >-
         Janela evento com filtro heurístico de roundups/agendas (ibovespa, day trade).
+        Entrada do classificador: título + corpo (text_compose).
 
   saneamento_sabesp_strict_expanded:
     enabled: false
@@ -104,9 +116,14 @@ datasets:
       date_to: "2024-04-30"
       companies:
         - Sabesp
+    text_compose:
+      template: "{title}\n\n{body}"
+      fields:
+        title: titulo
+        body: noticia
     columns:
       news_id: id
-      text: noticia
+      text: null
       date: data
       company: empresa
       sector: setor
@@ -135,7 +152,7 @@ datasets:
       source_type: scraper
       description: >-
         Corpus strict Sabesp com janela expandida (pré-evento mai–out/2022 +
-        evento nov/2023–abr/2024).
+        evento nov/2023–abr/2024). Entrada do classificador: título + corpo.
 
   rotulos_manual_pt_100:
     enabled: false
@@ -146,9 +163,14 @@ datasets:
     format: csv
     limits:
       max_rows: max
+    text_compose:
+      template: "{title}\n\n{body}"
+      fields:
+        title: titulo
+        body: noticia
     columns:
       news_id: id
-      text: noticia
+      text: null
       date: data
       company: empresa
       sector: setor

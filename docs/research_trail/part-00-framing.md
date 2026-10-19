@@ -6,9 +6,9 @@ Construir e validar empiricamente um **Índice Temporal Informacional (ITI)** a 
 
 ## Problema de pesquisa
 
-Notícias financeiras em português carregam informação que o mercado pode precificar (Tetlock, 2007), mas medir isso de forma reprodutível exige: corpus ligado à empresa certa; classificador de domínio (Santos et al., 2023); agregação temporal coerente; comparação honesta com alternativas simples (Loughran & McDonald, 2011). No **saneamento**, o Marco Legal e a privatização da Sabesp geram choques informacionais intensos (Gattai & Souza, 2025 — estudo de evento em EQTL3) — contexto favorável para testar H1, pouco explorado com NLP em PT.
+Notícias financeiras em português carregam informação que o mercado pode precificar (Tetlock, 2007), mas medir isso de forma reprodutível exige: corpus ligado à empresa certa; classificador de domínio (Santos, Bianchi e Costa, 2023); agregação temporal coerente; comparação honesta com alternativas simples (Loughran & McDonald, 2011). No **saneamento**, o Marco Legal e a privatização da Sabesp geram choques informacionais intensos (Gattai & Souza, 2025 — estudo de evento em EQTL3) — contexto favorável para testar H1, pouco explorado com NLP em PT.
 
-A literatura brasileira motiva o teste, mas não garante resultado: Duarte et al. (2020) comparam horizontes diário, semanal e mensal em 64 ativos; Yoshinaga & Castro Junior (2012) encontram relação entre índice de sentimento e retornos que pode ser **negativa** (reversão), não direcional.
+A literatura brasileira motiva o teste, mas não garante resultado: Duarte, González e Cruz (2020) comparam horizontes diário, semanal e mensal em 64 ativos; Yoshinaga & Castro Junior (2012) encontram relação entre índice de sentimento e retornos que pode ser **negativa** (reversão), não direcional.
 
 ## 0.1 Ancoragem teórica
 
@@ -77,7 +77,7 @@ Qualquer associação ITI×retorno permanece **hipótese a testar**, não conclu
 | SO8 | `evaluation` | [14_manual_annotation](../documentation/14_manual_annotation.md) |
 | SO9–SO10 | `docs/` | [research_trail](README.md), [references](../references/README.md) |
 
-Pós-qualificação: [part-06-next-cycle.md](part-06-next-cycle.md).
+Próximo ciclo de pesquisa: [part-06-next-cycle.md](part-06-next-cycle.md).
 
 ## 0.2 Matriz de ancoragem bibliográfica
 
@@ -100,8 +100,8 @@ Cada referência abaixo liga decisão metodológica a justificativa e à avalia�
 |------------|--------------|
 | Baker, Bloom & Davis — EPU | Texto → índice → validação externa |
 | Caldara & Iacoviello — GPR | Índice de risco jornalístico |
-| Shapiro et al. — Fed News Sentiment | Sentimento diário com decaimento (analogia EWMA) |
-| Araci — FinBERT; Santos et al. — FinBERT-PT-BR | NLP financeiro |
+| Shapiro, Sudhof e Wilson — Fed News Sentiment | Sentimento diário com decaimento (analogia EWMA) |
+| Araci — FinBERT; Santos, Bianchi e Costa — FinBERT-PT-BR | NLP financeiro |
 | FNSPID, FUNNEL | Escala notícia–preço; mapeamento notícia→empresa |
 | Estudos de evento | Choques informacionais |
 | Marco Legal do Saneamento; índices UTIL/ISE B3 | Contexto setorial BR |

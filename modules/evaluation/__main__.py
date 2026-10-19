@@ -22,11 +22,13 @@ def _build_parser() -> argparse.ArgumentParser:
         choices=("prepare", "run", "iti-if-gate"),
     )
 
-    pilot = sub.add_parser("llm-judge-pilot", help="LLM-as-judge pilot batch (qualification)")
+    pilot = sub.add_parser("llm-judge-pilot", help="LLM-as-judge pilot batch (manual eval)")
     pilot.add_argument("--limit", type=int, default=10)
     pilot.add_argument("--model-id", default=None)
     pilot.add_argument("--mock", action="store_true")
     pilot.add_argument("--output-csv", type=Path, default=None)
+    pilot.add_argument("--news-ids-file", type=Path, default=None)
+    pilot.add_argument("--all-manual", action="store_true")
     return parser
 
 
@@ -49,6 +51,8 @@ def main(argv: list[str] | None = None) -> int:
             model_id=model_id,
             mock=args.mock,
             output_csv=args.output_csv,
+            news_ids_file=args.news_ids_file,
+            all_manual=args.all_manual,
         )
         print(f"Piloto salvo: {out}")
         return 0

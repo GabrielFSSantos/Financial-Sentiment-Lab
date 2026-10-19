@@ -1,4 +1,4 @@
-"""Fixed prompts for label judges (qualification pilot)."""
+"""Fixed prompts for label judges (LLM pilot)."""
 
 from __future__ import annotations
 

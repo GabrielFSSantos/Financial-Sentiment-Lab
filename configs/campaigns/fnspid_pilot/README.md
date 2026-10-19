@@ -1,5 +1,5 @@
 # FNSPID pilot
 
-**Status:** experimental — optional data-scale pilot, not part of Trilha A qualification.
+**Status:** experimental — piloto de escala; fora do escopo da Trilha A.
 
 Script: [`../../scripts/campaigns/fnspid_pilot.sh`](../../scripts/campaigns/fnspid_pilot.sh)

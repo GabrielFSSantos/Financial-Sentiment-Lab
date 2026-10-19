@@ -1,6 +1,6 @@
 # FinMarBa — diagnóstico (Marco 5)
 
-**Status:** experimental (not used in Trilha A qualification).
+**Status:** experimental — fora do escopo da Trilha A.
 
 Script: [`../../scripts/campaigns/finmarba_diag.sh`](../../scripts/campaigns/finmarba_diag.sh)
 

@@ -124,7 +124,7 @@ Identificadores de **código, pastas e arquivos** em inglês (incl. slugs em `do
 | `data/saneamento_corpus/` | `data/water_utilities_corpus/` | migração histórica (paths EN atuais) |
 | `noticias.csv` | `articles.csv` | Idem |
 | `noticias_strict_sabesp.csv` | `articles_strict_sabesp.csv` | Idem |
-| `rotulos_manual_100.csv` | `manual_labels_100.csv` | Amostra formal (qualificação); `configs/evaluation.yaml` |
+| `rotulos_manual_100.csv` | `manual_labels_100.csv` | Amostra formal de anotação; `configs/evaluation.yaml` |
 | `rotulos_manual_100_exploratorio.csv` | `manual_labels_100_exploratorio.csv` | Rodada exploratória arquivada (referência κ histórico) |
 | `rotulo_manual`, `rotulo_finbert` | `human_label`, `model_label` | `column_aliases` em `configs/evaluation.yaml` |
 | `visao_geral.py`, … | `overview.py`, `research_trail.py`, … | `modules/dashboard/pages/` (URLs Streamlit em PT — [08_dashboard_streamlit.md](08_dashboard_streamlit.md)) |

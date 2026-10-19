@@ -1,4 +1,4 @@
-# Sinha et al. (2022) — SEntFiN 1.0
+# Sinha, Kedas e Kumar (2022) — SEntFiN 1.0
 
 **Citação:** Sinha, A.; Kedas, S.; Kumar, R.; Malo, P. SEntFiN 1.0: Entity-aware Sentiment Analysis for Financial News. JASIST, 73(9), 1314–1335. DOI: [10.1002/asi.24634](https://doi.org/10.1002/asi.24634)
 

@@ -7,7 +7,7 @@ O que o sistema **calcula**, **compara** e **o que não deve ser inferido** fora
 | Item | Significado no código |
 | --- | --- |
 | **H1** (associação ITI × retorno) | Medida por correlação incremental no `research` — **não** é previsão de preço nem recomendação |
-| **H2** (volatilidade/volume) | Fora do escopo da qualificação — ver [part-06](../research_trail/part-06-next-cycle.md) |
+| **H2** (volatilidade/volume) | Fora do escopo da Trilha A atual — ver [part-06](../research_trail/part-06-next-cycle.md) |
 | **H3** (EWMA vs baselines) | Ablação α e duelos ITI vs B0–B3 na campanha Sabesp |
 | **Trilha A** | Sabesp focal; `companies_filter` na research semanal |
 

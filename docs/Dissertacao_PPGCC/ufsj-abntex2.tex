@@ -24,7 +24,7 @@
 \providecommand{\htmladdnormallink}[2]{\href{#2}{#1}}
 
 \usepackage[brazilian,hyperpageref]{backref}
-\usepackage[alf]{abntex2cite}
+\usepackage[alf,abnt-etal-cite=3,abnt-etal-list=3,abnt-etal-text=none,abnt-and-type=e]{abntex2cite}
 
 \renewcommand{\backrefpagesname}{Citado na(s) página(s):~}
 \renewcommand{\backref}{}
@@ -72,9 +72,9 @@
 \setlength{\parindent}{1.3cm}
 \setlength{\parskip}{0.2cm}
 
-% Qualificação parcial: só caps. 1--2 + apêndice. Para tese completa, comente a linha abaixo.
+% Compilação parcial: só caps. 1--2 + apêndice. Volume completo: \qualificacaoparcialfalse
 \newif\ifqualificacaoparcial
-\qualificacaoparcialtrue
+\qualificacaoparcialfalse
 
 \makeindex
 

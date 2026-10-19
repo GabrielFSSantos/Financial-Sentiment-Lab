@@ -2,7 +2,9 @@
 
 # RACEf (2022) — Sentimento × ciclos de mercado BR
 
-**Citação:** Associação do Sentimento do Investidor com Ciclos de Mercado: Evidências Brasileiras. RACEf v13 n3. DOI: [10.13059/racef.v13i3.985](https://doi.org/10.13059/racef.v13i3.985)
+**Citação:** Associação do Sentimento do Investidor com Ciclos de Mercado: Evidências Brasileiras. RACEf **v. 13, n. 3 (2022)**. DOI: [10.13059/racef.v13i3.985](https://doi.org/10.13059/racef.v13i3.985)
+
+**PDF local:** [pdfs/racef2022_sentimento_ciclos.pdf](../pdfs/racef2022_sentimento_ciclos.pdf) (OJS `985-5963-1-PB.pdf` renomeado). Autores na capa: Brito, Santos, Moura-Filho e Martins (UFPB) — não confundir com “Silva, André Luiz” de rascunhos antigos do `.bib`.
 
 ## Tese central
 

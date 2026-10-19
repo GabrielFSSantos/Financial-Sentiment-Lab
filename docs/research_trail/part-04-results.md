@@ -56,10 +56,11 @@ Ver [Parte 2](#parte-2--protocolo-e-critérios-de-progresso). Research: `configs
 
 | Fase | Período | Artefato | Leitura |
 |------|---------|----------|---------|
-| **Exploratório** | set.–out./2026 (anotador único) | `data/water_utilities_corpus/manual_labels_100_exploratorio.csv` | Critério simplificado (`rotulo_manual`); métricas abaixo (48%, κ=0,163) referem-se a **esta** fase — benchmark do fluxo, não gold da qualificação. |
-| **Amostra formal** | out./2026+ (pós reunião 06/10) | `data/water_utilities_corpus/manual_labels_100.csv` | Ver [14_manual_annotation.md](../documentation/14_manual_annotation.md): `impacto_alvo`, tipologia, triangulação (segundo humano em subconjunto ~30; segunda classificação automatizada 10–20 casos). |
+| **Exploratório** | set.–out./2026 (anotador único) | `data/water_utilities_corpus/manual_labels_100_exploratorio.csv` | Critério simplificado (`rotulo_manual`); métricas abaixo (48%, κ=0,163) referem-se a **esta** fase — benchmark do fluxo, não referência especialista definitiva. |
+| **Formal histórica (mestrando)** | out./2026 (pós 06/10) | `manual_labels_100.csv` | `impacto_alvo`, tipologia — diagnóstico FinBERT×mestrando; **não** gold especialista. |
+| **Referência especialista** | em andamento | `annotations_long.csv`, `impacto_alvo_2`+ | Meta ≥3 especialistas economia/finanças; consenso DR-016; IAA em subconjunto fixo de ids. |
 
-Decisões: [DR-006](decision-register.md), [DR-012](decision-register.md).
+Decisões: [DR-006](decision-register.md), [DR-012](decision-register.md), [DR-016](decision-register.md).
 
 ### 4.4.2 Métricas na rodada exploratória (FinBERT × anotação solo)
 
@@ -69,11 +70,11 @@ Decisões: [DR-006](decision-register.md), [DR-012](decision-register.md).
 | Cohen's κ | 0,163 | — |
 | F1 macro | 0,42 | — |
 
-**Benchmark literatura vs. corpus local** (não re-executado — números do artigo Santos et al., 2023):
+**Benchmark literatura vs. corpus local** (não re-executado — números do artigo Santos, Bianchi e Costa, 2023):
 
 | Fonte | Acurácia / F1 | Corpus | Implicação para Trilha A |
 |-------|---------------|--------|--------------------------|
-| Santos et al. (2023) — artigo | ~76% / F1 0,73 | Notícias financeiras PT (treino) | Teto teórico se domínio coincidisse |
+| Santos, Bianchi e Costa (2023) — artigo | ~76% / F1 0,73 | Notícias financeiras PT (treino) | Teto teórico se domínio coincidisse |
 | FinBERT-PT-BR — **este lab** | 48% / F1 0,42 | Saneamento Sabesp (n=100) | Gate κ falhou — limita interpretação substantiva |
 | BERTweet / BERTimbau — controles | 68% / 0,27; 53% / 0,33 | Mesma amostra | κ negativo ou baixo — problema não é só arquitetura |
 
@@ -82,6 +83,20 @@ Decisões: [DR-006](decision-register.md), [DR-012](decision-register.md).
 | `finbert_ptbr` | 0,42 | 0,163 | 0,217 |
 | `bertweet_pt_sentiment` | 0,27 | −0,014 | 0,000 |
 | `bertimbau_sentiment` | 0,33 | 0,087 | 0,032 |
+
+### 4.4.3 Métricas na amostra formal (`impacto_alvo`, protocolo 2026-10-07)
+
+Reanotação completa (n=100) em `manual_labels_100.csv`. Bateria: `classifier_eval_pt` + `error_analysis.md` (out./2026).
+
+| Subconjunto | n | Acurácia FinBERT | κ |
+|-------------|---|------------------|---|
+| Completa | 100 | 50,0% | 0,197 |
+| focal_sabesp | 74 | 52,7% | 0,260 |
+| roundup_agenda | 26 | 42,3% | −0,032 |
+
+F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
+
+**Piloto LLM-judge:** 20 `news_id`; saída `outputs/campaigns/llm_judge_pilot/` (Mistral-7B-Instruct, `prompt_v1_quali`). Inferência GPU completa pendente; fluxo validado com saída simulada. IAA humano×humano (~30 ids): pendente anotador especialista principal.
 
 **Tipologia de erro** (`error_analysis.md`, n=100):
 

@@ -6,4 +6,4 @@
 
 ## O que tomamos no lab
 
-- Métrica operacional do gate κ ≥ 0,40 em [`12_business_rules.md`](../../documentation/12_business_rules.md) — **diagnóstico**, não meta fechada na qualificação (DR-006).
+- Métrica operacional do gate κ ≥ 0,40 em [`12_business_rules.md`](../../documentation/12_business_rules.md) — **diagnóstico**, não meta fechada como prova de mercado (DR-006).

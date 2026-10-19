@@ -63,4 +63,4 @@ Fluxo de dados: [11_end_to_end_flow.md](11_end_to_end_flow.md).
 ./venv/bin/python -m pytest -m "not network"
 ```
 
-Ordem de leitura para agentes: [13_dev_and_agent_reading_guide.md](13_dev_and_agent_reading_guide.md).
+Ordem de leitura para desenvolvedores: [13_dev_reading_guide.md](13_dev_reading_guide.md).

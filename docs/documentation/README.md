@@ -7,7 +7,7 @@ Referência para **código**, **fluxos**, **fórmulas**, **configs**, **dashboar
 | # | Arquivo | Conteúdo |
 | --- | --- | --- |
 | 0 | [00_quickstart_researcher.md](00_quickstart_researcher.md) | Fluxo mínimo pesquisador |
-| — | [13_dev_and_agent_reading_guide.md](13_dev_and_agent_reading_guide.md) | Rotas dev / agente / gates |
+| — | [13_dev_reading_guide.md](13_dev_reading_guide.md) | Rotas dev e gate |
 | — | [module_plugin_contract.md](module_plugin_contract.md) | Modelo, juiz, scraper |
 | 1 | [01_vision_and_concepts.md](01_vision_and_concepts.md) | Pipeline, glossário |
 | 2 | [02_entrypoints_scripts.md](02_entrypoints_scripts.md) | Scripts, CLI, campanhas |

@@ -1,8 +1,10 @@
 # barbieri2020.md
 
-# Barbieri et al. (2020) — BERTweet
+# Barbieri (2020) — BERTweet
 
 **Citação:** BERTweet: A pre-trained language model for English Tweets. EMNLP 2020 Demonstrations.
+
+**PDF local:** [pdfs/barbieri2020_bertweet.pdf](../pdfs/barbieri2020_bertweet.pdf)
 
 ## Tese central
 

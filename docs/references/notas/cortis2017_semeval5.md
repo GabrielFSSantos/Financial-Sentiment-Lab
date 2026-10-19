@@ -1,6 +1,6 @@
-# Cortis et al. (2017) — SemEval-2017 Task 5
+# Cortis, Freitas e Daudert (2017) — SemEval-2017 Task 5
 
-**Citação:** Cortis, A. et al. SemEval-2017 Task 5: Fine-Grained Sentiment Analysis on Financial Microblogs and News. [ACL Anthology S17-2082](https://aclanthology.org/S17-2082/)
+**Citação:** Cortis et al., SemEval-2017 Task 5. [ACL S17-2089](https://aclanthology.org/S17-2089/) · DOI `10.18653/v1/S17-2089`
 
 **PDF local:** [pdfs/cortis2017_semeval5.pdf](../pdfs/cortis2017_semeval5.pdf)
 

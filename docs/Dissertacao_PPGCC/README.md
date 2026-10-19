@@ -1,38 +1,16 @@
-# Dissertação PPGCC (abnTeX2 / UFSJ)
-
-Manuscrito: problema, revisão, lacuna, proposta do ITI, metodologia operacional e andamentos experimentais (sem conclusão de desempenho).
-
-## Qualificação parcial vs. tese completa
-
-Em `ufsj-abntex2.tex`, a flag `\qualificacaoparcialtrue` (padrão atual) compila **somente** os capítulos 1–2, o apêndice (`99_apendices.tex`) e a bibliografia — versão para envio à qualificação.
-
-Para o manuscrito completo, comente `\qualificacaoparcialtrue` (ou use `\qualificacaoparcialfalse`) para incluir também `03_proposta`, `04_metodologia` e `05_andamentos`. O arquivo `06_proximos_passos.tex` permanece fora da compilação oficial (rascunho interno).
-
-## Compilar
+# Dissertação PPGCC/UFSJ — ITI / saneamento
 
 ```bash
 cd docs/Dissertacao_PPGCC
 latexmk -pdf ufsj-abntex2.tex
 ```
 
-PDF: `ufsj-abntex2.pdf`
+Em `ufsj-abntex2.tex`, `\qualificacaoparcialtrue` compila apenas capítulos 1–2, apêndice e bibliografia; `\qualificacaoparcialfalse` (padrão) inclui proposta, metodologia e andamentos.
 
-## Arquivos de conteúdo
+`06_proximos_passos.tex` não entra na compilação oficial.
 
-| Arquivo | Função |
-| --- | --- |
-| `ufsj-abntex2.tex` | Documento principal |
-| `00_pretextual.tex` | Folha de aprovação, agradecimentos, resumos |
-| `01_introducao.tex` | Problema, justificativa, objetivos, H1 |
-| `02_revisao.tex` | Revisão por linhas de literatura e lacuna |
-| `03_proposta.tex` | O que é o ITI e o que não replica |
-| `04_metodologia.tex` | Protocolo operacional (corpus, EWMA, B0–B3, 24 duelos) |
-| `05_andamentos.tex` | O que já rodou, com ressalvas (gate κ, exercício R0/R1) |
-| `06_proximos_passos.tex` | O que falta para avaliação de desempenho |
-| `referencias.bib` | Symlink → `../references/bibliografia.bib` |
-| `abntex2-options.bib` | Opções abnTeX2 (BibTeX) |
-| `abntex2-alf.bst` | Estilo autor-data ABNT |
+## Tom do manuscrito (qualificação → defesa)
 
-Não restaurar `memoir.cls.bak`: o `memoir.cls` de 2015 quebra o TeX Live 2025.
+O PDF é tratado como **documento final em evolução**: redação no tempo presente do desenho; resultados só do que já foi medido; subseções sem dados podem existir com **corpo vazio** (acréscimo futuro, sem remover texto).
 
-PDFs das referências: `docs/references/pdfs/`, nomes no padrão `autorANO_tema.pdf` (ver `docs/references/README.md`).
+No LaTeX **não** entram: pendências operacionais, justificativas de etapas futuras, paths de `outputs/`, identificadores internos de decisão (DR-xxx), piloto LLM-as-judge ou narrativa de infraestrutura (WSL, GPU, mock). Cronograma de qualificação e roadmap operacional ficam fora do manuscrito; números canônicos em `docs/research_trail/part-04-results.md`.

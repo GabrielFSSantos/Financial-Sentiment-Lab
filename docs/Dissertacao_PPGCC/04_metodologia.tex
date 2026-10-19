@@ -1,7 +1,7 @@
 \chapter{Metodologia operacional}
 \label{cap:metodologia}
 
-Este capítulo descreve o desenho que o laboratório já montou: corpus, escore, memória, alternativas simples e protocolo de comparação. É o \emph{como}, não o veredito. Números de desempenho entram só no Capítulo~\ref{cap:andamentos}, e mesmo lá como andamento, não como prova de hipótese.
+Este capítulo descreve o desenho do estudo: corpus, escore, memória, alternativas simples, anotação de referência e protocolo de comparação. Resultados numéricos aparecem no Capítulo~\ref{cap:andamentos}.
 
 \section{Recorte e corpus}
 
@@ -21,7 +21,7 @@ Os escores de um mesmo dia se combinam em um impacto diário. A série da empres
 \[
 \mathrm{ITI}_t = \alpha_{\mathrm{eff}} \cdot \mathrm{ITI}_{t-1} + (1 - \alpha_{\mathrm{eff}}) \cdot \mathrm{impacto}_t,
 \]
-em que $\alpha$ controla memória --- valor alto retém mais passado; valor baixo reage mais ao dia --- e \textbf{não} é o alfa de excesso de retorno da literatura financeira. Dias sem notícia aplicam decaimento sobre o estado anterior. O predictor principal previsto para a comparação semanal é o estado líquido no último dia útil da semana.
+em que $\alpha$ controla memória --- valor alto retém mais passado; valor baixo reage mais ao dia --- e \textbf{não} é o alfa de excesso de retorno da literatura financeira. Dias sem notícia aplicam decaimento sobre o estado anterior. O predictor principal para a comparação semanal é o estado líquido no último dia útil da semana.
 
 \section{Alternativas simples (B0--B3)}
 
@@ -45,7 +45,7 @@ B3 & Impacto diário \emph{sem} memória EWMA \\
 \end{tabular}
 
 \vspace{0.4em}
-{\footnotesize Fonte: elaboração própria, a partir do protocolo operacional do laboratório.}
+{\footnotesize Fonte: elaboração própria.}
 
 \end{table}
 
@@ -53,13 +53,17 @@ B3 & Impacto diário \emph{sem} memória EWMA \\
 
 O preço da ação entra só como variável alvo. O alinhamento é \textbf{semanal}: o ITI da semana confronta a soma dos log-retornos diários nas $h$ semanas seguintes, com $h \in \{1,2,4\}$, na linha de horizontes múltiplos da evidência brasileira \cite{duarte2020news,eramiars2025correlacao}.
 
-Há quatro baselines, duas métricas de associação (Pearson e Spearman) e três horizontes --- vinte e quatro confrontos cabeça a cabeça por execução. ``Vitória'' significa apenas que o ITI correlaciona \emph{melhor} que aquele baseline naquela métrica e naquele horizonte. Significância prevista: bootstrap em bloco, não causalidade \cite{utfpr2024bert}.
+Há quatro baselines, duas métricas de associação (Pearson e Spearman) e três horizontes --- vinte e quatro confrontos cabeça a cabeça por execução. ``Vitória'' significa apenas que o ITI correlaciona \emph{melhor} que aquele baseline naquela métrica e naquele horizonte. Significância: bootstrap em bloco, não causalidade \cite{utfpr2024bert}.
 
-Antes de interpretar associação com o mercado, o desenho exige um \textbf{gate} de qualidade do classificador no corpus de saneamento: concordância com anotação humana (acurácia da ordem de 70\% ou $\kappa \geq 0{,}40$, no sentido de \citeonline{cohen1960kappa}, com interpretação cautelosa conforme \citeonline{artstein2008agreement}). O modelo de \citeonline{santos2023finbert} é ferramenta, não garantia nesse setor.
+Antes de interpretar associação com o mercado, o desenho exige um \textbf{gate} de qualidade do classificador no corpus de saneamento: concordância com anotação humana (acurácia da ordem de 70\% ou $\kappa \geq 0{,}40$, no sentido de \citeonline{cohen1960kappa}, com interpretação cautelosa conforme \citeonline{artstein2008agreement}). O modelo de \citeonline{santos2023finbert} é ferramenta, não garantia nesse setor. Enquanto o gate não for atingido na amostra formal, os duelos semanais (por exemplo R0 e R1) são \textbf{exercício de protocolo} com escore $d$ preliminar, não teste confirmatório da hipótese H1.
 
 \section{Anotação de referência (amostra Sabesp)}
 
-A validação do classificador usa uma amostra de cem notícias com rótulo humano orientado à \textbf{empresa-alvo} (impacto informacional para a Sabesp), e não apenas o tom global da matéria --- em linha com corpora de sentimento financeiro por entidade \citeonline{yuan2020target,sinha2022sentfin,cortis2017semeval5}. O protocolo prevê segundo anotador humano em subconjunto e piloto de modelo de linguagem como opinião automatizada independente \citeonline{aguda2024llmannot}, sem substituir a referência humana na qualificação. Detalhes operacionais e fundamentação: nota \texttt{rotulacao\_entity\_sentiment} em \texttt{docs/references/notas/}.
+A validação do classificador usa uma amostra de cem notícias com rótulo humano orientado à \textbf{empresa-alvo} (impacto informacional para a Sabesp), e não apenas o tom global da matéria --- em linha com corpora de sentimento financeiro por entidade \citeonline{yuan2020target,sinha2022sentfin,cortis2017semeval5}. As avaliações independentes são conduzidas por participantes com conhecimento em economia ou finanças; o protocolo prevê pelo menos três avaliadores, anotação cega e independente, concordância entre humanos \citeonline{artstein2008agreement,cohen1960kappa,fleiss1971nominal} e consolidação por maioria, com adjudicação nos empates completos entre classes. \textbf{Raphael Veloso} (bacharel em economia pela USP, com experiência em análise de crédito e risco no mercado financeiro) integra o painel como primeiro avaliador especialista, com crédito nominal neste manuscrito. Um subconjunto fixo de cerca de trinta notícias destina-se à concordância entre especialistas, \emph{separada} da concordância humano$\times$FinBERT. Os rótulos individuais preservam-se em registro tabular versionado (\texttt{impacto\_alvo\_2}, \texttt{anotador\_2}, entre outros campos). Rodadas anteriores do autor, sob critérios distintos, permanecem arquivadas apenas para diagnóstico histórico.
+
+\section{Entrada textual para classificação}
+
+Cada notícia é representada pela concatenação \textbf{título + corpo}, na ordem título, linha em branco e texto da matéria --- mesma unidade oferecida aos anotadores na planilha. O FinBERT-PT-BR foi treinado em unidades curtas \citeonline{santos2023finbert}; a arquitetura impõe limite de 512 tokens, de modo que matérias longas podem ser truncadas na cauda. Humanos e modelo recebem conteúdo semanticamente alinhado; a política de truncamento e a fração de notícias afetadas são reportadas nas execuções de inferência versionadas.
 
 O Quadro~\ref{tab:protocolo} resume o recorte operacional. A Figura~\ref{fig:pipeline} situa os elos em sequência.
 
@@ -118,4 +122,8 @@ Gate de qualidade & Concordância humana (acurácia ou $\kappa$) \\
 {\footnotesize Fonte: elaboração própria.}
 \end{figure}
 
-Nada neste capítulo afirma que o ITI acrescente informação ao mercado. Afirma só o compromisso de método: coletar com critério, classificar com modelo de domínio, agregar com memória explícita e só então perguntar se o índice diz mais do que contar matérias.
+\section{Amostra de validação e setup experimental}
+
+A amostra formal compreende $n=100$ notícias do corpus \emph{strict} da Sabesp, sorteadas de forma estratificada a partir da distribuição de saídas do FinBERT-PT-BR no recorte, de modo a não privilegiar uma única classe automática. Cada linha registra identificador da notícia, tipologia (\emph{focal}, \emph{roundup} ou menção tangencial), o campo \texttt{impacto\_alvo} (\texttt{POSITIVE}, \texttt{NEGATIVE}, \texttt{NEUTRAL}) e a versão do protocolo (2026-10-07). O encadeamento operacional é: anotação $\rightarrow$ junção com o corpus $\rightarrow$ bateria de avaliação dos classificadores $\rightarrow$ relatórios versionados. Esse procedimento valida o fluxo de ponta a ponta; por si só, não fecha o gate de concordância nem constitui prova de associação com o mercado.
+
+Nada neste capítulo afirma que o ITI acrescente informação ao mercado. Afirma o compromisso de método: coletar com critério, classificar com modelo de domínio, agregar com memória explícita e só então perguntar se o índice diz mais do que contar matérias.

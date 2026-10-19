@@ -1,6 +1,6 @@
-# Aguda et al. (2024) — LLMs como anotadores financeiros
+# Aguda, Siddagangappa e Kochkina (2024) — LLMs como anotadores financeiros
 
-**Citação:** Aguda, T. D. et al. Large Language Models as Financial Data Annotators. LREC-COLING 2024. [ACL Anthology](https://aclanthology.org/2024.lrec-main.885/) · [arXiv:2403.18152](https://arxiv.org/abs/2403.18152)
+**Citação:** Aguda, Siddagangappa e Kochkina Large Language Models as Financial Data Annotators. LREC-COLING 2024. [ACL Anthology](https://aclanthology.org/2024.lrec-main.885/) · [arXiv:2403.18152](https://arxiv.org/abs/2403.18152)
 
 **PDF local:** [pdfs/aguda2024_llm_annotators.pdf](../pdfs/aguda2024_llm_annotators.pdf)
 

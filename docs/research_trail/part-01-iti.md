@@ -5,11 +5,11 @@ O ITI **não é um índice publicado nem homônimo importado**. É construção 
 | Elemento | Base bibliográfica | Transferido | Adaptado (Sabesp) |
 |----------|-------------------|-------------|-------------------|
 | Texto → mercado | Tetlock (2007) | Mídia carrega informação | Multiportal PT, NLP |
-| Índice textual temporal | Baker et al. (2016) EPU | Agregação + validação | Microíndice empresa |
-| Sentimento PT | Santos et al. (2023) | FinBERT-PT-BR, \(d=P(pos)-P(neg)\) | Corpus saneamento |
+| Índice textual temporal | Baker, Bloom e Davis (2016) EPU | Agregação + validação | Microíndice empresa |
+| Sentimento PT | Santos, Bianchi e Costa (2023) | FinBERT-PT-BR, \(d=P(pos)-P(neg)\) | Corpus saneamento |
 | Precedente índice BR | Yoshinaga (2012) | Índice sentimento × retorno | ITI não usa PCA agregado |
-| Horizontes múltiplos | Duarte et al. (2020) | Lags diário/semanal/mensal | 1/2/4 semanas |
-| Persistência | Shapiro et al. (2022) | Decaimento temporal | α por ablação (R0 vs R1) |
+| Horizontes múltiplos | Duarte, González e Cruz (2020) | Lags diário/semanal/mensal | 1/2/4 semanas |
+| Persistência | Shapiro, Sudhof e Wilson (2022) | Decaimento temporal | α por ablação (R0 vs R1) |
 | Controles simples | Loughran & McDonald (2011) | Medidas textuais simples | B0–B3 internos |
 | Evento | Gattai & Souza (2025) | Reação a privatização | Alvo SBSP3, não EQTL3 |
 
@@ -28,9 +28,9 @@ O ITI **não é um índice publicado nem homônimo importado**. É construção 
 
 ## 1.2 Por que FinBERT e não léxico/LSTM
 
-- **Araci → Santos:** Araci (2019) estabelece FinBERT em inglês com vocabulário de domínio; Santos et al. (2023) estendem a português com Gradual Unfreezing e validam índice de sentimento — cadeia que justifica `finbert_ptbr` como classificador principal.
+- **Araci → Santos:** Araci (2019) estabelece FinBERT em inglês com vocabulário de domínio; Santos, Bianchi e Costa (2023) estendem a português com Gradual Unfreezing e validam índice de sentimento — cadeia que justifica `finbert_ptbr` como classificador principal.
 - **Loughran & McDonald (2011):** dicionários genéricos falham em finanças (polissemia de “liability”, “risk” etc.) — evitamos léxico fixo; B0–B3 derivam do **mesmo** classificador para comparação justa.
-- **LSTM (Araújo et al., 2021):** precedente BR em Twitter com redes recorrentes — **não adotado**: corpus multiportal de notícias + estado da arte BERT (Santos supera baselines no artigo de origem).
+- **LSTM (Araújo, 2021):** precedente BR em Twitter com redes recorrentes — **não adotado**: corpus multiportal de notícias + estado da arte BERT (Santos supera baselines no artigo de origem).
 
 ## 1.3 Tensões na literatura (o que esperar)
 

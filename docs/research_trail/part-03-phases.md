@@ -11,7 +11,7 @@ Padronização: [phase-template.md](phase-template.md). Decisões resumidas: [de
 | F2 → F3 | Runs R0/R1 interpretáveis; manifest e research no modo semanal |
 | F3 → F4 | Necessidade de corpus evento filtrado (roundups) e janelas expandidas |
 | F4 → F5 | Gate κ não atingido — pivot para validação de classificador, não fine-tune |
-| F5 → F6 | Bateria PT documentada; síntese para qualificação |
+| F5 → F6 | Bateria PT documentada; síntese no manuscrito e part-04 |
 
 | Fase | run_id (exemplo) | Config principal |
 | --- | --- | --- |
@@ -27,7 +27,7 @@ Números oficiais: sempre [part-04-results.md](part-04-results.md).
 É possível executar scraping → CSV → inferência → índices → research antes de validade estatística?
 
 ### Base bibliográfica
-Neuenschwander et al. (2014): extração de sinal de fluxos web é difícil no BR. Duarte et al. (2020): horizontes múltiplos são necessários. UTFPR (2024): causalidade pode ser fraca — expectativa realista. Araci (2019) → Santos (2023): cadeia FinBERT domínio EN→PT.
+Neuenschwander, Freitas e Oliveira (2014): extração de sinal de fluxos web é difícil no BR. Duarte, González e Cruz (2020): horizontes múltiplos são necessários. UTFPR (2024): causalidade pode ser fraca — expectativa realista. Araci (2019) → Santos (2023): cadeia FinBERT domínio EN→PT.
 
 ### Literatura → resultado
 
@@ -42,7 +42,7 @@ Neuenschwander (2014) e UTFPR (2024) sustentam que extrair sinal de texto web no
 | Research | Frequência **diária** (ITI semanal gerado mas não usado na validação) |
 | Modelos | `finbert_ptbr`, `pt_br_financial_sentiment_analysis` |
 
-FinBERT-PT-BR escolhido por domínio financeiro PT (Santos et al., 2023) — modelos especializados superam genéricos para jargão econômico; validação externa via preços é prática recomendada na literatura de sentimento.
+FinBERT-PT-BR escolhido por domínio financeiro PT (Santos, Bianchi e Costa, 2023) — modelos especializados superam genéricos para jargão econômico; validação externa via preços é prática recomendada na literatura de sentimento.
 
 ### Resultados
 
@@ -71,7 +71,7 @@ FinBERT-PT-BR escolhido por domínio financeiro PT (Santos et al., 2023) — mod
 Quais erros impedem comparação defensável ITI × mercado?
 
 ### Base bibliográfica
-Duarte et al. (2020): lags variam no tempo. Yoshinaga (2012): associação pode ser reversão — não fixar direção a priori. Tetlock (2007): alinhamento temporal correto.
+Duarte, González e Cruz (2020): lags variam no tempo. Yoshinaga (2012): associação pode ser reversão — não fixar direção a priori. Tetlock (2007): alinhamento temporal correto.
 
 ### Literatura → resultado
 
@@ -156,7 +156,7 @@ Gattai & Souza (2025) sustentam relevância institucional do evento (EQTL3, não
 O sinal sobrevive mai/2022–abr/2024 com lacuna jan–abr/2023 preenchida?
 
 ### Base bibliográfica
-Duarte et al. (2020): persistência da informação varia. RACEf (2022): associação sentimento–mercado mais forte em crises/eventos.
+Duarte, González e Cruz (2020): persistência da informação varia. RACEf (2022): associação sentimento–mercado mais forte em crises/eventos.
 
 ### Literatura → resultado
 
@@ -222,7 +222,7 @@ Neuenschwander (2014) e Marquezan & Assunção (2025) sustentam que tipo de not�
 FinBERT concorda com humanos o suficiente (gate 70% / κ≥0,40)?
 
 ### Base bibliográfica
-Santos et al. (2023): FinBERT de domínio financeiro PT; desempenho depende do corpus de aplicação.
+Santos, Bianchi e Costa (2023): FinBERT de domínio financeiro PT; desempenho depende do corpus de aplicação.
 
 ### Literatura → resultado
 

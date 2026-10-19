@@ -1,6 +1,6 @@
-# Zheng et al. (2023) — LLM-as-a-Judge
+# Zheng, Chiang e Sheng (2023) — LLM-as-a-Judge
 
-**Citação:** Zheng, L. et al. Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. NeurIPS 2023 Datasets & Benchmarks. [arXiv:2306.05685](https://arxiv.org/abs/2306.05685)
+**Citação:** Zheng, Chiang e Sheng Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena. NeurIPS 2023 Datasets & Benchmarks. [arXiv:2306.05685](https://arxiv.org/abs/2306.05685)
 
 **PDF local:** [pdfs/zheng2023_llm_judge.pdf](../pdfs/zheng2023_llm_judge.pdf)
 

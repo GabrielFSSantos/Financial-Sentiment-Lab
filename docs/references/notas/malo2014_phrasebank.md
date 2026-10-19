@@ -1,6 +1,6 @@
-# Malo et al. (2014) — Financial PhraseBank
+# Malo, Sinna e Korhonen (2014) — Financial PhraseBank
 
-**Citação:** Malo, P. et al. Good Debt or Bad Debt: Detecting Semantic Orientations in Economic Texts. JASIST, 65(4), 782–796. DOI: [10.1002/asi.23062](https://doi.org/10.1002/asi.23062)
+**Citação:** Malo, Sinna e Korhonen Good Debt or Bad Debt: Detecting Semantic Orientations in Economic Texts. JASIST, 65(4), 782–796. DOI: [10.1002/asi.23062](https://doi.org/10.1002/asi.23062)
 
 **PDF local:** [pdfs/malo2014_phrasebank.pdf](../pdfs/malo2014_phrasebank.pdf)
 

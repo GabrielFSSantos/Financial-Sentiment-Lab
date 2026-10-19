@@ -69,7 +69,7 @@ Outros testes relevantes: `test_research_weekly_align.py` (alinhamento semanal),
 | [module_plugin_contract](module_plugin_contract.md) | Juízes LLM | `test_label_judges.py` |
 | [03_modules](03_modules.md) §executor | Combinação modelo×dataset | `test_combination_executor.py` |
 
-Ordem de leitura antes de novos testes: [13_dev_and_agent_reading_guide](13_dev_and_agent_reading_guide.md).
+Ordem de leitura antes de novos testes: [13_dev_reading_guide](13_dev_reading_guide.md).
 
 Rastreabilidade teste ↔ módulo: tabela acima e [03_modules.md](03_modules.md).
 

@@ -1,6 +1,8 @@
-# Neuenschwander et al. (2014) — Sentiment Analysis for Streams of Web Data
+# Neuenschwander, Freitas e Oliveira (2014) — Sentiment Analysis for Streams of Web Data
 
 **Referência:** WebMedia 2014 — caso de estudo em mercados financeiros brasileiros.
+
+**PDF local:** [pdfs/neuenschwander2014_webmedia.pdf](../pdfs/neuenschwander2014_webmedia.pdf)
 
 ## Tese central
 

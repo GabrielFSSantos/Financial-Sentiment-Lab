@@ -1,40 +1,33 @@
 # Documentação — Financial Sentiment Lab
 
-Entrada na raiz do repositório: [README.md](../README.md).
+Entrada na raiz: [README.md](../README.md).
 
-## Dois pilares
+## Pilares
 
 | Pasta | Papel |
 | --- | --- |
-| **[research_trail/](research_trail/README.md)** | Histórico da pesquisa — decisões (`decision-register`), fases F0–F6, **Parte 4 = números oficiais** |
-| **[documentation/](documentation/README.md)** | Código e operação — módulos, fórmulas ITI, regras de negócio, fluxos, testes |
+| [research_trail/](research_trail/README.md) | Pesquisa — fases F0–F6, decisões, Parte 4 = números oficiais |
+| [documentation/](documentation/README.md) | Código — módulos, ITI, regras, testes |
+| [references/](references/) | BibTeX, PDFs, notas por obra |
+| [Dissertacao_PPGCC/](Dissertacao_PPGCC/) | Manuscrito LaTeX |
 
-## Acadêmico e bibliografia
+## Por onde começar
 
-| Caminho | Conteúdo |
+| Leitor | Rota |
 | --- | --- |
-| [references/](references/) | BibTeX, PDFs versionados, notas por artigo |
-| [Dissertacao_PPGCC/](Dissertacao_PPGCC/) | Manuscrito LaTeX (qualificação / defesa) |
+| Desenvolvedor | [13_dev_reading_guide](documentation/13_dev_reading_guide.md) → [11_end_to_end_flow](documentation/11_end_to_end_flow.md) |
+| Pesquisador / banca | [research_trail](research_trail/README.md) · dissertação |
+| Cluster SDumont | [07_santos_dumont](documentation/07_santos_dumont.md) |
 
-## Público-alvo
-
-| Leitor | Começar por |
-| --- | --- |
-| **Desenvolvedor** | [documentation/13_dev_and_agent_reading_guide.md](documentation/13_dev_and_agent_reading_guide.md) → [11_end_to_end_flow.md](documentation/11_end_to_end_flow.md) |
-| **Agente (IA)** | [13_dev_and_agent_reading_guide.md](documentation/13_dev_and_agent_reading_guide.md) → [10_architecture_and_maintenance.md](documentation/10_architecture_and_maintenance.md) |
-| **Pesquisador / banca** | [research_trail/](research_trail/README.md) Partes 0–4 · [Dissertacao_PPGCC/](Dissertacao_PPGCC/) |
-| **Operação cluster** | [documentation/07_santos_dumont.md](documentation/07_santos_dumont.md) |
-
-**Idioma:** código e paths em inglês; prosa em PT-BR — [CONTRIBUTING.md](../CONTRIBUTING.md).
+Prosa em PT-BR; paths e código em inglês — [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Manutenção
 
-| Tipo de mudança | Onde documentar |
+| Mudança | Onde |
 | --- | --- |
-| Fase F*, run oficial, decisão metodológica | [research_trail/part-03](research_trail/part-03-phases.md) + [decision-register](research_trail/decision-register.md) |
-| Regra de negócio | [documentation/12_business_rules.md](documentation/12_business_rules.md) |
-| Módulo / config / teste | [documentation/](documentation/README.md) |
-| Anotação manual / κ / juiz piloto | [documentation/14_manual_annotation.md](documentation/14_manual_annotation.md) |
-| Literatura | [references/](references/) |
+| Fase F*, decisão metodológica | [decision-register](research_trail/decision-register.md) + [part-03](research_trail/part-03-phases.md) |
+| Regra de negócio | [12_business_rules](documentation/12_business_rules.md) |
+| Módulo / config | [documentation/](documentation/README.md) |
+| Anotação manual | [14_manual_annotation](documentation/14_manual_annotation.md) |
 
-Artefatos numéricos: `outputs/{run_id}/`, `outputs/campaigns/` (local, gitignored).
+Artefatos numéricos: `outputs/` (gitignored).

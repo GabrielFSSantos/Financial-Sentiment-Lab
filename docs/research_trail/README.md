@@ -1,29 +1,6 @@
 # Trajetória experimental — Financial Sentiment Lab
 
-
-**Documento único da pesquisa (Trilha A, Sabesp).** Narrativa metodológica ancorada em literatura: por que cada decisão foi tomada, o que comparamos, o que respondemos e o que permanece em aberto. Números oficiais na **Parte 4**; fórmulas e módulos em [documentation](../documentation/README.md); referências em [references/](../references/). Direcionamento original de 20/08: [Apêndice C](appendices.md#apêndice-c--direcionamento-da-pesquisa-2008).
-
----
-
-## Como ler este documento
-
-| Parte | Conteúdo |
-|-------|----------|
-| **0** | Problema, hipóteses H1–H3, subobjetivos SO1–SO10, referências de base |
-| **1** | O que é o ITI, origem metodológica, definições sem ambiguidade |
-| **2** | Protocolo (24 duelos), 6 camadas de validade, tabela técnica |
-| **3** | Fases F0–F6 — processo, decisões, transições |
-| **4** | **Resultados consolidados** Trilha A (números oficiais) |
-| **5** | O que foi e não foi tratado |
-| **6** | Próximo ciclo — perguntas que podem mudar a conclusão |
-| **Apêndices** | Runs R0–R9, glossário, direcionamento, artefatos, bibliografia |
-| **Registro** | [decision-register.md](decision-register.md) — decisões (ADR-lite) |
-| **Template** | [phase-template.md](phase-template.md) — padronizar fases em Parte 3 |
-
-**Qualificação (PPGCC):** manuscrito em [Dissertacao](../Dissertacao_PPGCC/); números oficiais = **Parte 4**. Anotação manual: [14_manual_annotation.md](../documentation/14_manual_annotation.md).
-
----
-
+Narrativa metodológica (Trilha A, Sabesp). Números oficiais na **Parte 4**; fórmulas em [documentation](../documentation/README.md); bibliografia em [references](../references/). Direcionamento original: [Apêndice C](appendices.md#apêndice-c--direcionamento-da-pesquisa-2008).
 
 ## Partes
 
@@ -37,11 +14,10 @@
 | 5 — Lacunas | [part-05-gaps.md](part-05-gaps.md) |
 | 6 — Próximo ciclo | [part-06-next-cycle.md](part-06-next-cycle.md) |
 | Apêndices | [appendices.md](appendices.md) |
+| Decisões (ADR-lite) | [decision-register.md](decision-register.md) |
+| Citação em prosa | [citation-conventions.md](citation-conventions.md) |
 
 | Público | Rota |
 | --- | --- |
-| **Banca / orientador** | Partes 0–2, 4 + [Dissertacao](../Dissertacao_PPGCC/) |
-| **Dev / reprodução** | Parte 4 § reproduzir + [11_end_to_end_flow](../documentation/11_end_to_end_flow.md) |
-| **Agente** | [13_dev_and_agent_reading_guide](../documentation/13_dev_and_agent_reading_guide.md) + [12_business_rules](../documentation/12_business_rules.md) |
-
-**Código:** [documentation](../documentation/README.md) · **Índice geral:** [docs/README.md](../README.md)
+| Banca / orientador | Partes 0–2, 4 + [Dissertacao](../Dissertacao_PPGCC/) |
+| Dev / reprodução | Parte 4 + [11_end_to_end_flow](../documentation/11_end_to_end_flow.md) |

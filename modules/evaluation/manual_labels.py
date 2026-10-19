@@ -25,6 +25,8 @@ WORKSHEET_COLUMN_MAP: tuple[tuple[str, str], ...] = (
     ("anotador", "nome_anotador_1"),
     ("anotador_2", "nome_anotador_2"),
     ("impacto_alvo_2", "impacto_sabesp_anotador_2"),
+    ("anotador_3", "nome_anotador_3"),
+    ("impacto_alvo_3", "impacto_sabesp_anotador_3"),
     ("rotulo_finbert", "referencia_finbert"),
     ("rotulo_llm_juiz", "referencia_llm_juiz"),
     ("notas_llm", "justificativa_llm"),
@@ -207,6 +209,8 @@ def export_annotation_worksheet(
     *,
     subset_news_ids_path: Path | None = None,
     use_portuguese_headers: bool = True,
+    blind_for_annotator_2: bool = False,
+    blind_for_new_expert: bool = False,
 ) -> pd.DataFrame:
     """Join formal sample with corpus title/URL for Drive annotation worksheet."""
     manual = pd.read_csv(manual_path)
@@ -250,9 +254,42 @@ def export_annotation_worksheet(
     for column in WORKSHEET_COLUMNS:
         if column not in merged.columns:
             merged[column] = ""
-    frame = merged[list(WORKSHEET_COLUMNS)].copy()
+    if blind_for_new_expert or blind_for_annotator_2:
+        merged["versao_protocolo"] = "2026-10-19"
+    columns = list(WORKSHEET_COLUMNS)
+    if blind_for_new_expert:
+        hidden = {
+            "impacto_alvo",
+            "notas",
+            "anotador",
+            "rotulo_finbert",
+            "rotulo_llm_juiz",
+            "notas_llm",
+            "sentimento_global",
+        }
+        columns = [c for c in columns if c not in hidden]
+        for col in ("impacto_alvo_2", "anotador_2", "impacto_alvo_3", "anotador_3"):
+            if col in merged.columns:
+                merged[col] = ""
+    elif blind_for_annotator_2:
+        columns = [
+            c
+            for c in columns
+            if c
+            not in (
+                "impacto_alvo",
+                "notas",
+                "anotador",
+                "rotulo_finbert",
+                "rotulo_llm_juiz",
+                "notas_llm",
+            )
+        ]
+    frame = merged[columns].copy()
     if use_portuguese_headers:
-        frame = frame.rename(columns=WORKSHEET_HEADERS_PT)
+        frame = frame.rename(
+            columns={k: v for k, v in WORKSHEET_HEADERS_PT.items() if k in columns}
+        )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     frame.to_csv(output_path, index=False)
     return frame

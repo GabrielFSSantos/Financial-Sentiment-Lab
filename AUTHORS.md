@@ -11,7 +11,7 @@ Autoria acadêmica do manuscrito: ver `docs/Dissertacao_PPGCC/ufsj-abntex2.tex` 
 ## Colaboração sem autoria de código
 
 - **Michel Carlo Rodrigues Leles** — orientação acadêmica.
-- **Raphael** (e outros anotadores) — segunda opinião humana na amostra de validação; não implica coautoria do software salvo acordo explícito futuro.
+- Anotadores especialistas — ver [CONTRIBUTORS.md](CONTRIBUTORS.md) (não implica coautoria do software).
 
 ## Contribuições externas
 

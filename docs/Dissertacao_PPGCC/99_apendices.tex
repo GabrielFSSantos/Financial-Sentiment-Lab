@@ -1,23 +1,33 @@
 \chapter{Protocolo resumido de anotação}
 
-Este apêndice resume o roteiro da amostra de cem notícias sobre a Sabesp, em construção após o alinhamento com a orientação, em apoio à validação do procedimento de classificação. Rodadas anteriores de teste exploratório serviram para ajustar o critério (impacto \emph{para a empresa}), sem serem apresentadas como referência definitiva de mercado.
+Este apêndice resume o roteiro da amostra de cem notícias sobre a Sabesp (protocolo versão \texttt{2026-10-19}).
 
-\section{Empresa-alvo e classes}
+\section{Pergunta operacional}
+
+Considerando o \textbf{título} e o \textbf{conteúdo} da notícia, o fato relatado é favorável, desfavorável ou neutro para a \textbf{Sabesp}? Classes: \texttt{POSITIVE}, \texttt{NEGATIVE}, \texttt{NEUTRAL}.
+
+\section{Empresa-alvo, entrada textual e tipologia}
 
 \begin{itemize}
   \item \textbf{Empresa-alvo:} Sabesp (ação SBSP3).
-  \item \textbf{Impacto para a empresa:} \emph{positivo}, \emph{negativo} ou \emph{neutro} --- julgando o efeito do fato jornalístico \emph{para a Sabesp}, não o tom geral do mercado.
+  \item \textbf{Entrada:} título e corpo lidos em conjunto (mesma unidade enviada ao FinBERT-PT-BR).
   \item \textbf{Tipologia:} matéria focal na Sabesp; \emph{roundup} ou agenda com várias empresas; menção tangencial.
 \end{itemize}
 
 \section{Regras práticas}
 
-Em matérias com várias empresas, o anotador ignora o sentimento agregado do mercado e responde apenas: ``esta notícia, para a Sabesp, é positiva, negativa ou neutra?'' Casos limite marcam-se como ambíguos e descrevem-se em notas livres.
+Em matérias com várias empresas, o anotador ignora o sentimento agregado do mercado e responde apenas ao efeito do fato para a Sabesp. Não se usa o retorno posterior da ação para definir o rótulo. Casos limite marcam-se como ambíguos e descrevem-se em notas livres.
 
-\section{Triangulação na qualificação}
+\section{Avaliadores especialistas (créditos)}
 
-Além da anotação principal, prevê-se (i) eventual segundo anotador humano em subconjunto da amostra e (ii) eventual segunda classificação automatizada com o mesmo critério e instrução fixa em português --- como opinião auxiliar exploratória, não substituto de especialista de mercado nem referência para calibrar o índice.
+\begin{itemize}
+  \item \textbf{Raphael Veloso} --- anotação especializada (economia e finanças; graduação USP, atuação em análise de crédito e risco), subconjunto prioritário de trinta notícias, planilha cega.
+\end{itemize}
 
-\section{Limitação declarada}
+\section{Múltiplos avaliadores e consenso}
 
-O anotador principal não é analista de mercado; a amostra valida o fluxo planilha $\rightarrow$ métricas $\rightarrow$ relatório. Métricas de concordância (por exemplo, kappa de Cohen) são diagnóstico do procedimento, não prova de que o índice explica preços na bolsa.
+O desenho prevê anotações independentes e cegas por pelo menos três participantes com conhecimento na área econômico-financeira. A concordância entre humanos é mensurada separadamente do desempenho do classificador. Havendo maioria entre avaliadores no mesmo item, registra-se a classe majoritária; empates com uma classe distinta por avaliador encaminham-se à adjudicação documentada.
+
+\section{Uso das métricas humano--modelo}
+
+As métricas de concordância entre anotação humana e classificador servem ao controle de qualidade do sinal textual do índice, não como prova de que o ITI explica preços na bolsa.

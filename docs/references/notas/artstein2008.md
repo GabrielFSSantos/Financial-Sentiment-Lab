@@ -10,5 +10,5 @@ Revisão de métodos e limites de **acordo inter-anotador** (κ, α, etc.) em PL
 
 ## O que tomamos no lab
 
-- Enquadramento da **IAA** Gabriel × Raphael separada de humano × FinBERT.
+- Enquadramento da **IAA** entre especialistas separada de humano × FinBERT.
 - Limitação: κ depende de prevalência das classes; reportar também matriz de confusão e % de acordo.

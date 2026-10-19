@@ -107,8 +107,8 @@ scraping → classificação NLP (FinBERT-PT-BR) → score contínuo \(d = P(pos
 
 | Referência | Contribuição |
 |------------|--------------|
-| Araci et al. — FinBERT (ProsusAI) | Vocabulário financeiro; baseline para modelos EN |
-| FinBERT-PT-BR (Santos et al.) | Modelo usado no projeto para notícias em português |
+| Araci — FinBERT (ProsusAI) | Vocabulário financeiro; baseline para modelos EN |
+| FinBERT-PT-BR (Santos, Bianchi e Costa) | Modelo usado no projeto para notícias em português |
 | FNSPID (2024) | Integração notícia–preço em escala; infraestrutura de dados |
 | FUNNEL (2025) | Mapear notícia → empresa corretamente; deduplicação |
 
@@ -153,9 +153,9 @@ Reprodução: [configs/campaigns/sabesp_marco2/README.md](../../configs/campaign
 
 | Referência | Uso | PDF local | Nota |
 |------------|-----|-----------|------|
-| Santos et al. (2023) | FinBERT-PT-BR, índice | [pdfs/santos2023_finbert_ptbr.pdf](../references/pdfs/santos2023_finbert_ptbr.pdf) | [notas/santos2023.md](../references/notas/santos2023.md) |
+| Santos, Bianchi e Costa (2023) | FinBERT-PT-BR, índice | [pdfs/santos2023_finbert_ptbr.pdf](../references/pdfs/santos2023_finbert_ptbr.pdf) | [notas/santos2023.md](../references/notas/santos2023.md) |
 | Yoshinaga & Castro Junior (2012) | Índice BR × retorno | [pdfs/yoshinaga2012_bar.pdf](../references/pdfs/yoshinaga2012_bar.pdf) | [notas/yoshinaga2012.md](../references/notas/yoshinaga2012.md) |
-| Duarte et al. (2020) | Horizontes BR | [pdfs/duarte2020_quedas_b3.pdf](../references/pdfs/duarte2020_quedas_b3.pdf) | [notas/duarte2020.md](../references/notas/duarte2020.md) |
+| Duarte, González e Cruz (2020) | Horizontes BR | [pdfs/duarte2020_quedas_b3.pdf](../references/pdfs/duarte2020_quedas_b3.pdf) | [notas/duarte2020.md](../references/notas/duarte2020.md) |
 | Tetlock (2007) | Mídia × mercado | [pdfs/tetlock2007_media.pdf](../references/pdfs/tetlock2007_media.pdf) | [notas/tetlock2007.md](../references/notas/tetlock2007.md) |
 | Loughran & McDonald (2011) | Baselines | [pdfs/loughran2011_baselines.pdf](../references/pdfs/loughran2011_baselines.pdf) | [notas/loughran2011.md](../references/notas/loughran2011.md) |
 | Gattai & Souza (2025) FOCO | Evento Sabesp | [pdfs/gattai2025_privatizacao_sabesp.pdf](../references/pdfs/gattai2025_privatizacao_sabesp.pdf) | [notas/foco2025.md](../references/notas/foco2025.md) |

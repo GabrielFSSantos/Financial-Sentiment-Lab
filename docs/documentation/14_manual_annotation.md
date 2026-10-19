@@ -1,39 +1,47 @@
 # Anotação manual e avaliação do classificador (PT)
 
-Amostra formal para validar o pipeline de rótulos (DR-006, DR-012): **não** é gold de mercado nem meta fechada de κ na qualificação.
+Controla a **qualidade do sinal** (FinBERT-PT-BR e variantes), não o treino de um novo classificador.
 
 ## Dados canônicos
 
 | Artefato | Caminho |
 | --- | --- |
-| Rótulos | `data/water_utilities_corpus/manual_labels_100.csv` |
-| Corpus (contexto) | `data/water_utilities_corpus/articles_strict_sabesp.csv` |
-| Config | `configs/evaluation.yaml` |
+| Rótulos (wide) | `data/water_utilities_corpus/manual_labels_100.csv` |
+| Rótulos (long, multianotador) | `data/water_utilities_corpus/annotations_long.csv` |
+| Corpus | `data/water_utilities_corpus/articles_strict_sabesp.csv` |
 
-Colunas principais: `news_id`, `empresa_alvo`, `tipologia`, `impacto_alvo` (positivo/neutro/negativo para a empresa-alvo), `rotulo_finbert`, `rotulo_llm_juiz` (piloto), `versao_protocolo`, `caso_ambiguo`, `notas`.
+**Pergunta de anotação:** com **título + texto**, o fato é favorável, desfavorável ou neutro **para a empresa-alvo** (Sabesp)? Classes: `POSITIVE`, `NEGATIVE`, `NEUTRAL`.
 
-Aliases de coluna para métricas: `column_aliases` em `configs/evaluation.yaml`.
+**Entrada dos modelos:** `text_compose` (`titulo` + `\n\n` + `noticia`) em `configs/campaigns/datasets.yaml`.
+
+## Governança (DR-016)
+
+| Regra | Descrição |
+| --- | --- |
+| Avaliadores | Meta de **≥3** especialistas em economia/finanças, avaliação independente e cega |
+| Consenso | Maioria simples; empate 1-1-1 com três classes → adjudicação documentada |
+| Subconjunto IAA | Mesmos `news_id` entre pares de especialistas quando aplicável |
+| Rodadas do mestrando | Diagnóstico histórico — **não** gold definitivo |
+| LLM juiz | Piloto opcional (DR-007); **não** integra consenso humano |
+
+Importar exportações de planilha para os CSV canônicos preservando colunas por anotador e `annotations_long.csv`.
+
+## Métricas
+
+| Situação | Métrica | Referência |
+|----------|---------|------------|
+| 2 anotadores | Cohen κ, % acordo | Cohen (1960); Artstein e Poesio (2008) |
+| ≥3 anotadores no mesmo item | κ de Fleiss | Fleiss (1971) — ver nota em `references/notas/fleiss1971.md` |
+| Humano × FinBERT | Acurácia, κ (N explícito) | Gate operacional DR-006: ~70% ou κ≥0,40 no corpus de saneamento |
+
+IAA humana ≠ concordância humano×modelo.
 
 ## Comandos
 
 ```bash
-# Bateria PT (prepare → run → gate opcional)
 python -m modules.evaluation classifier-pt prepare
 python -m modules.evaluation classifier-pt run
-
-# Comparar amostra manual vs predictions (via módulo manual_labels)
-python -m modules.evaluation.manual_labels compare --predictions CAMINHO_PRED.csv
-
-# Piloto LLM-as-judge (mock ou GPU)
-python -m modules.evaluation llm-judge-pilot --limit 10 --mock
+python -m modules.evaluation llm-judge-pilot --limit 10 --mock   # opcional
 ```
 
-Saídas típicas: `outputs/campaigns/classifier_eval_pt/`, `outputs/campaigns/llm_judge_pilot/`.
-
-## Fundamentação bibliográfica
-
-Notas por artigo em [`references/notas/`](../references/notas/) (Yuan, SEntFiN, Aguda, Cohen, Artstein, etc.). Índice: [`references/README.md`](../references/README.md).
-
-## Narrativa e números
-
-Linha do tempo e resultados: [part-04 §4.4](../research_trail/part-04-results.md). Regras de gate: [12_business_rules.md](12_business_rules.md) §12.6.
+Narrativa: [part-04 §4.4](../research_trail/part-04-results.md) · DRs: [decision-register.md](../research_trail/decision-register.md). **Créditos por nome:** [CONTRIBUTORS.md](../../CONTRIBUTORS.md) e manuscrito em `docs/Dissertacao_PPGCC/` (agradecimentos e apêndice de anotação).

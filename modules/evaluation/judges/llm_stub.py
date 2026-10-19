@@ -1,4 +1,4 @@
-"""Placeholder LLM judge — implement after qualification (see protocol §7)."""
+"""Placeholder LLM judge — optional pilot (see 14_manual_annotation.md)."""
 
 from __future__ import annotations
 
