@@ -10,7 +10,7 @@
 #SBATCH --mem=32G
 #SBATCH --time=00:20:00
 #SBATCH --output=job_financial_%j.out
-#SBATCH --error=job_financial_%j.err
+#SBATCH --error=job_financial_%j.out
 
 
 SCRATCH_BASE="${SCRATCH:-/scratch/ufsj/hpc4agents-br/gabriel.santos3}"
