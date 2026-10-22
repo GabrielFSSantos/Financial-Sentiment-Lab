@@ -13,13 +13,31 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lastpage}
 \usepackage{indentfirst}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\newcolumntype{L}{>{\RaggedRight\arraybackslash}X}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcommand{\dissertacaotabelaparams}{%
+  \setlength{\tabcolsep}{8pt}%
+  \setlength{\extrarowheight}{3pt}%
+  \renewcommand{\arraystretch}{1.55}%
+}
+\AtBeginEnvironment{table}{%
+  \small%
+  \dissertacaotabelaparams%
+}
+\AtBeginEnvironment{tabularx}{\dissertacaotabelaparams}
+\AtBeginEnvironment{tabular}{\dissertacaotabelaparams}
 \usepackage{color}
 \usepackage{graphicx}
 \usepackage{multicol}
 \usepackage{float}
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{positioning}
+\usetikzlibrary{positioning,calc,arrows.meta}
 
 \providecommand{\htmladdnormallink}[2]{\href{#2}{#1}}
 

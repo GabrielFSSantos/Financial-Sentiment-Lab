@@ -1,47 +1,57 @@
 \chapter{Considerações finais e plano de continuidade}
 \label{cap:consideracoes}
 
-\section{Síntese da etapa de qualificação}
+\section{Síntese dos resultados da qualificação}
 
-Este trabalho apresentou uma proposta de índice temporal construído a partir de notícias corporativas em português, com aplicação inicial à Sabesp. O método integra classificação financeira, agregação diária, memória temporal e comparação com medidas simples obtidas das mesmas notícias.
+Esta pesquisa implementou o Índice Temporal Informacional (ITI) para notícias corporativas em português, com estudo de caso na Sabesp: classificação, agregação diária, memória exponencial e comparação semanal com retornos de SBSP3 e baselines B0--B3.
 
-Os experimentos preliminares permitiram executar o fluxo computacional e identificar dificuldades relevantes. Na amostra orientada à empresa, o classificador apresentou acurácia de 50% e kappa de aproximadamente 0,20. Os resultados foram numericamente inferiores nas notícias multiempresa ou de agenda, o que orienta a investigação da adequação entre a tarefa do modelo e a referência humana.
+Os experimentos mostram que o procedimento é executável e que a tarefa orientada à empresa difere da classificação genérica de sentimento (concordância limitada na amostra de cem notícias; destaque para erros em neutras e em matérias multiempresa). Na avaliação temporal canônica, R1 obteve 6/24 confrontos favoráveis e nenhuma diferença significativa pelo bootstrap adotado; mudanças de corpus alteram contagens históricas sem redefinir o protocolo. \textbf{Não} se confirma, nesta etapa, superioridade estatística do ITI nem equivalência aos baselines.
 
-Na avaliação temporal, a configuração R1 apresentou seis comparações favoráveis em 24, sem diferenças significativas no procedimento reportado. Portanto, os dados disponíveis não demonstram a superioridade do índice. A variação dos resultados entre versões do corpus também evidencia a necessidade de rastrear as transformações dos dados e tornar o protocolo mais preciso.
+A contribuição alcançada é metodológica: um fluxo auditável, critérios de comparação explícitos e um conjunto delimitado de validações pendentes (referência humana independente, calendário, teste confirmatório). A pergunta de pesquisa foi alinhada ao teste de deltas assinados implementado; avaliações de magnitude ou de informação incremental em regressão permanecem para a continuidade.
 
-A pesquisa avança, nesta etapa, ao delimitar o problema e demonstrar a viabilidade operacional de sua investigação. A consolidação da contribuição científica dependerá da validação da representação textual e de uma avaliação temporal que controle as escolhas experimentais.
+\iffalse
+% [ENXUGAMENTO 2026-10-22] Síntese anterior (repetia Capítulo~\ref{cap:resultados} quase integralmente).
+Esta pesquisa propôs e implementou um Índice Temporal Informacional construído a partir de notícias corporativas em português, com estudo de caso inicial na Sabesp. O procedimento utiliza probabilidades de um classificador de sentimento financeiro, combina os escores das notícias em medidas diárias e aplica uma atualização exponencial para conservar parte do estado anterior. Na avaliação financeira, a série resultante foi comparada com quatro medidas de referência e retornos futuros da ação SBSP3, em frequência semanal.
 
-\section{Atividades previstas}
+A etapa concluída demonstrou que a cadeia computacional pode ser executada, mas também revelou limites importantes de sua interpretação. Na avaliação de cem notícias anotadas pelo autor com um critério orientado à Sabesp, o classificador apresentou acurácia de 50\%, kappa de Cohen de 0,197 e F1 macro de 0,45. A distribuição dos erros chama atenção para os 35 textos humanos neutros classificados automaticamente como positivos ou negativos, bem como para a concordância numericamente menor nas matérias de agenda ou multiempresa.
 
-A continuidade será organizada em etapas dependentes. Primeiro, será consolidado o inventário do corpus, com fontes, critérios de seleção, contagens e histórico de versões. Em seguida, serão concluídas as anotações independentes e analisados os desacordos, distinguindo neutralidade, ambiguidade e impossibilidade de avaliação.
+Na avaliação temporal canônica, a configuração R1, com parâmetro nominal de memória igual a 0,70, apresentou seis confrontos favoráveis ao ITI entre 24, sem diferenças estatisticamente significativas segundo a regra de reamostragem utilizada. A comparação histórica com versões anteriores do corpus produziu resultados diferentes, evidenciando a sensibilidade do experimento à seleção e à cobertura das notícias. Esses achados não confirmam a hipótese de superioridade do índice e não autorizam concluir que ele seja equivalente aos baselines.
 
-A terceira etapa será a análise dos erros do classificador. Serão examinados tipo de notícia, extensão do texto, truncamento e presença de múltiplas entidades. Conforme os resultados, poderão ser avaliadas alternativas de seleção de trechos ou de classificação orientada ao alvo. Essas mudanças serão comparadas sob uma referência fixa e sem reutilizar o conjunto final de teste para ajuste.
+O avanço principal da pesquisa até a qualificação está na construção de um procedimento analisável e na identificação das condições necessárias à sua avaliação. A etapa textual mostrou que a tarefa orientada à empresa requer uma referência adequada; os experimentos temporais indicaram a importância de controlar frequência, calendário, corpus e definição dos baselines; e a análise estatística mostrou que uma contagem de comparações favoráveis não é suficiente para sustentar afirmações de ganho. O resultado é, portanto, uma base experimental e metodológica mais precisa para os testes seguintes, e não uma confirmação antecipada de desempenho financeiro.
+\fi
 
-Depois da avaliação textual, serão consolidadas as fórmulas do ITI e das referências, a regra de atualização temporal e as configurações de memória. A etapa financeira utilizará instantes de corte explícitos, quantidades efetivas de observações e estatísticas acompanhadas de incerteza.
+\section{Plano de continuidade}
 
-Por fim, será avaliada a possibilidade de ampliar os períodos e incluir outras empresas. Essa ampliação dependerá da cobertura e da qualidade dos dados. Análises de volatilidade, volume, assimetria e informação incremental serão incorporadas apenas quando houver condições para avaliá-las de forma consistente.
-
-Quadro 3 — Plano de continuidade e entregas verificáveis.
+As prioridades seguem as ameaças à validade (Tabela~\ref{tab:ameacas}): inventário do corpus, anotação independente com concordância documentada, diagnóstico de erros do classificador, auditoria do alinhamento temporal e testes estatísticos pré-especificados antes de ampliar escopo setorial.
 
 \begin{table}[htbp]
 \centering
-\small
-\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\caption{Plano de continuidade: etapas, entregas e critérios de avanço.}
+\label{tab:plano-continuidade}
+\begin{tabularx}{\textwidth}{|L|L|L|}
 \hline
-Etapa & Entrega & Condição para avanço \\
+Etapa & Produto esperado & Condição para avanço \\
 \hline
-Consolidação do corpus & Inventário, filtros, contagens e versões & Notícias e datas rastreáveis \\
-Referência humana & Anotações individuais, concordância e consenso documentado & Critério de classificação estável \\
-Diagnóstico do modelo & Matriz de confusão e análise de erros & Adequação da tarefa e limitações conhecidas \\
-Especificação do índice & Fórmulas, parâmetros e regras temporais & Reprodução da série a partir das saídas textuais \\
-Avaliação temporal & Coeficientes, diferenças, incerteza e análise de sensibilidade & Ausência de uso indevido de dados futuros \\
-Ampliação e redação final & Novos recortes e síntese das contribuições & Evidências compatíveis com as conclusões \\
+Consolidação do corpus & Inventário de fontes, filtros, versões e cobertura & Notícias e períodos identificáveis \\
+Referência humana & Anotações independentes, concordância e consenso documentado & Critério estável e decisões rastreáveis \\
+Diagnóstico textual & Matriz de confusão, métricas por classe e análise de erros & Limitações do classificador caracterizadas \\
+Revisão temporal & Calendário auditado, baselines compatíveis e manifesto de execução & Ausência de informação futura indevida \\
+Avaliação estatística & Coeficientes, deltas, intervalos e sensibilidade & Testes e interpretações previamente definidos \\
+Extensão e redação final & Resultados adicionais e síntese da contribuição & Evidências suficientes para cada conclusão \\
 \hline
-\end{tabular}
+\end{tabularx}
+\vspace{0.5em}
+{\footnotesize Fonte: elaboração própria.}
 \end{table}
 
-{\footnotesize Fonte: elaboração própria.}
+A continuidade não pressupõe generalização imediata para outras empresas de saneamento; a extensão dependerá da qualidade dos dados e da validação no estudo de caso principal.
 
-O cronograma calendarizado será definido conforme o prazo de defesa e o andamento das anotações. A sequência prioriza a qualidade dos dados e da tarefa antes da ampliação do número de modelos ou de testes.
+\iffalse
+% [ENXUGAMENTO 2026-10-22] Descrição longa das seis etapas (redundante com a tabela).
+A continuidade será organizada em etapas que respondem diretamente às limitações identificadas, evitando ampliar o escopo antes de consolidar o estudo de caso principal.
 
-% CONFIRMAR P10: preencher datas reais do cronograma com o autor e o orientador. Não deduzir prazo de defesa a partir do ano da capa. --
+A primeira etapa será fechar o inventário do corpus. ...
+Finalmente, a extensão para períodos adicionais e para outras empresas brasileiras de saneamento dependerá da qualidade e da cobertura dos dados. O plano não assume que um resultado observado na Sabesp possa ser generalizado para Copasa, Sanepar ou todo o setor. A análise de novas companhias deverá considerar suas diferenças institucionais e jornalísticas.
+
+A conclusão desta etapa é que o índice já possui implementação e uma avaliação exploratória capaz de orientar decisões de pesquisa, mas sua interpretação como indicador de informação economicamente relevante ainda depende de validação. A prioridade não é obter uma taxa de vitória mais alta por ajustes sucessivos; é estabelecer sob quais condições a comparação seria confiável e que resultados sobrevivem a essas condições.
+\fi

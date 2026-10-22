@@ -1,67 +1,76 @@
 \chapter{Introdução}
 \label{cap:introducao}
 
-Notícias sobre empresas reúnem informações de naturezas distintas, como divulgação de resultados, decisões regulatórias, investimentos e mudanças de controle societário. A análise desse material pode ajudar a caracterizar a cobertura de uma companhia e a investigar sua relação com o comportamento do mercado. Entretanto, transformar um conjunto de notícias em uma medida quantitativa exige definir quais textos pertencem ao estudo, que informação será extraída deles e como essa informação será organizada no tempo.
+Notícias sobre empresas registram acontecimentos que ajudam a compreender suas atividades e o ambiente em que operam. Resultados financeiros, investimentos, decisões judiciais, alterações tarifárias e mudanças de controle societário podem ser divulgados em momentos diferentes e receber cobertura distinta pelos veículos de comunicação. Para estudar essas informações em conjunto, não basta reunir manchetes: é necessário estabelecer quais matérias são relevantes, que conteúdo pode ser extraído delas e de que maneira esse conteúdo será representado ao longo do tempo.
 
-A literatura apresenta diferentes formas de aproximar texto e dados econômicos. \citeonline{tetlock2007media} investiga a relação entre o conteúdo da imprensa e o mercado acionário. \citeonline{baker2016epu} constroem uma medida de incerteza de política econômica a partir da cobertura jornalística. Esses trabalhos mostram que o texto pode ser tratado como fonte de dados, mas também que a interpretação de um índice depende do fenômeno que ele foi construído para representar.
+O emprego de textos como fonte de dados econômicos não é recente. \citeonline{tetlock2007media} investigou a relação entre o conteúdo da imprensa e o mercado de ações. \citeonline{baker2016epu}, por sua vez, mostraram como a cobertura jornalística pode apoiar a construção de um índice de incerteza de política econômica. Esses estudos tratam textos como observações passíveis de análise quantitativa, mas também evidenciam que índices diferentes representam fenômenos diferentes. Uma medida de incerteza, por exemplo, não deve ser interpretada automaticamente como uma medida de sentimento favorável ou desfavorável para determinada empresa.
 
-Nesta pesquisa, o interesse está nas notícias corporativas em português sobre empresas brasileiras de saneamento. O setor reúne questões operacionais, financeiras e regulatórias que podem aparecer simultaneamente em uma mesma matéria. Uma notícia sobre alteração tarifária, por exemplo, pode discutir seus efeitos para a empresa, para os usuários e para a administração pública. A interpretação relevante para cada um desses agentes não é necessariamente a mesma.
+A presente pesquisa se concentra em notícias corporativas em português, inicialmente relacionadas à Sabesp. O objetivo é investigar uma forma de transformar os escores produzidos por um classificador de sentimento financeiro em uma série temporal que preserve parte das informações anteriores. Essa proposta recebe o nome de \textbf{Índice Temporal Informacional (ITI)}. O adjetivo *informacional* indica que a série é calculada a partir de textos jornalísticos; não significa que seu conteúdo represente, de maneira já comprovada, informação nova incorporada ao preço das ações.
 
-Propõe-se um Índice Temporal Informacional (ITI), calculado por empresa a partir de escores textuais agregados ao longo do tempo. A aplicação inicial utiliza notícias sobre a Sabesp. O termo “informacional” identifica a origem textual da medida; não significa que o índice já quantifique informação nova incorporada aos preços. Essa interpretação depende da avaliação empírica.
+A escolha do saneamento oferece um contexto em que assuntos financeiros, regulatórios e de interesse público frequentemente coexistem na mesma matéria; o desafio central é determinar a qual agente a avaliação se refere (detalhado no Capítulo~\ref{cap:fundamentacao} e na Seção~\ref{sec:problema}).
 
-\section{Contexto e delimitação}
+\iffalse
+% [ENXUGAMENTO 2026-10-22] Exemplo tarifário repetido na fundamentação — reativar se desejar reforço na introdução.
+A escolha do saneamento oferece um contexto em que assuntos financeiros, regulatórios e de interesse público frequentemente aparecem na mesma notícia. Uma alteração tarifária, por exemplo, pode produzir consequências diferentes para consumidores, poder público e concessionária. O desafio, portanto, não é apenas reconhecer palavras positivas ou negativas, mas determinar a qual agente a avaliação se refere. Esse problema acompanha toda a construção do índice, desde a seleção das matérias até a interpretação de sua relação com os retornos acionários.
+\fi
 
-O desenvolvimento de modelos de linguagem em português ampliou as possibilidades de análise automática de textos. No domínio financeiro, \citeonline{santos2023finbert} apresentam modelos adaptados ao vocabulário do mercado brasileiro. A disponibilidade dessas ferramentas permite estudar a classificação de notícias sem iniciar o treinamento de um modelo de linguagem a partir do zero. Sua aplicação a um recorte específico, contudo, exige avaliação própria.
+\section{Contexto e delimitação do estudo}
 
-O saneamento constitui o domínio desta pesquisa por reunir empresas com cobertura jornalística e acontecimentos regulatórios relevantes. A Lei nº 14.026/2020 atualizou o marco legal do saneamento e alterou dispositivos relacionados à regulação e à prestação dos serviços (\cite{lei14026}). Esse contexto motiva a organização de um corpus setorial, mas não determina antecipadamente como as notícias se relacionam com os retornos das ações.
+O desenvolvimento de modelos de linguagem pré-treinados ampliou as possibilidades de classificação automática de textos. A arquitetura BERT, apresentada por \citeonline{devlin2019bert}, utiliza representações contextuais que podem ser ajustadas a tarefas supervisionadas. No português brasileiro, \citeonline{souza2020bertimbau} disponibilizaram modelos pré-treinados voltados ao idioma. Para o domínio financeiro, \citeonline{santos2023finbert} investigaram a adaptação dessas representações a textos relacionados ao mercado nacional.
 
-O estudo de caso concentra-se na Sabesp. O corpus descrito nos experimentos inclui uma janela de novembro de 2023 a abril de 2024, além de uma análise exploratória em período ampliado, de maio de 2022 a abril de 2024. Essas janelas são tratadas como recortes de observação. Sua interpretação como janela de um evento específico depende da identificação do acontecimento, de sua data e dos critérios usados para selecionar o intervalo.
+A disponibilidade de um classificador financeiro permite começar a pesquisa sem treinar uma arquitetura do zero. No entanto, o fato de um modelo ter sido ajustado em textos financeiros não garante que suas classificações correspondam ao efeito de cada notícia para uma empresa particular. Essa adequação precisa ser medida no corpus em que a ferramenta será utilizada.
 
-Copasa e Sanepar integram a perspectiva de ampliação do estudo, mas não compõem os resultados apresentados nesta qualificação. Da mesma forma, o retorno acionário é o desfecho principal da avaliação descrita. Análises de volatilidade, volume e assimetria entre notícias positivas e negativas constituem possíveis extensões.
+No setor brasileiro de saneamento, questões relacionadas à regulação, aos contratos de concessão e à estrutura de financiamento influenciam o conteúdo da cobertura jornalística. A Lei nº 14.026, de 15 de julho de 2020, alterou disposições do marco legal do saneamento e integra esse contexto institucional \cite{lei14026}. O presente trabalho não procura medir diretamente o efeito da legislação sobre preços; ela ajuda a compreender o domínio em que as notícias foram produzidas.
+
+O estudo de caso considera a Sabesp e a ação SBSP3. A avaliação temporal principal cobre o período de novembro de 2023 a abril de 2024, com aproximadamente 465 matérias na versão de corpus utilizada nos experimentos. Também foram realizados exercícios exploratórios com uma janela ampliada, de maio de 2022 a abril de 2024. As quantidades definitivas de notícias, as exclusões por filtro e as lacunas de cobertura ainda exigem um inventário reproduzível. Os resultados desta qualificação não incluem uma comparação financeira equivalente para Copasa e Sanepar; essas empresas permanecem como possibilidade de ampliação.
+
+A análise financeira é delimitada à associação com retornos posteriores da ação. Volatilidade, volume negociado, causalidade e desempenho preditivo fora da amostra são questões pertinentes, mas não foram demonstradas na etapa apresentada. Ao estabelecer esse limite, a pesquisa evita atribuir ao índice um alcance maior do que o sustentado pelos resultados.
 
 \section{Problema de pesquisa}
+\label{sec:problema}
 
-A construção do ITI envolve três dificuldades principais. A primeira é identificar a informação referente à empresa-alvo. Notícias sobre o mercado podem mencionar a Sabesp sem apresentar um fato relevante para a companhia, ou podem reunir acontecimentos favoráveis e desfavoráveis para empresas diferentes. A presença do nome da empresa, portanto, não basta para definir a pertinência do texto.
+A primeira dificuldade para construir um índice a partir de notícias é identificar o conteúdo que efetivamente diz respeito à empresa analisada. Uma matéria pode incluir a Sabesp apenas em uma lista de ações, discutir um evento que afeta várias companhias ou reunir efeitos positivos e negativos para agentes diferentes. Se todos esses textos recebem o mesmo tratamento, a série agregada pode representar mais a composição do noticiário do que a situação da empresa-alvo.
 
-A segunda dificuldade está na classificação. Um modelo treinado para reconhecer sentimento financeiro não necessariamente avalia o efeito de um fato para uma empresa específica. Mesmo quando a linguagem é financeira, o gênero da notícia, seu tamanho e a presença de múltiplas entidades podem alterar o desempenho. A avaliação humana precisa considerar a mesma tarefa que se pretende atribuir ao modelo.
+A segunda dificuldade envolve o significado da classificação. Um modelo treinado para identificar o sentimento geral de um documento pode reconhecer o tom dominante da matéria e, ainda assim, produzir um rótulo inadequado para a Sabesp. Nesse caso, o erro não se explica necessariamente pela incapacidade de reconhecer português ou vocabulário financeiro. Pode haver uma diferença entre a tarefa para a qual o modelo foi treinado e a tarefa requerida pela pesquisa. Trabalhos sobre sentimento orientado a entidades, como os de \citeonline{yuan2020target} e \citeonline{sinha2022sentfin}, ajudam a delimitar essa questão.
 
-A terceira dificuldade é temporal. Notícias são publicadas em horários distintos, podem permanecer relevantes por mais de um dia e não aparecem com frequência uniforme. Ao mesmo tempo, preços e retornos seguem o calendário de negociação. A combinação dessas fontes requer regras explícitas para evitar que uma informação publicada depois do instante de referência seja usada para explicar um retorno que já estava em formação.
+A terceira dificuldade é temporal. As notícias aparecem em datas e horários irregulares, enquanto os retornos financeiros seguem um calendário de negociação. Um índice calculado no encerramento de uma semana só pode ser comparado com retornos posteriores se as informações utilizadas já estavam disponíveis naquele instante. Além disso, a forma de agregar matérias e a escolha do parâmetro de memória alteram a série obtida. Uma correlação aparente pode refletir essas escolhas, e não uma propriedade estável da informação jornalística.
 
-Diante dessas dificuldades, formula-se a questão principal:
+Diante dessas dificuldades, a pergunta principal é: \textbf{como um índice temporal construído com notícias sobre a Sabesp se comporta, em termos de associação semanal com retornos futuros, diante de medidas mais simples derivadas do mesmo corpus, e quais limitações de classificação e alinhamento condicionam essa avaliação?}
 
-Em que condições um índice construído a partir de notícias corporativas em português, com agregação temporal e memória, apresenta associação com retornos futuros superior à de medidas mais simples obtidas das mesmas notícias, no estudo de caso da Sabesp?
+\iffalse
+% [ENXUGAMENTO 2026-10-22] Formulação anterior (ênfase em superioridade) — validar com orientador antes de reativar.
+Diante dessas dificuldades, a pergunta principal é: \textbf{em que condições um índice formado por escores de notícias corporativas em português, com agregação e memória temporal, apresenta associação com retornos futuros superior à de medidas mais simples construídas a partir das mesmas notícias, no estudo de caso da Sabesp?}
+\fi
 
-Duas questões auxiliares orientam a avaliação: em que medida o classificador concorda com a anotação humana orientada à empresa-alvo e como a inclusão de memória altera o comportamento da medida em relação à agregação sem memória.
+Duas perguntas complementam a investigação. A primeira é se o classificador financeiro produz rótulos compatíveis com uma avaliação humana orientada especificamente à Sabesp. A segunda é em que medida a memória temporal altera o comportamento do ITI em comparação com agregações sem essa recorrência. Essas perguntas são tratadas separadamente porque a presença de associação com retornos não corrige um eventual problema de validade da classificação textual.
 
 \section{Objetivos}
 
-O objetivo geral é desenvolver e avaliar um índice temporal baseado em notícias corporativas em português para empresas brasileiras de saneamento, utilizando a Sabesp como estudo de caso inicial.
+O objetivo geral é \textbf{desenvolver e avaliar um índice temporal calculado a partir de notícias corporativas em português sobre empresas brasileiras de saneamento}, utilizando a Sabesp como estudo de caso inicial.
 
-Os objetivos específicos são:
+Para atingir esse objetivo, o trabalho procura organizar um corpus com identificação da empresa, conteúdo, origem e data das notícias; examinar a adequação de um classificador financeiro à atribuição de polaridade para uma empresa-alvo; implementar escores e agregações temporais com memória explícita; comparar essa representação com medidas de referência derivadas das mesmas notícias; verificar sua associação com retornos futuros em diferentes horizontes; e registrar as configurações necessárias para interpretar e reproduzir os experimentos.
 
-\begin{enumerate}
-  \item Organizar um corpus de notícias com identificação da empresa, origem, data de publicação e conteúdo textual, acompanhado de critérios de inclusão, exclusão e deduplicação.
-  \item Avaliar a adequação de um classificador de sentimento financeiro em português à tarefa de identificar a polaridade da informação referente à empresa-alvo.
-  \item Definir e implementar a agregação dos escores textuais em uma série temporal, tornando explícita a contribuição da memória.
-  \item Comparar o ITI com medidas simples de frequência e sentimento calculadas a partir do mesmo corpus.
-  \item Investigar a associação dessas medidas com retornos futuros em diferentes horizontes, respeitando a ordem temporal e as limitações da amostra.
-  \item Documentar os dados, as configurações e as execuções necessárias à reprodução dos resultados.
-\end{enumerate}
+Esses objetivos têm graus diferentes de conclusão na etapa de qualificação. A integração computacional e as comparações exploratórias já foram executadas. A referência humana independente, o inventário definitivo do corpus e a avaliação estatística confirmatória ainda precisam ser consolidados. Essa distinção orienta a apresentação dos resultados sem confundir componentes concluídos com atividades previstas.
 
-\section{Justificativa e contribuição esperada}
+\section{Justificativa e contribuições da proposta}
 
-A contribuição computacional do trabalho está na integração entre organização de dados textuais, classificação de linguagem natural, representação temporal e avaliação experimental. A proposta não se limita a aplicar um classificador pronto: busca verificar se a saída desse classificador é adequada à tarefa e se sua agregação produz uma medida útil para a análise pretendida.
+A justificativa do trabalho está na necessidade de avaliar, de maneira integrada, a passagem de textos jornalísticos para indicadores quantitativos relacionados a uma empresa. Modelos de classificação, procedimentos de suavização temporal e estatísticas de associação são conhecidos isoladamente. A questão é saber como suas escolhas se combinam e quais limitações aparecem quando aplicadas a notícias reais, em português, sobre uma companhia de saneamento.
 
-No conjunto de trabalhos revisados, há índices textuais agregados, modelos financeiros para o português e estudos que relacionam notícias ao mercado brasileiro. A combinação desses componentes no recorte empresarial do saneamento ainda requer investigação. Essa delimitação sustenta a proposta sem pressupor que todos os estudos sobre o tema tenham sido identificados.
+No campo computacional, a contribuição proposta envolve um procedimento modular que reúne corpus, inferência, construção do índice e avaliação experimental. Essa estrutura permite inspecionar resultados intermediários e alterar uma etapa sem tratar todo o fluxo como uma única transformação opaca. Na dimensão metodológica, o trabalho examina a adequação da referência textual e a sensibilidade dos resultados às versões do corpus e às escolhas de alinhamento.
 
-Espera-se contribuir com um procedimento documentado de construção do índice, uma avaliação dos limites da classificação por empresa e uma comparação temporal com alternativas simples. A utilidade desses resultados não depende de confirmar uma relação positiva com os retornos. A identificação de erros de classificação, de redundância entre indicadores ou de ausência de superioridade também ajuda a delimitar o alcance do método.
+Os experimentos já produziram contribuições delimitadas --- integração do pipeline, distinção entre sentimento genérico e anotação orientada à Sabesp, sensibilidade a versões do corpus --- sem comprovar superioridade estatística do ITI (Capítulo~\ref{cap:resultados}).
+
+\iffalse
+% [ENXUGAMENTO 2026-10-22] Repetição sobre originalidade e limites.
+Os experimentos já produziram contribuições delimitadas. Foi possível executar a cadeia de processamento, identificar uma diferença entre a tarefa de sentimento genérico e a anotação orientada à Sabesp, e observar que versões distintas do corpus podem levar a conclusões nominais diferentes. Tais resultados não comprovam a hipótese de superioridade do ITI, mas delimitam condições importantes para avaliá-la corretamente.
+
+A originalidade pretendida não depende de afirmar que jamais se construiu um índice semelhante. Ela está na investigação articulada desses componentes para a tarefa, o idioma e o estudo de caso considerados. A comparação com a literatura, apresentada nos Capítulos 2 e 3, esclarece o que é adaptado de trabalhos anteriores e o que constitui uma escolha do procedimento proposto.
+\fi
 
 \section{Hipótese e organização do trabalho}
 
-A hipótese principal é que a incorporação de memória aos escores textuais permite obter, em condições de avaliação previamente definidas, associação com retornos futuros de maior magnitude que a das medidas sem essa memória. Não se pressupõe o sinal da associação. Uma notícia classificada como positiva não implica necessariamente retorno posterior positivo, pois o preço pode refletir expectativas anteriores e outros fatores.
+A hipótese de pesquisa é que a incorporação de memória temporal pode melhorar, sob condições de avaliação controladas, a associação entre uma medida textual e retornos posteriores em relação a alternativas mais simples sem a mesma memória. A direção da correlação não deve ser presumida a partir da polaridade textual: uma notícia favorável à empresa pode ocorrer em um contexto no qual o mercado já antecipou seus efeitos.
 
-A hipótese é avaliada em duas etapas complementares: qualidade da representação textual e relação temporal com o mercado. A primeira verifica a adequação da classificação; a segunda examina o comportamento das séries. Evidência favorável em uma etapa não substitui a outra.
+Há uma distinção importante entre a hipótese conceitual e o teste exploratório já implementado. Os experimentos históricos comparam \textbf{correlações assinadas}, isto é, o valor da correlação do ITI menos o valor da correlação de cada medida de referência. Esse critério não equivale a comparar módulos de correlação. Portanto, os resultados atuais avaliam a estatística implementada; uma hipótese específica sobre magnitudes absolutas exige outro desenho e novos resultados.
 
-O Capítulo~\ref{cap:fundamentacao} apresenta os conceitos necessários à pesquisa. O Capítulo~\ref{cap:relacionados} discute os trabalhos relacionados e situa a proposta. O Capítulo~\ref{cap:metodologia} descreve o método e o protocolo de avaliação. O Capítulo~\ref{cap:resultados} apresenta os resultados preliminares e suas limitações. O Capítulo~\ref{cap:consideracoes} sintetiza as contribuições desta etapa e organiza a continuidade da pesquisa. Os apêndices detalham a anotação e a rastreabilidade experimental.
-
-% CONFIRMAR P03: a formulação por magnitude é proposta para a próxima avaliação. As contagens históricas de comparações favoráveis só podem ser interpretadas segundo a regra realmente implementada. Não recalcular ou renomear resultados sem consultar os scripts. --
+O Capítulo~\ref{cap:fundamentacao} apresenta os conceitos necessários; o Capítulo~\ref{cap:relacionados}, o posicionamento bibliográfico; o Capítulo~\ref{cap:metodologia}, dados, cálculos e comparação; o Capítulo~\ref{cap:resultados}, evidências preliminares; e o Capítulo~\ref{cap:consideracoes}, síntese e continuidade. Os apêndices registram anotação e rastreabilidade.

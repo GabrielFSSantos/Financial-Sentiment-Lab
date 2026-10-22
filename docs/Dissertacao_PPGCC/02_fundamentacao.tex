@@ -1,76 +1,81 @@
 \chapter{Fundamentação teórica}
 \label{cap:fundamentacao}
 
-\section{Sentimento financeiro e empresa-alvo}
+\section{Análise de sentimentos em notícias financeiras}
 
-A análise de sentimentos atribui uma orientação a um texto ou a uma parte dele. No contexto desta pesquisa, são consideradas as classes positiva, negativa e neutra. O significado dessas classes depende do alvo da análise. Uma classificação do documento inteiro resume seu conteúdo dominante; uma classificação orientada à empresa procura identificar a polaridade da informação relativa à companhia indicada.
+A análise de sentimentos procura identificar uma orientação expressa em textos. Em problemas de classificação, essa orientação pode ser representada por classes como positiva, negativa e neutra. Entretanto, uma classe só adquire significado quando se define \textbf{o que está sendo avaliado}. A mesma notícia pode ter tom negativo para o mercado em geral e, ao mesmo tempo, relatar um fato favorável a determinada companhia.
 
-Essa distinção é relevante em notícias financeiras. Considere, como exemplo hipotético, uma matéria que relate aumento das despesas da empresa A e expansão das receitas da empresa B. Um único rótulo para a matéria não representa adequadamente as duas empresas. A unidade de análise precisa incluir o vínculo entre o texto e a entidade a que o rótulo se refere. Tarefas orientadas a empresas e ativos aparecem em \citeonline{cortis2017semeval5}, \citeonline{yuan2020target} e \citeonline{sinha2022sentfin}.
+Em textos financeiros, essa diferença é particularmente relevante. Uma notícia sobre reajuste tarifário pode apresentar uma perspectiva favorável à receita de uma concessionária e desfavorável ao custo enfrentado pelos consumidores. Atribuir uma única polaridade a todo o documento não resolve a pergunta sobre uma empresa-alvo. É necessário separar o sentimento do documento da polaridade da informação referente à entidade investigada, como discutido nas tarefas orientadas a alvos de \citeonline{cortis2017semeval5}, \citeonline{yuan2020target} e \citeonline{sinha2022sentfin}.
 
-Neste trabalho, o rótulo humano expressa se o fato descrito é favorável, desfavorável ou neutro para a Sabesp, conforme as informações disponíveis no próprio texto. Esse julgamento não é uma previsão da ação. Também não utiliza o retorno posterior como evidência para escolher a classe.
+Nesta pesquisa, o rótulo humano considera se o fato relatado é favorável, desfavorável ou neutro \textbf{para a Sabesp, de acordo com o conteúdo da notícia}. Não se trata de prever se a ação subirá. Uma notícia pode descrever um benefício operacional sem que o preço se mova no mesmo sentido, seja porque a informação já era conhecida, seja porque outros acontecimentos afetam simultaneamente o mercado.
 
-É necessário distinguir neutralidade de falta de informação. Uma notícia pode ser neutra por não apresentar direcionamento identificável para a empresa; outra pode ser impossível de avaliar porque o conteúdo está incompleto. Reunir essas situações em uma única classe esconderia problemas de extração ou de pertinência do corpus. Por isso, o protocolo de continuidade prevê campos separados para a classe, a possibilidade de avaliação e a ambiguidade.
+A classe neutra difere de \emph{não avaliável} e de menções tangenciais; as regras operacionais de distinção estão no Apêndice~\ref{ap:protocolo}.
 
-\section{Modelos de linguagem e adaptação ao domínio}
+\iffalse
+% [ENXUGAMENTO 2026-10-22] Desenvolvimento repetido no método, resultados e apêndice.
+A classe neutra também exige cuidado. Uma matéria pode oferecer informações sobre a empresa sem indicar efeito favorável ou desfavorável predominante. Isso difere de um texto incompleto, de uma menção tangencial sem conteúdo avaliável ou de uma notícia em que faltam dados para decidir. O protocolo de anotação deve permitir registrar essas situações sem convertê-las automaticamente em neutralidade.
+\fi
 
-BERT é uma arquitetura de representação da linguagem que utiliza o contexto à esquerda e à direita dos termos durante o pré-treinamento e pode ser adaptada a tarefas supervisionadas, como classificação de textos (Devlin et al., 2019). Na classificação de sentimentos, uma camada de saída produz escores para as classes consideradas. O aprendizado linguístico prévio reduz a necessidade de construir manualmente todas as características textuais.
+\section{Modelos BERT e classificação no domínio financeiro}
 
-O BERTimbau disponibiliza modelos pré-treinados para o português brasileiro (Souza, Nogueira e Lotufo, 2020). Um modelo desse tipo fornece representações da linguagem, mas não deve ser confundido com um classificador de sentimentos já ajustado. Para realizar a tarefa, é necessário especificar a etapa supervisionada ou utilizar um checkpoint que já contenha a cabeça de classificação correspondente.
+Os modelos baseados em BERT são pré-treinados para aprender representações contextuais da linguagem e podem ser ajustados a tarefas de classificação \cite{devlin2019bert}. Uma aplicação de análise de sentimentos normalmente utiliza uma camada de classificação que produz escores para classes predefinidas. A arquitetura e os pesos do modelo, porém, precisam ser distinguidos: conhecer o nome da família BERT não identifica o conjunto de parâmetros efetivamente empregado em um experimento.
 
-A adaptação ao domínio financeiro responde a diferenças de vocabulário e de uso das palavras. \citeonline{loughran2011liability} demonstram problemas na aplicação de listas de palavras de uso geral a documentos financeiros. \citeonline{araci2020finbert} investiga a adaptação de BERT à análise de sentimento financeiro em inglês. Essas contribuições justificam a atenção ao domínio, sem estabelecer que qualquer modelo financeiro seja adequado a qualquer gênero de notícia.
+O BERTimbau disponibiliza modelos de linguagem adaptados ao português brasileiro \cite{souza2020bertimbau}. Já o desenvolvimento de modelos financeiros responde a uma dificuldade adicional: palavras comuns podem apresentar usos diferentes em textos econômicos. \citeonline{loughran2011liability} demonstraram que a aplicação indiscriminada de recursos lexicais gerais a documentos financeiros pode produzir interpretações inadequadas. \citeonline{araci2020finbert} investigou a adaptação de BERT à análise financeira em inglês, e \citeonline{santos2023finbert} exploraram essa linha para textos do mercado brasileiro.
 
-Na aplicação desta pesquisa, a adequação linguística, financeira e empresarial precisa ser examinada separadamente. Um modelo pode compreender português e vocabulário financeiro, mas ainda apresentar dificuldade quando a matéria contém vários alvos ou quando o julgamento esperado exige distinguir consequências favoráveis e desfavoráveis para uma companhia específica.
+O FinBERT-PT-BR foi selecionado como referência principal em português nos experimentos preliminares. O fato de um classificador conhecer linguagem financeira representa uma vantagem potencial, não uma garantia de adequação a matérias completas sobre saneamento. A avaliação local é indispensável porque tamanho dos documentos, distribuição das classes, temas regulatórios e presença de outras empresas podem diferir dos exemplos usados no treinamento original.
 
-\section{Escores probabilísticos}
+Outra restrição vem do comprimento da entrada. A configuração empregada admite até 512 tokens. Em matérias extensas, o truncamento pode excluir justamente o parágrafo no qual aparece a informação sobre a Sabesp. Uma previsão incorreta pode, portanto, resultar tanto de uma interpretação inadequada do trecho recebido quanto da ausência de parte do conteúdo no trecho efetivamente processado. O protocolo de avaliação precisa distinguir essas possibilidades.
 
-Seja uma notícia associada a uma empresa. O classificador retorna três probabilidades, representadas por $p^{+}$, $p^{-}$ e $p^{0}$, correspondentes às classes positiva, negativa e neutra. Em uma saída normalizada, a soma é igual a um. O escore utilizado no projeto é definido pela diferença
+\section{Probabilidades de classificação e escore contínuo}
 
-\[
-d = p^{+} - p^{-}.
-\]
-
-O valor de $d$ pertence ao intervalo $[-1,1]$. Valores próximos de um indicam predominância da classe positiva; valores próximos de menos um indicam predominância da classe negativa. A classe neutra participa da distribuição de probabilidades e não é excluída do cálculo por renormalização.
-
-Um escore próximo de zero não identifica uma única situação. Pode resultar de alta probabilidade de neutralidade ou de probabilidades semelhantes para as classes positiva e negativa. Por exemplo, as distribuições $(0{,}05;0{,}05;0{,}90)$ e $(0{,}45;0{,}45;0{,}10)$, na ordem positivo, negativo e neutro, produzem o mesmo escore zero, embora representem saídas distintas. Assim, as três probabilidades devem ser preservadas nos dados de inferência.
-
-A maior probabilidade de saída também não deve ser interpretada automaticamente como probabilidade de acerto. Sua utilização como peso depende da calibração do classificador e da relação entre confiança e erro no corpus estudado. Uma ponderação pode amplificar previsões equivocadas se o modelo estiver excessivamente confiante.
-
-\section{Agregação temporal e memória}
-
-A classificação de uma notícia descreve uma observação textual. Para investigar relações ao longo do tempo, é necessário combinar observações em intervalos definidos. A contagem de matérias descreve a frequência da cobertura; a média dos escores resume sua orientação. Essas medidas têm interpretações diferentes e podem variar de forma independente.
-
-A introdução de memória permite que observações anteriores continuem contribuindo para o estado do índice. Uma forma de representar esse comportamento é a média móvel exponencial:
+Para uma notícia $i$, o classificador fornece probabilidades associadas às classes positiva, negativa e neutra. Essas saídas são indicadas por $p_i^{+}$, $p_i^{-}$ e $p_i^{0}$, respectivamente. Quando normalizadas, satisfazem $p_i^{+}+p_i^{-}+p_i^{0}=1$. O escore contínuo adotado no projeto é:
 
 \[
-z_t = \alpha z_{t-1} + (1-\alpha)x_t, \qquad 0 \leq \alpha < 1,
+d_i=p_i^{+}-p_i^{-}.
 \]
 
-em que $x_t$ é o valor agregado no instante atual e $z_{t-1}$ é o estado anterior. Nesta convenção, valores maiores de $\alpha$ preservam uma parcela maior do passado. O parâmetro deve ser interpretado em relação à unidade temporal utilizada.
+Esse escore pertence a $[-1,1]$. Valores positivos indicam maior probabilidade atribuída à classe positiva do que à negativa; valores negativos indicam o contrário. Valores próximos de zero, entretanto, não correspondem necessariamente a notícias neutras. As saídas $(0{,}05;0{,}05;0{,}90)$ e $(0{,}45;0{,}45;0{,}10)$, ordenadas como positiva, negativa e neutra, produzem ambas $d_i=0$, mas representam distribuições bastante distintas.
 
-A memória introduz uma escolha de modelagem: uma observação passada perde peso de forma gradual. Isso não demonstra que o mercado processe notícias segundo a mesma função. A pertinência dessa representação deve ser avaliada por comparação com uma versão sem memória e por análise de sensibilidade do parâmetro.
+Por esse motivo, os três valores probabilísticos devem ser preservados junto com o rótulo e o escore. Também é importante evitar que a maior probabilidade fornecida pelo modelo seja automaticamente tratada como probabilidade de acerto. Sem verificação de calibração, um classificador pode estar confiante em previsões equivocadas. Como o ITI utiliza essa confiança entre os fatores de ponderação, erros sistemáticos do classificador podem receber peso elevado na série.
 
-Também é preciso diferenciar ausência de notícia e ausência de coleta. No primeiro caso, o procedimento pode aplicar decaimento ao estado anterior. No segundo, a cobertura do corpus é desconhecida. Tratar uma falha de coleta como dia sem notícia produziria uma alteração artificial do índice.
+\section{Agregação de notícias e memória temporal}
 
-\section{Anotação humana e avaliação de classificação}
+Os escores por notícia descrevem observações individuais. Para estudar sua evolução, é necessário reuni-los por empresa e por intervalo de tempo. A contagem de matérias registra a intensidade da cobertura; a média dos escores representa uma orientação predominante; e uma combinação ponderada procura atribuir importâncias diferentes às observações. Cada escolha responde a uma pergunta própria.
 
-A anotação humana define uma referência operacional para avaliar as previsões. Sua qualidade depende da clareza das instruções e da consistência entre participantes. A concordância não torna o rótulo uma verdade econômica absoluta, mas informa se o critério pode ser aplicado de maneira relativamente estável.
-
-A acurácia corresponde à proporção de classificações corretas. Como pode ser influenciada pela classe mais frequente, deve ser acompanhada de métricas por classe e de uma matriz de confusão. O F1 combina precisão e revocação; sua média macro atribui o mesmo peso a cada classe, tornando visíveis dificuldades que poderiam ser ocultadas pela acurácia global.
-
-O kappa de Cohen considera a concordância observada e aquela esperada a partir das distribuições marginais de duas classificações (Cohen, 1960):
+Quando o interesse inclui a persistência da informação, é possível manter uma parcela do estado anterior por meio de uma média móvel exponencial. Sua forma geral é:
 
 \[
-\kappa = \frac{p_o-p_e}{1-p_e}.
+z_t=\alpha z_{t-1}+(1-\alpha)x_t,\qquad 0\leq\alpha<1,
 \]
 
-A interpretação de $\kappa$ depende da tarefa, das frequências das classes e do desenho da anotação. Não há, para esta pesquisa, um limiar universal que substitua a inspeção dos erros. \citeonline{artstein2008agreement} discutem as escolhas envolvidas na avaliação de concordância em tarefas linguísticas.
+em que $x_t$ é a entrada agregada no instante atual, $z_{t-1}$ é o estado anterior e $\alpha$ controla a retenção desse estado. Quanto maior o parâmetro, maior a persistência do passado, considerando uma mesma frequência de atualização.
 
-Quando há mais de dois anotadores, a medida deve corresponder ao esquema de participação. O kappa de Fleiss é uma possibilidade para avaliações nominais com desenho compatível (Fleiss, 1971). A concordância entre humanos será calculada antes da formação do consenso, para que a consolidação não apague a divergência original.
+Essa suavização não comprova que o mercado incorpore notícias segundo uma função exponencial. Trata-se de uma hipótese de representação. Sua utilidade depende da comparação com alternativas sem memória e da estabilidade dos resultados quando o parâmetro é alterado. O ITI adota uma forma específica dessa atualização, descrita no Capítulo~\ref{cap:metodologia}.
 
-\section{Associação temporal e interpretação dos resultados}
+Há ainda diferença entre ausência de novas matérias e ausência de dados coletados. Em dias com coleta adequada, a falta de notícias pode ser interpretada pelo algoritmo como ausência de entrada e provocar decaimento. Quando um portal falha ou determinado período não foi coletado, a ausência não representa necessariamente silêncio informacional. Confundir esses casos cria oscilações artificiais e torna importante documentar a cobertura temporal do corpus.
 
-A correlação de Pearson resume associação linear entre variáveis. A correlação de Spearman considera sua ordenação e permite examinar relações monotônicas. Nenhuma das duas demonstra, isoladamente, que uma variável cause a outra ou que forneça ganho preditivo fora da amostra.
+\section{Referência humana e medidas de avaliação}
 
-Na pesquisa, o índice é observado antes do intervalo de retorno utilizado como desfecho. Essa separação temporal é necessária, mas insuficiente para demonstrar causalidade. Tanto as notícias quanto os preços podem responder a acontecimentos comuns. Além disso, notícias podem descrever movimentos de mercado já ocorridos.
+Uma avaliação de classificação precisa de rótulos de referência. Em tarefas de linguagem, esses rótulos dependem de instruções suficientemente claras para que pessoas diferentes consigam aplicar critérios semelhantes. A referência humana não representa uma verdade econômica absoluta; ela descreve uma interpretação operacional da tarefa, cuja consistência também pode ser medida \cite{artstein2008agreement}.
 
-Há ainda uma diferença entre comparar correlações e demonstrar informação incremental. Se o ITI e a média dos escores expressam componentes semelhantes da cobertura, o índice pode apresentar correlação maior sem acrescentar informação quando ambos entram em um mesmo modelo. A avaliação incremental exige verificar a contribuição do ITI condicionada às medidas de comparação, ou examinar o ganho em previsões realizadas em períodos não utilizados no ajuste.
+A acurácia corresponde à proporção de previsões iguais aos rótulos de referência. Essa medida, isoladamente, pode ser enganosa quando uma classe predomina. Um modelo que sempre prevê a classe majoritária pode atingir acurácia considerável sem identificar adequadamente os demais casos. Por isso, convém apresentar a distribuição das classes, a matriz de confusão, a precisão, a revocação e o F1 por classe. O F1 macro calcula a média dos F1 das classes e dá visibilidade ao desempenho nas menos frequentes.
+
+O coeficiente kappa de Cohen ajusta a concordância observada pela parcela esperada sob um modelo de concordância ao acaso baseado nas distribuições marginais \cite{cohen1960kappa}:
+
+\[
+\kappa=\frac{p_o-p_e}{1-p_e},
+\]
+
+em que $p_o$ é a concordância observada e $p_e$ é a concordância esperada. O valor deve ser interpretado à luz da prevalência das classes e do desenho da anotação, sem transformar faixas convencionais em verdades universais. Para três ou mais anotadores, podem ser usadas medidas apropriadas ao desenho dos julgamentos compartilhados, como o kappa de Fleiss, quando suas condições forem atendidas \cite{fleiss1971nominal}.
+
+A concordância \textbf{entre anotadores humanos} e a concordância \textbf{entre modelo e referência humana} respondem a perguntas diferentes. A primeira informa se a tarefa tem definição suficientemente estável entre participantes. A segunda descreve a proximidade das previsões automáticas dessa referência. No estudo atual, os indicadores publicados referem-se à comparação entre classificador e anotação do autor; não devem ser chamados de concordância entre especialistas.
+
+\section{Associação temporal, previsão e causalidade}
+
+O coeficiente de Pearson mede a intensidade e o sentido de uma associação linear. O coeficiente de Spearman aplica a comparação às posições relativas dos valores e permite investigar associações monotônicas. Os dois são úteis como diagnósticos, mas nenhum demonstra, por si só, que uma variável causa a outra ou melhora previsões em novos períodos.
+
+A separação entre o momento de produção do ITI e o intervalo de retorno é necessária. Ainda assim, notícias e preços podem reagir a um acontecimento comum. Além disso, algumas matérias descrevem movimentos de mercado já ocorridos. Se seus horários não forem tratados corretamente, a série textual pode incorporar informação que não estava disponível no instante em que uma previsão hipotética seria realizada.
+
+Há diferença entre apresentar uma correlação maior e demonstrar \textbf{informação incremental}. O ITI e uma média de sentimento utilizam textos compartilhados e podem conter informação redundante. Uma correlação individual mais alta não significa necessariamente que o ITI contribua quando outras variáveis já estão presentes em um modelo. Essa segunda questão exige comparações condicionais ou testes preditivos em períodos reservados, respeitando a ordem temporal dos dados.
+
+Assim, a avaliação preliminar desta dissertação deve ser lida como um estudo de associação e de sensibilidade metodológica. O alcance preditivo e a eventual contribuição incremental constituem etapas distintas, cuja execução depende primeiro da qualidade do sinal textual e da confiabilidade da comparação temporal.

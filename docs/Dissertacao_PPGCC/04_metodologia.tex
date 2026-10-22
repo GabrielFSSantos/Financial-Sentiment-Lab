@@ -1,247 +1,274 @@
 \chapter{Metodologia}
 \label{cap:metodologia}
 
-\section{Desenho da pesquisa}
+\section{Delineamento e unidades de análise}
 
-A pesquisa é experimental e quantitativa, com desenvolvimento de um procedimento computacional e aplicação inicial a um estudo de caso. O fluxo compreende organização do corpus, anotação humana, classificação automática, construção das séries e avaliação temporal.
+A pesquisa tem caráter experimental e quantitativo e inclui o desenvolvimento de um procedimento computacional aplicado inicialmente à Sabesp. O desenho combina duas avaliações que se relacionam, mas não utilizam a mesma unidade de observação. Na avaliação textual, cada unidade é uma notícia vinculada à empresa e, quando disponível, acompanhada de um rótulo humano. Na avaliação financeira, cada unidade é um período semanal para o qual se calcula um indicador com informações disponíveis até um instante definido e se observa um retorno posterior.
 
-Há duas unidades de análise. Na avaliação textual, a unidade é uma notícia associada à Sabesp. Na avaliação financeira, a unidade é uma semana com um indicador calculado até seu instante de referência e um retorno observado em período posterior. A passagem entre essas unidades ocorre pela agregação diária e pela extração do estado semanal do índice.
+O fluxo começa na coleta ou organização de notícias, passa pela preparação dos textos, classificação de sentimento e cálculo do escore por notícia, produz agregações diárias e atualiza o ITI. A etapa financeira agrega essas séries em semanas, associa cada semana à cotação da empresa e compara o indicador com medidas de referência e retornos futuros. A anotação humana constitui um ramo de avaliação do classificador, anterior à interpretação financeira dos seus escores.
 
-O procedimento separa as etapas já executadas das etapas de aperfeiçoamento. Os resultados disponíveis utilizam a anotação do autor e configurações exploratórias do índice. A consolidação por especialistas, a análise completa de erros e a avaliação temporal confirmatória permanecem no plano de continuidade.
+A implementação foi realizada em módulos que permitem separar leitura de dados, inferência, construção de séries, validação e geração de relatórios. Os parâmetros das campanhas são definidos por arquivos de configuração. Essa organização torna possível registrar versões e comparar execuções, embora a existência do código não substitua a documentação dos dados efetivamente utilizados em cada resultado.
 
 \begin{figure}[htbp]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  font=\small,
-  box/.style={draw, rectangle, rounded corners=1pt, align=center, inner sep=5pt, minimum height=0.95cm, text width=2.0cm},
-  arr/.style={->, thick}
+  x=1.18cm, y=1.08cm,
+  font=\footnotesize,
+  box/.style={draw, rectangle, rounded corners=2pt, align=center, inner sep=2pt, text width=2.5cm, minimum height=1.05cm},
+  arr/.style={-{Stealth[length=1.8mm]}, thick},
+  lane/.style={font=\itshape\scriptsize, align=center, text width=2.8cm}
 ]
-\node[box] (c) {Corpus\\de notícias};
-\node[box, below=0.55cm of c, xshift=-2.1cm] (a) {Amostra\\anotação};
-\node[box, below=0.55cm of c, xshift=2.1cm] (s) {Escore $d$\\classificador};
-\node[box, right=0.45cm of s] (e) {Agregação\\diária};
-\node[box, right=0.45cm of e] (iti) {ITI\\(EWMA)};
-\node[box, below=0.55cm of e] (b) {Referências\\B0--B3};
-\node[box, right=0.45cm of iti, yshift=-0.55cm] (r) {Avaliação\\semanal};
-\node[box, below=0.9cm of r, xshift=-1.2cm] (m) {Retornos\\futuros};
-\draw[arr] (c.south) -- ++(0,-0.15) -| (a.north);
-\draw[arr] (c.south) -- ++(0,-0.15) -| (s.north);
-\draw[arr] (a.east) |- (r.west);
+\node[box] (c) at (0,0) {Corpus de\\notícias};
+\node[box] (a) at (-3.25,-1.55) {Amostra para\\anotação humana};
+\node[box] (t) at (-3.25,-3.15) {Concordância\\($\kappa$, F1)};
+\node[box] (s) at (0,-1.55) {Classificador\\(escore $d$)};
+\node[box] (e) at (2.85,-1.55) {Agregação\\diária};
+\node[box] (iti) at (5.7,-1.55) {ITI\\(EWMA)};
+\node[box] (m) at (0,-3.25) {Retornos\\futuros};
+\node[box] (b) at (2.85,-3.25) {Baselines\\B0--B3};
+\node[box] (r) at (5.7,-3.25) {Comparação\\semanal};
+\draw[arr] (c.south) -- ++(0,-0.32) -| (a.north);
+\draw[arr] (c.south) -- ++(0,-0.32) -| (s.north);
+\draw[arr] (a.south) -- (t.north);
 \draw[arr] (s.east) -- (e.west);
 \draw[arr] (e.east) -- (iti.west);
 \draw[arr] (e.south) -- (b.north);
-\draw[arr] (iti.east) -- (r.west);
-\draw[arr] (b.east) -| (r.south);
-\draw[arr] (m.north) -- (r.south);
-\end{tikzpicture}
-\caption{Organização metodológica: validação textual e avaliação temporal a partir do mesmo corpus.}
+\draw[arr] (iti.south) -- (r.north);
+\draw[arr] (b.east) -- (r.west);
+\draw[arr] (m.south) -- ++(0,-0.38) -| (r.south);
+\node[lane] at (-3.25,-4.2) {Validação textual\\(Cap.~\ref{cap:resultados})};
+\node[lane] at (2.85,-4.2) {Avaliação temporal\\(correlações e bootstrap)};
+\end{tikzpicture}%
+}
+\caption{Fluxo da pesquisa: trilha de validação textual (esquerda) e construção do índice com comparação temporal (direita), a partir do mesmo corpus.}
 \label{fig:pipeline}
-\vspace{0.4em}
+\vspace{0.5em}
 {\footnotesize Fonte: elaboração própria.}
 \end{figure}
 
-\section{Corpus e critérios de seleção}
+Os experimentos apresentados na qualificação são exploratórios. A referência humana independente e os testes confirmatórios permanecem como atividades futuras. Esse limite não invalida a avaliação do pipeline, mas impede interpretar as correlações observadas como uma demonstração definitiva da hipótese.
 
-O corpus de aplicação é formado por notícias corporativas em português vinculadas à Sabesp. Nos registros experimentais, o conjunto filtrado é denominado corpus estrito. Essa denominação identifica uma versão dos dados, mas não substitui a descrição dos critérios de seleção.
+\section{Formação e delimitação do corpus}
 
-O registro de uma notícia deve permitir recuperar seu identificador, endereço de origem, veículo, título, corpo, data e, quando disponível, horário de publicação. Também devem ser preservados a data de coleta, a versão do texto processado e o vínculo com a empresa. Essas informações permitem distinguir atualização da página, republicação e ocorrência de notícias semelhantes em veículos diferentes.
+O corpus reúne notícias em português associadas a empresas do setor de saneamento. A análise principal utiliza matérias vinculadas à Sabesp. A implementação conserva versões distintas do conjunto coletado: um corpus geral, uma seleção estrita para a empresa e uma versão filtrada para reduzir determinados tipos de matérias de agenda ou acompanhamento de mercado.
 
-A inclusão exige pertinência à empresa e conteúdo suficiente para a classificação. A simples ocorrência de “Sabesp” em listas, menus ou referências laterais não caracteriza uma notícia sobre a companhia. Textos incompletos e páginas sem data confiável precisam de tratamento próprio. As exclusões e seus motivos devem ser registradas, permitindo apresentar as quantidades antes e depois de cada filtro.
+A inclusão de uma notícia requer vínculo identificável com a empresa, conteúdo textual suficiente e referência temporal utilizável. Uma matéria que cite a Sabesp apenas em uma relação de papéis negociados, por exemplo, não equivale a uma notícia cujo assunto central seja uma decisão regulatória ou um investimento da companhia. A simples presença da palavra *Sabesp* não é critério suficiente para assegurar que o texto seja informativo para o alvo de classificação.
 
-A deduplicação deve considerar tanto repetições exatas quanto republicações. Notícias diferentes sobre um mesmo acontecimento não são necessariamente duplicatas: podem acrescentar informações ou representar cobertura editorial independente. A regra adotada precisa preservar essa distinção. Também é necessário avaliar se uma ampla reprodução da mesma matéria está aumentando artificialmente seu peso na série.
+Os registros do projeto incluem campos associados ao identificador da notícia, título, corpo, data, veículo e endereço de origem, além de informações de empresa e ativo. Para uma reconstrução rigorosa dos experimentos, também é necessário conhecer a data de coleta, a disponibilidade do horário de publicação, eventuais atualizações no texto e a versão do arquivo utilizado. Se esses campos não estiverem disponíveis para algum registro, essa ausência deverá constar do inventário, em vez de ser preenchida por suposição.
 
-O recorte experimental principal informado no material desta qualificação compreende aproximadamente 465 artigos entre novembro de 2023 e abril de 2024. O valor é aproximado porque o inventário definitivo do corpus e as contagens por etapa não foram incorporados à versão disponível. A análise ampliada utiliza o intervalo de maio de 2022 a abril de 2024.
+A deduplicação também exige uma decisão explícita. Duas cópias idênticas de uma notícia não devem aumentar artificialmente o peso do acontecimento. Por outro lado, reportagens independentes sobre o mesmo fato podem acrescentar informações e não precisam ser eliminadas automaticamente. O algoritmo aplicado, as exceções e as quantidades de documentos retirados em cada etapa precisam ser apresentados para caracterizar a cobertura resultante.
 
-% CONFIRMAR P05: obter contagem exata, fontes, termos de busca, datas de coleta, critérios implementados, quantidades excluídas e cobertura por mês. As regras de registro acima são a especificação metodológica necessária, não evidência de que todos os campos já existam. --
+Na janela principal, de novembro de 2023 a abril de 2024, os registros experimentais descrevem aproximadamente 465 artigos no recorte estrito. A janela ampliada compreende maio de 2022 a abril de 2024, com diferentes versões que buscaram melhorar a cobertura, inclusive de lacunas observadas em 2023. Essas quantidades são mantidas como caracterização histórica dos experimentos. Não se atribui precisão ao total sem um relatório final de seleção, filtragem e deduplicação.
 
-\section{Anotação de referência}
+A composição do corpus pode interferir diretamente no índice. Concentração de notícias em poucos veículos, republicações, ausência de cobertura em determinados meses e presença de matérias sobre muitas empresas são fatores que afetam tanto os escores diários quanto sua evolução temporal. Por esse motivo, o corpus não é apenas uma entrada computacional; suas propriedades fazem parte das condições de validade dos resultados.
 
-A amostra descrita no estudo contém cem notícias. Sua seleção foi estratificada segundo as classes previstas pelo classificador, com o objetivo de contemplar diferentes saídas automáticas. Esse desenho favorece a inspeção dos tipos de erro, mas não implica que as proporções da amostra reproduzam as do corpus.
+\section{Amostra e protocolo de anotação humana}
 
-Cada notícia recebe um rótulo de polaridade orientado à Sabesp e uma identificação de seu tipo. São distinguidas matérias focais, em que a empresa constitui o assunto principal; notícias multiempresa ou de agenda, em que diferentes companhias aparecem no mesmo texto; e menções tangenciais. Na amostra reportada, foram identificadas 74 matérias focais e 26 de agenda ou multiempresa.
+A avaliação textual preliminar utiliza uma amostra de cem notícias associadas à Sabesp. Sua seleção foi organizada para contemplar classes previstas pelo classificador, favorecendo a inspeção de comportamentos diferentes do modelo. Esse procedimento não equivale a uma amostragem aleatória simples do corpus. Portanto, a acurácia calculada na amostra não deve ser apresentada automaticamente como estimativa da acurácia que o modelo teria em todas as matérias coletadas.
 
-A pergunta de anotação é: considerando apenas as informações da notícia, o fato relatado apresenta orientação favorável, desfavorável ou neutra para a Sabesp? O anotador deve registrar o trecho que fundamenta a decisão e indicar ambiguidades. O retorno posterior da ação não participa da definição do rótulo.
+A tarefa de anotação é definida pela seguinte pergunta: \textbf{considerando o título e o corpo da notícia, o acontecimento relatado contém informação favorável, desfavorável ou neutra para a Sabesp?} A resposta deve ser fundamentada no conteúdo disponível ao anotador, sem utilizar a variação posterior do preço da ação como critério de decisão.
 
-A avaliação preliminar utiliza a anotação realizada pelo autor. O desenho de continuidade prevê a participação independente de pelo menos três avaliadores com conhecimento econômico-financeiro. Um subconjunto comum de aproximadamente trinta notícias foi proposto para examinar concordância entre participantes. Caso apenas esse subconjunto receba avaliações múltiplas, a concordância e o consenso obtidos não serão atribuídos às cem notícias.
+Além da classe, cada notícia recebe uma caracterização quanto ao seu foco. Uma notícia focal discute a Sabesp como assunto principal ou com desenvolvimento substantivo. Matérias de agenda ou multiempresa abordam diferentes companhias ou movimentos mais amplos do mercado. As menções tangenciais são registradas separadamente quando não há conteúdo suficiente sobre a empresa-alvo. Na amostra reportada, foram identificados 74 textos focais e 26 de agenda ou multiempresa.
 
-As anotações individuais serão preservadas antes da discussão dos casos. A referência consolidada poderá utilizar maioria entre os participantes, com adjudicação documentada quando houver empate ou desacordo não resolvido. O Apêndice~\ref{ap:protocolo} apresenta as instruções propostas para essa etapa.
+A pesquisa passou por uma primeira anotação exploratória, de critério simplificado, e uma rodada posterior orientada de maneira mais explícita ao efeito descrito para a Sabesp. Essas rodadas não constituem avaliações equivalentes de um classificador sob um único padrão fixo: o referencial de anotação mudou. A interpretação de seus resultados deve preservar essa diferença, conforme discutido no Capítulo~\ref{cap:resultados}.
 
-As métricas da amostra estratificada devem ser interpretadas como desempenho no conjunto avaliado. Para estimar a acurácia no corpus, serão necessários o tamanho dos estratos e as probabilidades de inclusão, ou uma nova amostra representativa. O protocolo também deverá distinguir a amostra usada para aperfeiçoar as instruções daquela reservada à avaliação final.
+Na continuidade, a referência deverá ser ampliada por avaliações independentes de participantes com conhecimento econômico-financeiro. O desenho previsto considera pelo menos três especialistas e um conjunto comum de notícias para estimar concordância entre anotadores. Os rótulos individuais serão preservados antes da discussão de divergências. Quando houver maioria, ela poderá orientar a referência consolidada; casos sem decisão majoritária exigirão adjudicação documentada.
 
-% CONFIRMAR P06: recuperar semente, lista de IDs, tamanhos dos estratos e contagens por classe humana. Verificar se as cem notícias da etapa exploratória são exatamente as mesmas da etapa reanotada. --
+O tamanho do subconjunto efetivamente compartilhado entre avaliadores deverá ser informado. Caso apenas cerca de trinta notícias recebam mais de uma anotação, as estatísticas de concordância humana serão calculadas e interpretadas \textbf{para esses itens}, sem sugerir que todos os cem textos tenham recebido avaliações independentes.
 
-\section{Classificação automática e tratamento do texto}
+Os campos e exemplos operacionais estão detalhados no Apêndice~\ref{ap:protocolo}. O protocolo também prevê distinguir neutralidade, ambiguidade e insuficiência de informação. Essa separação evita que limitações na extração ou no vínculo entre notícia e companhia apareçam indevidamente como rótulos neutros.
 
-A entrada textual utilizada nos experimentos é a concatenação do título e do corpo da notícia, nessa ordem. A mesma fonte textual é disponibilizada aos anotadores. Contudo, isso não assegura igualdade entre o conteúdo lido pelo humano e o conteúdo processado pelo modelo.
+\section{Classificação automática e preparação da entrada}
 
-O limite de entrada exige atenção a documentos longos. Na implementação descrita, utiliza-se um modelo da família BERT com limite de 512 tokens. Se a sequência exceder o limite, o truncamento pode remover trechos relevantes, inclusive a parte referente à Sabesp. O relatório de inferência precisa registrar o comprimento original, o comprimento processado, a política de truncamento e a quantidade de notícias afetadas.
+As notícias são processadas por um classificador financeiro em português. Na configuração das campanhas examinadas, a entrada é composta pela concatenação do título e do corpo, preservando essa ordem. A combinação busca oferecer ao modelo tanto a síntese inicial da matéria quanto seu desenvolvimento. Os rótulos e as probabilidades são associados ao identificador do documento, permitindo recuperar a notícia de origem.
 
-A primeira comparação mede o desempenho do procedimento efetivamente usado, incluindo suas limitações de entrada. Em uma análise complementar, poderá ser oferecido aos anotadores o trecho efetivamente processado pelo modelo. Essa comparação ajuda a separar dificuldades de classificação da perda de conteúdo. Alternativas como seleção de sentenças relacionadas à empresa ou processamento por segmentos deverão ser avaliadas como novas configurações, com registros próprios.
+A configuração do modelo considera comprimento máximo de 512 tokens. A sequência recebida pelo anotador humano pode ser maior que a efetivamente processada pelo classificador, já que os modelos baseados em BERT estão sujeitos ao limite de entrada definido. Assim, a igualdade entre o arquivo textual apresentado aos participantes e o arquivo textual de origem não implica igualdade do conteúdo disponível ao modelo.
 
-Para cada notícia, serão preservadas as probabilidades das três classes, a classe escolhida e o escore contínuo. O mapeamento entre índices numéricos e rótulos precisa ser lido da configuração do checkpoint. A inversão entre positivo e negativo comprometeria toda a série, mesmo que a execução computacional terminasse sem erros.
+Para investigar essa diferença, a avaliação futura deverá registrar número de tokens antes e depois do processamento, proporção de textos truncados e posição da primeira menção substantiva à Sabesp. Uma análise de erro especialmente útil consistirá em verificar se a previsão foi feita sobre um trecho que efetivamente contém a informação necessária à classificação orientada à empresa.
 
-O classificador será avaliado com matriz de confusão, acurácia, precisão, revocação e F1 por classe, F1 macro e kappa. Os resultados deverão ser comparados a uma classificação majoritária simples. O desempenho será examinado também por tipo de notícia e pela presença de truncamento.
+O procedimento conserva as probabilidades de saída, a classe prevista e o escore contínuo. É essencial verificar o mapeamento entre índices numéricos e classes a partir do checkpoint carregado. Uma inversão entre positivo e negativo não necessariamente causaria falha de execução, mas alteraria o sentido do escore e comprometeria a interpretação dos índices.
 
-O protocolo inicial estabeleceu, como referência operacional, acurácia da ordem de 70% ou kappa de pelo menos 0,40. Esses valores são escolhas do projeto e não critérios universais derivados de \citeonline{cohen1960kappa}. Na continuidade, a decisão de utilizar o modelo na interpretação substantiva do índice deverá considerar conjuntamente erros por classe, estabilidade da referência humana e incerteza das estimativas.
+O classificador é avaliado por matriz de confusão, acurácia, precisão, revocação, F1 por classe, F1 macro e kappa, sempre identificando a referência humana utilizada. Também deve ser calculado um baseline que atribui a todos os itens a classe predominante da amostra. Essa comparação auxilia a verificar se o resultado observado acrescenta algo além da distribuição das classes.
 
-\section{Construção do ITI}
+O projeto adotou, como critério operacional inicial de progresso, acurácia próxima de 70\% ou kappa de pelo menos 0,40. Esses valores são decisões do protocolo de pesquisa, não limiares científicos universais derivados de \citeonline{cohen1960kappa}. Como a base é estratificada e a classe neutra é majoritária na anotação atual, a avaliação definitiva dependerá também das métricas por classe, da qualidade do consenso humano e da análise dos casos ambíguos.
 
-\subsection{Escore por notícia}
+\section{Construção do Índice Temporal Informacional}
 
-Seja $\mathcal{N}_{c,t}$ o conjunto de notícias vinculadas à empresa $c$ e atribuídas ao dia $t$. Para cada notícia $i$, define-se
+\subsection{Escore por notícia e dimensões auxiliares}
 
-\[
-d_i = p_i^{+} - p_i^{-}.
-\]
-
-O escore expressa a diferença entre as saídas positiva e negativa do classificador. Não representa uma variação percentual de preço nem a probabilidade de que a ação suba.
-
-\subsection{Agregação diária}
-
-O valor diário é representado por
+Seja $\mathcal{N}_{c,t}$ o conjunto de notícias atribuídas à empresa $c$ no dia $t$. Para uma notícia $i$, o classificador retorna as probabilidades $p_i^{+}$, $p_i^{-}$ e $p_i^{0}$. O escore contínuo é definido por:
 
 \[
-x_{c,t}=g\left(\{d_i,\mathbf{p}_i:i\in\mathcal{N}_{c,t}\}\right),
+d_i=p_i^{+}-p_i^{-}.
 \]
 
-em que $g$ é a regra de agregação e $\mathbf{p}_i$ contém as probabilidades das classes. Essa representação explicita que a construção diária depende de uma escolha adicional à classificação. A função precisa ser recuperada da implementação utilizada em cada campanha para que os resultados históricos possam ser reproduzidos.
+Além do escore, o procedimento utiliza dimensões auxiliares: confiança do classificador $c_i$, magnitude $m_i$, relevância $r_i$, peso associado ao tipo de evento $e_i$, novidade $u_i$, horizonte textual $h_i$ e fator de risco $q_i$. Esses elementos têm significados diferentes e não devem ser interpretados como variáveis verificadas independentemente na base atual.
 
-Como referência metodológica simples, uma opção é a média aritmética dos escores:
+A implementação resolve os valores por meio de informações presentes nas colunas do conjunto de dados, metadados de previsão, regras heurísticas sobre título e corpo e valores padrão. A relevância procura distinguir referências mais explícitas à empresa; o peso de evento procura reconhecer termos ligados, por exemplo, à regulação, ao investimento e à privatização; a novidade considera títulos repetidos; e o horizonte utiliza indícios linguísticos de prazo. O procedimento contém ainda regras para magnitude e risco, descritas na documentação técnica do projeto.
+
+As dimensões compõem uma \textbf{modelagem heurística do impacto textual}, e não uma mensuração empírica comprovada da importância econômica de cada notícia. A distinção é necessária porque o bom funcionamento aritmético de uma fórmula não valida os pesos que ela emprega. Sua utilidade deverá ser examinada com ablações e análises de sensibilidade. Na redação final, os intervalos permitidos para cada dimensão e a política de precedência dos valores deverão ser reproduzidos a partir da configuração da execução avaliada.
+
+\subsection{Impacto por notícia e agregação diária}
+
+A implementação principal calcula, para cada notícia, um impacto líquido $I_i$, um componente de risco $R_i$ e um peso de agregação $w_i$:
 
 \[
-\bar d_{c,t}=\frac{1}{n_{c,t}}\sum_{i\in\mathcal{N}_{c,t}}d_i,
-\qquad n_{c,t}>0.
+I_i=d_i\,m_i\,r_i\,c_i\,e_i\,u_i,
 \]
-
-Essa expressão é uma especificação candidata para comparação, e não a identificação retroativa da função usada nos experimentos R0 e R1. Se a implementação tiver pesos por confiança, relevância ou outro atributo, suas definições e normalizações deverão constar da descrição final.
-
-\subsection{Memória temporal}
-
-A atualização do índice segue a forma recorrente apresentada no projeto:
 
 \[
-ITI_{c,t}=\alpha_{\mathrm{eff},t}\,ITI_{c,t-1}
-+\left(1-\alpha_{\mathrm{eff},t}\right)x_{c,t}.
+R_i=\max(0,-d_i)\,m_i\,r_i\,c_i\,q_i,
 \]
-
-O parâmetro $\alpha_{\mathrm{eff},t}$ controla a retenção do estado anterior. Na configuração R1, o parâmetro nominal reportado é $\alpha=0{,}70$. A relação entre o parâmetro nominal e o efetivo precisa ser explicitada, especialmente se a atualização considerar intervalos variáveis ou propriedades das notícias.
-
-Em uma grade diária regular com coeficiente constante, a notação pode ser simplificada para $\alpha_{\mathrm{eff},t}=\alpha$. Se houver intervalos irregulares, uma alternativa é usar retenção $\alpha^{\Delta_t}$, mas essa opção não será atribuída às execuções existentes sem verificação. Também precisam ser especificados o valor inicial e a eventual exclusão de um período de aquecimento.
-
-Para dias sem notícias e com coleta confirmada, o projeto prevê decaimento do estado anterior. Em uma implementação com grade regular e entrada nula, a atualização fica
 
 \[
-ITI_{c,t}=\alpha\,ITI_{c,t-1}.
+w_i=c_i\,r_i\,u_i.
 \]
 
-O zero, nesse caso, representa ausência de nova entrada no procedimento. Não equivale a uma observação de notícia neutra. A quantidade de notícias e a disponibilidade da coleta devem permanecer registradas como variáveis auxiliares.
+O impacto líquido mantém o sinal do escore, enquanto o componente de risco registra a parcela associada à orientação negativa. As duas séries não devem ser confundidas: uma mede uma combinação assinada de elementos textuais e a outra é construída para representar o lado desfavorável da classificação.
 
-A escala final do índice depende de $g$. Se a agregação diária for uma combinação convexa dos escores e o estado inicial pertencer a $[-1,1]$, a recorrência com pesos válidos preserva esse intervalo. Uma soma não normalizada não oferece a mesma propriedade. Portanto, não se atribui ao ITI um intervalo fixo sem definir a agregação.
+Para um conjunto não vazio de notícias no dia $t$, o impacto diário é calculado como média ponderada:
 
-% CONFIRMAR P07: recuperar g, alfa efetivo, inicialização, calendário, regra de ausência, pesos e eventuais componentes positivos/negativos da implementação. As expressões candidatas não autorizam substituir a fórmula usada e manter as mesmas tabelas. --
+\[
+x_{c,t}=\frac{\sum_{i\in\mathcal{N}_{c,t}} I_i w_i}{\sum_{i\in\mathcal{N}_{c,t}}w_i}.
+\]
 
-\section{Medidas de comparação}
+Da mesma forma, a entrada diária de risco é:
 
-As medidas de referência utilizam as mesmas notícias do índice. Essa restrição permite investigar o efeito da agregação e da memória sem confundi-lo com diferenças de cobertura.
+\[
+q_{c,t}^{\mathrm{dia}}=\frac{\sum_{i\in\mathcal{N}_{c,t}} R_i w_i}{\sum_{i\in\mathcal{N}_{c,t}}w_i}.
+\]
 
-Quadro 2 — Medidas de referência do protocolo.
+Quando a soma dos pesos é nula, a implementação utiliza a média simples dos impactos disponíveis no dia. A quantidade de notícias, a confiança média e outras estatísticas auxiliares são preservadas para permitir a inspeção da agregação. Convém notar que $q_i$, fator de risco de uma notícia, e $q_{c,t}^{\mathrm{dia}}$, entrada diária de risco, são objetos distintos.
+
+A ponderação repete alguns fatores presentes em $I_i$, como confiança, relevância e novidade. Consequentemente, esses fatores influenciam tanto o impacto individual quanto seu peso na média. Essa propriedade deve ser descrita com clareza e avaliada posteriormente: ela pode privilegiar observações consideradas relevantes pela heurística, mas também pode amplificar erros de uma classificação excessivamente confiante.
+
+\subsection{Memória temporal e estados do ITI}
+
+O índice mantém duas séries: $ITI_{c,t}^{\mathrm{liq}}$, calculada a partir do impacto líquido, e $ITI_{c,t}^{\mathrm{risco}}$, obtida a partir do componente diário de risco. As campanhas principais utilizaram valores nominais de memória $\alpha=0{,}85$ na configuração R0 e $\alpha=0{,}70$ na R1. O estado inicial é zero em ambas as configurações.
+
+Em dias com notícias, o parâmetro efetivo da atualização considera um horizonte médio inferido do conteúdo textual:
+
+\[
+\alpha_{\mathrm{eff},t}=\operatorname{clip}\left(\alpha^{1/\bar h_{c,t}},\;0{,}01,\;0{,}999\right),
+\]
+
+em que $\bar h_{c,t}$ é o horizonte médio do dia e \texttt{clip} restringe o valor ao intervalo indicado. O horizonte seguro utilizado para evitar divisão instável em valores muito pequenos deve ser preservado da implementação. As séries são atualizadas por:
+
+\[
+ITI_{c,t}^{\mathrm{liq}}=\alpha_{\mathrm{eff},t}ITI_{c,t-1}^{\mathrm{liq}}+(1-\alpha_{\mathrm{eff},t})x_{c,t},
+\]
+
+\[
+ITI_{c,t}^{\mathrm{risco}}=\alpha_{\mathrm{eff},t}ITI_{c,t-1}^{\mathrm{risco}}+(1-\alpha_{\mathrm{eff},t})q_{c,t}^{\mathrm{dia}}.
+\]
+
+Para os dias sem notícias entre a primeira e a última data observada da empresa, a série é preenchida em um calendário diário contínuo e o estado anterior sofre decaimento com o parâmetro nominal $\alpha$. Esse procedimento é uma regra computacional de memória, não a afirmação de que todos esses dias representam coleta jornalística comprovadamente completa.
+
+Na avaliação financeira semanal, os valores diários são reamostrados em períodos encerrados na sexta-feira (\texttt{W-FRI}). A variável principal é o \textbf{último valor disponível da série líquida na semana}, identificado na configuração como \texttt{iti\_liquido\_last}. A escolha resume o estado acumulado do índice até o fim do período semanal, mas exige um controle de disponibilidade temporal das notícias, tratado na Seção 4.7.
+
+\section{Medidas de referência e interpretação dos baselines}
+
+Para avaliar se a construção do ITI acrescenta algo em relação a alternativas menos elaboradas, foram definidos quatro baselines, B0 a B3, calculados a partir das mesmas notícias ou das saídas obtidas dessas notícias.
 
 \begin{table}[htbp]
 \centering
-\small
-\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\caption{Definição dos baselines B0--B3 e regras de agregação semanal.}
+\label{tab:baselines}
+\begin{tabularx}{\textwidth}{|l|L|L|}
 \hline
-Código & Definição conceitual & Especificação necessária \\
+Medida & Definição diária & Regra semanal na implementação \\
 \hline
-B0 & Quantidade de notícias & Intervalo de contagem e regras de deduplicação \\
-B1 & Média dos escores por notícia & Média de todas as notícias da semana ou média das médias diárias \\
-B2 & Média ponderada dos escores & Definição da confiança, dos pesos e do denominador \\
-B3 & Agregação diária sem memória & Mesma função diária do ITI e regra de representação semanal \\
+B0 & Contagem de notícias & Soma das contagens dos dias da semana \\
+B1 & Média aritmética dos escores $d_i$ & Média dos valores diários disponíveis \\
+B2 & Média dos escores ponderada pela confiança $c_i$ & Média dos valores diários ponderados \\
+B3 & Impacto diário $x_{c,t}$, sem atualização EWMA & Representação semanal de \texttt{impacto\_dia} no painel de pesquisa \\
 \hline
-\end{tabular}
+\end{tabularx}
+\vspace{0.5em}
+{\footnotesize Fonte: elaboração própria com base no procedimento implementado.}
 \end{table}
 
-{\footnotesize Fonte: elaboração própria.}
+B0 representa intensidade de cobertura e não deve ser confundido com polaridade. B1 permite observar o efeito de combinar os escores sem os fatores adicionais de importância. B2 introduz a confiança atribuída pelo classificador e, portanto, ajuda a examinar se essa ponderação altera a associação. B3 utiliza a entrada diária de impacto antes da aplicação da memória.
 
-Para uma semana $w$, a contagem pode ser expressa por $B0_{c,w}=|\mathcal{N}_{c,w}|$. A média por notícia, quando houver observações, é
+A agregação semanal de B1 e B2 toma a média de valores \textbf{diários}, e não a média de todas as notícias da semana ponderadas de maneira uniforme. Em consequência, um dia com uma única notícia pode ter o mesmo peso semanal que outro com diversas matérias. Essa escolha precisa ser considerada na interpretação dos resultados e constitui uma alternativa natural para análise de sensibilidade.
 
-\[
-B1_{c,w}=\frac{1}{|\mathcal{N}_{c,w}|}
-\sum_{i\in\mathcal{N}_{c,w}}d_i.
-\]
+B3 merece atenção específica. O ITI utiliza a entrada diária $x_{c,t}$, mas o arquivo semanal de pesquisa pode carregar \texttt{impacto\_dia\_sum} como representação desse componente. Portanto, embora B3 seja uma alternativa \textbf{sem recorrência EWMA}, a comparação disponível não deve ser descrita como uma ablação perfeitamente controlada da memória até que se verifique se a unidade e a agregação semanal são equivalentes às do índice. A avaliação de um efeito isolado de memória exige manter constantes as demais transformações.
 
-Uma média ponderada assume a forma
+Também é necessário explicitar como cada baseline lida com semanas sem notícias. Contagens, médias de sentimento e valores de impacto não possuem a mesma definição quando faltam observações. A quantidade efetiva de semanas utilizadas em cada confronto deve ser registrada, evitando comparações apoiadas em subconjuntos diferentes sem essa informação.
 
-\[
-B2_{c,w}=\frac{\sum_{i\in\mathcal{N}_{c,w}}q_i d_i}
-{\sum_{i\in\mathcal{N}_{c,w}}q_i},
-\]
+\section{Alinhamento semanal com o mercado}
 
-com pesos $q_i$ não negativos e denominador positivo. A escolha de $q_i$ deve ser identificada no código. Usar a maior probabilidade do classificador é uma opção possível, mas não pode ser apresentada como fato histórico sem essa conferência.
+A etapa de avaliação financeira relaciona indicadores derivados das notícias à série de preços da ação SBSP3. O alinhamento é feito em frequência semanal, com períodos encerrados na sexta-feira. Para o ITI, utiliza-se o estado do índice registrado ao fim de cada semana; para o mercado, são produzidos retornos semanais a partir dos retornos diários disponíveis.
 
-B3 deve permitir isolar a memória. Para isso, utiliza a mesma agregação diária do ITI, retirando apenas a recorrência temporal. Se outras transformações forem alteradas ao mesmo tempo, a comparação não identifica o efeito específico da memória.
-
-Há risco de redundância entre B1, B2 e B3. Se a função diária for a média simples e a agregação semanal reproduzir a média por notícia, B1 e B3 poderão coincidir. O procedimento final deverá verificar essa possibilidade e evitar contar indicadores idênticos como evidências independentes. Semanas sem notícias exigem regra declarada: a média é indefinida, enquanto a contagem é zero. A imputação de zero para médias deve ser identificada como convenção e avaliada separadamente.
-
-\section{Alinhamento temporal e retornos}
-
-O preditor principal descrito no projeto é o estado do ITI no último dia útil da semana. Esse ponto de referência deve estar associado a um horário de corte. Notícias publicadas após esse horário não podem compor o indicador utilizado para o retorno que começa imediatamente naquele fechamento.
-
-Quando a hora de publicação não estiver disponível, a análise deverá adotar uma regra conservadora e apresentar sua sensibilidade. Uma opção é atribuir a informação ao próximo pregão elegível. O tratamento de fins de semana e feriados precisa acompanhar o calendário de negociação, sem eliminar notícias apenas porque foram publicadas em dias sem mercado.
-
-Seja $P_{c,w}$ o preço de referência no encerramento da semana $w$. Para $h\in\{1,2,4\}$, o retorno logarítmico acumulado futuro é
+Se $P_w$ representa um preço de referência consistente no encerramento da semana $w$, o retorno logarítmico acumulado das $h$ semanas seguintes pode ser expresso por:
 
 \[
-R^{(h)}_{c,w}=\log\left(\frac{P_{c,w+h}}{P_{c,w}}\right).
+R_w^{(h)}=\log\left(\frac{P_{w+h}}{P_w}\right), \qquad h\in\{1,2,4\}.
 \]
 
-A mesma quantidade pode ser obtida pela soma dos log-retornos diários do intervalo, desde que os preços e o calendário sejam consistentes. A fonte e a política de ajustes precisam ser documentadas: fechamento bruto, ajuste por desdobramento e ajuste por proventos não são intercambiáveis. A nomenclatura do retorno deve corresponder ao dado efetivamente utilizado.
+De maneira equivalente, esse retorno corresponde à soma dos log-retornos dos pregões compreendidos no intervalo futuro, desde que os preços, o calendário e a política de ajustes sejam consistentes. A fonte utilizada nas execuções, o tratamento de proventos e a natureza do preço de referência precisam constar do manifesto experimental antes da interpretação econômica definitiva.
 
-ITI e medidas de referência serão comparados nas mesmas semanas válidas, para cada horizonte. As últimas semanas sem retorno futuro completo serão excluídas daquela avaliação. A quantidade efetiva de pares deve ser apresentada por horizonte, pois determina a informação estatística disponível.
+A implementação semanal reúne ITI, baselines e retornos de mercado por identificador da empresa e período. Quando há mais de uma observação com a mesma chave semanal, a rotina de alinhamento conserva a última ocorrência disponível. Em seguida, utiliza uma junção interna para reunir as semanas encontradas nas séries textuais e financeiras e calcula retornos acumulados para horizontes de uma, duas e quatro semanas.
 
-% CONFIRMAR P08: identificar provedor, campo de preço, ajustes, fuso, horário de corte, calendário, tratamento de publicação sem hora e número de semanas úteis. A política conservadora descrita é proposta para a continuidade se não estiver implementada. --
+Essa implementação exige duas verificações. A primeira é o \textbf{instante de disponibilidade da notícia}. Um texto publicado após o fechamento de sexta-feira não pode integrar um indicador considerado disponível no encerramento desse pregão para avaliar um retorno iniciado a partir dele. Quando não houver horário confiável, deve ser adotada uma política conservadora, por exemplo o deslocamento para a primeira sessão posterior elegível, acompanhada de análise de sensibilidade.
 
-\section{Comparação estatística}
+A segunda é a \textbf{continuidade do calendário}. Se os retornos futuros forem acumulados apenas depois de restringir o painel às semanas com registros textuais e financeiros coincidentes, uma lacuna pode fazer com que a próxima linha de dados corresponda a um intervalo maior do que uma semana real. Por isso, a continuidade do projeto inclui a verificação de que os retornos de mercado sejam primeiro produzidos em uma grade semanal íntegra e apenas depois associados ao ITI.
 
-O protocolo exploratório combina quatro referências, duas medidas de associação e três horizontes, totalizando 24 comparações por configuração. Pearson e Spearman são calculados para o ITI e para cada referência com o mesmo retorno futuro.
+As últimas semanas que não possuem retornos futuros completos para um horizonte devem ser excluídas desse confronto. Como o horizonte de quatro semanas exige mais observações posteriores do que o de uma semana, os tamanhos amostrais podem diferir. O relatório final deve informar, para cada comparação, o número de pares válidos e as semanas efetivamente utilizadas.
 
-Para a próxima avaliação, propõe-se declarar previamente a estatística
+\section{Procedimento estatístico}
+
+A análise exploratória combina quatro baselines, duas medidas de correlação e três horizontes de retorno. Em cada configuração, isso resulta em $4\times2\times3=24$ comparações entre o ITI líquido e as medidas de referência. As correlações de Pearson e Spearman são calculadas sobre as séries alinhadas, com os mesmos retornos futuros em cada confronto.
+
+Nas execuções históricas descritas nesta qualificação, a diferença é definida por:
 
 \[
-\Delta_{b,h,m}=
-\left|\rho_m(ITI_w,R_w^{(h)})\right|
--\left|\rho_m(Bb_w,R_w^{(h)})\right|,
+\Delta_{b,h,m}=\rho_m\!\left(ITI_w,R_w^{(h)}\right)-\rho_m\!\left(B_{b,w},R_w^{(h)}\right),
 \]
 
-em que $b$ identifica a referência e $m$ a medida de correlação. Uma diferença positiva indica maior magnitude de associação do ITI naquela comparação. Os sinais das correlações também serão reportados, pois relações de sentidos opostos não devem ser ocultadas pelo uso do módulo.
+em que $b$ identifica um baseline, $h$ é o horizonte e $m$ indica Pearson ou Spearman. A estatística utiliza \textbf{correlações assinadas}. Assim, uma diferença positiva não significa necessariamente maior correlação em módulo. Por exemplo, uma correlação de $-0{,}10$ é numericamente superior a $-0{,}40$, mas tem menor magnitude absoluta. Essa distinção impede interpretar a taxa de confrontos favoráveis como prova direta da hipótese conceitual de associação mais intensa, independentemente do sinal.
 
-Essa definição é uma proposta de explicitação da hipótese sem direção prévia. Não altera a interpretação dos registros históricos até que se confira se o código utilizou módulo, correlação assinada ou outro critério. A mudança da estatística exige nova execução e nova identificação dos resultados.
+A incerteza é estimada por bootstrap em blocos, preservando em cada reamostra o pareamento entre ITI, baseline e retorno. A configuração empregada utiliza 500 reamostragens, blocos de duas observações semanais e semente 42. O procedimento calcula diferenças de correlação, intervalos percentílicos e uma proporção de reamostragens cujo delta não é positivo. A implementação classifica uma comparação como significativamente favorável quando o delta observado é positivo e o critério implementado de intervalo ou valor de $p$ é atendido.
 
-As séries apresentam dependência temporal, e os retornos de horizontes maiores se sobrepõem. O procedimento de reamostragem deve preservar parte dessa dependência e a correspondência entre ITI, referências e retornos. O bootstrap em blocos oferece uma abordagem para observações dependentes, sob condições apropriadas de estacionariedade (Künsch, 1989). Seu uso não elimina a necessidade de avaliar a adequação de uma janela marcada por mudanças institucionais.
+O uso de blocos procura conservar parte da dependência temporal das observações, conforme a motivação geral discutida por \citeonline{kunsch1989bootstrap}. Entretanto, retornos acumulados de duas ou quatro semanas se sobrepõem e podem apresentar dependência além de dois períodos. A adequação do comprimento dos blocos precisa ser examinada. O valor de $p$ empregado na comparação de deltas também deve ser descrito de acordo com sua implementação, sem apresentá-lo como se fosse automaticamente equivalente a um teste paramétrico bilateral.
 
-Na implementação final, serão registrados o tipo de bloco, o comprimento, a quantidade de reamostragens, a semente e o método de construção dos intervalos de confiança. Cada bloco deverá reamostrar conjuntamente as variáveis utilizadas na diferença de correlações. Reamostrar o ITI e a referência independentemente destruiria a estrutura pareada da comparação.
+As 24 comparações compartilham notícias, semanas e retornos. Portanto, não são 24 experimentos independentes. A ocorrência de valores nominais inferiores a 0,05 em poucos confrontos não pode ser interpretada sem considerar a multiplicidade e a escolha das configurações. Em uma etapa confirmatória, a pesquisa deverá selecionar previamente um confronto principal e declarar o tratamento dos testes secundários, podendo utilizar um procedimento de correção como o de \citeonline{holm1979multiple}.
 
-A multiplicidade também será considerada. As 24 comparações compartilham dados e não representam experimentos independentes. A continuidade prevê uma comparação principal previamente definida e o tratamento das demais como análises secundárias; se forem realizados testes de uma família de hipóteses, será adotada uma correção declarada, como a de \citeonline{holm1979multiple}. Nenhum ajuste desse tipo é presumido para os resultados já apresentados.
+A conclusão estatística dependerá tanto dos coeficientes quanto de seus intervalos e da estabilidade entre corpora. A simples taxa de comparações favoráveis não informa o tamanho de cada diferença. Além disso, não encontrar significância não demonstra que os índices sejam equivalentes: séries pequenas ou ruidosas podem não oferecer precisão suficiente para distinguir seus comportamentos.
 
-\section{Avaliação de informação incremental}
+\section{Estratégia de avaliação incremental}
 
-A comparação de correlações responde se uma medida apresenta associação mais forte que outra no recorte avaliado. Uma etapa adicional poderá investigar se o ITI contribui quando as referências já estão presentes no modelo.
+As correlações e os deltas assinados (Seção anterior) descrevem associações marginais; \textbf{não} respondem, por si só, se o ITI acrescenta informação quando baselines e controles já estão em um modelo de regressão. Essa etapa --- comparar especificações com e sem o termo do ITI, com divisão cronológica e variáveis pré-definidas --- está planejada para após a consolidação do corpus e da referência humana (Capítulo~\ref{cap:consideracoes}, Tabela~\ref{tab:plano-continuidade}).
 
-Uma especificação candidata é
+\iffalse
+% [ENXUGAMENTO 2026-10-22] Subseção extensa sobre regressão não executada — reativar na dissertação final se o experimento for rodado.
+\section{Estratégia de avaliação incremental}
+
+As correlações descrevem associações individuais com retornos futuros. Elas não permitem afirmar que o ITI possui conteúdo informacional adicional em relação a baselines que compartilham os mesmos textos. Para investigar essa hipótese mais exigente, será necessário comparar modelos financeiros em que as medidas de referência já estejam presentes.
+
+Uma especificação possível é:
 
 \[
-R_w^{(h)}=\beta_0+\boldsymbol{\beta}^{\mathsf T}\mathbf{B}_w
-+\gamma ITI_w+\boldsymbol{\theta}^{\mathsf T}\mathbf{Z}_w+\varepsilon_w,
+R_w^{(h)}=\beta_0+\sum_{j}\beta_j B_{j,w}+\gamma ITI_w+\sum_k\theta_k Z_{k,w}+\varepsilon_w,
 \]
 
-em que $\mathbf{B}_w$ contém referências não redundantes e $\mathbf{Z}_w$ reúne controles disponíveis no instante de previsão. O modelo com ITI seria comparado ao modelo sem esse termo. A escolha dos controles, a capacidade da amostra e a dependência dos resíduos precisariam ser examinadas antes da estimação.
+em que $B_{j,w}$ são medidas de referência selecionadas sem redundância excessiva e $Z_{k,w}$ representa eventuais controles que estariam disponíveis no instante de previsão. O interesse seria examinar se a inclusão de $ITI_w$ produz ganho mensurável em relação ao mesmo modelo sem esse termo.
 
-Essa etapa será realizada apenas com dados suficientes e separação temporal entre ajuste e avaliação. A seleção do parâmetro de memória, das variáveis e dos modelos não poderá utilizar os retornos do período reservado ao teste. Janelas de validação cronológicas deverão respeitar também o intervalo futuro utilizado nos rótulos, evitando sobreposição entre alvos de treinamento e teste nas fronteiras.
+Essa avaliação requer amostra suficiente, definição antecipada de variáveis e uma separação cronológica entre períodos de desenvolvimento e teste. É necessário impedir que a seleção dos parâmetros do ITI ou de seus controles utilize dados do período reservado para avaliação final. Como os alvos envolvem retornos futuros acumulados, também será preciso considerar sua sobreposição nos limites entre conjuntos de treinamento, validação e teste.
 
-Essa formulação não constitui resultado desta qualificação. Ela explicita o procedimento necessário para que uma afirmação futura de contribuição incremental seja sustentada por algo além de correlações isoladas.
+A especificação é apresentada como possibilidade metodológica, \textbf{não como experimento executado nesta qualificação}. Sua inclusão no plano de continuidade mostra que a análise pretende avançar da simples comparação de correlações para uma avaliação mais diretamente relacionada à ideia de informação incremental, caso os dados disponíveis permitam esse avanço.
+\fi
 
-\section{Registro experimental}
+\section{Registro e reprodutibilidade das execuções}
 
-Cada execução deverá estar associada à versão do corpus, ao checkpoint, ao tokenizador, às configurações de classificação e agregação e à revisão do código. Os resultados precisam incluir as séries intermediárias e finais, permitindo localizar a etapa responsável por uma diferença.
+Cada execução deve ser identificável por \texttt{run\_id}, versão do corpus, checkpoint do classificador, parâmetros do ITI, preços e regras de alinhamento. O Apêndice~\ref{ap:rastreabilidade} lista identificadores da qualificação e os campos mínimos do manifesto; mudanças de corpus ou código exigem nova execução registrada, sem sobrescrever resultados anteriores.
 
-A execução em máquinas distintas é útil para verificar a estabilidade operacional, mas a comparação exige mais que a contagem final de resultados favoráveis. Devem ser verificadas diferenças nos escores, nas séries e nas estatísticas, com tolerância numérica declarada. O Apêndice~\ref{ap:rastreabilidade} organiza os registros disponíveis e os campos ainda necessários.
+\iffalse
+% [ENXUGAMENTO 2026-10-22] Detalhamento repetido no Apêndice B.
+Os resultados de um experimento dependem de mais elementos do que o código que implementa a fórmula. Para que uma execução seja reproduzível, é necessário identificar a versão do corpus, os critérios de seleção, a configuração do modelo, seus pesos e tokenizador, a ordem das classes, os parâmetros do ITI, o arquivo de preços e as regras de alinhamento e inferência.
+
+O projeto utiliza arquivos de configuração e identificadores de execução para separar campanhas e guardar resultados intermediários. Essa estrutura permite verificar o percurso desde as probabilidades por notícia até os deltas de correlação. Também foram realizadas execuções em ambiente local e no supercomputador Santos Dumont, cujos resultados nominais foram confrontados na rodada canônica. A concordância da contagem final de vitórias, contudo, não constitui sozinha demonstração de igualdade entre todas as saídas: uma reprodução numérica completa requer comparação dos arquivos intermediários com tolerâncias declaradas.
+
+O Apêndice~\ref{ap:rastreabilidade} reúne identificadores disponíveis e especifica os campos necessários para a documentação final. Sempre que uma mudança no corpus, no modelo ou no código alterar a definição do experimento, deve-se manter o resultado anterior identificado e registrar uma nova execução. Assim, o histórico deixa de ser apenas uma sucessão de números e passa a documentar as decisões metodológicas que levaram às versões posteriores do estudo.
+\fi

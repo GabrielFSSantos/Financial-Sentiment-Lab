@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera capítulos LaTeX a partir de Dissertacao_Reescrita_Qualificacao_Gabriel.md (Parte II)."""
+"""Importador legado (markdown → capítulos LaTeX). Texto canônico: Dissertacao_PPGCC/*.tex."""
 from __future__ import annotations
 
 import re
@@ -7,8 +7,51 @@ import sys
 from pathlib import Path
 
 LAB_ROOT = Path(__file__).resolve().parents[3]
-MD = LAB_ROOT / "docs" / "Dissertacao_Reescrita_Qualificacao_Gabriel.md"
+MD = LAB_ROOT / "docs" / "Dissertacao_Qualificacao_Reescrita_Integral_2026-10-22.md"
 OUT = Path(__file__).resolve().parents[1]
+PRETEXTUAL = OUT / "00_pretextual.tex"
+
+TABLE_COUNTER = 0
+
+PIPELINE_FIGURE_TEX = r"""
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  x=1.12cm, y=1.05cm,
+  font=\footnotesize,
+  box/.style={draw, rectangle, rounded corners=2pt, align=center, inner sep=2pt, text width=2.5cm, minimum height=1.05cm},
+  arr/.style={-{Stealth[length=1.8mm]}, thick},
+  lane/.style={font=\itshape\scriptsize, align=center, text width=2.8cm}
+]
+\node[box] (c) at (0,0) {Corpus de\\notícias};
+\node[box] (a) at (-3.25,-1.55) {Amostra para\\anotação humana};
+\node[box] (t) at (-3.25,-3.15) {Concordância\\($\kappa$, F1)};
+\node[box] (s) at (0,-1.55) {Classificador\\(escore $d$)};
+\node[box] (e) at (2.55,-1.55) {Agregação\\diária};
+\node[box] (iti) at (5.1,-1.55) {ITI\\(EWMA)};
+\node[box] (b) at (2.55,-3.15) {Baselines\\B0--B3};
+\node[box] (m) at (0,-3.15) {Retornos\\futuros};
+\node[box] (r) at (5.1,-3.15) {Comparação\\semanal};
+\draw[arr] (c.south) -- ++(0,-0.32) -| (a.north);
+\draw[arr] (c.south) -- ++(0,-0.32) -| (s.north);
+\draw[arr] (a.south) -- (t.north);
+\draw[arr] (s.east) -- (e.west);
+\draw[arr] (e.east) -- (iti.west);
+\draw[arr] (e.south) -- (b.north);
+\draw[arr] (iti.south) -- (r.north);
+\draw[arr] (b.east) -- (r.west);
+\draw[arr] (m.east) -- ++(0.55,0) |- (r.south);
+\node[lane] at (-3.25,-4.05) {Validação textual\\(Cap.~\ref{cap:resultados})};
+\node[lane] at (2.55,-4.05) {Avaliação temporal\\(correlações e bootstrap)};
+\end{tikzpicture}%
+}
+\caption{Fluxo da pesquisa: trilha de validação textual (esquerda) e construção do índice com comparação temporal (direita), a partir do mesmo corpus.}
+\label{fig:pipeline}
+\vspace{0.3em}
+{\footnotesize Fonte: elaboração própria.}
+\end{figure}
+""".strip()
 
 CHAPTERS = [
     (r"^# 1 Introdução", "01_introducao.tex", r"Introdução", "cap:introducao"),
@@ -100,6 +143,7 @@ def split_chapters(body: str) -> dict[str, str]:
             buf.append(line)
             continue
         if current_key == "__pretext__":
+            buf.append(line)
             continue
         if current_key:
             buf.append(line)
@@ -135,7 +179,12 @@ def md_table_to_latex(block: str) -> str:
     return "\n".join(out)
 
 
+def clean_heading_title(title: str) -> str:
+    return re.sub(r"^\d+(?:\.\d+)*\s+", "", title).strip()
+
+
 def convert_block(md: str) -> str:
+    global TABLE_COUNTER
     lines = md.splitlines()
     out: list[str] = []
     i = 0
@@ -170,12 +219,17 @@ def convert_block(md: str) -> str:
             i += 1
             continue
 
+        if "**[Figura 1" in line:
+            out.append(PIPELINE_FIGURE_TEX)
+            i += 1
+            continue
+
         if m := re.match(r"^### (.+)$", line):
-            out.append(f"\\subsection{{{m.group(1)}}}")
+            out.append(f"\\subsection{{{clean_heading_title(m.group(1))}}}")
             i += 1
             continue
         if m := re.match(r"^## (.+)$", line):
-            out.append(f"\\section{{{m.group(1)}}}")
+            out.append(f"\\section{{{clean_heading_title(m.group(1))}}}")
             i += 1
             continue
         if line.startswith("# "):
@@ -196,8 +250,10 @@ def convert_block(md: str) -> str:
             i += 1
             continue
 
-        if line.startswith("Fonte:"):
-            out.append("{\\footnotesize " + line + "}")
+        stripped = line.strip()
+        if stripped.startswith("**Fonte:") or stripped.startswith("Fonte:"):
+            plain = stripped.replace("**", "")
+            out.append("{\\footnotesize " + inline_format(plain) + "}")
             i += 1
             continue
 
@@ -248,6 +304,7 @@ def convert_block(md: str) -> str:
 
 
 def convert_table_simple(rows: list[str]) -> str:
+    global TABLE_COUNTER
     parsed = []
     for r in rows:
         if re.match(r"^\|?[\s\-:|]+\|?$", r.strip()):
@@ -256,36 +313,90 @@ def convert_table_simple(rows: list[str]) -> str:
     if not parsed:
         return ""
     ncol = len(parsed[0])
-    spec = "|" + "|".join(["p{0.22\\textwidth}"] * ncol) + "|"
+    header_raw = parsed[0]
+    if ncol <= 2:
+        colspec = "|l|L|"
+    elif ncol == 3:
+        colspec = "|L|L|L|"
+    elif ncol == 4:
+        colspec = "|L|r|r|r|"
+    else:
+        colspec = "|" + "|".join(["L"] * ncol) + "|"
+    TABLE_COUNTER += 1
+    label = f"tab:import{TABLE_COUNTER}"
+    caption = infer_table_caption(header_raw)
     lines = [
         "\\begin{table}[htbp]",
         "\\centering",
-        "\\small",
-        f"\\begin{{tabular}}{{{spec}}}",
+        f"\\caption{{{caption}}}",
+        f"\\label{{{label}}}",
+        f"\\begin{{tabularx}}{{\\textwidth}}{{{colspec}}}",
         "\\hline",
     ]
-    for j, row in enumerate(parsed):
+    header = [inline_format(c) for c in header_raw]
+    lines.append(" & ".join(header) + " \\\\")
+    lines.append("\\hline")
+    for row in parsed[1:]:
         cells = [inline_format(c) for c in row]
         lines.append(" & ".join(cells) + " \\\\")
-        if j == 0:
-            lines.append("\\hline")
     lines.append("\\hline")
-    lines.append("\\end{tabular}")
+    lines.append("\\end{tabularx}")
     lines.append("\\end{table}")
     return "\n".join(lines)
+
+
+def infer_table_caption(header: list[str]) -> str:
+    """Legenda descritiva a partir do cabeçalho (evita 'Tabela N – Tabela N')."""
+    h = " ".join(header).lower()
+    rules: list[tuple[str, str]] = [
+        ("linha de pesquisa", "Posicionamento do ITI em relação à literatura"),
+        ("medida", "Definição dos baselines e agregação semanal"),
+        ("avaliação textual", "Concordância do classificador nas rodadas textuais"),
+        ("subconjunto", "Desempenho por tipo de notícia"),
+        ("configuração", "Confrontos favoráveis ao ITI na janela principal"),
+        ("recorte experimental", "Síntese de execuções temporais"),
+        ("dimensão", "Ameaças à validade e encaminhamentos"),
+        ("etapa", "Plano de continuidade"),
+        ("campo", "Campos do protocolo de anotação"),
+        ("item", "Registros de rastreabilidade experimental"),
+    ]
+    for needle, caption in rules:
+        if needle in h:
+            return caption
+    first = header[0].strip()
+    return first if first else "Quadro resumo"
+
+
+def escape_percent_in_text(s: str) -> str:
+    """Converte percentuais textuais (48%) em 48\\% sem alterar comentários LaTeX."""
+
+    return re.sub(r"(?<!\\)(\d+(?:,\d+)?)%", r"\1\\%", s)
+
+
+def escape_latex_identifier(s: str) -> str:
+    return (
+        s.replace("\\", "\\textbackslash{}")
+        .replace("_", "\\_")
+        .replace("#", "\\#")
+        .replace("%", "\\%")
+    )
 
 
 def inline_format(s: str) -> str:
     s = s.replace("α", "$\\alpha$")
     s = s.replace("κ", "$\\kappa$")
-    s = re.sub(r"\*\*(.+?)\*\*", r"\\textbf{\\1}", s)
-    s = re.sub(r"`([^`]+)`", r"\\texttt{\\1}", s)
+    s = re.sub(r"\*\*(.+?)\*\*", lambda m: "\\textbf{" + m.group(1) + "}", s)
+    s = re.sub(
+        r"`([^`]+)`",
+        lambda m: "\\texttt{" + escape_latex_identifier(m.group(1)) + "}",
+        s,
+    )
     # \( \) to $ $
     s = re.sub(r"\\\((.+?)\\\)", r"$\1$", s)
     s = re.sub(r"\\\[(.+?)\\\]", r"\\[\n\\1\n\\]", s, flags=re.DOTALL)
     for pat, rep in CITE_MAP:
         s = re.sub(pat, rep, s)
-    return s
+    return escape_percent_in_text(s)
 
 
 def write_chapter(path: Path, title: str, label: str, body_md: str) -> None:
@@ -296,9 +407,78 @@ def write_chapter(path: Path, title: str, label: str, body_md: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
+def write_pretextual(pretext_md: str) -> None:
+    if not pretext_md.strip() or not PRETEXTUAL.exists():
+        return
+
+    def grab(header: str, nxt: str | None) -> str:
+        end = rf"(?=^## {nxt}\s*$)" if nxt else r"\Z"
+        m = re.search(rf"^## {header}\s*\n(.*?){end}", pretext_md, re.M | re.S)
+        return m.group(1).strip() if m else ""
+
+    agrad = grab("Agradecimentos", "Resumo")
+    resumo_block = grab("Resumo", "Abstract")
+    abstract_block = grab("Abstract", None)
+
+    pk = re.search(r"\*\*Palavras-chave:\*\*\s*(.+)", resumo_block, re.I)
+    resumo_body = resumo_block
+    palavras = ""
+    if pk:
+        palavras = pk.group(1).strip()
+        resumo_body = resumo_block[: pk.start()].strip()
+
+    kw = re.search(r"\*\*Keywords:\*\*\s*(.+)", abstract_block, re.I)
+    abstract_body = abstract_block
+    keywords = ""
+    if kw:
+        keywords = kw.group(1).strip()
+        abstract_body = abstract_block[: kw.start()].strip()
+
+    resumo_body = escape_percent_in_text(inline_format(resumo_body))
+    abstract_body = escape_percent_in_text(inline_format(abstract_body))
+    agrad_tex = "\n\n".join(inline_format(p) for p in agrad.split("\n\n") if p.strip())
+
+    base = PRETEXTUAL.read_text(encoding="utf-8")
+
+    def _agrad_block(_: re.Match[str]) -> str:
+        return "\\begin{agradecimentos}\n" + agrad_tex + "\n\\end{agradecimentos}"
+
+    base = re.sub(
+        r"\\begin\{agradecimentos\}.*?\\end\{agradecimentos\}",
+        _agrad_block,
+        base,
+        count=1,
+        flags=re.S,
+    )
+    resumo_tex = (
+        "\\begin{resumo}\n\n"
+        + resumo_body
+        + "\n\n\\vspace{\\onelineskip}\n\n\\noindent\n"
+        + f"\\textbf{{Palavras-chave}}: {palavras}.\n\\end{{resumo}}"
+    )
+    idx_abs = base.find("\\begin{resumo}[Abstract]")
+    idx_res = base.find("\\begin{resumo}")
+    if idx_res >= 0 and idx_abs > idx_res:
+        end_res = base.find("\\end{resumo}", idx_res) + len("\\end{resumo}")
+        base = base[:idx_res] + resumo_tex + base[end_res:idx_abs] + base[idx_abs:]
+
+    abstract_tex = (
+        "\\begin{resumo}[Abstract]\n\\begin{otherlanguage*}{english}\n\n"
+        + abstract_body
+        + "\n\n\\vspace{\\onelineskip}\n\n\\noindent\n"
+        + f"\\textbf{{Keywords}}: {keywords}.\n"
+        + "\\end{otherlanguage*}\n\\end{resumo}"
+    )
+    idx_abs = base.find("\\begin{resumo}[Abstract]")
+    if idx_abs >= 0:
+        end_abs = base.find("\\end{resumo}", idx_abs) + len("\\end{resumo}")
+        base = base[:idx_abs] + abstract_tex + base[end_abs:]
+    PRETEXTUAL.write_text(base, encoding="utf-8")
+
+
 def write_appendices(path: Path, body_md: str) -> None:
     body_md = re.sub(r"^# Apêndice A[^\n]*\n", "", body_md, count=1)
-    parts = re.split(r"^# Apêndice B", body_md, maxsplit=1, flags=re.M)
+    parts = re.split(r"^# Apêndice B[^\n]*", body_md, maxsplit=1, flags=re.M)
     a_md = parts[0]
     b_md = parts[1] if len(parts) > 1 else ""
     b_md = re.split(r"<!-- FIM", b_md)[0]
@@ -317,9 +497,23 @@ def write_appendices(path: Path, body_md: str) -> None:
 
 
 def main() -> int:
+    global TABLE_COUNTER
+    TABLE_COUNTER = 0
+    if not MD.is_file():
+        print(
+            f"Arquivo mestre ausente ({MD.name}). "
+            "Edite docs/Dissertacao_PPGCC/*.tex; o markdown de reescrita foi retirado.",
+            file=sys.stderr,
+        )
+        return 1
     text = MD.read_text(encoding="utf-8")
     body = extract_body(text)
     chunks = split_chapters(body)
+
+    pre = chunks.get("__pretext__", "")
+    if pre:
+        write_pretextual(pre)
+        print("Updated 00_pretextual.tex")
 
     for pat, fname, title, label in CHAPTERS:
         md_chunk = chunks.get(pat, "")
