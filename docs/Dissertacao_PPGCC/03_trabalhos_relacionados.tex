@@ -1,0 +1,68 @@
+\chapter{Trabalhos relacionados}
+\label{cap:relacionados}
+
+\section{Notícias e indicadores econômicos}
+
+\citeonline{tetlock2007media} analisa o conteúdo de uma coluna jornalística nos Estados Unidos e sua relação com o mercado acionário, utilizando uma medida textual de pessimismo. Sua contribuição para esta pesquisa está em tratar a linguagem da imprensa como variável observável, cuja relação com preços e volume pode ser investigada empiricamente. O estudo não determina a direção esperada para o ITI nem substitui a avaliação no mercado brasileiro.
+
+\citeonline{baker2016epu} propõem o índice de incerteza de política econômica a partir da frequência de cobertura jornalística relacionada ao tema. A medida é submetida a verificações e relacionada a variáveis econômicas. O aspecto relevante para o presente trabalho é a necessidade de definir o conteúdo representado pelo índice e de verificar sua validade com evidências externas. Incerteza econômica e polaridade de notícias corporativas, entretanto, são objetos distintos.
+
+\citeonline{shapiro2022fed} desenvolvem medidas temporais de sentimento a partir de notícias econômicas e financeiras e avaliam procedimentos textuais com referência humana. Na documentação do índice diário do Federal Reserve Bank of San Francisco, a suavização utiliza pesos que diminuem geometricamente com a antiguidade das notícias (\citeonline{frbsfNewsSentiment}). Essa documentação oferece um antecedente para o uso de decaimento temporal; a recorrência, o calendário e os parâmetros do ITI são escolhas próprias do presente estudo.
+
+Os trabalhos dessa linha sustentam a construção e a avaliação de medidas textuais temporais. Eles não permitem presumir que toda agregação de sentimento contenha informação adicional sobre retornos ou que a persistência observada em um índice macroeconômico seja adequada a uma empresa específica.
+
+\section{Modelos financeiros em português}
+
+\citeonline{santos2023finbert} distinguem o FinBERT-PT-BR, adaptado à linguagem financeira, do SentFinBERT-PT-BR, ajustado para classificação de sentimentos. O artigo informa uma etapa de modelagem de linguagem com aproximadamente 1,4 milhão de sentenças e uma base final de 503 textos rotulados após filtragem. No teste reportado, o classificador de sentimentos alcança acurácia de 0,76 e F1 de 0,73.
+
+Os autores também apresentam um índice baseado na diferença entre as contagens de textos positivos e negativos, dividida pela quantidade total de textos classificados, incluindo os neutros. Portanto, esse trabalho constitui antecedente tanto para a classificação em português quanto para a agregação de sentimento. A proposta aqui investigada se distingue pelo recorte empresarial, pela avaliação orientada à entidade e pelo uso explícito de memória sobre escores contínuos.
+
+No restante desta dissertação, a expressão “classificador financeiro em português” designa o modelo utilizado nos experimentos. O identificador exato de seu checkpoint deverá acompanhar os registros de execução, pois o nome da família não identifica, por si só, os pesos, a configuração e o mapeamento das classes.
+
+% CONFIRMAR P04: conferir no código se foi utilizado o checkpoint supervisionado SentFinBERT-PT-BR, ou outra distribuição do modelo. Preservar as métricas históricas e não atribuí-las automaticamente a um checkpoint apenas com base no nome empregado no PDF. --
+
+\section{Sentimento orientado a entidades financeiras}
+
+\citeonline{cortis2017semeval5} apresentam uma tarefa de análise de sentimento financeiro em microtextos e notícias, com escores associados às empresas ou aos ativos mencionados. Esse desenho evidencia que a unidade de classificação pode ser o par texto–entidade, e não somente o documento.
+
+\citeonline{yuan2020target} descrevem um corpus de notícias financeiras em chinês com anotação orientada a alvos. Empresas, marcas e outras entidades financeiras são consideradas na definição da polaridade. O estudo oferece uma referência para a necessidade de instruções de anotação que explicitem o alvo e os trechos que sustentam a decisão.
+
+\citeonline{sinha2022sentfin} apresentam o SEntFiN 1.0, conjunto de manchetes com anotações de sentimento por entidade, incluindo exemplos com múltiplas entidades e polaridades diferentes. A existência desses casos reforça a limitação de atribuir uma única polaridade a textos que descrevem empresas distintas.
+
+Esses trabalhos motivam a avaliação da classificação orientada à Sabesp. As diferenças de idioma, gênero textual e extensão dos documentos impedem a transferência direta de seus resultados para o corpus desta pesquisa. A contribuição metodológica aproveitada é a explicitação do alvo, acompanhada da preservação dos julgamentos individuais e da análise dos desacordos.
+
+\section{Evidências no mercado brasileiro}
+
+\citeonline{yoshinaga2012sentimento} investigam a relação entre um índice de sentimento de mercado e retornos futuros no Brasil. O índice é construído por análise de componentes principais a partir de variáveis de mercado, e o estudo reporta uma relação negativa com os retornos subsequentes. Trata-se de um objeto diferente do ITI, mas o resultado mostra por que não se deve impor uma correspondência automática entre sentimento positivo e retorno futuro positivo.
+
+\citeonline{duarte2020news} estudam a previsão de quedas de preços com notícias em português. O trabalho aproxima dados textuais e resultados financeiros por meio de uma tarefa preditiva. Sua relação com esta pesquisa está na avaliação empírica do texto no mercado brasileiro; seu desenho não equivale à comparação entre um índice suavizado e medidas agregadas do mesmo corpus.
+
+\citeonline{racef2022sentimento} analisam a associação entre sentimento do investidor e ciclos de mercado, utilizando dados de empresas listadas e considerando períodos de crise. Os resultados reforçam a necessidade de distinguir recortes temporais. Na presente pesquisa, uma relação observada em uma janela de cobertura intensa precisa ser confrontada com outros períodos antes de ser generalizada.
+
+A literatura brasileira, portanto, oferece evidências de associação e aplicações preditivas, mas com medidas, unidades e desenhos diferentes. As escolhas do ITI devem ser justificadas pelo problema desta pesquisa e avaliadas no conjunto de dados utilizado, sem apresentar resultados de outros estudos como garantia de desempenho.
+
+\section{Síntese e posicionamento da proposta}
+
+O Quadro 1 resume as principais aproximações e diferenças entre os trabalhos revisados e a proposta.
+
+Quadro 1 — Relação entre a literatura e o ITI.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+Linha & Referências principais & Contribuição para a pesquisa & Diferença em relação ao ITI \\
+\hline
+Texto e mercado acionário & \citeonline{tetlock2007media} & Avaliação quantitativa do conteúdo jornalístico & Outro mercado, corpus e método textual \\
+Índices textuais & \citeonline{baker2016epu}; \citeonline{shapiro2022fed} & Construção temporal e validação da medida & Objetos predominantemente agregados, distintos de uma empresa de saneamento \\
+Sentimento financeiro em português & \citeonline{santos2023finbert} & Modelos adaptados e agregação de classificações & Não dispensa validação empresarial e análise da memória proposta \\
+Sentimento por entidade & \citeonline{cortis2017semeval5}; \citeonline{yuan2020target}; \citeonline{sinha2022sentfin} & Definição explícita do alvo da classificação & Outros idiomas, corpora e unidades textuais \\
+Sentimento e mercado brasileiro & \citeonline{yoshinaga2012sentimento}; Duarte et al. (2021); \citeonline{racef2022sentimento} & Referências para avaliação empírica no Brasil & Indicadores e tarefas distintos do estudo de caso \\
+\hline
+\end{tabular}
+\end{table}
+
+{\footnotesize Fonte: elaboração própria a partir dos trabalhos citados.}
+
+A lacuna delimitada nesta revisão é a avaliação integrada da classificação por empresa, da agregação temporal e da comparação com medidas simples no recorte de notícias sobre saneamento. A contribuição pretendida está no desenho e na avaliação dessa integração. A alegação de ineditismo absoluto exigiria uma busca bibliográfica mais abrangente e documentada, que não integra os resultados desta etapa.

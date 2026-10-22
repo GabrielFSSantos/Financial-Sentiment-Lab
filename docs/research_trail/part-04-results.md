@@ -8,24 +8,27 @@ Ver [Parte 2](#parte-2--protocolo-e-critérios-de-progresso). Research: `configs
 
 ## 4.2 Resultado principal (janela evento)
 
-> **Leitura obrigatória:** o resultado principal (41,7%, 2 sig.) é **exploratório**, não confirmatório. Interpretação substantiva do ITI como medida de choque informacional **condiciona-se** à validade do classificador — gate κ falhou (48%, κ=0,163; [§4.4](#44-qualidade-do-classificador)). Não inferir causalidade nem generalização fora da janela evento.
+> **Leitura obrigatória:** os duelos ITI são **exploratórios**, não confirmatórios. Interpretação substantiva do ITI como medida de choque informacional **condiciona-se** à validade do classificador — gate κ falhou (48%, κ=0,163; [§4.4](#44-qualidade-do-classificador)). Não inferir causalidade nem generalização fora da janela evento.
 
 **Janela:** nov/2023–abr/2024 (`saneamento_sabesp_strict_event`, ~465 artigos).
 
-| Run | run_id | Win rate R1 | Significativas |
-|-----|--------|-------------|----------------|
-| Marco 1 | `sabesp_r1_alpha070` | **41,7%** | **2** |
-| Sanity corpus 1.254 | `sabesp_gap2023_event_r1_alpha070` | **41,7%** | **2** |
-| Filtro roundups | `sabesp_event_r1_filtered` | 25,0% | 0 |
+| Run | run_id | Corpus (CSV) | Win rate R1 | Significativas |
+|-----|--------|----------------|-------------|----------------|
+| **Canônico out/2026** | `sabesp_r1_alpha070` | `data/water_utilities_corpus/articles_strict_sabesp.csv` | **25,0%** (6/24) | **0** |
+| Marco 1 (ago/2024, legado) | `sabesp_r1_alpha070` | `data/saneamento_corpus/noticias_strict_sabesp.csv` | 41,7% (10/24) | 2 |
+| Sanity corpus 1.254 | `sabesp_gap2023_event_r1_alpha070` | (run histórico) | 41,7% | 2 |
+| Filtro roundups | `sabesp_event_r1_filtered` | — | 25,0% | 0 |
 
-**Vitórias significativas** (`significant_wins_r1_event.md`):
+**Rodada canônica (qualificação, PC):** re-run local `r1-local-quali` em 21/10/2026, commit `20966dd`, `environment: local`. Replicação HPC (job Slurm **11621573**, `environment: sdumont`) reproduz os **mesmos** duelos (6/24, 0 sig.) sobre o corpus `water_utilities_corpus`; não substitui a linha legada acima.
+
+**Vitórias significativas (somente run legado ago/2024)** — ver `significant_wins_r1_event.md`:
 
 | Horizonte | Baseline | Métrica | Δ | p-value |
 |-----------|----------|---------|---|---------|
 | 4 sem. | B3 | Pearson | +0,133 | 0,040 |
 | 4 sem. | B3 | Spearman | +0,221 | 0,046 |
 
-*Caveat:* 2/24 comparações — compatível com busca múltipla (§4.5).
+*Caveat:* 2/24 comparações no run legado — compatível com busca múltipla (§4.5). No corpus atual, nenhuma comparação passa o critério bootstrap.
 
 ## 4.3 Robustez (janela expandida)
 

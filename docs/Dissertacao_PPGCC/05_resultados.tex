@@ -1,0 +1,136 @@
+\chapter{Resultados preliminares e discussão}
+\label{cap:resultados}
+
+\section{Estado da implementação}
+
+O procedimento foi executado no estudo de caso da Sabesp, incluindo organização do corpus, inferência do classificador, construção das séries e comparação com retornos futuros. A execução demonstra que as etapas foram integradas operacionalmente. A qualidade da medida e sua relação com o mercado, entretanto, dependem das avaliações apresentadas a seguir.
+
+Em outubro de 2026, a configuração R1 foi executada no supercomputador Santos Dumont e posteriormente no ambiente local. Os registros reportam seis comparações favoráveis ao ITI entre 24, sem diferenças significativas pelo bootstrap empregado. Os identificadores operacionais são apresentados no Apêndice~\ref{ap:rastreabilidade}.
+
+O estudo passou por mudanças de corpus e de protocolo de anotação. Por esse motivo, os resultados são organizados por etapa. As comparações textuais utilizam inicialmente a anotação do autor; a referência consolidada por especialistas ainda não estava disponível na versão examinada para esta qualificação.
+
+\section{Avaliação exploratória do classificador}
+
+A primeira avaliação utilizou cem notícias com um critério simplificado de anotação. O classificador apresentou acurácia de 48%, kappa de 0,163 e F1 macro de 0,42, conforme a Tabela 1.
+
+Tabela 1 — Avaliação exploratória do classificador financeiro em português.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+Métrica & Resultado \\
+\hline
+Número de notícias & 100 \\
+Acurácia & 48% \\
+Kappa de Cohen & 0,163 \\
+F1 macro & 0,42 \\
+\hline
+\end{tabular}
+\end{table}
+
+{\footnotesize Fonte: resultados preliminares da pesquisa, registrados no manuscrito de qualificação.}
+
+Os valores indicam concordância limitada com a referência utilizada nessa etapa. A ausência de uma matriz de confusão e da distribuição de classes impede identificar, apenas por esses números, quais classes concentraram os erros ou quanto a acurácia difere de uma previsão majoritária.
+
+Também foram reportadas avaliações com um modelo de tweets em português e um modelo baseado em BERT para português. Como seus identificadores, configurações de ajuste e métricas completas não constam dos registros apresentados, eles não são usados nesta versão para concluir que a escolha do modelo seja irrelevante. Uma comparação entre classificadores exige entradas, referências e condições de avaliação equivalentes.
+
+\section{Avaliação orientada à Sabesp}
+
+Após a reunião de orientação de 6 de outubro de 2026, o critério de anotação passou a enfatizar o efeito da informação para a Sabesp. A rodada associada ao protocolo de 7 de outubro de 2026 apresentou acurácia de 50% e kappa de aproximadamente 0,20 na amostra de cem notícias.
+
+A separação por tipo de notícia mostra resultados distintos, apresentados na Tabela 2.
+
+Tabela 2 — Comparação com a anotação do autor orientada à Sabesp.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+Subconjunto & Notícias & Acurácia & Kappa de Cohen \\
+\hline
+Amostra completa & 100 & 50,0% & 0,20 \\
+Matérias focais sobre a Sabesp & 74 & 52,7% & 0,26 \\
+Notícias multiempresa ou de agenda & 26 & 42,3% & −0,03 \\
+\hline
+\end{tabular}
+\end{table}
+
+{\footnotesize Fonte: resultados preliminares da pesquisa, protocolo identificado como 2026-10-07. Valores de kappa arredondados conforme o registro disponível.}
+
+O desempenho é numericamente maior nas matérias focais. Nas notícias multiempresa ou de agenda, o kappa próximo de zero indica concordância numericamente próxima daquela esperada pelas distribuições marginais nessa amostra. O resultado é compatível com a hipótese de que a classificação do documento inteiro tenha dificuldade para representar a polaridade de uma entidade específica.
+
+Essa interpretação ainda não identifica a causa dos erros. Os subconjuntos diferem em tamanho e podem diferir em distribuição de classes, extensão dos textos e ambiguidade. A análise deverá verificar se o conteúdo referente à Sabesp foi preservado após o truncamento, se o modelo privilegiou outra empresa e se os critérios humanos foram aplicados consistentemente.
+
+A diferença entre 48% e 50% também não demonstra melhoria do modelo, pois a referência de anotação mudou. Comparações entre rodadas com critérios diferentes devem ser tratadas como diagnóstico de versões do protocolo, não como evolução de desempenho sob uma tarefa fixa.
+
+\section{Consolidação da referência humana}
+
+A participação de avaliadores com conhecimento em economia e finanças foi prevista para ampliar a avaliação da tarefa. Entre os colaboradores convidados está Raphael Veloso, cuja participação é registrada nos agradecimentos. A proposta inclui um subconjunto comum de aproximadamente trinta notícias, avaliado independentemente.
+
+Até o estágio descrito nesta qualificação, não havia uma referência consolidada com múltiplos especialistas acompanhada de métricas de concordância. Assim, os resultados das Tabelas 1 e 2 expressam comparação com a anotação do mestrando. Não serão apresentados como desempenho contra consenso especializado.
+
+A consolidação dessa referência tem duas funções. A primeira é verificar se o critério de polaridade por empresa pode ser aplicado de forma consistente. A segunda é permitir uma avaliação mais independente do classificador. Caso a concordância humana seja baixa, será necessário revisar as instruções e a definição das classes antes de atribuir toda a divergência ao modelo.
+
+\section{Comparação temporal entre o ITI e as referências}
+
+As configurações R0 e R1 foram avaliadas no recorte de novembro de 2023 a abril de 2024, com aproximadamente 465 artigos. R0 corresponde à configuração inicial registrada no projeto; R1 utiliza parâmetro nominal de memória igual a 0,70. O valor de memória e as demais configurações de R0 precisam ser apresentados para que a comparação seja integralmente reproduzível.
+
+O protocolo utiliza 24 combinações de medida de referência, correlação e horizonte. A Tabela 3 preserva os resultados reportados para o corpus adotado na rodada canônica.
+
+Tabela 3 — Resumo das comparações exploratórias por configuração.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+Configuração & Comparações reportadas como favoráveis ao ITI & Proporção & Comparações com diferença significativa no procedimento reportado \\
+\hline
+R0 & 5 de 24 & 20,8% & 0 \\
+R1, parâmetro nominal de memória 0,70 & 6 de 24 & 25,0% & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+{\footnotesize Fonte: resultados preliminares da pesquisa. A regra histórica de comparação e os parâmetros do bootstrap deverão acompanhar a tabela definitiva.}
+
+Na configuração R1, seis comparações favoreceram o ITI segundo o critério implementado. Nenhuma apresentou diferença estatisticamente significativa pelo procedimento de reamostragem utilizado. Esse resultado não sustenta uma afirmação de superioridade do ITI no recorte analisado.
+
+A contagem de comparações favoráveis é apenas um resumo. Ela não informa a magnitude das diferenças, o sinal das correlações ou a incerteza de cada estimativa. Uma diferença pequena e outra grande contribuem igualmente para a contagem. Além disso, as comparações compartilham semanas, notícias e retornos. A apresentação final deverá incluir os coeficientes e os intervalos de confiança por referência e horizonte.
+
+A ausência de diferença significativa também não demonstra equivalência entre o ITI e as referências. A janela semanal é curta e os retornos de múltiplas semanas se sobrepõem. O poder de identificar diferenças pode ser limitado, especialmente quando o sinal textual apresenta erro de classificação. A interpretação adequada é a ausência de evidência de superioridade nas condições examinadas.
+
+\section{Sensibilidade à versão do corpus e ao período}
+
+Uma execução anterior sobre o corpus legado registrou dez comparações favoráveis ao ITI, com duas diferenças significativas. Após a migração do corpus, a rodada canônica apresentou seis comparações favoráveis e nenhuma significativa. A divergência mostra que as conclusões dependem da versão dos dados e precisam ser rastreadas até as alterações responsáveis.
+
+Essa observação não permite atribuir a mudança exclusivamente à quantidade de notícias, ao modelo ou à memória. É necessário comparar os identificadores dos artigos, as datas, os textos extraídos e os critérios de inclusão entre as versões. Também devem ser verificadas mudanças no alinhamento semanal e no tratamento de dados ausentes.
+
+Na análise ampliada de maio de 2022 a abril de 2024, o registro disponível informa aproximadamente 33% de comparações favoráveis, sem diferenças significativas. Esse percentual é mantido como descrição exploratória. Não se afirma que tenha ocorrido queda em relação aos 25% da rodada canônica, pois 33% é numericamente maior e a configuração de referência da comparação histórica não está suficientemente documentada.
+
+As duas análises sugerem a necessidade de controlar a seleção da janela e a versão do corpus. A ampliação do período aumenta a quantidade potencial de observações, mas também altera a composição da cobertura e pode reunir contextos diferentes. Por isso, mais dados não implicam automaticamente evidência mais forte, nem evidência mais fraca.
+
+% CONFIRMAR P09: recuperar o relatório da janela ampliada, seu denominador, corpus, configuração e datas. Não converter “cerca de 33%” em 8/24 sem evidência. A data “agosto/2024” da execução legada também precisa ser verificada. --
+
+\section{Discussão das questões de pesquisa}
+
+A avaliação textual indica que o classificador ainda apresenta concordância limitada com a tarefa orientada à Sabesp. Os resultados por tipo de notícia apontam uma direção concreta para a análise de erros: investigar a identificação da entidade e a relação entre o conteúdo completo e o trecho processado pelo modelo.
+
+A avaliação temporal mostra que a integração entre coleta, classificação, agregação e comparação foi executada. Contudo, as configurações apresentadas não oferecem evidência estatística de superioridade do ITI sobre as referências. A hipótese principal permanece sem confirmação no recorte e no procedimento reportados.
+
+A investigação da memória está parcialmente implementada, mas sua interpretação depende da descrição completa de R0, da agregação diária e do parâmetro efetivo. Sem esses elementos, não é possível atribuir a diferença entre cinco e seis comparações favoráveis exclusivamente à retenção temporal.
+
+Até esta etapa, a contribuição mais claramente sustentada é a identificação dos requisitos e das limitações para construir o índice no domínio estudado. A avaliação de informação incremental, a generalização para outras empresas e a análise de outros desfechos permanecem como atividades futuras.
+
+\section{Ameaças à validade}
+
+A principal ameaça à validade de construto é a diferença entre o sentimento reconhecido pelo modelo e a orientação da informação para a empresa-alvo. A denominação ITI também pode induzir uma interpretação mais ampla que a medida disponível. Por isso, os resultados são descritos como evidência sobre uma representação textual, sem equivalência automática com impacto econômico.
+
+A validade interna depende da qualidade da coleta, da identificação temporal e da correspondência entre notícias e empresa. Duplicatas, atualizações posteriores do texto, datas incorretas e falhas de extração podem alterar o sinal. A utilização de preços futuros na seleção de janelas ou parâmetros também produziria uma avaliação excessivamente favorável.
+
+A validade estatística é limitada pela quantidade de semanas, pela dependência temporal, pela sobreposição dos retornos e pelas comparações múltiplas. Os 24 confrontos não compensam uma série curta. A anotação de cem notícias, por sua vez, oferece uma base inicial de diagnóstico, mas seus estratos e sua referência ainda precisam ser caracterizados.
+
+A validade externa está restrita à Sabesp e aos períodos observados. Os resultados não são automaticamente transferíveis a outras empresas de saneamento ou a outros setores. A ampliação deverá considerar diferenças de cobertura jornalística, liquidez e acontecimentos institucionais.

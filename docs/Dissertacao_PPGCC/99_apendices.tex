@@ -1,33 +1,126 @@
-\chapter{Protocolo resumido de anotação}
+\chapter{Protocolo de anotação orientada à empresa}
+\label{ap:protocolo}
 
-Este apêndice resume o roteiro da amostra de cem notícias sobre a Sabesp (protocolo versão \texttt{2026-10-19}).
 
-\section{Pergunta operacional}
+\section{A.1 Finalidade e situação do protocolo}
 
-Considerando o \textbf{título} e o \textbf{conteúdo} da notícia, o fato relatado é favorável, desfavorável ou neutro para a \textbf{Sabesp}? Classes: \texttt{POSITIVE}, \texttt{NEGATIVE}, \texttt{NEUTRAL}.
+O protocolo orienta a classificação da informação referente à Sabesp em notícias financeiras. A tarefa considera o efeito descrito no texto para a empresa e não a reação posteriormente observada no preço da ação.
 
-\section{Empresa-alvo, entrada textual e tipologia}
+A rodada quantitativa apresentada no Capítulo~\ref{cap:resultados} está identificada com a versão de 7 de outubro de 2026. O apêndice do manuscrito anterior menciona a versão de 19 de outubro de 2026. Essas versões devem permanecer distintas até que se documente se houve alteração nas instruções ou apenas na apresentação. As orientações detalhadas a seguir constituem uma proposta consolidada para a continuidade e não devem ser atribuídas retroativamente aos rótulos existentes.
 
-\begin{itemize}
-  \item \textbf{Empresa-alvo:} Sabesp (ação SBSP3).
-  \item \textbf{Entrada:} título e corpo lidos em conjunto (mesma unidade enviada ao FinBERT-PT-BR).
-  \item \textbf{Tipologia:} matéria focal na Sabesp; \emph{roundup} ou agenda com várias empresas; menção tangencial.
-\end{itemize}
+\section{A.2 Material apresentado ao anotador}
 
-\section{Regras práticas}
+Cada item deve conter um identificador, a empresa-alvo, o título e o corpo da notícia, além dos campos de resposta. O texto processado deve ser preservado para que uma atualização posterior da página não altere o material avaliado.
 
-Em matérias com várias empresas, o anotador ignora o sentimento agregado do mercado e responde apenas ao efeito do fato para a Sabesp. Não se usa o retorno posterior da ação para definir o rótulo. Casos limite marcam-se como ambíguos e descrevem-se em notas livres.
+O anotador não terá acesso às previsões do classificador, às respostas de outros participantes ou aos retornos posteriores da ação durante a etapa independente. “Anotação cega” refere-se a essas restrições; não significa impedir acesso às informações necessárias à compreensão da própria notícia.
 
-\section{Avaliadores especialistas (créditos)}
+\section{A.3 Pergunta e classes}
+
+\textbf{\1} considerando as informações apresentadas no título e no corpo, o fato descrito é favorável, desfavorável ou neutro para a Sabesp?
 
 \begin{itemize}
-  \item \textbf{Raphael Veloso} --- anotação especializada (economia e finanças; graduação USP, atuação em análise de crédito e risco), subconjunto prioritário de trinta notícias, planilha cega.
+  \item \textbf{\1} o texto apresenta um efeito favorável identificável para a empresa, sustentado pelas informações da matéria.
+  \item \textbf{\1} o texto apresenta um efeito desfavorável identificável para a empresa, sustentado pelas informações da matéria.
+  \item \textbf{\1} o conteúdo referente à empresa não apresenta uma orientação favorável ou desfavorável suficientemente definida.
 \end{itemize}
 
-\section{Múltiplos avaliadores e consenso}
+A classificação deve considerar o contexto. Aumento de receita, investimento ou alteração tarifária não recebem automaticamente uma classe: o texto pode apresentar contrapartidas, custos ou condições que modifiquem sua interpretação.
 
-O desenho prevê anotações independentes e cegas por pelo menos três participantes com conhecimento na área econômico-financeira. A concordância entre humanos é mensurada separadamente do desempenho do classificador. Havendo maioria entre avaliadores no mesmo item, registra-se a classe majoritária; empates com uma classe distinta por avaliador encaminham-se à adjudicação documentada.
+Se o item não puder ser avaliado por falta de conteúdo ou ausência de relação efetiva com a empresa, o anotador marcará essa condição em campo próprio. A impossibilidade de avaliação não deverá ser convertida silenciosamente em neutralidade.
 
-\section{Uso das métricas humano--modelo}
+\section{A.4 Tipo de notícia}
 
-As métricas de concordância entre anotação humana e classificador servem ao controle de qualidade do sinal textual do índice, não como prova de que o ITI explica preços na bolsa.
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+Tipo & Regra de identificação \\
+\hline
+Focal & A Sabesp constitui o assunto principal ou ocupa parcela substantiva da notícia. \\
+Multiempresa/agenda & A Sabesp é discutida ao lado de outras empresas ou de uma agenda ampla de mercado. \\
+Tangencial & A empresa aparece de passagem, sem desenvolvimento suficiente para a tarefa. \\
+\hline
+\end{tabular}
+\end{table}
+
+O tipo da notícia não determina a classe. Uma notícia multiempresa pode conter informação claramente favorável à Sabesp; uma matéria focal pode ser neutra.
+
+\section{A.5 Regras para casos difíceis}
+
+Em matérias com várias empresas, o julgamento deve se restringir à Sabesp. Quando houver efeitos de sinais diferentes, o anotador deverá explicar a ambiguidade e indicar se o texto permite identificar uma orientação predominante. A decisão não será baseada em conhecimento do comportamento futuro da ação.
+
+Uma notícia de aumento de custos e expansão de receitas, sem elementos para avaliar qual efeito predomina, deve receber justificativa de ambiguidade. Uma nota sobre outro ativo que apenas enumere a Sabesp pode ser classificada como menção tangencial e não avaliável. Esses são exemplos hipotéticos de aplicação das regras, não observações do corpus.
+
+O protocolo deverá definir, antes da etapa final, como tratar informações que descrevem valorização ou queda já ocorrida. Esses textos podem estar relacionados à empresa, mas também podem repetir o próprio fenômeno financeiro que se pretende analisar. Sua identificação permite uma análise de sensibilidade separada.
+
+\section{A.6 Campos propostos}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+Campo lógico & Conteúdo \\
+\hline
+Identificador da notícia & Chave estável para junção com o corpus \\
+Identificador do anotador & Código do participante \\
+Versão do protocolo & Instruções utilizadas na avaliação \\
+Classe & Positiva, negativa ou neutra \\
+Avaliável & Indicação de suficiência e pertinência do conteúdo \\
+Tipo & Focal, multiempresa/agenda ou tangencial \\
+Ambiguidade & Presença de elementos conflitantes \\
+Evidência & Trecho ou descrição que fundamenta o rótulo \\
+Observações & Justificativa complementar \\
+Data da anotação & Registro da execução \\
+\hline
+\end{tabular}
+\end{table}
+
+Os nomes físicos das colunas deverão ser compatibilizados com a planilha existente. A troca de nomes não deverá eliminar rótulos individuais ou impedir a recuperação de versões anteriores.
+
+\section{A.7 Concordância e consolidação}
+
+As métricas de concordância serão calculadas sobre os itens efetivamente compartilhados entre anotadores, antes da discussão conjunta. O relatório deverá informar quantos participantes avaliaram cada item e quais notícias ficaram sem avaliação completa.
+
+Quando houver maioria, a classe majoritária poderá formar a referência consolidada. Empates serão examinados por adjudicação, com registro das justificativas e da decisão final. Os rótulos originais serão preservados. A concordância entre humanos e o desempenho do modelo serão apresentados separadamente.
+
+\chapter{Rastreabilidade experimental}
+\label{ap:rastreabilidade}
+
+ — Rastreabilidade experimental
+
+\section{B.1 Registros disponíveis}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+Registro & Informação preservada \\
+\hline
+Estudo de caso & Sabesp; ação SBSP3 \\
+Janela principal & Novembro de 2023 a abril de 2024 \\
+Quantidade aproximada & 465 artigos, conforme o original \\
+Janela ampliada & Maio de 2022 a abril de 2024 \\
+Amostra textual & 100 notícias; 74 focais e 26 de agenda/multiempresa \\
+Protocolo da rodada reanotada & 2026-10-07 \\
+Versão mencionada no apêndice anterior & 2026-10-19 \\
+Identificador R1 & \texttt{\1} \\
+Ambiente HPC reportado & Santos Dumont; fila de desenvolvimento GPU Sequana \\
+Job Slurm reportado & \texttt{\1} \\
+Corpus canônico referido & \texttt{\1} \\
+Corpus legado referido & \texttt{\1} \\
+Resultado R1 canônico & 6/24 comparações favoráveis; nenhuma significativa \\
+Resultado histórico legado & 10/24 favoráveis; duas significativas \\
+\hline
+\end{tabular}
+\end{table}
+
+{\footnotesize Fonte: registros apresentados no manuscrito original. Os identificadores não substituem os arquivos de saída e as configurações completas.}
+
+\section{B.2 Manifesto necessário por execução}
+
+O manifesto deverá reunir revisão do código, versão ou hash do corpus, quantidade de notícias, período de coleta, checkpoint e revisão dos pesos, configuração do tokenizador, ordem das classes, política de truncamento, regra de agregação diária, pesos, alfa nominal e efetivo, estado inicial, calendário, horário de corte, fonte dos preços, construção dos retornos e exclusões de semanas.
+
+Para a avaliação, deverão ser incluídos a regra de comparação entre correlações, as estatísticas completas, o método de bootstrap, os parâmetros de reamostragem, a semente e o eventual tratamento de testes múltiplos. A comparação entre ambientes deverá registrar tolerâncias e diferenças quantitativas, além da indicação de que a execução terminou.

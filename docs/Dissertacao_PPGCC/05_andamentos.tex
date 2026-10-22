@@ -7,6 +7,8 @@ Este capítulo apresenta \textbf{resultados preliminares} da implementação e d
 
 O fluxo de coleta, corpus tabular, inferência, série do ITI e comparação semanal foi executado de ponta a ponta no caso Sabesp. Isso confirma a viabilidade operacional do desenho; não constitui, por si só, prova de que o índice informa preços.
 
+Em outubro de 2026, a campanha R1 (\texttt{run\_id} \texttt{sabesp\_r1\_alpha070}) foi reexecutada no supercomputador Santos Dumont (fila de desenvolvimento GPU Sequana, job Slurm \texttt{11621573}), com o corpus de evento atual (\texttt{water\_utilities\_corpus/articles\_strict\_sabesp.csv}) e o mesmo modelo FinBERT-PT-BR. Após sincronização dos artefatos, o \emph{research} foi reexecutado no PC (rodada canônica de qualificação, out/2026): \textbf{6/24} vitórias (25\%), \textbf{nenhuma} significativa no bootstrap --- alinhado ao HPC. Uma rodada anterior (agosto/2024, CSV legado \texttt{saneamento\_corpus/}) havia registrado 10/24 e duas significativas; a migração de corpus altera os índices e os duelos, sem mudar o desenho do protocolo. A replicação em HPC confirma reprodutibilidade operacional; a leitura substantiva permanece condicionada ao gate de concordância humana.
+
 \section{Classificador no corpus local}
 \label{sec:classificador_local}
 
@@ -64,7 +66,7 @@ Roundup/agenda ($n=26$) & 42,3\% & $-0{,}03$ \\
 
 \subsection{Concordância com avaliadores especialistas}
 
-Convidamos avaliadores com formação em economia e finanças para segunda opinião sobre um subconjunto fixo da amostra (cerca de trinta notícias), com planilha cega e critério de \texttt{impacto\_alvo} alinhado ao protocolo do apêndice. A consolidação dessa referência especialista e a concordância entre anotadores permanecem em curso nesta versão do manuscrito; as métricas da Seção~\ref{sec:classificador_local} referem-se à anotação do mestrando como diagnóstico do pipeline, não como gold definitivo.
+Convidamos avaliadores com formação em economia e finanças --- entre eles Raphael Veloso (economia, mercado financeiro) --- para segunda opinião sobre um subconjunto fixo da amostra (cerca de trinta notícias), com planilha cega e critério de \texttt{impacto\_alvo} alinhado ao protocolo do apêndice. Outros convites na mesma linha podem ou não fechar antes da qualificação; \textbf{para esta versão} do manuscrito basta registrar o protocolo e a rotulação em andamento, sem tratar a devolutiva especialista como gold consolidado. As métricas da Seção~\ref{sec:classificador_local} referem-se à anotação do mestrando como diagnóstico do pipeline; a consolidação multi-especialista e o $\kappa$ entre anotadores ficam para a etapa pós-qualificação, quando houver base suficiente.
 
 \section{Campanhas R0 e R1 como exercício de protocolo}
 \label{sec:campanhas_r0_r1}
@@ -80,7 +82,7 @@ O protocolo de vinte e quatro duelos foi aplicado na \textbf{janela de evento} S
 \hline
 R0 (baseline) & 5/24 & 20,8\% & 0 \\
 \hline
-R1 ($\alpha = 0{,}70$) & 10/24 & 41,7\% & 2 \\
+R1 ($\alpha = 0{,}70$) & 6/24 & 25,0\% & 0 \\
 \hline
 \end{tabular}
 
@@ -89,12 +91,10 @@ R1 ($\alpha = 0{,}70$) & 10/24 & 41,7\% & 2 \\
 
 \end{table}
 
-As duas comparações que passam o critério de significância na R1 concentram-se no horizonte de \textbf{quatro semanas} frente ao baseline de mercado amplo (índice B3): incrementos de correlação de Pearson ($\Delta \approx +0{,}13$, $p \approx 0{,}04$) e Spearman ($\Delta \approx +0{,}22$, $p \approx 0{,}05$), em linha com a literatura que reporta lags heterogêneos entre notícia e preço \cite{eramiars2025correlacao,duarte2020news}.
-
-Alguns confrontos favorecem o ITI frente a um baseline; a maior parte não. Duas diferenças significativas em vinte e quatro testes correlacionados são compatíveis com \textbf{busca múltipla} e com reversões de curto prazo descritas para sentimento e retorno \cite{yoshinaga2012sentimento}. Sem classificador acima do gate, esses duelos \textbf{não são interpretados} como evidência de que o índice acrescente informação sobre retorno futuro.
+Na rodada canônica (corpus \texttt{water\_utilities\_corpus}), nenhuma das vinte e quatro comparações passa o critério bootstrap de significância; seis confrontos favorecem o ITI frente a um baseline interno. Em rodada histórica sobre o CSV legado (\texttt{saneamento\_corpus}), duas comparações no horizonte de quatro semanas frente ao B3 haviam atingido $p < 0{,}05$ --- leitura \textbf{exploratória}, compatível com busca múltipla \cite{yoshinaga2012sentimento} e não replicada após a migração de corpus. Sem classificador acima do gate, esses duelos \textbf{não são interpretados} como evidência de que o índice acrescente informação sobre retorno futuro \cite{eramiars2025correlacao,duarte2020news}.
 
 O que os exercícios mostram é reprodutibilidade do protocolo: mesmas notícias, mesmas métricas, mesmos horizontes, baselines internos, memória explícita. Em janela expandida (maio/2022 a abril/2024), a taxa de vitórias da R1 cai para cerca de 33\% e nenhuma diferença permanece significativa --- leitura de robustez negativa (``mais dados não implicam sinal mais forte''), não de confirmação da hipótese. Direção do efeito, magnitude e generalização para outras empresas permanecem em aberto.
 
 \section{Limites desta etapa}
 
-Não se afirma vitória do ITI nem causalidade \cite{utfpr2024bert}. Não se extrapola, neste capítulo, a Copasa, Sanepar, testes de Granger, volume ou controles de mercado amplo. A avaliação empírica plena da QP1 condiciona-se à qualidade do classificador no domínio e à consolidação da referência humana especialista descrita na metodologia.
+Não se afirma vitória do ITI nem causalidade \cite{utfpr2024bert}. Não se extrapola, neste capítulo, a Copasa, Sanepar, testes de Granger, volume ou controles de mercado amplo. A avaliação empírica plena da QP1 condiciona-se à qualidade do classificador no domínio e à consolidação da referência humana especialista descrita na metodologia. A ausência de gold multi-especialista nesta data \textbf{não impede} o envio do volume intermediário de qualificação: ele documenta desenho, andamentos preliminares e exercícios de protocolo (R0--R1), com limites explícitos.

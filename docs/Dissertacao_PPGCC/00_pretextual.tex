@@ -31,29 +31,29 @@
 \end{folhadeaprovacao}
 
 \begin{agradecimentos}
-Este manuscrito registra a fundamentação inicial da pesquisa de mestrado junto ao PPGCC/UFSJ. Agradeço ao orientador Michel Carlo Rodrigues Leles pelo acompanhamento e à Universidade Federal de São João del-Rei pelas condições de trabalho.
+Agradeço ao professor Michel Carlo Rodrigues Leles pela orientação e pelo acompanhamento da pesquisa, e à Universidade Federal de São João del-Rei pelas condições oferecidas para o desenvolvimento deste trabalho.
 
-Agradeço a \textbf{Raphael Veloso} pela anotação especializada em economia e finanças na amostra de validação (impacto informacional para a empresa-alvo), em planilha cega e independente da minha rotulação.
+Agradeço a Raphael Veloso pela disponibilidade para colaborar com a avaliação das notícias sob a perspectiva econômico-financeira.
 \end{agradecimentos}
 
 \begin{resumo}
 
-Notícias financeiras em português carregam informação que o mercado pode precificar, mas transformar esse texto em uma série temporal reprodutível ainda é um problema aberto --- sobretudo em setores pouco cobertos pela literatura de processamento de linguagem natural. Esta dissertação fundamenta a proposta de um Índice Temporal Informacional (ITI) a partir de notícias corporativas de empresas brasileiras de saneamento de capital aberto, descreve o protocolo operacional e registra andamentos experimentais preliminares. O ITI não replica um índice publicado: toma a cadeia metodológica ``texto agregado no tempo e validado externamente'', o escore de sentimento de domínio em português e a tradição de comparar medidas simples antes de construções mais elaboradas. A lacuna é a ausência de um microíndice empresa a empresa, baseado em notícias, para o saneamento --- setor marcado pelo Marco Legal e por eventos institucionais como a privatização da Sabesp. A avaliação de desempenho permanece em aberto, condicionada à qualidade do classificador no domínio.
+A análise de notícias financeiras permite organizar informações textuais sobre empresas e investigar sua relação com o mercado acionário. Entretanto, a construção de uma medida temporal a partir desses textos depende da identificação da empresa mencionada, da qualidade da classificação e do alinhamento entre a publicação das notícias e os dados de mercado. Este trabalho propõe um Índice Temporal Informacional (ITI) para notícias corporativas em português, com aplicação inicial à Sabesp e perspectiva de extensão a outras empresas brasileiras de saneamento. O método compreende a organização de um corpus de notícias, a obtenção de escores de sentimento financeiro, a agregação diária desses escores e a incorporação de memória por média móvel exponencial. A avaliação é organizada em duas etapas: comparação das classificações com anotação humana orientada à empresa-alvo e comparação do índice com medidas simples derivadas do mesmo corpus, considerando retornos futuros em horizontes de uma, duas e quatro semanas. Nos resultados preliminares, o classificador financeiro em português apresentou acurácia de 50\% e kappa de aproximadamente 0,20 em uma amostra de cem notícias anotadas pelo autor. Na configuração temporal R1, seis das 24 comparações favoreceram o ITI, sem diferenças estatisticamente significativas segundo o procedimento de reamostragem reportado. Esses resultados permitem identificar limitações da classificação e do protocolo de avaliação, mas não demonstram superioridade do índice. A continuidade da pesquisa compreende a consolidação da referência humana, a análise dos erros por tipo de notícia e a avaliação temporal com maior controle das escolhas experimentais.
 
 \vspace{\onelineskip}
 
 \noindent
-\textbf{Palavras-chave}: sentimento de notícias; índice temporal; saneamento; processamento de linguagem natural; mercado brasileiro.
+\textbf{Palavras-chave}: análise de sentimentos; notícias financeiras; séries temporais; processamento de linguagem natural; saneamento.
 \end{resumo}
 
 \begin{resumo}[Abstract]
 \begin{otherlanguage*}{english}
 
-Financial news in Portuguese can carry information that markets may price, yet turning that text into a reproducible time series remains an open problem --- especially in sectors that NLP research has barely covered. This dissertation motivates an Informational Temporal Index (ITI) built from corporate news about publicly listed Brazilian sanitation firms, describes the operational protocol and records preliminary experiments. The ITI is not a copy of a published index: it borrows the methodological chain of aggregating text over time and validating it externally, a Portuguese domain sentiment score, and the habit of comparing simple baselines before a more elaborate construction. The gap is the lack of a firm-level, news-based index for sanitation --- a sector shaped by the Sanitation Legal Framework and institutional events such as Sabesp's privatization. Performance evaluation remains open, conditional on classifier quality in this domain.
+Financial news analysis provides a way to organize textual information about companies and investigate its relationship with stock market behavior. However, constructing a time series from news requires identifying the target company, assessing classification quality, and aligning publication times with market data. This work proposes an Informational Temporal Index (ITI) for corporate news written in Portuguese, with an initial application to Sabesp and potential extension to other Brazilian sanitation companies. The method includes building a news corpus, obtaining financial sentiment scores, aggregating these scores daily, and introducing temporal memory through an exponentially weighted moving average. Evaluation comprises two stages: comparing model predictions with target-oriented human annotations and comparing the index with simpler measures derived from the same corpus, considering future returns over one-, two-, and four-week horizons. Preliminary results show an accuracy of 50\% and a kappa of approximately 0.20 for the Portuguese financial sentiment classifier on a sample of 100 news articles annotated by the author. In temporal configuration R1, six of the 24 comparisons favored the ITI, with no statistically significant differences under the reported resampling procedure. These findings identify limitations in classification and experimental evaluation but do not establish the index's superiority. Further work includes consolidating the human reference annotations, analyzing errors by news type, and conducting temporal evaluation with tighter control over experimental choices.
 
 \vspace{\onelineskip}
 
 \noindent
-\textbf{Key-words}: news sentiment; temporal index; sanitation; natural language processing; Brazilian market.
+\textbf{Keywords}: sentiment analysis; financial news; time series; natural language processing; sanitation.
 \end{otherlanguage*}
 \end{resumo}

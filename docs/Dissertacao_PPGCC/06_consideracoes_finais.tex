@@ -1,0 +1,47 @@
+\chapter{Considerações finais e plano de continuidade}
+\label{cap:consideracoes}
+
+\section{Síntese da etapa de qualificação}
+
+Este trabalho apresentou uma proposta de índice temporal construído a partir de notícias corporativas em português, com aplicação inicial à Sabesp. O método integra classificação financeira, agregação diária, memória temporal e comparação com medidas simples obtidas das mesmas notícias.
+
+Os experimentos preliminares permitiram executar o fluxo computacional e identificar dificuldades relevantes. Na amostra orientada à empresa, o classificador apresentou acurácia de 50% e kappa de aproximadamente 0,20. Os resultados foram numericamente inferiores nas notícias multiempresa ou de agenda, o que orienta a investigação da adequação entre a tarefa do modelo e a referência humana.
+
+Na avaliação temporal, a configuração R1 apresentou seis comparações favoráveis em 24, sem diferenças significativas no procedimento reportado. Portanto, os dados disponíveis não demonstram a superioridade do índice. A variação dos resultados entre versões do corpus também evidencia a necessidade de rastrear as transformações dos dados e tornar o protocolo mais preciso.
+
+A pesquisa avança, nesta etapa, ao delimitar o problema e demonstrar a viabilidade operacional de sua investigação. A consolidação da contribuição científica dependerá da validação da representação textual e de uma avaliação temporal que controle as escolhas experimentais.
+
+\section{Atividades previstas}
+
+A continuidade será organizada em etapas dependentes. Primeiro, será consolidado o inventário do corpus, com fontes, critérios de seleção, contagens e histórico de versões. Em seguida, serão concluídas as anotações independentes e analisados os desacordos, distinguindo neutralidade, ambiguidade e impossibilidade de avaliação.
+
+A terceira etapa será a análise dos erros do classificador. Serão examinados tipo de notícia, extensão do texto, truncamento e presença de múltiplas entidades. Conforme os resultados, poderão ser avaliadas alternativas de seleção de trechos ou de classificação orientada ao alvo. Essas mudanças serão comparadas sob uma referência fixa e sem reutilizar o conjunto final de teste para ajuste.
+
+Depois da avaliação textual, serão consolidadas as fórmulas do ITI e das referências, a regra de atualização temporal e as configurações de memória. A etapa financeira utilizará instantes de corte explícitos, quantidades efetivas de observações e estatísticas acompanhadas de incerteza.
+
+Por fim, será avaliada a possibilidade de ampliar os períodos e incluir outras empresas. Essa ampliação dependerá da cobertura e da qualidade dos dados. Análises de volatilidade, volume, assimetria e informação incremental serão incorporadas apenas quando houver condições para avaliá-las de forma consistente.
+
+Quadro 3 — Plano de continuidade e entregas verificáveis.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{|p{0.22\textwidth}|p{0.22\textwidth}|p{0.22\textwidth}|}
+\hline
+Etapa & Entrega & Condição para avanço \\
+\hline
+Consolidação do corpus & Inventário, filtros, contagens e versões & Notícias e datas rastreáveis \\
+Referência humana & Anotações individuais, concordância e consenso documentado & Critério de classificação estável \\
+Diagnóstico do modelo & Matriz de confusão e análise de erros & Adequação da tarefa e limitações conhecidas \\
+Especificação do índice & Fórmulas, parâmetros e regras temporais & Reprodução da série a partir das saídas textuais \\
+Avaliação temporal & Coeficientes, diferenças, incerteza e análise de sensibilidade & Ausência de uso indevido de dados futuros \\
+Ampliação e redação final & Novos recortes e síntese das contribuições & Evidências compatíveis com as conclusões \\
+\hline
+\end{tabular}
+\end{table}
+
+{\footnotesize Fonte: elaboração própria.}
+
+O cronograma calendarizado será definido conforme o prazo de defesa e o andamento das anotações. A sequência prioriza a qualidade dos dados e da tarefa antes da ampliação do número de modelos ou de testes.
+
+% CONFIRMAR P10: preencher datas reais do cronograma com o autor e o orientador. Não deduzir prazo de defesa a partir do ano da capa. --
