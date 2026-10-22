@@ -8,6 +8,7 @@ Este capítulo apresenta \textbf{resultados preliminares} da implementação e d
 O fluxo de coleta, corpus tabular, inferência, série do ITI e comparação semanal foi executado de ponta a ponta no caso Sabesp. Isso confirma a viabilidade operacional do desenho; não constitui, por si só, prova de que o índice informa preços.
 
 \section{Classificador no corpus local}
+\label{sec:classificador_local}
 
 Anotamos cem notícias do recorte Sabesp e comparamos o FinBERT-PT-BR com anotação humana. No artigo de origem, o modelo reporta desempenho bem mais alto em noticiário financeiro amplo \cite{santos2023finbert}. Nas rodadas reportadas abaixo do gate (acurácia da ordem de 70\% ou $\kappa \geq 0{,}40$), o escore $d$ permanece preliminar para o setor.
 
@@ -63,13 +64,36 @@ Roundup/agenda ($n=26$) & 42,3\% & $-0{,}03$ \\
 
 \subsection{Concordância com avaliadores especialistas}
 
+Convidamos avaliadores com formação em economia e finanças para segunda opinião sobre um subconjunto fixo da amostra (cerca de trinta notícias), com planilha cega e critério de \texttt{impacto\_alvo} alinhado ao protocolo do apêndice. A consolidação dessa referência especialista e a concordância entre anotadores permanecem em curso nesta versão do manuscrito; as métricas da Seção~\ref{sec:classificador_local} referem-se à anotação do mestrando como diagnóstico do pipeline, não como gold definitivo.
+
 \section{Campanhas R0 e R1 como exercício de protocolo}
+\label{sec:campanhas_r0_r1}
 
-O protocolo de vinte e quatro duelos foi aplicado em janelas do caso Sabesp, variando a memória $\alpha$ (por exemplo 0,85 e 0,70). Trata-se de \textbf{ablação operacional}, não estimação definitiva de $\alpha$ e não teste de H1.
+O protocolo de vinte e quatro duelos foi aplicado na \textbf{janela de evento} Sabesp (novembro/2023 a abril/2024; corpus estrito com cerca de 465 artigos), variando a memória $\alpha$ do ITI. A campanha \textbf{R0} fixa o baseline operacional; a \textbf{R1} usa $\alpha = 0{,}70$ (memória intermediária no desenho do Capítulo~\ref{cap:metodologia}). Trata-se de \textbf{ablação operacional}, não estimação definitiva de $\alpha$ e não teste de H1.
 
-Alguns confrontos favorecem o ITI frente a um baseline; a maior parte não. Poucas diferenças passam o bootstrap --- em quantidade compatível com busca múltipla em vinte e quatro testes correlacionados. Sem classificador acima do gate, esses duelos \textbf{não são interpretados} como evidência de que o índice acrescente informação sobre retorno futuro.
+\begin{table}[htbp]
+\caption{Exercício de protocolo na janela de evento (ITI líquido vs.\ baselines internos; 24 confrontos por configuração).}
+\label{tab:r0_r1_evento}
+\begin{tabular}{|p{0.28\textwidth}|p{0.18\textwidth}|p{0.18\textwidth}|p{0.26\textwidth}|}
+\hline
+\textbf{Configuração} & \textbf{Vitórias ITI} & \textbf{Taxa} & \textbf{Significativas (bootstrap)} \\
+\hline
+R0 (baseline) & 5/24 & 20,8\% & 0 \\
+\hline
+R1 ($\alpha = 0{,}70$) & 10/24 & 41,7\% & 2 \\
+\hline
+\end{tabular}
 
-O que os exercícios mostram é reprodutibilidade do protocolo: mesmas notícias, mesmas métricas, mesmos horizontes, baselines internos, memória explícita. Direção do efeito, magnitude e robustez a outras empresas permanecem em aberto, como alertam a literatura de reversão \cite{yoshinaga2012sentimento} e a de lags heterogêneos \cite{eramiars2025correlacao}.
+\vspace{0.4em}
+{\footnotesize Fonte: elaboração própria. Métricas de associação: Pearson e Spearman em horizontes semanais definidos no protocolo.}
+
+\end{table}
+
+As duas comparações que passam o critério de significância na R1 concentram-se no horizonte de \textbf{quatro semanas} frente ao baseline de mercado amplo (índice B3): incrementos de correlação de Pearson ($\Delta \approx +0{,}13$, $p \approx 0{,}04$) e Spearman ($\Delta \approx +0{,}22$, $p \approx 0{,}05$), em linha com a literatura que reporta lags heterogêneos entre notícia e preço \cite{eramiars2025correlacao,duarte2020news}.
+
+Alguns confrontos favorecem o ITI frente a um baseline; a maior parte não. Duas diferenças significativas em vinte e quatro testes correlacionados são compatíveis com \textbf{busca múltipla} e com reversões de curto prazo descritas para sentimento e retorno \cite{yoshinaga2012sentimento}. Sem classificador acima do gate, esses duelos \textbf{não são interpretados} como evidência de que o índice acrescente informação sobre retorno futuro.
+
+O que os exercícios mostram é reprodutibilidade do protocolo: mesmas notícias, mesmas métricas, mesmos horizontes, baselines internos, memória explícita. Em janela expandida (maio/2022 a abril/2024), a taxa de vitórias da R1 cai para cerca de 33\% e nenhuma diferença permanece significativa --- leitura de robustez negativa (``mais dados não implicam sinal mais forte''), não de confirmação da hipótese. Direção do efeito, magnitude e generalização para outras empresas permanecem em aberto.
 
 \section{Limites desta etapa}
 
