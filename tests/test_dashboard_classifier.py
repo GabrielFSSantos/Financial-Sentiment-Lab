@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import pytest
+
+pytestmark = pytest.mark.sdumont
+
 from modules.dashboard.services.classifier import (
     classifier_gate_passed,
     finbert_accuracy,

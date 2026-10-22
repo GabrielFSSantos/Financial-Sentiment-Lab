@@ -9,6 +9,8 @@ __pycache__/
 .env
 .env.*
 configs/sdumont.env
+Info.txt
+VPN Instalacao*.pdf
 
 # Artefatos de execução
 logs/
@@ -33,6 +35,9 @@ data/**
 !data/news_example_en/**
 !data/water_utilities_corpus/
 !data/water_utilities_corpus/articles.csv
+!data/water_utilities_corpus/articles_strict_sabesp.csv
+!data/water_utilities_corpus/articles_strict_sabesp_event_filtered.csv
+!data/water_utilities_corpus/manual_labels_100_eval.csv
 
 # LaTeX (docs/Dissertacao_PPGCC — manter só fontes versionadas)
 docs/Dissertacao_PPGCC/*.aux

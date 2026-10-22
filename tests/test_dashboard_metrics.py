@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import pytest
+
+pytestmark = pytest.mark.sdumont
+
 from modules.dashboard.metrics.catalog import get_metric, interpret_value
 
 

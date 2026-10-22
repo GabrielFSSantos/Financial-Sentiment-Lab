@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import pytest
+
+pytestmark = pytest.mark.sdumont
+
 from pathlib import Path
 
 from modules.dashboard.services.corpus import compute_stats, load_corpus

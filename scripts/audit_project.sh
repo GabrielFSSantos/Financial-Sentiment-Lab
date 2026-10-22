@@ -229,14 +229,19 @@ fi
 
 section "5. TESTES"
 
+PYTEST_MARKEXPR="not network"
+if [[ "${SDUMONT_MODE}" == true ]]; then
+    PYTEST_MARKEXPR="not network and not sdumont"
+fi
+
 if [[ ! -d tests ]]; then
     fail "Diretório tests/ ausente"
 elif [[ -x "${VENV_DIR}/bin/pytest" ]]; then
-    run_check "pytest (sem rede)" "${VENV_DIR}/bin/pytest" tests -m "not network"
+    run_check "pytest (sem rede)" "${VENV_DIR}/bin/pytest" tests -m "${PYTEST_MARKEXPR}"
 elif [[ -x "${VENV_DIR}/bin/python" ]]; then
-    run_check "pytest (sem rede)" "${VENV_DIR}/bin/python" -m pytest tests -m "not network"
+    run_check "pytest (sem rede)" "${VENV_DIR}/bin/python" -m pytest tests -m "${PYTEST_MARKEXPR}"
 elif command -v pytest >/dev/null 2>&1; then
-    run_check "pytest (sem rede)" pytest tests -m "not network"
+    run_check "pytest (sem rede)" pytest tests -m "${PYTEST_MARKEXPR}"
 else
     fail "pytest não encontrado (pip install -r requirements-dev.txt)"
 fi

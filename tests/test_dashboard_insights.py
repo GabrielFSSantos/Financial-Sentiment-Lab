@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import pytest
+
+pytestmark = pytest.mark.sdumont
+
 from modules.dashboard.insights import engine as insights_engine
 from modules.dashboard.insights.rules import InsightLevel
 

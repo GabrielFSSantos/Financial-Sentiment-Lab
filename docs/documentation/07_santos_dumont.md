@@ -44,6 +44,8 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 
 ### 7.4 Validar e submeter
 
+No cluster, `audit_project.sh --sdumont` omite testes marcados `sdumont` (dashboard com `outputs/` locais). Rode `./scripts/audit_project.sh` completo no PC antes do `git push`.
+
 ```bash
 ./scripts/audit_project.sh --sdumont
 sbatch jobs/sdumont/run_experiment.srm
@@ -52,7 +54,7 @@ squeue -u $USER
 tail -f job_financial_<JOBID>.out
 ```
 
-Job: `jobs/sdumont/run_experiment.srm` — partição GPU dev, ~20 min, 1 GPU.
+Job: `jobs/sdumont/run_experiment.srm` — partição GPU dev, ~20 min, 1 GPU. O script padrão submete a campanha **Sabesp R1** (`--campaign sabesp_2026 --campaign-run r1_alpha070`); o `run_id` esperado é `sabesp_r1_alpha070`. Após o job, rode `run_research.sh` no PC (sem research no nó).
 
 ### 7.5 Sincronizar código
 

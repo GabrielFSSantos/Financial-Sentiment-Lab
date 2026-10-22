@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import pytest
+
+pytestmark = pytest.mark.sdumont
+
 import pyarrow as pa
 
 from modules.dashboard.services.catalog import get_resolved_config
