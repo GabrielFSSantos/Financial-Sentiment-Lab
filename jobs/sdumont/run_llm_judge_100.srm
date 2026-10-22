@@ -17,8 +17,7 @@ cd "${WORKING_DIR}" || exit 1
 printf 'Início LLM-judge 100: %s\n' "$(date -Iseconds)"
 
 module purge
-module load arch_gpu/current
-module load cuda/12.6
+module load cuda/12.6_sequana
 module load anaconda3/2024.02_sequana
 
 source venv/bin/activate

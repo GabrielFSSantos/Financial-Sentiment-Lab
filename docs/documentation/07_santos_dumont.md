@@ -46,6 +46,8 @@ python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
 
 No cluster, `audit_project.sh --sdumont` omite testes marcados `sdumont` (dashboard com `outputs/` locais). Rode `./scripts/audit_project.sh` completo no PC antes do `git push`.
 
+No job GPU (`sequana_gpu_dev`), carregue os mesmos módulos CUDA do setup (`cuda/12.6_sequana`); `arch_gpu/current` não se aplica à fila Sequana.
+
 ```bash
 ./scripts/audit_project.sh --sdumont
 sbatch jobs/sdumont/run_experiment.srm

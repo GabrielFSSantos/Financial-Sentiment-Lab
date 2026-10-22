@@ -32,8 +32,7 @@ scontrol show hostnames "${SLURM_NODELIST}"
 
 
 module purge
-module load arch_gpu/current
-module load cuda/12.6
+module load cuda/12.6_sequana
 module load anaconda3/2024.02_sequana
 
 
@@ -41,4 +40,6 @@ source venv/bin/activate
 
 srun ./scripts/run_experiment.sh \
     --environment sdumont \
-    --skip-setup
+    --skip-setup \
+    --campaign sabesp_2026 \
+    --campaign-run r1_alpha070
