@@ -89,7 +89,7 @@ def write_secondary_table(run_dir: Path) -> Path | None:
         "% Gerado por scripts/dissertation/iti_v2/export_iti_v2_dissertation_tables.py",
         r"\begin{table}[htbp]",
         r"\centering",
-        r"\caption{Família secundária do ITI (correção de Holm; exploratório).}",
+        r"\caption{Família secundária do ITI (IC bootstrap nominal de 95\%; $p_{\mathrm{Holm}}$ corrigido por família; exploratório).}",
         r"\label{tab:iti-secondary}",
         r"\begin{tabularx}{\textwidth}{@{}Lrrrr@{}}",
         r"\toprule",
@@ -110,7 +110,10 @@ def write_secondary_table(run_dir: Path) -> Path | None:
             r"\bottomrule",
             r"\end{tabularx}",
             r"\vspace{0.4em}",
-            f"{{\\footnotesize Fonte: elaboração própria (mesma máscara do contraste principal quando $n={n_primary}$).}}",
+            (
+                f"{{\\footnotesize Fonte: elaboração própria (mesma máscara do contraste principal quando $n={n_primary}$). "
+                r"Intervalos: percentis bootstrap nominais de 95\%; significância familiar baseada em $p_{\mathrm{Holm}}$, não no IC.}"
+            ),
             r"\end{table}",
             "",
         ]
