@@ -17,6 +17,11 @@ except ImportError:  # pragma: no cover - ambiente mínimo sem figuras
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[3]
+_SCRIPT_DIR = Path(__file__).resolve().parent
+import sys
+
+sys.path.insert(0, str(_SCRIPT_DIR))
+from _contrast_labels import label_for  # noqa: E402
 
 
 def _run_dir(run_id: str) -> Path:
@@ -31,9 +36,9 @@ def figure_daily_signal(run_dir: Path, out_dir: Path) -> Path | None:
     if daily.empty or "iti_v2_h7" not in daily.columns:
         return None
     daily["date"] = pd.to_datetime(daily["date"], errors="coerce")
-    fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
-    axes[0].plot(daily["date"], daily["soft_input"], label="Soft (diário)", alpha=0.8)
-    axes[0].plot(daily["date"], daily["iti_v2_h7"], label="ITI-H7 (diário)", alpha=0.8)
+    fig, axes = plt.subplots(2, 1, figsize=(11, 6.5), sharex=True)
+    axes[0].plot(daily["date"], daily["soft_input"], label="Soft (diário)", alpha=0.85, linewidth=1.2)
+    axes[0].plot(daily["date"], daily["iti_v2_h7"], label="ITI-H7 (diário)", alpha=0.85, linewidth=1.2)
     axes[0].set_ylabel("Sinal")
     axes[0].legend(loc="upper right")
     axes[0].set_title(f"Sinal diário — {run_dir.name}")
@@ -43,7 +48,7 @@ def figure_daily_signal(run_dir: Path, out_dir: Path) -> Path | None:
     fig.autofmt_xdate()
     fig.tight_layout()
     path = out_dir / "figure_daily_signal.png"
-    fig.savefig(path, dpi=150)
+    fig.savefig(path, dpi=220)
     plt.close(fig)
     return path
 
@@ -53,20 +58,33 @@ def figure_h_sensitivity(run_dir: Path, out_dir: Path) -> Path | None:
     if not weekly_path.is_file():
         return None
     weekly = pd.read_csv(weekly_path)
-    cols = [c for c in ("iti_v2_h2", "iti_v2_h7", "iti_v2_h14") if c in weekly.columns]
+    col_map = {
+        "iti_v2_h2": "ITI-H2",
+        "iti_v2_h7": "ITI-H7",
+        "iti_v2_h14": "ITI-H14",
+    }
+    cols = [c for c in col_map if c in weekly.columns]
     if not cols:
         return None
     weekly["week_end"] = pd.to_datetime(weekly.get("week_end", weekly.get("date")), errors="coerce")
-    fig, ax = plt.subplots(figsize=(10, 4))
-    for col in cols:
-        ax.plot(weekly["week_end"], weekly[col], label=col, alpha=0.85)
-    ax.set_ylabel("ITI semanal")
+    fig, ax = plt.subplots(figsize=(11, 4.5))
+    styles = [("-", 1.4), ("--", 1.2), (":", 1.3)]
+    for col, (ls, lw) in zip(cols, styles, strict=False):
+        ax.plot(
+            weekly["week_end"],
+            weekly[col],
+            label=col_map[col],
+            alpha=0.9,
+            linestyle=ls,
+            linewidth=lw,
+        )
+    ax.set_ylabel("ITI semanal (cutoff)")
     ax.legend()
     ax.set_title("Sensibilidade H (mesmas predições)")
     fig.autofmt_xdate()
     fig.tight_layout()
     path = out_dir / "figure_h_sensitivity.png"
-    fig.savefig(path, dpi=150)
+    fig.savefig(path, dpi=220)
     plt.close(fig)
     return path
 
@@ -83,7 +101,7 @@ def figure_delta_intervals(run_dir: Path, out_dir: Path) -> Path | None:
     ]
     if not usable:
         return None
-    labels = [r["contrast_id"] for r in usable]
+    labels = [label_for(r["contrast_id"]) for r in usable]
     deltas = [float(r["delta"]) for r in usable]
     lows = [float(r["ci_low"]) for r in usable]
     highs = [float(r["ci_high"]) for r in usable]
@@ -91,7 +109,7 @@ def figure_delta_intervals(run_dir: Path, out_dir: Path) -> Path | None:
         [d - lo for d, lo in zip(deltas, lows, strict=True)],
         [hi - d for d, hi in zip(deltas, highs, strict=True)],
     ]
-    fig, ax = plt.subplots(figsize=(10, max(4, len(labels) * 0.35)))
+    fig, ax = plt.subplots(figsize=(10.5, max(5, len(labels) * 0.55)))
     y_pos = range(len(labels))
     ax.errorbar(deltas, list(y_pos), xerr=yerr, fmt="o", capsize=4)
     ax.axvline(0.0, color="gray", linestyle="--", linewidth=1)
@@ -100,7 +118,7 @@ def figure_delta_intervals(run_dir: Path, out_dir: Path) -> Path | None:
     ax.set_title("Família secundária pré-registrada")
     fig.tight_layout()
     path = out_dir / "figure_delta_intervals.png"
-    fig.savefig(path, dpi=150)
+    fig.savefig(path, dpi=220)
     plt.close(fig)
     return path
 
