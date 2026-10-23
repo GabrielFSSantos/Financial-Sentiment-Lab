@@ -163,13 +163,21 @@ def compute_half_life_index(
         state = float(initial_value)
         values: list[float] = []
         days_since_list: list[int] = []
+        warmup_flags: list[bool] = []
+        eligible_segment_start: pd.Timestamp | None = None
         for day in full_index:
             if str(cov_series.loc[day]) != "eligible":
                 values.append(np.nan)
+                state = float(initial_value)
+                eligible_segment_start = None
                 days_since_list.append(
                     days_since_list[-1] + 1 if days_since_list else 0
                 )
+                warmup_flags.append(True)
                 continue
+            if eligible_segment_start is None:
+                eligible_segment_start = day
+                state = float(initial_value)
             if day in g.index and n_series.loc[day] > 0:
                 x_t = float(x_series.loc[day])
                 days_since = 0
@@ -179,6 +187,9 @@ def compute_half_life_index(
             state = lam * state + (1.0 - lam) * x_t
             values.append(state)
             days_since_list.append(days_since)
+            warmup_flags.append(
+                (day - eligible_segment_start).days < warmup_days
+            )
 
         out = pd.DataFrame(
             {
@@ -186,9 +197,9 @@ def compute_half_life_index(
                 company_col: company,
                 col_name: values,
                 "days_since_last_news": days_since_list,
+                "warmup": warmup_flags,
             }
         )
-        out["warmup"] = (out["date"] - start).dt.days < warmup_days
         outputs.append(out)
 
     return pd.concat(outputs, ignore_index=True)

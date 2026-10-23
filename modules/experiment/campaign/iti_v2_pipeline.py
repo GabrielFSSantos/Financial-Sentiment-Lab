@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
@@ -132,6 +133,7 @@ def build_indices(
     predictions_path: Path,
     run_id: str,
     *,
+    corpus_dir: Path | None = None,
     protocol_path: Path | None = None,
     analysis_plan_path: Path | None = None,
 ) -> dict[str, Path]:
@@ -162,8 +164,17 @@ def build_indices(
     (out_dir / "prediction_filter_manifest.json").write_text(
         json.dumps(filter_stats, indent=2), encoding="utf-8"
     )
+    corpus_dir = corpus_dir or default_corpus_dir()
+    if not corpus_dir.is_absolute():
+        corpus_dir = PROJECT_ROOT / corpus_dir
     calendar_end = pd.to_datetime(preds["date"], errors="coerce").max()
-    corpus_span = _corpus_span_from_p02()
+    corpus_span = _corpus_span_from_p02(corpus_dir)
+    manifest_path = corpus_dir / "corpus_manifest.json"
+    corpus_manifest_sha = None
+    if manifest_path.is_file():
+        corpus_manifest_sha = hashlib.sha256(
+            manifest_path.read_bytes()
+        ).hexdigest()
     daily = build_daily_iti_v2_frame(
         preds,
         half_lives=protocol.half_life_days,
@@ -195,6 +206,8 @@ def build_indices(
         "run_id": run_id,
         "protocol_sha256": protocol.content_sha256,
         "index_version": protocol.index_version,
+        "corpus_dir": str(corpus_dir),
+        "corpus_manifest_sha256": corpus_manifest_sha,
         "n_predictions": int(len(preds)),
         "artifacts": {k: str(v) for k, v in paths.items()},
     }
@@ -531,6 +544,7 @@ def build_parser() -> argparse.ArgumentParser:
     indices = sub.add_parser("indices", help="Gera iti_daily e sinais semanais")
     indices.add_argument("--run-id", required=True)
     indices.add_argument("--predictions", required=True, type=Path)
+    indices.add_argument("--corpus-dir", type=Path, default=None)
     indices.add_argument("--protocol", type=Path, default=None)
     indices.add_argument("--analysis-plan", type=Path, default=None)
 
@@ -575,6 +589,7 @@ def main(argv: list[str] | None = None) -> int:
         paths = build_indices(
             pred,
             args.run_id,
+            corpus_dir=args.corpus_dir,
             protocol_path=args.protocol,
             analysis_plan_path=args.analysis_plan,
         )
@@ -692,7 +707,7 @@ def main(argv: list[str] | None = None) -> int:
             corpus_dir=corpus_dir,
             limit=limit,
         )
-        build_indices(pred_path, args.run_id)
+        build_indices(pred_path, args.run_id, corpus_dir=corpus_dir)
         evaluate_run(args.run_id, corpus_dir=corpus_dir)
         write_run_report(args.run_id)
         validate_run_artifacts(args.run_id)

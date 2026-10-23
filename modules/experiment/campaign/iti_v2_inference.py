@@ -87,6 +87,38 @@ def _model_revision_sha(model_configuration: object) -> str:
     return str(source.get("weights_sha256", "unknown"))
 
 
+def prediction_identity_tuple(
+    *,
+    news_id: str,
+    view_id: str,
+    article_version_id: str,
+    view_hash: str,
+    model_key: str,
+    model_revision_sha: str,
+) -> tuple[str, str, str, str, str, str]:
+    """Chave de retomada: texto, recorte, modelo e revisão de pesos."""
+
+    return (
+        str(news_id),
+        str(view_id),
+        str(article_version_id),
+        str(view_hash),
+        str(model_key),
+        str(model_revision_sha),
+    )
+
+
+def stored_row_identity(row: dict[str, object]) -> tuple[str, str, str, str, str, str]:
+    return prediction_identity_tuple(
+        news_id=str(row.get("news_id", "")),
+        view_id=str(row.get("view_id", "")),
+        article_version_id=str(row.get("article_version_id", "")),
+        view_hash=str(row.get("view_hash", "")),
+        model_key=str(row.get("model_key", "")),
+        model_revision_sha=str(row.get("model_revision_sha", "")),
+    )
+
+
 def run_iti_v2_inference(
     run_id: str,
     *,
@@ -117,24 +149,14 @@ def run_iti_v2_inference(
     frame = pd.read_csv(canonical_path)
     rows: list[dict[str, Any]] = []
     view_ids = _configured_view_ids(protocol)
-    done_pairs: set[tuple[str, str]] = set()
+    existing_by_pair: dict[tuple[str, str], dict[str, Any]] = {}
     if output_path.is_file():
         existing = pd.read_csv(output_path)
         if "news_id" in existing.columns and not existing.empty:
-            rows = existing.to_dict(orient="records")
-            if "view_id" in existing.columns:
-                done_pairs = {
-                    (str(n), str(v))
-                    for n, v in zip(
-                        existing["news_id"].astype(str),
-                        existing["view_id"].astype(str),
-                        strict=True,
-                    )
-                }
-            else:
-                done_pairs = {
-                    (str(n), view_ids[0]) for n in existing["news_id"].astype(str)
-                }
+            for record in existing.to_dict(orient="records"):
+                vid = str(record.get("view_id", view_ids[0]))
+                existing_by_pair[(str(record["news_id"]), vid)] = record
+            rows = list(existing_by_pair.values())
 
     if limit is not None and limit > 0:
         frame = frame.head(limit)
@@ -199,9 +221,6 @@ def run_iti_v2_inference(
         )
 
         for view_id in view_ids:
-            if (news_id, view_id) in done_pairs:
-                continue
-
             view = _build_view(
                 view_id,
                 title,
@@ -209,6 +228,28 @@ def run_iti_v2_inference(
                 company_id,
                 neighbors=neighbors,
             )
+            expected_identity = prediction_identity_tuple(
+                news_id=news_id,
+                view_id=view_id,
+                article_version_id=article_version_id,
+                view_hash=view.view_hash,
+                model_key=model_key,
+                model_revision_sha=revision_sha,
+            )
+            pair_key = (news_id, view_id)
+            if pair_key in existing_by_pair:
+                stored = existing_by_pair[pair_key]
+                if stored_row_identity(stored) == expected_identity:
+                    continue
+                rows = [
+                    row
+                    for row in rows
+                    if not (
+                        str(row.get("news_id")) == news_id
+                        and str(row.get("view_id")) == view_id
+                    )
+                ]
+                existing_by_pair.pop(pair_key, None)
             token_original = (
                 count_encoder_tokens(view.text, model_configuration.model_dir)
                 if view.text.strip()

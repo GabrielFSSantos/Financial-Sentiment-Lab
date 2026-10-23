@@ -2,6 +2,7 @@
 
 import math
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -198,6 +199,28 @@ def test_weekly_signals_do_not_extend_past_corpus_with_long_market_calendar():
     if not late.empty:
         for col in ("iti_v2_h7", "soft_input"):
             assert late[col].nunique(dropna=True) > 1 or late[col].isna().all()
+
+
+def test_unknown_coverage_gap_restarts_exponential_state():
+    dates = pd.date_range("2024-01-01", periods=7, freq="D")
+    status = ["eligible", "eligible", "unknown", "unknown", "eligible", "eligible", "eligible"]
+    soft = [1.0, 0.0, np.nan, np.nan, 0.0, 0.0, 0.0]
+    daily = pd.DataFrame(
+        {
+            "company_id": ["sabesp"] * 7,
+            "date": dates,
+            "soft_input": soft,
+            "n_articles": [1, 0, 0, 0, 0, 0, 0],
+            "coverage_status": status,
+        }
+    )
+    out = compute_half_life_index(daily, 2, warmup_days=0)
+    series = out.sort_values("date")["iti_v2_h2"].to_numpy(dtype=float)
+    pre_gap = float(series[1])
+    assert pre_gap > 0.0
+    after_gap = float(series[4])
+    assert after_gap == 0.0
+    assert after_gap < pre_gap * 0.5
 
 
 def test_corpus_closed_apr_2024_no_flat_iti_propagation_into_2026():
