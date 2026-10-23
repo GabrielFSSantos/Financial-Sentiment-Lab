@@ -231,7 +231,11 @@ def _expand_daily_calendar(
     )
     parts: list[pd.DataFrame] = []
     for company, group in daily_agg.groupby(company_col, sort=False):
-        start = pd.to_datetime(group["date"].min()).normalize()
+        first_news = pd.to_datetime(group["date"].min()).normalize()
+        if corpus_span is not None:
+            start = min(first_news, corpus_span[0].normalize())
+        else:
+            start = first_news
         full_index = pd.date_range(start, end, freq="D")
         base = pd.DataFrame({company_col: company, "date": full_index})
         merged = base.merge(group, on=[company_col, "date"], how="left")
@@ -259,18 +263,48 @@ def _resolve_ticker(company_id: str, company_to_ticker: dict[str, str]) -> str |
     return lowered.get(str(company_id).strip().lower())
 
 
+def last_eligible_signal_date(indexed: pd.DataFrame) -> pd.Timestamp | None:
+    """Último dia civil com cobertura informacional elegível no quadro diário."""
+
+    if indexed.empty:
+        return None
+    if "coverage_status" in indexed.columns:
+        mask = indexed["coverage_status"].astype(str) == "eligible"
+        if not mask.any():
+            return None
+        return pd.Timestamp(indexed.index[mask].max()).normalize()
+    return pd.Timestamp(indexed.index.max()).normalize()
+
+
 def _values_at_cutoff(
     indexed: pd.DataFrame,
     cutoff: pd.Timestamp,
     value_columns: tuple[str, ...],
 ) -> dict[str, object]:
-    eligible = indexed.index[indexed.index <= cutoff.normalize()]
-    if len(eligible) == 0:
-        return {col: np.nan for col in value_columns}
-    row = indexed.loc[eligible[-1]]
-    out: dict[str, object] = {col: row.get(col, np.nan) for col in value_columns}
+    """Estado no instante causal ``cutoff``; sem reutilizar ITI após o fim do corpus."""
+
+    cutoff_norm = pd.Timestamp(cutoff).normalize()
+    last_eligible = last_eligible_signal_date(indexed)
+    if last_eligible is None or cutoff_norm > last_eligible:
+        out: dict[str, object] = {col: np.nan for col in value_columns}
+        out["signal_exclusion"] = "cutoff_after_corpus_coverage"
+        return out
+
+    if cutoff_norm not in indexed.index:
+        out = {col: np.nan for col in value_columns}
+        out["signal_exclusion"] = "cutoff_not_in_daily_calendar"
+        return out
+
+    row = indexed.loc[cutoff_norm]
+    if "coverage_status" in indexed.columns and str(row.get("coverage_status")) != "eligible":
+        out = {col: np.nan for col in value_columns}
+        out["signal_exclusion"] = "cutoff_not_eligible"
+        return out
+
+    out = {col: row.get(col, np.nan) for col in value_columns}
     if "warmup" in indexed.columns:
         out["warmup"] = bool(row.get("warmup", False))
+    out["signal_exclusion"] = ""
     return out
 
 
@@ -327,6 +361,7 @@ def build_weekly_signals(
     value_columns: tuple[str, ...] | None = None,
     market_sessions: pd.DataFrame | None = None,
     company_to_ticker: dict[str, str] | None = None,
+    corpus_span: tuple[pd.Timestamp, pd.Timestamp] | None = None,
 ) -> pd.DataFrame:
     """Amostra sinais no cutoff causal (dia civil anterior ao último pregão da semana)."""
 
@@ -362,9 +397,17 @@ def build_weekly_signals(
             sessions = market_sessions.loc[
                 market_sessions["ticker"].astype(str) == str(ticker)
             ].sort_values("week_id")
+            last_eligible = (
+                pd.Timestamp(corpus_span[1]).normalize()
+                if corpus_span is not None
+                else last_eligible_signal_date(indexed)
+            )
             for _, session in sessions.iterrows():
                 cutoff = pd.Timestamp(session["signal_cutoff_at"]).normalize()
+                if last_eligible is not None and cutoff > last_eligible:
+                    continue
                 vals = _values_at_cutoff(indexed, cutoff, value_columns)
+                exclusion = vals.pop("signal_exclusion", "")
                 if all(pd.isna(vals.get(c)) for c in value_columns):
                     continue
                 week_end = pd.Timestamp(session["week_id"]).normalize()
@@ -377,12 +420,18 @@ def build_weekly_signals(
                         "period_end": str(session.get("period_end", "")),
                         "market_close_at": session.get("market_close_at", ""),
                         "signal_cutoff_at": cutoff,
+                        "signal_exclusion": exclusion,
                     }
                 )
         else:
             weekly = indexed.resample(week_anchor).last()
             weekly = weekly.dropna(how="all", subset=list(value_columns))
+            span_end = (
+                pd.Timestamp(corpus_span[1]).normalize() if corpus_span is not None else None
+            )
             for week_end, row in weekly.iterrows():
+                if span_end is not None and pd.Timestamp(week_end).normalize() > span_end:
+                    continue
                 rows.append(
                     {
                         company_col: company,

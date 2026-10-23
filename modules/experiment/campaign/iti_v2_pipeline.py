@@ -179,6 +179,7 @@ def build_indices(
         week_anchor=analysis.week_anchor or protocol.week_anchor,
         market_sessions=sessions,
         company_to_ticker=_load_company_to_ticker(),
+        corpus_span=corpus_span,
     )
 
     paths = {
@@ -200,7 +201,12 @@ def build_indices(
     (out_dir / "run_manifest.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8"
     )
-    build_supplementary_weekly(predictions_path, out_dir, protocol_path=protocol_path)
+    build_supplementary_weekly(
+        predictions_path,
+        out_dir,
+        protocol_path=protocol_path,
+        corpus_span=corpus_span,
+    )
     return paths
 
 
@@ -245,11 +251,13 @@ def evaluate_run(
         )
 
     predictions_path = out_dir / "predictions.csv"
+    corpus_span = _corpus_span_from_p02(corpus_dir)
     if predictions_path.is_file():
         build_supplementary_weekly(
             predictions_path,
             out_dir,
             protocol_path=protocol_path,
+            corpus_span=corpus_span,
         )
 
     weekly = pd.read_csv(weekly_path)
@@ -293,12 +301,23 @@ def evaluate_run(
         holdout = split.get("external_holdout", {})
         if holdout.get("status") == "selected" and holdout.get("cutoff_date_inclusive"):
             cutoff = pd.Timestamp(holdout["cutoff_date_inclusive"])
+            holdout_end_raw = holdout.get("corpus_date_max")
+            holdout_end = (
+                pd.Timestamp(holdout_end_raw).normalize()
+                if holdout_end_raw
+                else None
+            )
             date_series = pd.to_datetime(
                 panel.get("period_end", panel.get("date")),
                 errors="coerce",
-            )
+            ).dt.normalize()
             dev_panel = panel.loc[date_series < cutoff].copy()
-            ho_panel = panel.loc[date_series >= cutoff].copy()
+            if holdout_end is not None:
+                ho_panel = panel.loc[
+                    (date_series >= cutoff) & (date_series <= holdout_end)
+                ].copy()
+            else:
+                ho_panel = panel.loc[date_series >= cutoff].copy()
             for label, subset in (("development", dev_panel), ("holdout", ho_panel)):
                 rows = compute_horizon_metrics(
                     subset,

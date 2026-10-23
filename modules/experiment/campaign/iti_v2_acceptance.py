@@ -86,7 +86,48 @@ def _check_predictions(path: Path) -> list[AcceptanceResult]:
     return results
 
 
-def _check_run(run_id: str) -> list[AcceptanceResult]:
+def _check_temporal_coverage(run_dir: Path, corpus_dir: Path) -> AcceptanceResult:
+    """Bloqueador: sinais não podem extrapolar cobertura elegível do corpus (P08)."""
+
+    manifest = corpus_dir / "corpus_manifest.json"
+    weekly_path = run_dir / "iti_weekly_signals.csv"
+    panel_path = run_dir / "aligned_panel.csv"
+    if not manifest.is_file() or not weekly_path.is_file():
+        return AcceptanceResult(
+            "P08:temporal_signal_coverage",
+            False,
+            "manifest ou iti_weekly ausente",
+        )
+    payload = json.loads(manifest.read_text(encoding="utf-8"))
+    date_max = payload.get("date_max")
+    if not date_max:
+        return AcceptanceResult(
+            "P08:temporal_signal_coverage",
+            False,
+            "date_max ausente no manifest",
+        )
+    corpus_end = pd.Timestamp(date_max).normalize()
+    weekly = pd.read_csv(weekly_path, parse_dates=["signal_cutoff_at"], low_memory=False)
+    if "signal_cutoff_at" not in weekly.columns:
+        return AcceptanceResult(
+            "P08:temporal_signal_coverage",
+            False,
+            "signal_cutoff_at ausente",
+        )
+    max_cutoff = pd.to_datetime(weekly["signal_cutoff_at"], errors="coerce").max()
+    ok_cutoff = pd.Timestamp(max_cutoff).normalize() <= corpus_end
+    detail = f"max(signal_cutoff_at)={max_cutoff}; corpus_end={corpus_end}"
+    if panel_path.is_file():
+        panel = pd.read_csv(panel_path, parse_dates=["signal_cutoff_at"], low_memory=False)
+        if "signal_cutoff_at" in panel.columns and "iti_v2_h7" in panel.columns:
+            pmax = pd.to_datetime(panel["signal_cutoff_at"], errors="coerce").max()
+            ok_panel = pd.Timestamp(pmax).normalize() <= corpus_end
+            ok_cutoff = ok_cutoff and ok_panel
+            detail += f"; panel_max_cutoff={pmax}"
+    return AcceptanceResult("P08:temporal_signal_coverage", ok_cutoff, detail)
+
+
+def _check_run(run_id: str, corpus_dir: Path | None = None) -> list[AcceptanceResult]:
     run_dir = PROJECT_ROOT / "outputs/campaigns/iti_v2" / run_id
     artifacts = (
         "iti_daily.csv",
@@ -109,6 +150,8 @@ def _check_run(run_id: str) -> list[AcceptanceResult]:
     for name in artifacts:
         path = run_dir / name
         results.append(AcceptanceResult(f"P07:{name}", path.is_file(), str(path)))
+    if corpus_dir is not None:
+        results.append(_check_temporal_coverage(run_dir, corpus_dir))
     return results
 
 
@@ -147,7 +190,7 @@ def run_acceptance(
         run_dir = PROJECT_ROOT / "outputs/campaigns/iti_v2" / run_id
         pred = run_dir / "predictions.csv"
         results.extend(_check_predictions(pred))
-        results.extend(_check_run(run_id))
+        results.extend(_check_run(run_id, corpus_dir=corpus_dir))
     ok = all(item.ok for item in results)
     return ok, results
 

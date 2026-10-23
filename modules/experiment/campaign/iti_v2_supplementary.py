@@ -39,6 +39,7 @@ def build_supplementary_weekly(
     run_dir: Path,
     *,
     protocol_path: Path | None = None,
+    corpus_span: tuple[pd.Timestamp, pd.Timestamp] | None = None,
 ) -> dict[str, Path]:
     protocol_path = protocol_path or (
         PROJECT_ROOT / "configs/campaigns/iti_v2/protocol.yaml"
@@ -65,6 +66,7 @@ def build_supplementary_weekly(
         half_lives=tuple(protocol.half_life_days),
         warmup_days=warmup,
         calendar_end=calendar_end,
+        corpus_span=corpus_span,
     )
     daily_legacy = attach_legacy_c_daily(
         daily_entity,
@@ -77,6 +79,7 @@ def build_supplementary_weekly(
         value_columns=("legacy_c_iti",),
         market_sessions=sessions,
         company_to_ticker=company_to_ticker,
+        corpus_span=corpus_span,
     )
     legacy_path = run_dir / "iti_weekly_legacy_c.csv"
     weekly_legacy.to_csv(legacy_path, index=False)
@@ -94,12 +97,14 @@ def build_supplementary_weekly(
             half_lives=tuple(protocol.half_life_days),
             warmup_days=warmup,
             calendar_end=calendar_end,
+            corpus_span=corpus_span,
         )
         weekly_doc = build_weekly_signals(
             daily_doc,
             week_anchor=protocol.week_anchor,
             market_sessions=sessions,
             company_to_ticker=company_to_ticker,
+            corpus_span=corpus_span,
         )
         rename = {
             col: f"document_{col}"
