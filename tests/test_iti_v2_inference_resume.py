@@ -14,6 +14,9 @@ def test_stored_row_identity_matches_expected_fields() -> None:
         "view_hash": "abc",
         "model_key": "finbert_ptbr",
         "model_revision_sha": "sha1",
+        "company_id": "Sabesp",
+        "date": "2024-01-01",
+        "text_max_length": 512,
     }
     expected = prediction_identity_tuple(
         news_id="n1",
@@ -22,6 +25,9 @@ def test_stored_row_identity_matches_expected_fields() -> None:
         view_hash="abc",
         model_key="finbert_ptbr",
         model_revision_sha="sha1",
+        company_id="Sabesp",
+        date="2024-01-01",
+        max_length=512,
     )
     assert stored_row_identity(row) == expected
 
@@ -42,5 +48,8 @@ def test_stale_view_hash_must_not_match() -> None:
         view_hash="new",
         model_key="finbert_ptbr",
         model_revision_sha="sha1",
+        company_id="Sabesp",
+        date="2024-01-01",
+        max_length=512,
     )
     assert stored_row_identity(row) != expected

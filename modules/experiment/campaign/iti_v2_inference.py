@@ -32,6 +32,7 @@ ITI_V2_PREDICTION_COLUMNS: tuple[str, ...] = (
     "date",
     "view_id",
     "view_hash",
+    "text_max_length",
     "model_key",
     "model_revision_sha",
     "p_negative",
@@ -95,8 +96,11 @@ def prediction_identity_tuple(
     view_hash: str,
     model_key: str,
     model_revision_sha: str,
-) -> tuple[str, str, str, str, str, str]:
-    """Chave de retomada: texto, recorte, modelo e revisão de pesos."""
+    company_id: str,
+    date: str,
+    max_length: int,
+) -> tuple[str, ...]:
+    """Chave de retomada: corpus, texto, recorte, modelo e pré-processamento."""
 
     return (
         str(news_id),
@@ -105,10 +109,15 @@ def prediction_identity_tuple(
         str(view_hash),
         str(model_key),
         str(model_revision_sha),
+        str(company_id),
+        str(date),
+        str(max_length),
     )
 
 
-def stored_row_identity(row: dict[str, object]) -> tuple[str, str, str, str, str, str]:
+def stored_row_identity(row: dict[str, object]) -> tuple[str, ...]:
+    raw_ml = row.get("text_max_length", "")
+    max_length = str(int(raw_ml)) if str(raw_ml).strip().isdigit() else str(raw_ml)
     return prediction_identity_tuple(
         news_id=str(row.get("news_id", "")),
         view_id=str(row.get("view_id", "")),
@@ -116,7 +125,37 @@ def stored_row_identity(row: dict[str, object]) -> tuple[str, str, str, str, str
         view_hash=str(row.get("view_hash", "")),
         model_key=str(row.get("model_key", "")),
         model_revision_sha=str(row.get("model_revision_sha", "")),
+        company_id=str(row.get("company_id", "")),
+        date=str(row.get("date", "")),
+        max_length=int(max_length) if max_length.isdigit() else 0,
     )
+
+
+def expected_corpus_pairs(
+    frame: pd.DataFrame,
+    view_ids: list[str],
+) -> set[tuple[str, str]]:
+    pairs: set[tuple[str, str]] = set()
+    for record in frame.itertuples(index=False):
+        news_id = str(getattr(record, "news_id", getattr(record, "id", "")))
+        for view_id in view_ids:
+            pairs.add((news_id, view_id))
+    return pairs
+
+
+def prune_prediction_rows(
+    rows: list[dict[str, Any]],
+    valid_pairs: set[tuple[str, str]],
+) -> list[dict[str, Any]]:
+    """Mantém um registro por par notícia–view presente no corpus atual."""
+
+    by_pair: dict[tuple[str, str], dict[str, Any]] = {}
+    for row in rows:
+        key = (str(row.get("news_id")), str(row.get("view_id")))
+        if key not in valid_pairs:
+            continue
+        by_pair[key] = row
+    return list(by_pair.values())
 
 
 def run_iti_v2_inference(
@@ -172,6 +211,11 @@ def run_iti_v2_inference(
         raise FileNotFoundError(f"model_dir ausente: {model_configuration.model_dir}")
 
     revision_sha = _model_revision_sha(model_configuration)
+    if revision_sha == "unknown":
+        raise ValueError(
+            "weights_sha256 ausente em models.yaml: retomada e cache exigem "
+            "revisão identificável dos pesos do modelo."
+        )
     registry = create_model_registry(models_configuration)
     registered = registry.create(model_configuration, load=True)
 
@@ -235,6 +279,9 @@ def run_iti_v2_inference(
                 view_hash=view.view_hash,
                 model_key=model_key,
                 model_revision_sha=revision_sha,
+                company_id=company_id,
+                date=date,
+                max_length=max_length,
             )
             pair_key = (news_id, view_id)
             if pair_key in existing_by_pair:
@@ -262,6 +309,7 @@ def run_iti_v2_inference(
                 "date": date,
                 "view_id": view.view_id,
                 "view_hash": view.view_hash,
+                "text_max_length": max_length,
                 "model_key": model_key,
                 "model_revision_sha": revision_sha,
                 "token_count_original": token_original,
@@ -289,6 +337,7 @@ def run_iti_v2_inference(
                 view_id=view.view_id,
                 model_key=model_key,
                 model_revision_sha=revision_sha,
+                config_sha=str(max_length),
             )
             base_row["_cache_key"] = cache_key
 
@@ -317,6 +366,9 @@ def run_iti_v2_inference(
 
     flush_batch()
     registered.unload()
+
+    valid_pairs = expected_corpus_pairs(frame, view_ids)
+    rows = prune_prediction_rows(rows, valid_pairs)
 
     result = pd.DataFrame(rows)
     for col in ITI_V2_PREDICTION_COLUMNS:
