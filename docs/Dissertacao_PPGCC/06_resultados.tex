@@ -80,26 +80,33 @@ Em outubro de 2026 foi concluída a execução exploratória documentada no Apê
 
 \section{Discussão integrada e ameaças à validade}
 
-As limitações observadas organizam-se em construto, desenho, inferência e generalização. No universo pareado do contraste principal ($n=89$ semanas), o Soft no cutoff foi zero em 34 semanas (38,2\%); no nível diário elegível, cerca de 42,5\% dos dias não tiveram matérias --- diagnóstico exploratório da campanha de outubro de 2026, sem alterar estimadores canônicos. O contraste permanece entre memória (ITI-H7) e entrada instantânea no cutoff, não entre baselines semanais alternativos. A Tabela~\ref{tab:ameacas} resume evidências e encaminhamentos; em síntese, o pipeline é operacional e auditável, o sinal textual exige referência humana independente e a campanha não confirma superioridade do ITI-H7 sobre Soft (plano de continuidade no Capítulo~\ref{cap:consideracoes}).
+As limitações observadas organizam-se em construto, desenho, inferência e generalização (Tabela~\ref{tab:ameacas}).
 
-\begin{table}[!htbp]
+\needspace{11\baselineskip}
+\begin{table}[H]
 \centering
 \caption{Ameaças à validade, evidências observadas e encaminhamentos.}
 \label{tab:ameacas}
-\begin{tabularx}{\textwidth}{@{}P{0.23\textwidth}LL@{}}
+\begingroup
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\textwidth}{@{}P{0.2\textwidth}XX@{}}
 \toprule
-Dimensão & Evidência observada & Encaminhamento necessário \\
+Dimensão & Evidência observada & Encaminhamento \\
 \midrule
-Validade de construto & Baixa concordância modelo--autor; 35 das 67 neutras com polaridade incorreta & Referência humana independente e diagnóstico de erro \\
-Validade interna & Horário de publicação nem sempre conhecido; reexecução out./2026 corrigiu grade diária, retornos e cutoff & Manter auditoria de calendário e política conservadora de disponibilidade \\
-Validade estatística & Painel semanal limitado ao corpus ($n=89$ no contraste principal); oito contrastes secundários com Holm; $\Delta$ inconclusivo & Manter protocolo pré-especificado; não reinterpretar $p$ alto como equivalência \\
-Validade externa & Uma empresa e cobertura desigual & Extensão condicionada à qualidade dos dados \\
-Reprodutibilidade & Versões distintas do corpus; manifestos versionados por execução & Registro versionado por execução e revisão de código \\
+Construto & Concordância modelo--autor limitada; neutras com polaridade incorreta & Referência humana independente \\
+Interna & Cutoff e calendário reauditados em out./2026 & Política conservadora de disponibilidade \\
+Estatística & $n=89$; Holm nos $p$ secundários; $\Delta$ inconclusivo & Não reinterpretar $p$ alto como equivalência \\
+Externa & Uma empresa; cobertura desigual & Extensão condicionada aos dados \\
+Reprodutibilidade & Manifestos por execução & Versionamento de corpus e código \\
 \bottomrule
 \end{tabularx}
-\vspace{0.4em}
-{\footnotesize Fonte: elaboração própria a partir das etapas experimentais apresentadas.}
+\endgroup
+\vspace{0.35em}
+{\footnotesize Fonte: elaboração própria.}
 \end{table}
+
+No universo pareado do contraste principal ($n=89$ semanas), o Soft no cutoff foi zero em 34 semanas (38,2\%); no nível diário elegível, cerca de 42,5\% dos dias não tiveram matérias --- diagnóstico exploratório da campanha de outubro de 2026, sem alterar estimadores canônicos. O contraste permanece entre memória (ITI-H7) e entrada instantânea no cutoff, não entre baselines semanais alternativos. Em síntese, o pipeline é operacional e auditável, o sinal textual exige referência humana independente e a campanha não confirma superioridade do ITI-H7 sobre Soft (plano de continuidade no Capítulo~\ref{cap:consideracoes}).
 
 % [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 

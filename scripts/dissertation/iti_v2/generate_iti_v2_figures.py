@@ -115,7 +115,7 @@ def figure_delta_intervals(run_dir: Path, out_dir: Path) -> Path | None:
     ax.axvline(0.0, color="gray", linestyle="--", linewidth=1)
     ax.set_yticks(list(y_pos), labels)
     ax.set_xlabel("Δ (bootstrap IC 95%)")
-    ax.set_title("Família secundária pré-registrada")
+    ax.set_title("Família secundária pré-especificada")
     fig.tight_layout()
     path = out_dir / "figure_delta_intervals.png"
     fig.savefig(path, dpi=220)
