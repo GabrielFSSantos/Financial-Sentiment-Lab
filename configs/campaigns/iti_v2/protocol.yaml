@@ -11,6 +11,9 @@ index:
   unknown_coverage: missing_state_restart_warmup
   exploratory_observed_corpus: separately_labeled
   warmup_days: 70
+legacy:
+  alpha: 0.7
+  horizon_mode: ewma_alpha
 text:
   primary_view: entity_context_v1
   comparison_view: document_v1

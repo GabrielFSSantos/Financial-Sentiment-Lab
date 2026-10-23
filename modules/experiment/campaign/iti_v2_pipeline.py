@@ -13,9 +13,30 @@ from modules.experiment import PROJECT_ROOT
 from modules.experiment.campaign.iti_v2_protocol import load_iti_v2_protocol, write_resolved_protocol
 from modules.experiment.campaign.iti_v2_acceptance import format_report, run_acceptance
 from modules.experiment.campaign.iti_v2_inference import run_iti_v2_inference
+from modules.experiment.campaign.iti_v2_contrasts import (
+    apply_holm_secondary,
+    build_result_registry,
+    load_contrast_plan,
+    run_delta_contrast,
+    run_marginal_correlation,
+    write_contrast_tables,
+)
 from modules.experiment.campaign.iti_v2_statistics import (
     compute_horizon_metrics,
     metrics_to_dataframe,
+)
+from modules.experiment.campaign.iti_v2_evaluate_extras import (
+    build_table_corpus,
+    build_table_resources,
+    count_primary_view_predictions,
+    evaluate_split_contrasts,
+    export_contrast_masks,
+    export_global_intersection_mask,
+    run_block_sensitivity_primary,
+)
+from modules.experiment.campaign.iti_v2_supplementary import (
+    build_supplementary_weekly,
+    enrich_aligned_panel,
 )
 from modules.experiment.campaign.protocol_lock import (
     build_protocol_lock,
@@ -35,6 +56,14 @@ def _default_protocol_path() -> Path:
 
 def _default_analysis_plan_path() -> Path:
     return PROJECT_ROOT / "configs/campaigns/iti_v2/analysis_plan.yaml"
+
+
+def _default_secondary_contrasts_path() -> Path:
+    return PROJECT_ROOT / "configs/campaigns/iti_v2/secondary_contrasts.yaml"
+
+
+def _primary_view_id(protocol: object) -> str:
+    return str(protocol.raw.get("text", {}).get("primary_view", "entity_context_v1"))
 
 
 def run_dir_for(run_id: str) -> Path:
@@ -101,6 +130,9 @@ def build_indices(
     )
 
     preds = _normalize_predictions_frame(pd.read_csv(predictions_path))
+    primary_view = _primary_view_id(protocol)
+    if "view_id" in preds.columns:
+        preds = preds.loc[preds["view_id"].astype(str) == primary_view].copy()
     daily = build_daily_iti_v2_frame(
         preds,
         half_lives=protocol.half_life_days,
@@ -130,6 +162,7 @@ def build_indices(
     (out_dir / "run_manifest.json").write_text(
         json.dumps(manifest, indent=2), encoding="utf-8"
     )
+    build_supplementary_weekly(predictions_path, out_dir, protocol_path=protocol_path)
     return paths
 
 
@@ -164,12 +197,21 @@ def evaluate_run(
     analysis_plan_path = analysis_plan_path or _default_analysis_plan_path()
     protocol = load_iti_v2_protocol(protocol_path)
     analysis = load_analysis_plan(analysis_plan_path)
+    contrast_plan_path = _default_secondary_contrasts_path()
 
     out_dir = run_dir_for(run_id)
     weekly_path = out_dir / "iti_weekly_signals.csv"
     if not weekly_path.is_file():
         raise FileNotFoundError(
             f"Execute indices antes de evaluate: {weekly_path} ausente"
+        )
+
+    predictions_path = out_dir / "predictions.csv"
+    if predictions_path.is_file():
+        build_supplementary_weekly(
+            predictions_path,
+            out_dir,
+            protocol_path=protocol_path,
         )
 
     weekly = pd.read_csv(weekly_path)
@@ -190,8 +232,15 @@ def evaluate_run(
         "metrics_inference": out_dir / "metrics_inference.json",
         "metrics_table": out_dir / "metrics_by_horizon.csv",
     }
+    panel = enrich_aligned_panel(panel, out_dir)
     panel.to_csv(paths["aligned_panel"], index=False)
     audit.to_csv(paths["alignment_audit"], index=False)
+
+    exclusions_src = corpus_dir / "exclusions.csv"
+    if exclusions_src.is_file():
+        exclusions_dst = out_dir / "exclusions.csv"
+        exclusions_dst.write_bytes(exclusions_src.read_bytes())
+        paths["exclusions"] = exclusions_dst
 
     horizon_rows = compute_horizon_metrics(
         panel,
@@ -223,6 +272,16 @@ def evaluate_run(
                     json.dumps({"split": label, "horizons": rows}, indent=2),
                     encoding="utf-8",
                 )
+            if not ho_panel.empty:
+                holdout_contrasts = evaluate_split_contrasts(
+                    ho_panel,
+                    split_label="holdout_exploratory",
+                    plan=analysis,
+                    contrast_plan_path=contrast_plan_path,
+                )
+                ho_path = out_dir / "metrics_holdout_contrasts.json"
+                ho_path.write_text(json.dumps(holdout_contrasts, indent=2), encoding="utf-8")
+                paths["metrics_holdout_contrasts"] = ho_path
     metrics_table = metrics_to_dataframe(horizon_rows)
     metrics_table.to_csv(paths["metrics_table"], index=False)
 
@@ -234,6 +293,52 @@ def evaluate_run(
         ),
         horizon_rows[0] if horizon_rows else {},
     )
+    primary_spec, secondary_specs = load_contrast_plan(contrast_plan_path)
+    primary_delta = run_delta_contrast(panel, primary_spec, plan=analysis)
+    secondary_rows = [
+        run_delta_contrast(panel, spec, plan=analysis) for spec in secondary_specs
+    ]
+    secondary_rows = apply_holm_secondary(secondary_rows, alpha=analysis.alpha)
+    paths["contrast_masks"] = export_contrast_masks(
+        panel, secondary_specs, out_dir / "contrast_masks.csv"
+    )
+    paths["mask_global_intersection"] = export_global_intersection_mask(
+        panel, secondary_specs, out_dir / "mask_global_intersection.csv"
+    )
+    block_sizes = tuple(
+        sorted(
+            {
+                analysis.block_length_weeks,
+                *analysis.block_sensitivity_weeks,
+            }
+        )
+    )
+    block_rows = run_block_sensitivity_primary(
+        panel, primary_spec, plan=analysis, block_sizes=block_sizes
+    )
+    block_path = out_dir / "metrics_block_sensitivity.json"
+    block_path.write_text(json.dumps(block_rows, indent=2), encoding="utf-8")
+    paths["metrics_block_sensitivity"] = block_path
+    paths["table_corpus"] = build_table_corpus(corpus_dir, out_dir / "table_corpus.json")
+    paths["table_resources"] = build_table_resources(run_dir_for(run_id), out_dir / "table_resources.json")
+
+    marginal_primary = run_marginal_correlation(
+        panel,
+        signal_col,
+        plan=analysis,
+        horizon_weeks=analysis.primary_horizon_weeks,
+    )
+    contrast_paths = write_contrast_tables(out_dir, primary_delta, secondary_rows)
+    paths.update(contrast_paths)
+    paths["metrics_primary_delta"] = out_dir / "metrics_primary_delta.json"
+    paths["metrics_primary_delta"].write_text(
+        json.dumps(primary_delta, indent=2), encoding="utf-8"
+    )
+    paths["metrics_secondary"] = out_dir / "metrics_secondary.json"
+    paths["metrics_secondary"].write_text(
+        json.dumps(secondary_rows, indent=2), encoding="utf-8"
+    )
+
     metrics: dict[str, object] = {
         "run_id": run_id,
         "protocol_lock_git": lock.get("git_commit"),
@@ -251,9 +356,36 @@ def evaluate_run(
         "status": primary_row.get("status", "missing"),
         "secondary_correction": analysis.secondary_correction,
         "bootstrap_replicates": primary_row.get("n_bootstrap"),
+        "primary_delta": primary_delta.get("delta"),
+        "primary_delta_p_value": primary_delta.get("p_value"),
+        "primary_delta_ci_low": primary_delta.get("ci_low"),
+        "primary_delta_ci_high": primary_delta.get("ci_high"),
+        "rho_candidate": primary_delta.get("rho_candidate"),
+        "rho_baseline": primary_delta.get("rho_baseline"),
     }
 
     paths["metrics"].write_text(json.dumps(metrics, indent=2), encoding="utf-8")
+    pred_counts = count_primary_view_predictions(
+        predictions_path, _primary_view_id(protocol)
+    )
+    registry = build_result_registry(
+        run_id=run_id,
+        execution_mode=str(lock.get("execution_mode", "exploratory")),
+        primary_delta=primary_delta,
+        secondary_rows=secondary_rows,
+        marginal_primary=marginal_primary,
+        horizons_exploratory=horizon_rows,
+        artifacts={k: str(v) for k, v in paths.items()},
+    )
+    registry["prediction_counts"] = pred_counts
+    registry["block_sensitivity"] = block_rows
+    if "metrics_holdout_contrasts" in paths:
+        registry["holdout_contrasts_exploratory"] = json.loads(
+            paths["metrics_holdout_contrasts"].read_text(encoding="utf-8")
+        )
+    registry_path = out_dir / "result_registry.json"
+    registry_path.write_text(json.dumps(registry, indent=2), encoding="utf-8")
+    paths["result_registry"] = registry_path
     paths["metrics_inference"].write_text(
         json.dumps(
             {
@@ -282,21 +414,28 @@ def write_run_report(run_id: str) -> Path:
     audit = pd.read_csv(audit_path) if audit_path.is_file() else pd.DataFrame()
     dropped = int((audit["join_status"] == "dropped").sum()) if not audit.empty else 0
 
+    delta_path = out_dir / "metrics_primary_delta.json"
+    delta = (
+        json.loads(delta_path.read_text(encoding="utf-8"))
+        if delta_path.is_file()
+        else {}
+    )
     lines = [
         f"# Relatório ITI-v2 — `{run_id}`",
         "",
         f"- Modo: **{metrics.get('execution_mode', 'n/d')}**",
-        f"- Métrica principal: {metrics.get('metric')} (h={metrics.get('horizon_weeks')} semanas)",
-        f"- Sinal: `{metrics.get('signal_column')}`",
-        f"- Estimativa: {metrics.get('estimate')}",
-        f"- IC 95%: [{metrics.get('ci_low')}, {metrics.get('ci_high')}]",
-        f"- p (bootstrap): {metrics.get('p_value')}",
-        f"- p (Holm): {metrics.get('p_holm')}",
+        f"- Teste principal (Δ ITI-H7 − Soft, Spearman h=1): **{delta.get('delta')}**",
+        f"  - ρ candidato: {delta.get('rho_candidate')} · ρ baseline: {delta.get('rho_baseline')}",
+        f"  - IC 95% Δ: [{delta.get('ci_low')}, {delta.get('ci_high')}] · p bootstrap: {delta.get('p_value')}",
+        f"- Correlação marginal `{metrics.get('signal_column')}`: {metrics.get('estimate')} (exploratória)",
+        f"- IC 95% marginal: [{metrics.get('ci_low')}, {metrics.get('ci_high')}]",
+        f"- p (bootstrap marginal): {metrics.get('p_value')}",
         f"- Status: {metrics.get('status')}",
         f"- Bootstrap replicates: {metrics.get('bootstrap_replicates', 'n/d')}",
         f"- Semanas com perda no join: {dropped}",
+        f"- Registro único: `result_registry.json`",
         "",
-        "_Resultado confirmatório exige holdout independente (ver split_manifest / protocol_lock)._",
+        "_Referência humana independente pendente; holdout não é confirmatório sem P06._",
     ]
     report_path = out_dir / "report.md"
     report_path.write_text("\n".join(lines), encoding="utf-8")
@@ -313,8 +452,13 @@ def validate_run_artifacts(run_id: str) -> None:
         "aligned_panel.csv",
         "alignment_audit.csv",
         "metrics_primary.json",
+        "metrics_primary_delta.json",
+        "metrics_secondary.json",
         "metrics_inference.json",
         "metrics_by_horizon.csv",
+        "result_registry.json",
+        "table_primary.json",
+        "table_secondary.csv",
         "report.md",
     )
     missing = [name for name in required if not (out_dir / name).is_file()]
@@ -422,11 +566,10 @@ def main(argv: list[str] | None = None) -> int:
             corpus = PROJECT_ROOT / corpus
         ok, results = run_acceptance(corpus_dir=corpus, run_id=args.run_id)
         report = format_report(results)
-        log_dir = PROJECT_ROOT / "docs/plans"
+        log_dir = PROJECT_ROOT / "logs/iti_v2"
         log_dir.mkdir(parents=True, exist_ok=True)
-        (log_dir / "iti_v2_acceptance_latest.md").write_text(
-            report, encoding="utf-8"
-        )
+        for log_name in ("acceptance_latest.md", "iti_v2_acceptance_latest.md"):
+            (log_dir / log_name).write_text(report, encoding="utf-8")
         print(report)
         return 0 if ok else 1
 
@@ -438,13 +581,27 @@ def main(argv: list[str] | None = None) -> int:
             "predictions.csv",
             "iti_daily.csv",
             "iti_weekly_signals.csv",
+            "iti_weekly_legacy_c.csv",
+            "iti_weekly_document_v1.csv",
             "aligned_panel.csv",
             "alignment_audit.csv",
+            "exclusions.csv",
             "metrics_primary.json",
+            "metrics_primary_delta.json",
+            "metrics_secondary.json",
             "metrics_inference.json",
             "metrics_by_horizon.csv",
             "metrics_development.json",
             "metrics_holdout.json",
+            "metrics_holdout_contrasts.json",
+            "metrics_block_sensitivity.json",
+            "result_registry.json",
+            "table_primary.json",
+            "table_secondary.csv",
+            "table_corpus.json",
+            "table_resources.json",
+            "contrast_masks.csv",
+            "mask_global_intersection.csv",
             "report.md",
             "protocol_lock_ref.json",
             "run_manifest.json",
@@ -484,9 +641,10 @@ def main(argv: list[str] | None = None) -> int:
         validate_run_artifacts(args.run_id)
         ok, results = run_acceptance(corpus_dir=corpus_dir, run_id=args.run_id)
         report = format_report(results)
-        (PROJECT_ROOT / "docs/plans/iti_v2_acceptance_latest.md").write_text(
-            report, encoding="utf-8"
-        )
+        log_dir = PROJECT_ROOT / "logs/iti_v2"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        for log_name in ("acceptance_latest.md", "iti_v2_acceptance_latest.md"):
+            (log_dir / log_name).write_text(report, encoding="utf-8")
         print(report)
         return 0 if ok else 1
 

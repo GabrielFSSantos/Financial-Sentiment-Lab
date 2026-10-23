@@ -22,7 +22,8 @@ Uso: $0 <comando> [opções]
   validate        — [run_id] critérios do plano
   run-all         — run_id [corpus.csv] — cadeia completa
   export-thesis   — run_id — pacote thesis_export/
-  gate-local      — smoke + pytest + preflight SDumont (log em docs/plans/)
+  postprocess     — run_id — evaluate→report→validate→LaTeX→figuras
+  gate-local      — smoke + pytest + preflight SDumont (log em logs/iti_v2/)
   sdumont-preflight — artefatos obrigatórios antes do sbatch
 
 EOF
@@ -85,6 +86,19 @@ case "$cmd" in
     ;;
   export-thesis)
     RUN_ID="${1:?run_id obrigatório}"
+    exec "$PY" -m modules.experiment.campaign.iti_v2_pipeline export-thesis --run-id "$RUN_ID"
+    ;;
+  postprocess)
+    RUN_ID="${1:?run_id obrigatório}"
+    "$PY" -m modules.experiment.campaign.iti_v2_pipeline evaluate --run-id "$RUN_ID"
+    "$PY" -m modules.experiment.campaign.iti_v2_pipeline report --run-id "$RUN_ID"
+    "$PY" -m modules.experiment.campaign.iti_v2_pipeline validate \
+      --corpus-dir "$CORPUS" --run-id "$RUN_ID"
+    "$PY" scripts/dissertation/iti_v2/export_iti_v2_latex.py "$RUN_ID"
+    "$PY" scripts/dissertation/iti_v2/export_iti_v2_dissertation_tables.py "$RUN_ID"
+    "$PY" scripts/dissertation/iti_v2/generate_iti_v2_figures.py "$RUN_ID"
+    (cd docs/Dissertacao_PPGCC && latexmk -pdf -interaction=nonstopmode ufsj-abntex2.tex) || true
+    "$PY" scripts/references/export_references_downloads_pending.py
     exec "$PY" -m modules.experiment.campaign.iti_v2_pipeline export-thesis --run-id "$RUN_ID"
     ;;
   pin-env)

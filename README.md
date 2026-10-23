@@ -15,11 +15,11 @@ A pesquisa parte de notícias (datasets versionados ou coletados por scraper), a
 
 ## Entendendo a pesquisa
 
-A hipótese central é que o sentimento agregado em notícias sobre uma empresa, transformado em um índice com memória no tempo (ITI — *Informational Temporal Index*; em português, Índice Temporal Informacional), pode se associar ao movimento futuro da ação melhor do que alternativas simples feitas com as mesmas notícias. A implementação **ITI-v2** (meia-vida em dias civis, contexto focal) convive com o legado **legacy_v1** (EWMA heurístico); ver [`docs/plans/iti_v2_progress.md`](docs/plans/iti_v2_progress.md).
+A hipótese central é que o sentimento agregado em notícias sobre uma empresa, transformado em um índice com memória no tempo (ITI — *Informational Temporal Index*; em português, Índice Temporal Informacional), pode se associar ao movimento futuro da ação melhor do que alternativas simples feitas com as mesmas notícias. A implementação **ITI-v2** (meia-vida em dias civis, contexto focal) convive com o legado **legacy_v1** (EWMA heurístico); ver trilha [`docs/research_trail/part-04-results.md`](docs/research_trail/part-04-results.md) (§4.7) e campanha `configs/campaigns/iti_v2/`.
 
 O fluxo usa três fontes de dado distintas. As **notícias** vêm do nosso scraper ou de datasets versionados. O **sentimento** é inferido por modelos FinBERT (probabilidades por notícia). Os **preços** da B3 são baixados da internet (yfinance) e salvos em `data/market/prices.csv`. O ITI e os baselines B0–B3 são calculados apenas a partir das notícias; o mercado entra como **alvo** — medimos se o índice da semana correlaciona com o retorno futuro da ação (ex.: SBSP3).
 
-O índice é atualizado **todo dia** (EWMA — *Exponentially Weighted Moving Average*). Na validação semanal da campanha Sabesp, usamos um ponto por semana (valor do último dia útil, `iti_liquido_last`). Cada run da campanha gera 24 comparações: o ITI contra quatro baselines internos, em duas métricas de correlação (Pearson, Spearman) e três horizontes (1, 2 e 4 semanas). O **win rate** (taxa de vitória) indica em quantas dessas comparações o ITI supera o baseline.
+O **legado** (`legacy_v1`) atualiza o índice diariamente com EWMA e parâmetro α; a campanha Sabesp semanal usa `iti_liquido_last` e **24 duelos** (ITI × B0–B3). A **ITI-v2** usa meia-vida $H$ em dias civis, baseline Soft sem memória e teste principal $\Delta\rho$ (ITI-H7 − Soft), com família secundária e Holm — ver §4.7 da trilha e `./scripts/campaigns/iti_v2.sh`.
 
 Para conceitos detalhados e fórmulas, veja [docs/documentation/01_vision_and_concepts.md §1.5](docs/documentation/01_vision_and_concepts.md#15-conceitos-em-linguagem-acessível). Para o histórico run a run, veja [docs/research_trail/](docs/research_trail/README.md) (Partes 3 e 4).
 
@@ -28,9 +28,9 @@ Para conceitos detalhados e fórmulas, veja [docs/documentation/01_vision_and_co
 ## O que a pesquisa produz
 
 1. **Sentimento por notícia** — classes `POSITIVE`, `NEGATIVE`, `NEUTRAL` e score contínuo `d = P(pos) − P(neg)`.
-2. **ITI diário** — séries `iti_liquido` e `iti_risco` com memória EWMA por empresa (e agregados setor/mercado).
-3. **Baselines B0–B3** — contagem de notícias, sentimento médio, sentimento ponderado por confiança e impacto diário sem memória.
-4. **Validação research** — correlação e deltas ITI vs baselines contra retornos futuros, com bootstrap em bloco. Modo padrão: horizontes **1, 5 e 21 dias** (`configs/research.yaml`). Campanhas semanais (ex.: Sabesp): horizontes **1, 2 e 4 semanas** (`configs/campaigns/sabesp_2026/research_weekly.yaml`).
+2. **ITI diário** — legado: `iti_liquido` / `iti_risco` (EWMA); v2: `X` diário + `ITI^{(H)}` com $H\in\{2,7,14\}$ (`modules/experiment/indexing/iti_v2.py`).
+3. **Baselines** — legado B0–B3; v2: Soft (sem memória), Hard-BSI, ablação documento vs contexto focal.
+4. **Validação** — research genérico (`configs/research.yaml`); campanha ITI-v2 (`configs/campaigns/iti_v2/`) com bootstrap pareado em blocos e `result_registry.json`.
 
 Saídas principais em `outputs/{run_id}/`:
 

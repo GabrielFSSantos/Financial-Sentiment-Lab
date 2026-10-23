@@ -9,7 +9,9 @@ from typing import Any
 import pandas as pd
 import yaml
 
-from modules.datasets.text_views import build_entity_context_view
+import os
+
+from modules.datasets.text_views import build_document_view, build_entity_context_view
 from modules.experiment import PROJECT_ROOT
 from modules.experiment.campaign.protocol_lock import require_protocol_lock
 from modules.models.config.loader import load_models_configuration
@@ -48,6 +50,37 @@ def _entity_key_from_company(company_id: str) -> str:
     return str(company_id).strip().lower().split()[0]
 
 
+def _configured_view_ids(protocol: dict[str, object]) -> list[str]:
+    text = protocol.get("text", {})
+    primary = str(text.get("primary_view", "entity_context_v1"))
+    comparison = str(text.get("comparison_view", "document_v1"))
+    override = os.environ.get("ITI_V2_VIEWS", "").strip()
+    if override:
+        return [part.strip() for part in override.split(",") if part.strip()]
+    views = [primary]
+    if comparison and comparison not in views:
+        views.append(comparison)
+    return views
+
+
+def _build_view(
+    view_id: str,
+    title: str,
+    body: str,
+    company_id: str,
+    *,
+    neighbors: int,
+):
+    if view_id == "document_v1":
+        return build_document_view(title, body)
+    return build_entity_context_view(
+        title,
+        body,
+        _entity_key_from_company(company_id),
+        neighbors=neighbors,
+    )
+
+
 def _model_revision_sha(model_configuration: object) -> str:
     source = getattr(model_configuration, "source", None) or {}
     return str(source.get("weights_sha256", "unknown"))
@@ -82,12 +115,25 @@ def run_iti_v2_inference(
 
     frame = pd.read_csv(canonical_path)
     rows: list[dict[str, Any]] = []
+    view_ids = _configured_view_ids(protocol)
+    done_pairs: set[tuple[str, str]] = set()
     if output_path.is_file():
         existing = pd.read_csv(output_path)
         if "news_id" in existing.columns and not existing.empty:
-            done_ids = set(existing["news_id"].astype(str))
             rows = existing.to_dict(orient="records")
-            frame = frame.loc[~frame["news_id"].astype(str).isin(done_ids)]
+            if "view_id" in existing.columns:
+                done_pairs = {
+                    (str(n), str(v))
+                    for n, v in zip(
+                        existing["news_id"].astype(str),
+                        existing["view_id"].astype(str),
+                        strict=True,
+                    )
+                }
+            else:
+                done_pairs = {
+                    (str(n), view_ids[0]) for n in existing["news_id"].astype(str)
+                }
 
     if limit is not None and limit > 0:
         frame = frame.head(limit)
@@ -151,73 +197,78 @@ def run_iti_v2_inference(
             getattr(record, "article_version_id", news_id)
         )
 
-        view = build_entity_context_view(
-            title,
-            body,
-            _entity_key_from_company(company_id),
-            neighbors=neighbors,
-        )
-        base_row: dict[str, Any] = {
-            "news_id": news_id,
-            "article_version_id": article_version_id,
-            "company_id": company_id,
-            "date": date,
-            "view_id": view.view_id,
-            "view_hash": view.view_hash,
-            "model_key": model_key,
-            "model_revision_sha": revision_sha,
-            "token_count_original": view.token_count_original,
-            "token_count_used": min(view.token_count_original or 0, max_length),
-            "truncated": bool(
-                (view.token_count_original or 0) > max_length
-            ),
-            "target_visible": view.target_visible,
-        }
-
-        if view.status != "ok" or not view.target_visible or not view.text.strip():
-            base_row.update(
-                {
-                    "p_negative": pd.NA,
-                    "p_neutral": pd.NA,
-                    "p_positive": pd.NA,
-                    "predicted_label": pd.NA,
-                    "continuous_sentiment": pd.NA,
-                    "status": "not_evaluable",
-                }
-            )
-            rows.append(base_row)
-            continue
-
-        cache_key = inference_cache_key(
-            effective_text_hash=view.view_hash,
-            view_id=view.view_id,
-            model_key=model_key,
-            model_revision_sha=revision_sha,
-        )
-        base_row["_cache_key"] = cache_key
-
-        if use_cache:
-            hits = read_cache_hits(cache_dir, [cache_key])
-            if cache_key in hits:
-                hit = hits[cache_key]
-                base_row.update(
-                    {
-                        "p_negative": hit["p_negative"],
-                        "p_neutral": hit["p_neutral"],
-                        "p_positive": hit["p_positive"],
-                        "predicted_label": hit["predicted_label"],
-                        "continuous_sentiment": float(hit["p_positive"])
-                        - float(hit["p_negative"]),
-                        "status": "ok",
-                    }
-                )
-                rows.append({k: v for k, v in base_row.items() if k != "_cache_key"})
+        for view_id in view_ids:
+            if (news_id, view_id) in done_pairs:
                 continue
 
-        pending_meta.append(base_row)
-        pending_texts.append(view.text)
-        if len(pending_texts) >= batch_size:
-            flush_batch()
+            view = _build_view(
+                view_id,
+                title,
+                body,
+                company_id,
+                neighbors=neighbors,
+            )
+            base_row: dict[str, Any] = {
+                "news_id": news_id,
+                "article_version_id": article_version_id,
+                "company_id": company_id,
+                "date": date,
+                "view_id": view.view_id,
+                "view_hash": view.view_hash,
+                "model_key": model_key,
+                "model_revision_sha": revision_sha,
+                "token_count_original": view.token_count_original,
+                "token_count_used": min(view.token_count_original or 0, max_length),
+                "truncated": bool(
+                    (view.token_count_original or 0) > max_length
+                ),
+                "target_visible": view.target_visible,
+            }
+
+            if view.status != "ok" or not view.target_visible or not view.text.strip():
+                base_row.update(
+                    {
+                        "p_negative": pd.NA,
+                        "p_neutral": pd.NA,
+                        "p_positive": pd.NA,
+                        "predicted_label": pd.NA,
+                        "continuous_sentiment": pd.NA,
+                        "status": "not_evaluable",
+                    }
+                )
+                rows.append(base_row)
+                continue
+
+            cache_key = inference_cache_key(
+                effective_text_hash=view.view_hash,
+                view_id=view.view_id,
+                model_key=model_key,
+                model_revision_sha=revision_sha,
+            )
+            base_row["_cache_key"] = cache_key
+
+            if use_cache:
+                hits = read_cache_hits(cache_dir, [cache_key])
+                if cache_key in hits:
+                    hit = hits[cache_key]
+                    base_row.update(
+                        {
+                            "p_negative": hit["p_negative"],
+                            "p_neutral": hit["p_neutral"],
+                            "p_positive": hit["p_positive"],
+                            "predicted_label": hit["predicted_label"],
+                            "continuous_sentiment": float(hit["p_positive"])
+                            - float(hit["p_negative"]),
+                            "status": "ok",
+                        }
+                    )
+                    rows.append({k: v for k, v in base_row.items() if k != "_cache_key"})
+                    continue
+
+            pending_meta.append(base_row)
+            pending_texts.append(view.text)
+            if len(pending_texts) >= batch_size:
+                flush_batch()
 
     flush_batch()
     registered.unload()
@@ -236,6 +287,9 @@ def run_iti_v2_inference(
         "n_rows": int(len(result)),
         "n_ok": int((result["status"] == "ok").sum()),
         "n_not_evaluable": int((result["status"] == "not_evaluable").sum()),
+        "view_ids": sorted(result["view_id"].dropna().astype(str).unique().tolist())
+        if "view_id" in result.columns
+        else view_ids,
         "model_key": model_key,
         "corpus_dir": str(corpus_dir),
     }

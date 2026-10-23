@@ -14,4 +14,4 @@ Fluxo local:
 ./scripts/campaigns/iti_v2.sh report <run_id>
 ```
 
-Invólucro: `scripts/campaigns/iti_v2.sh`. Progresso: `docs/plans/iti_v2_progress.md`.
+Invólucro: `scripts/campaigns/iti_v2.sh`. Estado da campanha: `docs/research_trail/part-04-results.md` (§4.7) · aceite: `logs/iti_v2/acceptance_latest.md`.

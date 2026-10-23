@@ -11,7 +11,7 @@ Configurações, versões e hashes acompanham cada execução (\texttt{run\_id},
 
 O processamento com GPU está previsto para o supercomputador Santos Dumont (LNCC). A utilização do HPC é infraestrutura para inferência e medição de recursos; \textbf{não} constitui evidência da validade do índice.
 
-O job modelo \texttt{jobs/sdumont/run\_iti\_v2.srm} solicita um nó, uma GPU, 30 CPUs e 32\,GiB de RAM (partição de desenvolvimento). A configuração efetiva da nova campanha ITI-v2 será registrada no manifesto e em \texttt{sacct} após a primeira execução bem-sucedida.
+O job \texttt{jobs/sdumont/run\_iti\_v2.srm} solicita um nó, uma GPU Tesla V100, 30 CPUs e 32\,GiB de RAM (partição de desenvolvimento \texttt{sequana\_gpu\_dev}). A campanha canônica \texttt{iti\_v2\_prod\_20261022} foi executada localmente; a replica \texttt{iti\_v2\_sdumont\_20261022} (job Slurm \textbf{11622600}, out./2026) reproduziu as mesmas métricas principais (1253 notícias na view primária, $\Delta$ pré-registrado e família secundária com Holm). Metadados observados no cluster: \texttt{sdumont\_job\_metadata.txt} e log do job no diretório do run; tempos de fila não entram no tempo de inferência.
 
 \section{Medição de desempenho}
 
@@ -21,4 +21,4 @@ O monitoramento distingue carregamento do modelo, preparação textual, inferên
 
 O HPC permite lotes maiores e comparações com registro do ambiente; o cache de predições reduz o custo de sensibilidades temporais. Limitações incluem fila, tempo máximo de job, memória e possíveis diferenças numéricas entre dispositivos. O desempenho computacional será discutido separadamente da qualidade textual e da evidência financeira (Capítulo~\ref{cap:resultados}).
 
-\textit{Nota pré-execução:} tabelas de recursos solicitados, alocados e observados serão preenchidas a partir dos manifestos da campanha \texttt{iti\_v2}, sem números simulados nesta versão do manuscrito.
+Tabelas de recursos e sensibilidade de bloco (\texttt{table\_resources.json}, \texttt{metrics\_block\_sensitivity.json}) acompanham o manifesto de cada execução; o pacote \texttt{thesis\_export/} do run registra os artefatos usados na dissertação.

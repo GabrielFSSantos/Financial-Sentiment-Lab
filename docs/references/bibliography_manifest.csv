@@ -1,5 +1,11 @@
 cite_key,title,year,primary_url,pdf_path,sha256,status,access_date,notes
-hiew2019bsi,BERT-based Financial Sentiment Index,2019,https://arxiv.org/abs/1906.09024v2,,,pending,2026-10-22,
-cortis2017semeval5,SemEval-2017 Task 5,2017,https://aclanthology.org/S17-2089/,,,pending,2026-10-22,
-tang2023finentity,FinEntity EMNLP 2023,2023,https://aclanthology.org/2023.emnlp-main.956/,,,pending,2026-10-22,
-shapiro2022fed,Measuring News Sentiment,2022,https://doi.org/10.1016/j.jeconom.2020.07.053,,,pending,2026-10-22,DOI corrigido no .bib
+hiew2019bsi,BERT-based Financial Sentiment Index,2019,https://arxiv.org/abs/1906.09024v2,pdfs/hiew2019_bsi.pdf,ed82dff8d00b3b920eab58a610536a4c55c75b51971e70c336592a2b4cedce5a,ok,2026-10-23,
+cortis2017semeval5,SemEval-2017 Task 5,2017,https://aclanthology.org/S17-2089/,pdfs/cortis2017_semeval5.pdf,c0b4ebefa461439a95d84844ceae176f9005e1c7facc069555e77516221c1f7b,ok,2026-10-23,
+tang2023finentity,FinEntity EMNLP 2023,2023,https://aclanthology.org/2023.emnlp-main.956/,pdfs/tang2023_finentity.pdf,6c79c5087728efdf3aae16f1e7014336ea3c3c7aaeeb6bd3754862f4c5ef8430,ok,2026-10-23,
+shapiro2022fed,Measuring News Sentiment,2022,https://doi.org/10.1016/j.jeconom.2020.07.053,pdfs/shapiro2022_news_sentiment.pdf,a612106974dae1dda6a010d95046919b9b4ef9535ab4e922ead42713b65b5814,ok,2026-10-23,working paper Fed no acervo
+devlin2019bert,BERT,2019,https://aclanthology.org/N19-1423/,pdfs/devlin2019_bert.pdf,987545ffb087f1ece898142c403a516baeabeb70ce19089397fac6f7db12c3d4,ok,2026-10-23,
+kunsch1989bootstrap,Jackknife and bootstrap stationary,1989,https://doi.org/10.1214/aos/1176347265,pdfs/kunsch1989_bootstrap.pdf,f749795a5361b9d64f58b6363336f5e3c493b6f9fdb5ca11b435819fbcfa4dd3,ok,2026-10-23,
+buckman2020dnsi,DNSI decay EL 2020-08,2020,https://www.frbsf.org/wp-content/uploads/el2020-08.pdf,pdfs/buckman2020_dnsi_decay.pdf,5e131fc9ec4a2298b6824b07369584edd2c8e8dac14259b902fdb0e65d179204,ok,2026-10-23,
+guo2017calibration,On calibration of modern neural networks,2017,https://proceedings.mlr.press/v70/guo17a.html,pdfs/guo2017_calibration.pdf,df7c93f97204f8a3c2b10f6d5bf5265baac25f00c1ae3b473a3e1dbc102dacb2,ok,2026-10-23,opcional calibração
+caldara2022gpr,Geopolitical risk,2022,https://doi.org/10.1257/aer.20191823,pdfs/caldara2022_gpr.pdf,61b51d1133e012a09fef611b6347575d720707bf1b1bc8067fa25970a9876640,ok,2026-10-23,extensão macro
+holm1979multiple,Holm step-down,1979,https://doi.org/10.2307/2346806,,,doi_only,2026-10-23,sem cópia local

@@ -4,7 +4,7 @@
 
 Interface multipage para explorar corpus, runs, modelos, experimentos e research sem abrir CSVs manualmente. **Não recalcula** ITI nem research — só lê `outputs/` e `data/` (detalhe: [03_modules §3.9](03_modules.md)). Campanhas: [02_entrypoints_scripts](02_entrypoints_scripts.md).
 
-**ITI-v2:** runs em `outputs/campaigns/iti_v2/<run_id>/` (índice `iti_v2_h*`, não `iti_liquido`). Comparar apenas runs com mesmo `protocol_lock` e corpus; ver `report.md` e `metrics_primary.json` no diretório do run. O dashboard legado lista `outputs/{run_id}/` das campanhas Sabesp R0–R9 — não misturar séries v1 e v2 sem aviso de versão.
+**ITI-v2:** página **ITI-v2** no menu do Streamlit (`modules/dashboard/pages/iti_v2_campaign.py`) lê `outputs/campaigns/iti_v2/<run_id>/` (`result_registry.json`, Δ principal, tabela secundária, painel). Índice `iti_v2_h*`, não `iti_liquido`. Comparar apenas runs com mesmo `protocol_lock` e corpus. O dashboard legado lista `outputs/{run_id}/` das campanhas Sabesp R0–R9 — não misturar séries v1 e v2 sem aviso de versão.
 
 ```bash
 ./scripts/run_dashboard.sh

@@ -105,7 +105,7 @@ squeue -u "$USER"
 
 ### 7.6.1 Campanha ITI-v2 (P12)
 
-Replica opcional da pipeline ITI-v2 no GPU (inferência FinBERT + índices + avaliação). Runbook: `docs/plans/iti_v2_runbook.md`.
+Replica opcional da pipeline ITI-v2 no GPU (inferência FinBERT + índices + avaliação). Comandos: `scripts/campaigns/iti_v2.sh` · trilha §4.7.
 
 **No PC (antes do push / VPN):**
 

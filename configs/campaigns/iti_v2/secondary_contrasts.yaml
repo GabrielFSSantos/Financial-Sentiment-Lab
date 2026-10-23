@@ -1,0 +1,51 @@
+# Família secundária pré-registrada (Plano mestre §5.2) — Holm sobre os oito p-valores.
+schema_version: iti_v2_secondary_1
+primary:
+  id: PRIMARY_DELTA_H7_SOFT
+  candidate_column: iti_v2_h7
+  baseline_column: soft_input
+  metric: spearman
+  horizon_weeks: 1
+  description: "Δ ρ(ITI-H7) − ρ(Soft) em h=1"
+
+secondary:
+  - id: SEC_H2_VS_SOFT
+    candidate_column: iti_v2_h2
+    baseline_column: soft_input
+    metric: spearman
+    horizon_weeks: 1
+  - id: SEC_H14_VS_SOFT
+    candidate_column: iti_v2_h14
+    baseline_column: soft_input
+    metric: spearman
+    horizon_weeks: 1
+  - id: SEC_H7_VS_SOFT_PEARSON
+    candidate_column: iti_v2_h7
+    baseline_column: soft_input
+    metric: pearson
+    horizon_weeks: 1
+  - id: SEC_H7_VS_SOFT_H2
+    candidate_column: iti_v2_h7
+    baseline_column: soft_input
+    metric: spearman
+    horizon_weeks: 2
+  - id: SEC_H7_VS_SOFT_H4
+    candidate_column: iti_v2_h7
+    baseline_column: soft_input
+    metric: spearman
+    horizon_weeks: 4
+  - id: SEC_H7_VS_HARD
+    candidate_column: iti_v2_h7
+    baseline_column: hard_input
+    metric: spearman
+    horizon_weeks: 1
+  - id: SEC_CONTEXT_VS_DOCUMENT_H7
+    candidate_column: iti_v2_h7
+    baseline_column: document_iti_v2_h7
+    metric: spearman
+    horizon_weeks: 1
+  - id: SEC_H7_VS_LEGACY_C
+    candidate_column: iti_v2_h7
+    baseline_column: legacy_c_iti
+    metric: spearman
+    horizon_weeks: 1

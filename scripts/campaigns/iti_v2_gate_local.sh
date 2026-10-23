@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
-LOG="${ROOT}/docs/plans/iti_v2_validation_latest.log"
+LOG="${ROOT}/logs/iti_v2/validation_latest.log"
 mkdir -p "$(dirname "$LOG")"
 {
   echo "=== $(date -u +%Y-%m-%dT%H:%M:%SZ) ITI-v2 gate local ==="

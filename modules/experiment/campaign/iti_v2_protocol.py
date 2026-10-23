@@ -18,6 +18,7 @@ PROTOCOL_ALLOWED_TOP = frozenset(
         "text",
         "temporal",
         "analysis",
+        "legacy",
     }
 )
 

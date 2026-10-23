@@ -1,9 +1,11 @@
-% Gerado por tools/export_iti_v2_latex.py — não editar manualmente
-\subsection{Campanha ITI-v2 (\texttt{iti_v2_prod_20261022})}
+% Gerado por scripts/dissertation/iti_v2/export_iti_v2_latex.py — não editar manualmente
+\subsection{Campanha ITI-v2 (\texttt{iti\_v2\_prod\_20261022})}
 \label{subsec:iti-v2-campanha}
 
-Execução exploratória do protocolo ITI-v2 (visão \texttt{entity\_context\_v1}, corpus canônico P02, FinBERT-PT-BR com pesos fixados por SHA). Foram processadas 1253 notícias com probabilidades válidas; modo de execução: \textbf{exploratory}.
+Execução exploratória do protocolo ITI-v2 (visões \texttt{entity\_context\_v1} e \texttt{document\_v1}, corpus canônico P02, FinBERT-PT-BR com pesos fixados por SHA). Foram processadas 1253 notícias com probabilidades válidas na view primária; modo de execução: \textbf{exploratory}.
 
-Para o sinal semanal \texttt{iti_v2_h7} e horizonte $h=1$ semana(s), a correlação de Spearman no painel alinhado ($n=92$ semanas com overlap) foi -0,043, com intervalo de confiança de 95\% [-0,219; 0,160] e $p$ bootstrap 0,687 (Holm: 1,000). No holdout temporal (12 semanas civis, $n=12$ semanas no painel), Spearman = -0,168 ($p=0,602$). Não se interpreta como confirmação da hipótese: a referência humana independente segue pendente (Capítulo~\ref{cap:metodologia}).
+O contraste principal pré-registrado ($\Delta = \rho_{ITI\text{-}H7} - \rho_{Soft}$, Spearman, $h=1$) foi -0,127 (IC 95\% [-0,337; 0,126], $p$ bootstrap 0,827, $n=92$). Coeficientes marginais: $\rho_{candidato}=-0,043$, $\rho_{baseline}=0,085$. A correlação marginal exploratória de Spearman entre \texttt{iti\_v2\_h7} e retorno $h=1$ no painel ($n=92$) foi -0,043 (IC [-0,219; 0,160], $p=0,687$). No holdout temporal (12 semanas civis, $n=12$ semanas no painel), Spearman marginal = -0,168 ($p=0,602$).
 
-\noindent\textit{Fonte:} artefatos em \texttt{outputs/campaigns/iti\_v2/iti_v2_prod_20261022/}; métricas em \texttt{metrics\_primary.json}.
+A família secundária de oito contrastes está em \texttt{table\_secondary.csv} com correção de Holm (\texttt{result\_registry.json}). \textbf{Referência humana independente pendente} (Capítulo~\ref{cap:metodologia}); não interpretar como confirmação da hipótese substantiva.
+
+\noindent\textit{Fonte:} run canônico \texttt{iti\_v2\_prod\_20261022} (out./2026); manifesto e pacote \texttt{thesis\_export} (Apêndice~\ref{ap:iti-v2-math}).

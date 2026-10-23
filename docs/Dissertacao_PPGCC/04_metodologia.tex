@@ -237,6 +237,15 @@ As 24 comparações compartilham notícias, semanas e retornos. Portanto, não s
 
 A conclusão estatística dependerá tanto dos coeficientes quanto de seus intervalos e da estabilidade entre corpora. A simples taxa de comparações favoráveis não informa o tamanho de cada diferença. Além disso, não encontrar significância não demonstra que os índices sejam equivalentes: séries pequenas ou ruidosas podem não oferecer precisão suficiente para distinguir seus comportamentos.
 
+\section{Reformulação normativa ITI-v2}
+\label{sec:iti-v2}
+
+Paralelamente ao ITI legado (Seções anteriores, com ponderações heurísticas e parâmetro $\alpha$), a campanha \textbf{ITI-v2} fixa uma formulação auditável para a qualificação de outubro de 2026. O escore por notícia segue a diferença entre probabilidades positiva e negativa do FinBERT-PT-BR \cite{santos2023finbert}, como na literatura de índices probabilísticos \cite{hiew2019bsi}. A agregação diária $X_{c,d}$ é a média simples dos escores no dia (ou zero sem notícias), sem os fatores $m_i$, $r_i$, $e_i$ e $u_i$ do legado.
+
+A memória utiliza meia-vida $H$ em \textbf{dias civis}, com $\lambda_H=2^{-1/H}$ e recorrência $ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}$, em analogia conceitual aos índices de notícias com decaimento temporal \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, mas com $H$ tratado como escolha operacional (valores 2, 7 e 14 dias) e não como estimativa conjunta com o mercado. O baseline principal \emph{Soft} é o mesmo $X_{c,d}$ sem memória, amostrado no cutoff semanal conservador (Seção de alinhamento com o mercado); o contraste \emph{Hard-BSI} segue a agregação rígida inspirada em \citeonline{hiew2019bsi}.
+
+A entrada textual primária restringe o contexto ao trecho focal da empresa \cite{cortis2017semeval5,tang2023finentity}; a view \texttt{document\_v1} serve de ablação pareada. Retornos são calculados no calendário completo antes do \emph{join} com notícias; o teste principal pré-registrado é $\Delta=\rho_{Spearman}(ITI^{(7)},R^{(1)})-\rho_{Spearman}(X,R^{(1)})$, com bootstrap móvel em blocos \cite{kunsch1989bootstrap} e família secundária de oito contrastes corrigida por \citeonline{holm1979multiple}. Especificação completa, verificações e resultados exploratórios: Apêndice~\ref{ap:iti-v2-math} e Seção~\ref{subsec:iti-v2-campanha}.
+
 \section{Estratégia de avaliação incremental}
 
 As correlações e os deltas assinados (Seção anterior) descrevem associações marginais; \textbf{não} respondem, por si só, se o ITI acrescenta informação quando baselines e controles já estão em um modelo de regressão. Essa etapa --- comparar especificações com e sem o termo do ITI, com divisão cronológica e variáveis pré-definidas --- está planejada para após a consolidação do corpus e da referência humana (Capítulo~\ref{cap:consideracoes}, Tabela~\ref{tab:plano-continuidade}).

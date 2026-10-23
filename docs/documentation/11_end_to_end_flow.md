@@ -47,7 +47,7 @@ Saída interna: `LoadedDataset` com colunas canônicas (`news_id`, `text`, `date
 
 ## Campanha ITI-v2 (paralela ao legado `iti_liquido`)
 
-Fluxo normativo P02–P12 (`docs/plans/iti_v2_runbook.md`):
+Fluxo normativo P02–P12 (`scripts/campaigns/iti_v2.sh`):
 
 ```bash
 ITI_V2_INFER_LIMIT=0 ./scripts/campaigns/iti_v2.sh run-all iti_v2_prod_YYYYMMDD

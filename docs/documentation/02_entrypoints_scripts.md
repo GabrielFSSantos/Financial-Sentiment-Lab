@@ -62,6 +62,17 @@ Ver [`scripts/campaigns/README.md`](../../scripts/campaigns/README.md) e [`confi
 | `scripts/campaigns/finmarba_diag.sh` | Marco 5 — FinMarBa |
 | `scripts/campaigns/classifier_eval_pt.sh` | κ bateria PT (FinBERT vs controles) |
 
+### Exportação dissertação (ITI-v2)
+
+Chamados por `scripts/campaigns/iti_v2.sh postprocess`:
+
+| Script | Saída |
+| --- | --- |
+| `scripts/dissertation/iti_v2/export_iti_v2_latex.py` | `docs/Dissertacao_PPGCC/generated/iti_v2_results_snippet.tex`, `results_macros.tex` |
+| `scripts/dissertation/iti_v2/export_iti_v2_dissertation_tables.py` | `generated/tables/iti_v2_table_secondary.tex` |
+| `scripts/dissertation/iti_v2/generate_iti_v2_figures.py` | `generated/figures/iti_v2/*.png` |
+| `scripts/references/export_references_downloads_pending.py` | `docs/references/downloads_pending.md` |
+
 ### CLIs `python -m modules.*`
 
 | Módulo | Comandos úteis |

@@ -19,9 +19,11 @@ outputs/
 !tests/fixtures/research/outputs/**
 .tmp/
 
-# Slurm (jobs/sdumont/run_experiment.srm)
-job_financial_*.out
-job_financial_*.err
+# Slurm — logs na raiz do clone (copiar para outputs/campaigns/<run>/logs/)
+/job_financial_*.out
+/job_financial_*.err
+/job_iti_v2_*.out
+/job_iti_v2_*.err
 
 # Pesos locais e cache Hugging Face
 model_store/

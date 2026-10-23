@@ -131,18 +131,20 @@ F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
 
 ## 4.7 Campanha ITI-v2 (out./2026)
 
-> **Modo:** exploratório (`protocol_lock.json`). **Não** substitui duelos R1 legados nem confirma hipótese. Inferência com `entity_context_v1` sobre corpus canônico P02 (`articles_canonical.csv`, 1 253 artigos).
+> **Modo:** exploratório (`protocol_lock.json`). **Não** substitui duelos R1 legados nem confirma hipótese. Views `entity_context_v1` + `document_v1`; corpus canônico P02 (1 253 artigos na view primária).
 
 | Item | Valor |
 |------|--------|
 | `run_id` | `iti_v2_prod_20261022` |
-| Predições OK | 1 253 (`inference_manifest.json`) |
-| Sinal principal | `iti_v2_h7` (meia-vida 7 d) |
-| Painel alinhado (h=1) | n=92 semanas · Spearman ρ ≈ −0,043 · p≈0,69 · bootstrap 10 000 · IC95% [−0,22; 0,16] |
-| Holdout (12 sem. calendário, notícias) | 199 artigos reservados · métrica semanal holdout n=12 · ρ ≈ −0,17 · p ≈ 0,60 |
+| Teste principal Δ (ITI-H7 − Soft, h=1) | Δ ≈ −0,127 · IC95% [−0,34; 0,13] · p≈0,83 · n=92 |
+| Marginal exploratória (ρ ITI-H7) | ρ ≈ −0,043 · p≈0,69 · bootstrap 10 000 |
+| Família secundária | 8 contrastes + Holm · `table_secondary.csv` |
+| Registro único | `result_registry.json` |
+| Holdout notícias (exploratório) | 199 artigos · `metrics_holdout_contrasts.json` (n=12 semanas no painel) |
 | Artefatos | `outputs/campaigns/iti_v2/iti_v2_prod_20261022/` · `thesis_export/` |
+| Replica HPC | Job **11622600** · `iti_v2_sdumont_20261022` · métricas alinhadas ao prod |
 
-Reprodução: `docs/plans/iti_v2_runbook.md` · aceite: `./scripts/campaigns/iti_v2.sh validate iti_v2_prod_20261022`. Números finais de bootstrap: `metrics_primary.json` (atualizar após `ITI_V2_BOOTSTRAP=10000`).
+Reprodução: `./scripts/campaigns/iti_v2.sh postprocess iti_v2_prod_20261022` · aceite: `logs/iti_v2/acceptance_latest.md`. **Citar na tese:** run local; HPC como reprodutibilidade operacional.
 
 ## 4.8 Redação da tese
 

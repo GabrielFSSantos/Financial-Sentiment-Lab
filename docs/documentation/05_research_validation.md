@@ -89,6 +89,8 @@ Coluna ITI usada no research: `iti_weekly_column` (padrão `iti_liquido_last`; R
 
 Win rate = proporção de comparações com \(\Delta > 0\) entre as 24 (4 baselines × 2 métricas × 3 horizontes). Interpretação narrativa: [trajetoria Parte 4](../research_trail/part-04-results.md).
 
+**Campanha ITI-v2:** o teste principal é \(\Delta\rho\) ITI-H7 − Soft (Spearman, \(h=1\)) com bootstrap em bloco; família secundária de oito contrastes com Holm — ver `configs/campaigns/iti_v2/secondary_contrasts.yaml` e artefatos `metrics_primary_delta.json` / `table_secondary.csv` por run.
+
 ### 5.6 Colunas de `incremental_deltas.csv`
 
 | Coluna | Significado |

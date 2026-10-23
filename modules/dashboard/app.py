@@ -15,6 +15,7 @@ from modules.dashboard.config import THEME_CSS
 from modules.dashboard.pages import (
     datasets_scraper,
     experiments_page,
+    iti_v2_campaign,
     models_page,
     overview,
     research,
@@ -52,6 +53,12 @@ def main() -> None:
         st.Page(run_comparison.render, title="Comparação", icon="⚖️", url_path="comparacao"),
         st.Page(experiments_page.render, title="Experimentos", icon="🧪", url_path="experimentos"),
         st.Page(research.render, title="Research", icon="🔬", url_path="research"),
+        st.Page(
+            iti_v2_campaign.render,
+            title="ITI-v2",
+            icon="📈",
+            url_path="iti-v2",
+        ),
         st.Page(research_trail.render, title="Trilha da pesquisa", icon="📚", url_path="trilha"),
     ]
 

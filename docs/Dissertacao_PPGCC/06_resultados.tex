@@ -155,7 +155,14 @@ A avaliação também depende das regras de alinhamento. A construção dos reto
 Por fim, a diferença assinada de correlação empregada no código não deve ser confundida com diferença de magnitude absoluta. Uma correlação numericamente maior pode ter menor valor absoluto, dependendo dos sinais. Portanto, a expressão *confronto favorável* descreve estritamente o critério da implementação histórica. Para responder a uma hipótese sobre força de associação sem direção pré-definida, será necessário registrar outra estatística e tratá-la como novo experimento, sem modificar retroativamente os números anteriores.
 \fi
 
+\IfFileExists{generated/results_macros.tex}{\input{generated/results_macros.tex}}{}
 \input{generated/iti_v2_results_snippet.tex}
+\IfFileExists{generated/tables/iti_v2_table_secondary.tex}{%
+\input{generated/tables/iti_v2_table_secondary.tex}
+}{}
+\IfFileExists{generated/iti_v2_figures_snippet.tex}{%
+\input{generated/iti_v2_figures_snippet.tex}
+}{}
 
 \section{Discussão integrada e ameaças à validade}
 
