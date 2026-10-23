@@ -6,20 +6,22 @@ latexmk -pdf ufsj-abntex2.tex
 # ou: make pdf
 ```
 
-Antes de compilar a campanha ITI (configs `iti_v2/`, opcional a partir da raiz do lab):
+Exportar números e figuras da campanha (raiz do lab):
 
 ```bash
 ./scripts/campaigns/iti_v2.sh postprocess iti_v2_prod_20261022
 ```
 
-Isso atualiza `generated/iti_v2_results_snippet.tex`, `generated/tables/`, `generated/figures/iti_v2/` e tenta `latexmk` nesta pasta. PDF de referência: `ufsj-abntex2.pdf`.
+Isso atualiza `generated/iti_v2_results_snippet.tex`, `generated/tables/`, `generated/figures/iti_v2/` e tenta `latexmk` nesta pasta.
 
-Em `ufsj-abntex2.tex`, `\qualificacaoparcialtrue` compila apenas capítulos 1–2, apêndice e bibliografia; `\qualificacaoparcialfalse` (padrão) inclui proposta, metodologia e andamentos.
+## Estrutura ativa
 
-`06_proximos_passos.tex` não entra na compilação oficial.
+`ufsj-abntex2.tex` inclui: `01_introducao` … `04_metodologia`, `06_resultados`, `07_consideracoes_finais`, `99_apendices`.
 
-## Tom do manuscrito (qualificação → defesa)
+`\qualificacaoparcialtrue` limita a caps. 1–2 + apêndice; o padrão é o volume completo (`\qualificacaoparcialfalse`).
 
-O PDF é tratado como **documento final em evolução**: redação no tempo presente do desenho; resultados só do que já foi medido; subseções sem dados podem existir com **corpo vazio** (acréscimo futuro, sem remover texto).
+## Fora deste diretório
 
-No LaTeX **não** entram: pendências operacionais, justificativas de etapas futuras, paths de `outputs/`, identificadores internos de decisão (DR-xxx), piloto LLM-as-judge ou narrativa de infraestrutura (WSL, GPU, mock). Cronograma de qualificação e roadmap operacional ficam fora do manuscrito; números canônicos em `docs/research_trail/part-04-results.md`.
+Relatórios de auditoria editorial, planos Cursor e capítulos LaTeX legados ficam no meta-workspace `Workspaces/financial-sentiment-lab/` (`harness/qualification/reports/`, `plans/`, `archive/`). Não adicionar `REVISAO*.md` aqui.
+
+Números canônicos da campanha: `docs/research_trail/part-04-results.md`.

@@ -1,22 +1,22 @@
 % Gerado por scripts/dissertation/iti_v2/export_iti_v2_dissertation_tables.py
-\begin{longtable}{@{}p{3.2cm}rrrr@{}}
-\caption{Família secundária do ITI (Holm; painel completo; exploratório)}\label{tab:iti-secondary} \\
+\begin{table}[htbp]
+\centering
+\caption{Família secundária do ITI (correção de Holm; exploratório).}
+\label{tab:iti-secondary}
+\begin{tabularx}{\textwidth}{@{}Lrrrr@{}}
 \toprule
-Contraste & $\Delta$ & IC inf. & IC sup. & $p_{\mathrm{Holm}}$ \\
+Comparação & $\Delta\rho$ & IC inf. & IC sup. & $p_{\mathrm{Holm}}$ \\
 \midrule
-\endfirsthead
-\multicolumn{5}{c}{\tablename\ \thetable\ -- continuação} \\
-\toprule
-Contraste & $\Delta$ & IC inf. & IC sup. & $p_{\mathrm{Holm}}$ \\
-\midrule
-\endhead
-SEC\_H2\_VS\_SOFT & 0.021 & -0.080 & 0.138 & 1.000 \\
-SEC\_H14\_VS\_SOFT & 0.017 & -0.078 & 0.218 & 1.000 \\
-SEC\_H7\_VS\_SOFT\_PEARSON & 0.007 & -0.081 & 0.168 & 1.000 \\
-SEC\_H7\_VS\_SOFT\_H2 & -0.064 & -0.129 & 0.256 & 1.000 \\
-SEC\_H7\_VS\_SOFT\_H4 & -0.080 & -0.255 & 0.116 & 1.000 \\
-SEC\_H7\_VS\_HARD & -0.094 & -0.257 & 0.095 & 1.000 \\
-SEC\_CONTEXT\_VS\_DOCUMENT\_H7 & -0.011 & -0.071 & 0.074 & 1.000 \\
-SEC\_H7\_VS\_LEGACY\_C & -0.025 & -0.085 & 0.158 & 1.000 \\
+Memória $H=2$ × Soft & 0,058 & -0,040 & 0,259 & 0,766 \\
+Memória $H=14$ × Soft & 0,013 & -0,037 & 0,385 & 0,696 \\
+Pearson, $H=7$ & 0,024 & -0,088 & 0,281 & 1,000 \\
+Retorno $h=2$ semanas & -0,102 & -0,195 & 0,236 & 1,000 \\
+Retorno $h=4$ semanas & -0,144 & -0,314 & 0,168 & 1,000 \\
+ITI-H7 × escore discreto & -0,068 & -0,386 & 0,280 & 1,000 \\
+Contexto focal × texto integral & -0,061 & -0,195 & -0,013 & 0,200 \\
+ITI-H7 × suavização alternativa & -0,031 & -0,078 & 0,079 & 1,000 \\
 \bottomrule
-\end{longtable}
+\end{tabularx}
+\vspace{0.4em}
+{\footnotesize Fonte: elaboração própria (mesma máscara do contraste principal quando $n=89$).}
+\end{table}

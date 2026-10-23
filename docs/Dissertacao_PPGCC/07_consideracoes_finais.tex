@@ -3,11 +3,11 @@
 
 \section{Síntese dos resultados da qualificação}
 
-Esta pesquisa implementou o Índice Temporal Informacional (ITI) para notícias corporativas em português, com estudo de caso na Sabesp, culminando na formulação operacional do \textbf{ITI}: classificação focal, agregação diária, memória por meia-vida em dias civis e comparação semanal com retornos de SBSP3 frente ao baseline Soft.
+Esta pesquisa implementou o Índice Temporal Informacional (ITI) para notícias corporativas em português, com estudo de caso na Sabesp: recorte contextual, agregação diária, memória por meia-vida $H=7$ em dias civis e confronto semanal com retornos de SBSP3 frente ao baseline Soft no mesmo cutoff.
 
-Os experimentos mostram que o procedimento é executável e que a tarefa orientada à empresa difere da classificação genérica de sentimento (concordância limitada na amostra de cem notícias anotadas pelo autor; destaque para erros em neutras e em matérias multiempresa). Na avaliação temporal de outubro de 2026, após correções de conformidade entre protocolo e código, o contraste principal pré-registrado permanece inconclusivo e não favorece o candidato com memória. \textbf{Não} se confirma, nesta etapa, superioridade estatística do ITI-H7 nem equivalência ao Soft.
+O procedimento é executável; a tarefa orientada à empresa difere da classificação genérica (concordância limitada na amostra de cem notícias anotadas pelo autor, com destaque para neutras e matérias multiempresa). Na avaliação temporal de outubro de 2026 (após correção de extrapolação informacional), o contraste principal pré-registrado ($n=89$ semanas; $\Delta\approx +0{,}025$; intervalo cruzando zero) permanece inconclusivo e não favorece o candidato com memória. Não se confirma superioridade estatística do ITI-H7 nem equivalência ao Soft.
 
-A contribuição alcançada é metodológica: um fluxo auditável, critérios de comparação explícitos e um conjunto delimitado de validações pendentes (referência humana independente, calendário, teste confirmatório). A pergunta de pesquisa foi alinhada ao teste de deltas assinados implementado; avaliações de magnitude ou de informação incremental em regressão permanecem para a continuidade.
+As contribuições delimitadas são: (1) formulação operacional transparente do ITI e do Soft; (2) confronto pareado pré-registrado com bootstrap em blocos; (3) registro explícito das limitações de classificação, alinhamento e referência humana. Avaliações de informação incremental em regressão e teste confirmatório com holdout permanecem para a continuidade.
 
 \iffalse
 % [ENXUGAMENTO 2026-10-22] Síntese anterior (repetia Capítulo~\ref{cap:resultados} quase integralmente).
@@ -28,17 +28,15 @@ As prioridades seguem as ameaças à validade (Tabela~\ref{tab:ameacas}): invent
 \centering
 \caption{Plano de continuidade: etapas, entregas e critérios de avanço.}
 \label{tab:plano-continuidade}
-\begin{tabularx}{\textwidth}{|L|L|L|}
-\hline
+\begin{tabularx}{\textwidth}{@{}LLL@{}}
+\toprule
 Etapa & Produto esperado & Condição para avanço \\
-\hline
-Consolidação do corpus & Inventário de fontes, filtros, versões e cobertura & Notícias e períodos identificáveis \\
-Referência humana & Anotações independentes, concordância e consenso documentado & Critério estável e decisões rastreáveis \\
-Diagnóstico textual & Matriz de confusão, métricas por classe e análise de erros & Limitações do classificador caracterizadas \\
-Revisão temporal & Calendário auditado, baselines compatíveis e manifesto de execução & Ausência de informação futura indevida \\
-Avaliação estatística & Coeficientes, deltas, intervalos e sensibilidade & Testes e interpretações previamente definidos \\
-Extensão e redação final & Resultados adicionais e síntese da contribuição & Evidências suficientes para cada conclusão \\
-\hline
+\midrule
+Referência humana independente & Concordância entre especialistas e consenso documentado & Critério estável para comparação com o modelo \\
+Teste temporal confirmatório & Holdout com referência P06 e protocolo fixado & Não reutilizar holdout para seleção de $H$ \\
+Diagnóstico textual & Matriz de confusão e erros em neutras/multiempresa & Limitações do classificador caracterizadas \\
+Extensão setorial & Novas empresas somente com corpus auditado & Mesmas regras de cutoff e registro \\
+\bottomrule
 \end{tabularx}
 \vspace{0.5em}
 {\footnotesize Fonte: elaboração própria.}

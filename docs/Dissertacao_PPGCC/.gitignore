@@ -1,3 +1,8 @@
+# Provisórios de agente (usar meta-workspace financial-sentiment-lab)
+REVISAO*.md
+*_provisorio*
+*_PROVISORIO*
+
 # Artefatos LaTeX (não versionar)
 *.aux
 *.bbl

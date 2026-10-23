@@ -22,7 +22,7 @@ A disponibilidade de um classificador financeiro permite começar a pesquisa sem
 
 No setor brasileiro de saneamento, questões relacionadas à regulação, aos contratos de concessão e à estrutura de financiamento influenciam o conteúdo da cobertura jornalística. A Lei nº 14.026, de 15 de julho de 2020, alterou disposições do marco legal do saneamento e integra esse contexto institucional \cite{lei14026}. O presente trabalho não procura medir diretamente o efeito da legislação sobre preços; ela ajuda a compreender o domínio em que as notícias foram produzidas.
 
-O estudo de caso considera a Sabesp e a ação SBSP3. A avaliação temporal reportada nesta versão concentra-se na avaliação temporal do \textbf{ITI} (outubro de 2026), com corpus canônico P02 e 1.253 notícias com probabilidades válidas na view focal \texttt{entity\_context\_v1}. Exercícios anteriores com janelas menores e formulação legada ($\alpha$) permanecem no repositório como contexto de desenvolvimento, mas não orientam o núcleo quantitativo do manuscrito. Os resultados não incluem comparação financeira equivalente para Copasa e Sanepar.
+O estudo de caso considera a Sabesp e a ação SBSP3. A avaliação temporal reportada nesta versão concentra-se no ITI com meia-vida em dias civis (outubro de 2026), com 1.253 notícias únicas com probabilidades válidas no recorte contextual. Os resultados não incluem comparação financeira equivalente para outras empresas de saneamento.
 
 A análise financeira é delimitada à associação com retornos posteriores da ação. Volatilidade, volume negociado, causalidade e desempenho preditivo fora da amostra são questões pertinentes, mas não foram demonstradas na etapa apresentada. Ao estabelecer esse limite, a pesquisa evita atribuir ao índice um alcance maior do que o sustentado pelos resultados.
 
@@ -35,7 +35,7 @@ A segunda dificuldade envolve o significado da classificação. Um modelo treina
 
 A terceira dificuldade é temporal. As notícias aparecem em datas e horários irregulares, enquanto os retornos financeiros seguem um calendário de negociação. Um índice calculado no encerramento de uma semana só pode ser comparado com retornos posteriores se as informações utilizadas já estavam disponíveis naquele instante. Além disso, a forma de agregar matérias e a escolha do parâmetro de memória alteram a série obtida. Uma correlação aparente pode refletir essas escolhas, e não uma propriedade estável da informação jornalística.
 
-Diante dessas dificuldades, a pergunta principal é: \textbf{como um índice temporal construído com notícias sobre a Sabesp se comporta, em termos de associação semanal com retornos futuros, diante de medidas mais simples derivadas do mesmo corpus, e quais limitações de classificação e alinhamento condicionam essa avaliação?}
+Diante dessas dificuldades, a pergunta principal é: em que medida o ITI-H7, amostrado no mesmo cutoff semanal que o sinal Soft (sem memória), apresenta associação de Spearman com retorno logarítmico de uma semana futura de SBSP3, e quais limitações de classificação e alinhamento condicionam essa avaliação exploratória?
 
 \iffalse
 % [ENXUGAMENTO 2026-10-22] Formulação anterior (ênfase em superioridade) — validar com orientador antes de reativar.
@@ -46,7 +46,7 @@ Duas perguntas complementam a investigação. A primeira é se o classificador f
 
 \section{Objetivos}
 
-O objetivo geral é \textbf{desenvolver e avaliar um índice temporal calculado a partir de notícias corporativas em português sobre empresas brasileiras de saneamento}, utilizando a Sabesp como estudo de caso inicial.
+O objetivo geral é desenvolver e avaliar um índice temporal calculado a partir de notícias corporativas em português sobre empresas brasileiras de saneamento, utilizando a Sabesp como estudo de caso inicial.
 
 Para atingir esse objetivo, o trabalho procura organizar um corpus com identificação da empresa, conteúdo, origem e data das notícias; examinar a adequação de um classificador financeiro à atribuição de polaridade para uma empresa-alvo; implementar escores e agregações temporais com memória explícita; comparar essa representação com medidas de referência derivadas das mesmas notícias; verificar sua associação com retornos futuros em diferentes horizontes; e registrar as configurações necessárias para interpretar e reproduzir os experimentos.
 
@@ -71,6 +71,6 @@ A originalidade pretendida não depende de afirmar que jamais se construiu um í
 
 A hipótese substantiva da avaliação temporal do ITI é que a memória com meia-vida $H=7$ dias civis pode associar-se a retornos futuros de forma mais consistente do que o mesmo sinal diário \emph{Soft} (sem recorrência), quando ambos são amostrados no mesmo cutoff semanal conservador. A direção da correlação não deve ser presumida a partir da polaridade textual.
 
-O teste exploratório pré-registrado compara $\Delta=\rho_{Spearman}(ITI^{(7)},R^{(1)})-\rho_{Spearman}(Soft,R^{(1)})$, com bootstrap em blocos e família secundária corrigida por Holm (Capítulo~\ref{cap:metodologia}). Resultados negativos ou intervalos que cruzam zero \textbf{não} confirmam a hipótese; interpretações causais ou de previsão permanecem fora do escopo.
+O teste exploratório pré-registrado está definido na Seção~\ref{sec:formulacao-iti}. Resultados negativos ou intervalos que cruzam zero não confirmam a hipótese; interpretações causais ou de previsão permanecem fora do escopo.
 
 O Capítulo~\ref{cap:fundamentacao} apresenta os conceitos necessários; o Capítulo~\ref{cap:relacionados}, o posicionamento bibliográfico; o Capítulo~\ref{cap:metodologia}, dados, cálculos e comparação; o Capítulo~\ref{cap:resultados}, evidências preliminares; e o Capítulo~\ref{cap:consideracoes}, síntese e continuidade. Os apêndices registram anotação e rastreabilidade.
