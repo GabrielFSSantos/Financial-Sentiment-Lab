@@ -5,18 +5,18 @@
 
 Esta pesquisa implementou o Índice Temporal Informacional (ITI) para notícias corporativas em português, com estudo de caso na Sabesp: recorte contextual, agregação diária, memória por meia-vida $H=7$ em dias civis e confronto semanal com retornos de SBSP3 frente ao baseline Soft no mesmo cutoff.
 
-O procedimento é executável; a tarefa orientada à empresa difere da classificação genérica (concordância limitada na amostra de cem notícias anotadas pelo autor, com destaque para neutras e matérias multiempresa). Na avaliação temporal de outubro de 2026 (após correção de extrapolação informacional), o contraste principal pré-registrado ($n=89$ semanas; $\Delta\approx +0{,}025$; intervalo cruzando zero) permanece inconclusivo e não favorece o candidato com memória. Não se confirma superioridade estatística do ITI-H7 nem equivalência ao Soft.
+O procedimento é executável; a tarefa orientada à empresa difere da classificação genérica (concordância limitada na amostra de cem notícias anotadas pelo autor, com destaque para neutras e matérias multiempresa). Na avaliação temporal de outubro de 2026 (após correção de extrapolação informacional), o contraste principal pré-especificado permanece inconclusivo (Tabela~\ref{tab:iti-primary}) e não favorece o candidato com memória. Não se confirma superioridade estatística do ITI-H7 nem equivalência ao Soft.
 
-As contribuições delimitadas são: (1) formulação operacional transparente do ITI e do Soft; (2) confronto pareado pré-registrado com bootstrap em blocos; (3) registro explícito das limitações de classificação, alinhamento e referência humana. Avaliações de informação incremental em regressão e teste confirmatório com holdout permanecem para a continuidade.
+As contribuições delimitadas são: (1) formulação operacional transparente do ITI e do Soft; (2) confronto pareado pré-especificado com bootstrap em blocos; (3) registro explícito das limitações de classificação, alinhamento e referência humana. Avaliações de informação incremental em regressão e teste confirmatório com holdout permanecem para a continuidade.
 
 % [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 
 
 \section{Plano de continuidade}
 
-As prioridades seguem as ameaças à validade (Tabela~\ref{tab:ameacas}): inventário do corpus, anotação independente com concordância documentada, diagnóstico de erros do classificador, auditoria do alinhamento temporal e testes estatísticos pré-especificados antes de ampliar escopo setorial.
+As prioridades seguem as ameaças à validade (Tabela~\ref{tab:ameacas}): inventário do corpus, anotação independente com concordância documentada, diagnóstico de erros do classificador, auditoria do alinhamento temporal e testes estatísticos pré-especificados antes de ampliar escopo setorial. A Tabela~\ref{tab:plano-continuidade} organiza etapas, entregas e critérios de avanço; a continuidade não pressupõe generalização imediata para outras empresas de saneamento.
 
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering
 \caption{Plano de continuidade: etapas, entregas e critérios de avanço.}
 \label{tab:plano-continuidade}
@@ -30,11 +30,9 @@ Diagnóstico textual & Matriz de confusão e erros em neutras/multiempresa & Lim
 Extensão setorial & Novas empresas somente com corpus auditado & Mesmas regras de cutoff e registro \\
 \bottomrule
 \end{tabularx}
-\vspace{0.5em}
+\vspace{0.4em}
 {\footnotesize Fonte: elaboração própria.}
 \end{table}
-
-A continuidade não pressupõe generalização imediata para outras empresas de saneamento; a extensão dependerá da qualidade dos dados e da validação no estudo de caso principal.
 
 % [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 

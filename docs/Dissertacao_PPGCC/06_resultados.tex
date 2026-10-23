@@ -4,13 +4,6 @@
 
 Os resultados organizam-se em avaliação textual (classificador $\times$ anotação do autor) e avaliação temporal exploratória do ITI (outubro de 2026). Correlação com retornos não valida, por si só, o construto textual nem implica causalidade (delimitação na Seção~\ref{sec:formulacao-iti}).
 
-\section{Implementação do pipeline do ITI}
-
-Para a Sabesp, o fluxo executado segue o Capítulo~\ref{cap:metodologia}: inferência no recorte contextual, agregação diária, memória por meia-vida, amostragem no cutoff semanal e junção com retornos de SBSP3 antes dos contrastes pré-registrados.
-
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
-
-
 \section{Avaliação do sinal textual}
 
 \subsection{Rodadas de anotação e concordância com o classificador}
@@ -73,7 +66,7 @@ A referência humana independente permanece pendente; os indicadores acima descr
 
 \IfFileExists{generated/results_macros.tex}{\input{generated/results_macros.tex}}{}
 
-Em outubro de 2026 foi concluída a execução exploratória com 1.253 notícias elegíveis no recorte contextual. Após auditoria de validade temporal (cobertura informacional versus calendário de mercado), os estimadores foram reprocessados sobre as mesmas predições, sem nova inferência FinBERT. O painel alinhado compreende 99 semanas de SBSP3 no intervalo informacional (maio/2022--abril/2024); o contraste principal usa $n=89$ após excluir dez semanas de aquecimento. A correlação marginal ITI-H7 $\times$ retorno ($n=99$) difere do universo pareado do $\Delta$. O contraste pré-registrado compara correlações \emph{assinadas} (Spearman); um $\Delta$ positivo não implica, por si só, maior magnitude absoluta de associação---interpretação na Tabela~\ref{tab:iti-primary} e na subseção~\ref{subsec:campanha-iti}.
+Em outubro de 2026 foi concluída a execução exploratória documentada no Apêndice~\ref{ap:rastreabilidade}: 1.253 notícias elegíveis no recorte contextual, reprocessamento dos estimadores após auditoria de validade temporal (sem nova inferência FinBERT) e painel de 99 semanas de SBSP3 no intervalo informacional (maio/2022--abril/2024).
 
 \IfFileExists{generated/tables/iti_v2_table_primary.tex}{\input{generated/tables/iti_v2_table_primary.tex}}{}
 \input{generated/iti_v2_results_snippet.tex}
@@ -92,28 +85,26 @@ Em outubro de 2026 foi concluída a execução exploratória com 1.253 notícias
 
 \section{Discussão integrada e ameaças à validade}
 
-As limitações observadas podem ser organizadas de acordo com a interpretação da medida, o desenho dos experimentos, os procedimentos estatísticos e a possibilidade de generalização.
+As limitações observadas organizam-se em construto, desenho, inferência e generalização. A Tabela~\ref{tab:ameacas} resume evidências e encaminhamentos; em síntese, o pipeline é operacional e auditável, o sinal textual exige referência humana independente e a campanha de outubro de 2026 não confirma superioridade do ITI-H7 sobre Soft (plano de continuidade no Capítulo~\ref{cap:consideracoes}).
 
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering
 \caption{Ameaças à validade, evidências observadas e encaminhamentos.}
 \label{tab:ameacas}
-\begin{tabularx}{\textwidth}{|P{0.23\textwidth}|L|L|}
-\hline
+\begin{tabularx}{\textwidth}{@{}P{0.23\textwidth}LL@{}}
+\toprule
 Dimensão & Evidência observada & Encaminhamento necessário \\
-\hline
+\midrule
 Validade de construto & Baixa concordância modelo--autor; 35 das 67 neutras com polaridade incorreta & Referência humana independente e diagnóstico de erro \\
 Validade interna & Horário de publicação nem sempre conhecido; reexecução out./2026 corrigiu grade diária, retornos e cutoff & Manter auditoria de calendário e política conservadora de disponibilidade \\
-Validade estatística & Painel semanal limitado ao corpus ($n=89$ no contraste principal); oito contrastes secundários com Holm; $\Delta$ inconclusivo & Manter protocolo pré-registrado; não reinterpretar $p$ alto como equivalência \\
+Validade estatística & Painel semanal limitado ao corpus ($n=89$ no contraste principal); oito contrastes secundários com Holm; $\Delta$ inconclusivo & Manter protocolo pré-especificado; não reinterpretar $p$ alto como equivalência \\
 Validade externa & Uma empresa e cobertura desigual & Extensão condicionada à qualidade dos dados \\
-Reprodutibilidade & Versões distintas do corpus; manifestos incompletos & Registro versionado por execução e revisão de código \\
-\hline
+Reprodutibilidade & Versões distintas do corpus; manifestos versionados por execução & Registro versionado por execução e revisão de código \\
+\bottomrule
 \end{tabularx}
-\vspace{0.5em}
+\vspace{0.4em}
 {\footnotesize Fonte: elaboração própria a partir das etapas experimentais apresentadas.}
 \end{table}
-
-Em síntese: o pipeline do ITI é operacional e auditável; o sinal textual exige referência humana independente; a campanha de outubro de 2026 não confirma superioridade do ITI-H7 sobre Soft. O plano de continuidade está no Capítulo~\ref{cap:consideracoes}.
 
 % [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 

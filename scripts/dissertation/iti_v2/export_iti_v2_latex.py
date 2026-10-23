@@ -88,7 +88,7 @@ def _holdout_delta_sentence(run_dir: Path) -> str:
         else "Esse subpainel é exploratório e não substitui o contraste canônico no painel completo"
     )
     return (
-        f" No mesmo subpainel, o $\\Delta\\rho$ pré-registrado (ITI-H7 menos Soft, $h=1$) "
+        f" No mesmo subpainel, o $\\Delta\\rho$ pré-especificado (ITI-H7 menos Soft, $h=1$) "
         f"foi {_fmt_float(test.get('delta'))} "
         f"(IC 95\\% [{_fmt_float(test.get('ci_low'))}; {_fmt_float(test.get('ci_high'))}], "
         f"$p$ bootstrap {_fmt_float(test.get('p_value'))}, $n={test.get('n', '---')}$). "
@@ -117,38 +117,40 @@ def build_snippet(run_dir: Path) -> str:
 
     holdout_line = _holdout_sentence(run_dir) + _holdout_delta_sentence(run_dir)
 
-    delta_block = ""
+    interpret_block = ""
     if delta.get("status") == "ok":
-        delta_block = (
-            f"O contraste principal pré-registrado ($\\Delta\\rho = \\rho_{{\\mathrm{{ITI\\text{{-}}H7}}}} "
-            f"- \\rho_{{\\mathrm{{Soft}}}}$, Spearman, $h=1$) foi {_fmt_float(delta.get('delta'))} "
-            f"(IC 95\\% [{_fmt_float(delta.get('ci_low'))}; {_fmt_float(delta.get('ci_high'))}], "
-            f"$p$ bootstrap {_fmt_float(delta.get('p_value'))}, $n={delta.get('n', '---')}$ semanas). "
-            f"Coeficientes marginais no mesmo universo pareado: "
-            f"$\\rho_{{\\mathrm{{ITI\\text{{-}}H7}}}}={_fmt_float(delta.get('rho_candidate'))}$, "
-            f"$\\rho_{{\\mathrm{{Soft}}}}={_fmt_float(delta.get('rho_baseline'))}$. "
+        rho_c = delta.get("rho_candidate")
+        rho_b = delta.get("rho_baseline")
+        interpret_block = (
+            "No universo pareado do contraste principal (Tabela~\\ref{tab:iti-primary}), "
+            f"ambos os coeficientes marginais são negativos "
+            f"($\\rho_{{\\mathrm{{ITI\\text{{-}}H7}}}}={_fmt_float(rho_c)}$, "
+            f"$\\rho_{{\\mathrm{{Soft}}}}={_fmt_float(rho_b)}$). "
+            "Em magnitude absoluta, o ITI-H7 apresenta associação \\emph{mais fraca} que o Soft "
+            f"($|\\rho_{{\\mathrm{{ITI}}}}|<|\\rho_{{\\mathrm{{Soft}}}}|$), embora o $\\Delta$ "
+            f"de correlações assinadas seja positivo ({_fmt_float(delta.get('delta'))} com três decimais; "
+            "valores de alta precisão nos artefatos da campanha). "
+            "Isso não comprova superioridade interpretativa do candidato com memória; "
+            f"o intervalo bootstrap do $\\Delta$ cruza zero e o $p$ exploratório é "
+            f"{_fmt_float(delta.get('p_value'))}. "
         )
 
-    marginal = (
-        f"A correlação marginal exploratória de Spearman entre ITI-H7 e retorno "
-        f"$h={metrics.get('horizon_weeks', 1)}$ no painel completo alinhado "
-        f"($n={metrics.get('n_panel', '---')}$ semanas de SBSP3, antes de excluir aquecimento) "
-        f"foi {_fmt_float(metrics.get('estimate'))} "
-        f"(IC [{_fmt_float(metrics.get('ci_low'))}; {_fmt_float(metrics.get('ci_high'))}], "
-        f"$p={_fmt_float(metrics.get('p_value'))}$)."
-    )
+    holdout_short = ""
+    if holdout_line.strip():
+        holdout_short = (
+            " O subpainel de holdout de notícias (Apêndice~\\ref{ap:rastreabilidade}) "
+            "permanece exploratório e não reclassifica o contraste canônico."
+        )
 
     return f"""% Gerado por scripts/dissertation/iti_v2/export_iti_v2_latex.py — não editar manualmente
-\\subsection{{Estimadores da rodada exploratória (outubro de 2026)}}
+\\subsection{{Interpretação do contraste principal (outubro de 2026)}}
 \\label{{subsec:campanha-iti}}
 
-Foram processadas {n_articles} notícias com probabilidades válidas no recorte contextual da empresa-alvo; a ablação com texto integral e o modo exploratório constam do registro da execução (Apêndice~\\ref{{ap:rastreabilidade}}).
+Foram processadas {n_articles} notícias com probabilidades válidas no recorte contextual; o painel alinhado tem $n={metrics.get("n_panel", "---")}$ semanas e o contraste principal $n={delta.get("n", "---")}$ após aquecimento (detalhes no Apêndice~\\ref{{ap:rastreabilidade}}).
 
-{delta_block}{marginal} {holdout_line}
+{interpret_block}{holdout_short}
 
-A Tabela~\\ref{{tab:iti-primary}} resume o contraste principal; a Tabela~\\ref{{tab:iti-secondary}} reúne os oito contrastes secundários com correção de Holm. A referência humana independente permanece pendente (Capítulo~\\ref{{cap:metodologia}}); os intervalos não confirmam a hipótese substantiva de associação superior do ITI-H7.
-
-\\noindent\\textit{{Fonte:}} elaboração própria a partir da avaliação temporal do ITI em outubro de 2026.
+A Tabela~\\ref{{tab:iti-secondary}} apresenta a família secundária pré-especificada no protocolo da rodada (intervalos bootstrap \\emph{{nominais}} de 95\\%; $p_{{\\mathrm{{Holm}}}}$ na tabela, não nos IC). A referência humana independente permanece pendente; os resultados não confirmam associação superior do ITI-H7.
 """
 
 
@@ -168,10 +170,23 @@ def build_figures_snippet() -> str:
     fig_dir = GENERATED / "figures/iti_v2"
     figures = (
         ("figure_daily_signal.png", "Sinal diário Soft e ITI-H7 com volume de notícias elegíveis."),
-        ("figure_h_sensitivity.png", "Sensibilidade da meia-vida (H=2, 7 e 14 dias) na mesma inferência."),
-        ("figure_delta_intervals.png", "Intervalos bootstrap dos contrastes secundários (Holm)."),
+        ("figure_h_sensitivity.png", "Sensibilidade da meia-vida ($H=2$, 7 e 14 dias) na mesma inferência."),
+        (
+            "figure_delta_intervals.png",
+            "Intervalos bootstrap nominais (95\\%) dos contrastes secundários; "
+            "significância familiar conforme $p_{\\mathrm{Holm}}$ na Tabela~\\ref{tab:iti-secondary}.",
+        ),
     )
-    lines = ["% Gerado por scripts/dissertation/iti_v2/export_iti_v2_latex.py"]
+    lines = [
+        "% Gerado por scripts/dissertation/iti_v2/export_iti_v2_latex.py",
+        "\\subsection{Visualização temporal e sensibilidades}",
+        "",
+        "A Figura~\\ref{fig:iti-campanha-1} confronta o sinal diário sem memória (Soft) com o ITI-H7 "
+        "e o volume de matérias elegíveis; a Figura~\\ref{fig:iti-campanha-2} varia a meia-vida mantendo "
+        "a mesma inferência; a Figura~\\ref{fig:iti-campanha-3} resume os $\\Delta\\rho$ secundários "
+        "com intervalos nominais (correção de Holm aplicada apenas aos $p$-valores tabulados).",
+        "",
+    ]
     for index, (filename, caption) in enumerate(figures, start=1):
         path = fig_dir / filename
         if not path.is_file():

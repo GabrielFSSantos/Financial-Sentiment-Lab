@@ -44,7 +44,7 @@ def write_primary_table(run_dir: Path) -> Path | None:
         "% Gerado por scripts/dissertation/iti_v2/export_iti_v2_dissertation_tables.py",
         r"\begin{table}[htbp]",
         r"\centering",
-        r"\caption{Contraste principal pré-registrado (Spearman; $h=1$ semana; painel SBSP3).}",
+        r"\caption{Contraste principal pré-especificado (Spearman; $h=1$ semana; painel SBSP3).}",
         r"\label{tab:iti-primary}",
         r"\begin{tabularx}{\textwidth}{@{}lrrrrrr@{}}",
         r"\toprule",
@@ -63,7 +63,7 @@ def write_primary_table(run_dir: Path) -> Path | None:
         r"\end{tabularx}",
         r"\vspace{0.4em}",
         r"{\footnotesize Fonte: campanha exploratória de outubro de 2026. "
-        r"$n$: semanas com retorno futuro completo, fora do aquecimento de 70 dias civis "
+        r"$n$: semanas com retorno futuro completo, fora do período inicial de amortecimento da condição inicial (70 dias civis; ver Cap.~\ref{cap:metodologia}) "
         + f"(painel alinhado: {n_panel} semanas; 10 semanas de aquecimento excluídas)."
         + r"}",
         r"\end{table}",

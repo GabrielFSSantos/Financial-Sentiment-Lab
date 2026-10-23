@@ -106,15 +106,15 @@ A memória utiliza meia-vida $H$ em dias civis. Deseja-se $\lambda_H^H=\tfrac{1}
 \[
 ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}.
 \]
-O candidato principal fixa $H=7$ (interpretação de uma semana civil), escolha pré-definida da pesquisa; $H\in\{2,14\}$ são sensibilidades. Após 70 dias consecutivos sem entrada, o peso do estado inicial em $H=7$ é $2^{-10}\approx 0{,}001$; essas semanas de aquecimento são excluídas dos contrastes. A formulação dialoga com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, sem atribuir a eles a equação completa do ITI.
+O candidato principal fixa $H=7$ (interpretação de uma semana civil), escolha pré-definida da pesquisa; $H\in\{2,14\}$ são sensibilidades. Dez semanas iniciais (70 dias civis) são excluídas dos contrastes para amortecer a dependência da condição inicial $ITI_0$ --- com peso residual $2^{-10}\approx 0{,}001$ em $H=7$ --- independentemente de haver ou não notícias nesse intervalo; em dias elegíveis sem matéria, o estado decai por $\lambda_H^k$. A formulação dialoga com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, sem atribuir a eles a equação completa do ITI.
 
 O baseline Soft amostra o mesmo $X_{c,d}$ no cutoff semanal, sem recorrência. Contrastes secundários incluem escore discreto, meias-vidas alternativas, horizontes $h\in\{2,4\}$, Pearson, texto integral e suavização alternativa histórica \cite{hiew2019bsi}.
 
-O teste principal pré-registrado compara correlações de Spearman assinadas:
+O teste principal pré-especificado no protocolo da rodada compara correlações de Spearman assinadas:
 \[
 \Delta=\rho_{S}\!\left(ITI^{(7)},R^{(1)}\right)-\rho_{S}\!\left(\mathrm{Soft},R^{(1)}\right),
 \]
-em que $\rho_S$ denota Spearman e $R^{(1)}=R_w^{(1)}$ (Seção seguinte). A incerteza usa bootstrap em blocos de quatro semanas, 10.000 replicações e semente fixada \cite{kunsch1989bootstrap}; o $p$-valor é bilateral sobre $\Delta$. Oito contrastes secundários recebem correção de Holm \cite{holm1979multiple}. Derivações e exemplo ilustrativo: Apêndice~\ref{ap:iti-math}; resultados: Seção~\ref{subsec:campanha-iti}.
+em que $\rho_S$ denota Spearman e $R^{(1)}=R_w^{(1)}$ (Seção seguinte). A incerteza usa bootstrap em blocos de quatro semanas, 10.000 replicações e semente fixada \cite{kunsch1989bootstrap}; o $p$-valor bilateral sobre $\Delta$ é uma estimativa exploratória de evidência (não se presume calibração confirmatória automática sob a hipótese nula). Oito contrastes secundários recebem correção de Holm \cite{holm1979multiple} nos $p$-valores, não nos intervalos percentílicos. Derivações e exemplo ilustrativo: Apêndice~\ref{ap:iti-math}; resultados: Seção~\ref{subsec:campanha-iti}.
 
 \section{Alinhamento semanal com o mercado}
 

@@ -83,41 +83,27 @@ Holdout de notícias (reserva) & Regra \emph{calendar\_last\_12\_weeks}; 199 mat
 Subpainel holdout (semanas) & $n=11$ semanas alinhadas (reserva de 12 semanas de notícias; corte 2024-02-06--2024-04-30) \\
 $\Delta\rho$ no holdout (exploratório) & $+0{,}186$; IC 95\% [$-0{,}057$; $+0{,}670$]; $p\approx 0{,}111$; exploratório; não confirma hipótese principal \\
 Referência humana independente & Pendente (anotação atual: autor, $n=100$) \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Rastreabilidade por execução (blocos mínimos)}} \\
+Corpus & Período, filtros, deduplicação e contagens \\
+Classificação & Checkpoint, truncamento e mapeamento de classes \\
+ITI & Meia-vida $H=7$, sensibilidades $H\in\{2,14\}$, amortecimento inicial 70 dias civis, Soft \\
+Mercado e estatística & Preços ajustados, cutoff semanal, retornos $h\in\{1,2,4\}$, $\Delta\rho$, Holm \\
+Reprodutibilidade & Revisão de código, configuração e checksums dos artefatos de saída \\
 \bottomrule
 \end{tabularx}
 \vspace{0.5em}
 {\footnotesize Fonte: registro da campanha de outubro de 2026 e manifestos de execução.}
 \end{table}
 
-\section{Conteúdo mínimo do registro por execução}
-
-\begin{table}[htbp]
-\centering
-\caption{Blocos documentados em cada execução.}
-\label{tab:manifesto-minimo}
-\begin{tabularx}{\textwidth}{@{}lL@{}}
-\toprule
-Bloco & Itens registrados \\
-\midrule
-Corpus & Período, filtros, deduplicação e contagens \\
-Classificação & Checkpoint, truncamento e mapeamento de classes \\
-ITI & Meia-vida $H=7$, sensibilidades $H\in\{2,14\}$, aquecimento 70 dias, Soft \\
-Mercado e estatística & Preços ajustados, cutoff semanal, retornos $h\in\{1,2,4\}$, $\Delta\rho$, Holm \\
-Reprodutibilidade & Revisão de código, configuração e artefatos de saída \\
-\bottomrule
-\end{tabularx}
-\vspace{0.5em}
-{\footnotesize Fonte: elaboração própria.}
-\end{table}
-
 \chapter{Especificação matemática complementar do ITI}
 \label{ap:iti-math}
 
-Esta seção complementa a Seção~\ref{sec:formulacao-iti} com derivação da meia-vida, exemplo ilustrativo e política de ausências. Não repete o teste estatístico completo.
+Esta seção complementa a Seção~\ref{sec:formulacao-iti} com derivação algébrica curta, exemplo ilustrativo e política de ausências.
 
 \section{Derivação da meia-vida}
 
-Em dias consecutivos sem entrada ($X=0$), o estado decai como $ITI_{d}= \lambda_H ITI_{d-1}$. Após $k$ dias, a parcela herdada é $\lambda_H^k ITI_0$. Impondo $\lambda_H^H=\tfrac{1}{2}$ obtém-se $\lambda_H=2^{-1/H}$. Para $H=7$, $\lambda_7\approx 0{,}9057$; após 70 dias sem entrada, o peso do estado inicial é $2^{-10}\approx 0{,}001$.
+Com $ITI_{d}= \lambda_H ITI_{d-1}+(1-\lambda_H)X_d$ e $X_d=0$, a parcela inicial decai como $\lambda_H^k ITI_0$. A condição $\lambda_H^H=\tfrac{1}{2}$ implica $\lambda_H=2^{-1/H}$ (já apresentada no Capítulo~\ref{cap:metodologia}).
 
 \section{Política de ausências (resumo)}
 

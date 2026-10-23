@@ -1,4 +1,8 @@
 % Gerado por scripts/dissertation/iti_v2/export_iti_v2_latex.py
+\subsection{Visualização temporal e sensibilidades}
+
+A Figura~\ref{fig:iti-campanha-1} confronta o sinal diário sem memória (Soft) com o ITI-H7 e o volume de matérias elegíveis; a Figura~\ref{fig:iti-campanha-2} varia a meia-vida mantendo a mesma inferência; a Figura~\ref{fig:iti-campanha-3} resume os $\Delta\rho$ secundários com intervalos nominais (correção de Holm aplicada apenas aos $p$-valores tabulados).
+
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.92\linewidth]{generated/figures/iti_v2/figure_daily_signal.png}
@@ -9,13 +13,13 @@
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.88\linewidth]{generated/figures/iti_v2/figure_h_sensitivity.png}
-\caption{Sensibilidade da meia-vida (H=2, 7 e 14 dias) na mesma inferência.}
+\caption{Sensibilidade da meia-vida ($H=2$, 7 e 14 dias) na mesma inferência.}
 \label{fig:iti-campanha-2}
 \end{figure}
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.88\linewidth]{generated/figures/iti_v2/figure_delta_intervals.png}
-\caption{Intervalos bootstrap dos contrastes secundários (Holm).}
+\caption{Intervalos bootstrap nominais (95\%) dos contrastes secundários; significância familiar conforme $p_{\mathrm{Holm}}$ na Tabela~\ref{tab:iti-secondary}.}
 \label{fig:iti-campanha-3}
 \end{figure}
