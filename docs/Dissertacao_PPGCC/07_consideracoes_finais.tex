@@ -14,23 +14,28 @@ As contribuições delimitadas são: (1) formulação operacional transparente d
 
 \section{Plano de continuidade}
 
-As prioridades seguem as ameaças à validade (Tabela~\ref{tab:ameacas}): inventário do corpus, anotação independente com concordância documentada, diagnóstico de erros do classificador, auditoria do alinhamento temporal e testes estatísticos pré-especificados antes de ampliar escopo setorial. A Tabela~\ref{tab:plano-continuidade} organiza etapas, entregas e critérios de avanço; a continuidade não pressupõe generalização imediata para outras empresas de saneamento.
+As prioridades seguem as ameaças à validade (Tabela~\ref{tab:ameacas}): inventário do corpus, anotação independente, diagnóstico de erros do classificador e auditoria do alinhamento temporal antes de ampliar escopo setorial. O quadro~\ref{tab:plano-continuidade} resume etapas e critérios; a continuidade não pressupõe generalização imediata para outras empresas de saneamento. Um teste temporal \emph{confirmatório} exigirá período ainda não examinado nos retornos --- o holdout atual de onze semanas permanece apenas exploratório (Capítulo~\ref{cap:resultados}).
 
-\begin{table}[!htbp]
+\needspace{10\baselineskip}
+\begin{table}[H]
 \centering
 \caption{Plano de continuidade: etapas, entregas e critérios de avanço.}
 \label{tab:plano-continuidade}
-\begin{tabularx}{\textwidth}{@{}LLL@{}}
+\begingroup
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Xp{0.28\textwidth}@{}}
 \toprule
 Etapa & Produto esperado & Condição para avanço \\
 \midrule
-Referência humana independente & Concordância entre especialistas e consenso documentado & Critério estável para comparação com o modelo \\
-Teste temporal confirmatório & Holdout com referência P06 e protocolo fixado & Não reutilizar holdout para seleção de $H$ \\
+Referência humana independente & Concordância entre especialistas documentada & Critério estável para comparação com o modelo \\
+Teste temporal confirmatório & Protocolo fixado em período \emph{novo} & Não reutilizar holdout já inspecionado nem selecionar $H$ nele \\
 Diagnóstico textual & Matriz de confusão e erros em neutras/multiempresa & Limitações do classificador caracterizadas \\
-Extensão setorial & Novas empresas somente com corpus auditado & Mesmas regras de cutoff e registro \\
+Extensão setorial & Novas empresas com corpus auditado & Mesmas regras de cutoff e registro \\
 \bottomrule
 \end{tabularx}
-\vspace{0.4em}
+\endgroup
+\vspace{0.35em}
 {\footnotesize Fonte: elaboração própria.}
 \end{table}
 

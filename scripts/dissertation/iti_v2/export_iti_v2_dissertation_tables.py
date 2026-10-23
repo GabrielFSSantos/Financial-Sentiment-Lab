@@ -63,8 +63,8 @@ def write_primary_table(run_dir: Path) -> Path | None:
         r"\end{tabularx}",
         r"\vspace{0.4em}",
         r"{\footnotesize Fonte: campanha exploratória de outubro de 2026. "
-        r"$n$: semanas com retorno futuro completo, fora do período inicial de amortecimento da condição inicial (70 dias civis; ver Cap.~\ref{cap:metodologia}) "
-        + f"(painel alinhado: {n_panel} semanas; 10 semanas de aquecimento excluídas)."
+        r"\emph{Nota:} $n$ no contraste = semanas com retorno $h=1$ completo, fora do amortecimento inicial (Cap.~\ref{cap:metodologia}). "
+        + f"Painel alinhado: {n_panel} semanas."
         + r"}",
         r"\end{table}",
         "",

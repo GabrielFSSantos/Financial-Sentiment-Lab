@@ -194,7 +194,7 @@ def build_figures_snippet() -> str:
         width = "0.92\\linewidth" if index == 1 else "0.88\\linewidth"
         lines.extend(
             [
-                "\\begin{figure}[htbp]",
+                "\\begin{figure}[H]",
                 "\\centering",
                 f"\\includegraphics[width={width}]{{generated/figures/iti_v2/{filename}}}",
                 f"\\caption{{{caption}}}",
@@ -203,6 +203,8 @@ def build_figures_snippet() -> str:
                 "",
             ]
         )
+    lines.append("\\FloatBarrier")
+    lines.append("")
     return "\n".join(lines)
 
 

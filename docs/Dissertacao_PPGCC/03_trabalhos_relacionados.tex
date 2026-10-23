@@ -47,22 +47,28 @@ A privatização da Sabesp constitui parte do contexto institucional da janela p
 
 A lacuna não é a ausência de sentimento ou de médias móveis, mas a avaliação integrada --- classificação orientada à empresa, memória temporal e comparação com baselines das mesmas notícias --- no estudo de caso da Sabesp (Tabela~\ref{tab:posicionamento}).
 
-\begin{table}[!htbp]
+\needspace{11\baselineskip}
+\begin{table}[H]
 \centering
 \caption{Posicionamento do ITI em relação às principais linhas da literatura.}
 \label{tab:posicionamento}
-\begin{tabularx}{\textwidth}{@{}LLL@{}}
+\begingroup
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\textwidth}{@{}p{0.17\textwidth}Xp{0.26\textwidth}@{}}
 \toprule
-Linha & Evidência ou abordagem (referências) & Diferença da proposta \\
+Linha & Evidência (referências) & Diferença da proposta \\
 \midrule
-Notícias e mercado & Medida textual de pessimismo e associação com ações (\citeonline{tetlock2007media}) & Corpus corporativo em português e alvo Sabesp \\
-Índices de notícias & Incerteza de política e sentimento agregado com peso temporal (\citeonline{baker2016epu}; \citeonline{shapiro2022fed}) & Construto de polaridade orientada à empresa, não incerteza macro \\
-Sentimento financeiro em PT & FinBERT-PT-BR: classificação e indicador agregado (\citeonline{santos2023finbert}) & Validação local da tarefa \emph{para a Sabesp}, não só do documento \\
-Sentimento por entidade & Alvo explícito e casos multiempresa (\citeonline{cortis2017semeval5}; \citeonline{yuan2020target}; \citeonline{sinha2022sentfin}) & View focal e contraste ITI-H7 vs Soft no mesmo corpus \\
-Mercado brasileiro & Sentimento, notícias e ciclos (\citeonline{yoshinaga2012sentimento}; \citeonline{duarte2020news}; \citeonline{racef2022sentimento}) & ITI: $\Delta\rho$ ITI-H7 vs Soft, cutoff causal e retornos entre fechamentos \\
+Notícias e mercado & Pessimismo textual e ações (\citeonline{tetlock2007media}) & Corpus em português; alvo Sabesp \\
+Índices de notícias & Incerteza e peso temporal (\citeonline{baker2016epu}; \citeonline{shapiro2022fed}) & Polaridade orientada à empresa \\
+Sentimento financeiro em PT & FinBERT-PT-BR (\citeonline{santos2023finbert}) & Tarefa \emph{para a Sabesp} \\
+Sentimento por entidade & Alvo explícito (\citeonline{cortis2017semeval5}; \citeonline{yuan2020target}; \citeonline{sinha2022sentfin}) & ITI-H7 vs Soft no mesmo corpus \\
+Mercado brasileiro & Ciclos e notícias (\citeonline{yoshinaga2012sentimento}; \citeonline{duarte2020news}; \citeonline{racef2022sentimento}) & $\Delta\rho$, cutoff causal, retornos \\
 \bottomrule
 \end{tabularx}
-\vspace{0.4em}
+\endgroup
+\vspace{0.35em}
 {\footnotesize Fonte: elaboração própria com base nos trabalhos citados.}
 \end{table}
 
