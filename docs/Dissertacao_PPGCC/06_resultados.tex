@@ -8,14 +8,8 @@ Os resultados organizam-se em avaliação textual (classificador $\times$ anota�
 
 Para a Sabesp, o fluxo executado segue o Capítulo~\ref{cap:metodologia}: inferência no recorte contextual, agregação diária, memória por meia-vida, amostragem no cutoff semanal e junção com retornos de SBSP3 antes dos contrastes pré-registrados.
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Histórico de evolução do protocolo — reativar se a banca pedir narrativa cronológica.
-Durante o desenvolvimento, a forma de alinhar as séries precisou ser revista. As primeiras execuções combinavam frequências que não ofereciam uma comparação temporal suficientemente clara entre indicador e retorno. A passagem para um protocolo semanal, encerrado na sexta-feira, tornou explícita a unidade de avaliação e permitiu organizar as comparações em horizontes de uma, duas e quatro semanas. Essa mudança é um resultado metodológico relevante: a definição correta do tempo de referência não é um detalhe do processamento, mas parte do desenho experimental.
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 
-Também houve avanço na organização dos baselines e das campanhas. Em vez de comparar o ITI apenas com o retorno observado, passou-se a confrontá-lo com medidas alternativas feitas das mesmas notícias. Dessa forma, o estudo pode perguntar se as transformações propostas oferecem alguma vantagem em relação a uma contagem de cobertura ou a uma média simples de sentimento.
-
-Na rodada canônica de outubro de 2026, a configuração R1 foi executada em ambiente local e no supercomputador Santos Dumont. Os registros incluem o job Slurm \texttt{11621573}. Ambas as execuções reportaram o mesmo resultado nominal: seis comparações favoráveis em 24, sem diferenças significativas pelo procedimento adotado. Essa observação apoia a viabilidade operacional em ambientes distintos; uma verificação de igualdade numérica entre todas as saídas dependerá da comparação direta dos respectivos artefatos.
-\fi
 
 \section{Avaliação do sinal textual}
 
@@ -42,11 +36,8 @@ Agenda ou multiempresa & 26 & 42,3\% & $\approx$ $-$0,03 & --- \\
 
 A reformulação do protocolo esclareceu a tarefa; a diferença de dois pontos na acurácia entre rodadas não mede ganho do classificador, pois a referência humana mudou.
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Duas tabelas separadas (rodadas e subconjuntos).
-\begin{table}...\end{table}
-\begin{table}...\end{table}
-\fi
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+
 
 % --- Figuras quantitativas (descomentar quando existir artefato verificável em outputs/) ---
 %\begin{figure}[htbp]
@@ -74,7 +65,7 @@ A avaliação sugere investigar três possibilidades. A primeira é a divergênc
 
 Os dados atuais não permitem repartir as 35 divergências entre essas causas. Para isso, será necessário examinar uma matriz de confusão completa, recuperar exemplos concretos, analisar os trechos processados pelo modelo e comparar avaliações humanas independentes. É justamente esse diagnóstico que deve orientar eventuais adaptações do classificador, evitando que mudanças de arquitetura sejam feitas antes de entender o problema.
 
-O desempenho do modelo também deve ser confrontado com a classe majoritária. Como 67\% da referência humana corresponde à classe neutra, um classificador que sempre previsse *neutro* teria, nessa amostra específica, acurácia de 67\%. Esse valor não demonstra que uma regra trivial seja um bom modelo, pois ela falharia em identificar as classes positiva e negativa. Entretanto, oferece uma comparação indispensável para interpretar a acurácia global de 50\% e reforça a necessidade de apresentar métricas por classe.
+O desempenho do modelo também deve ser confrontado com a classe majoritária. Como 67\% da referência humana corresponde à classe neutra, um classificador que sempre previsse \emph{neutro} teria, nessa amostra específica, acurácia de 67\%. Esse valor não demonstra que uma regra trivial seja um bom modelo, pois ela falharia em identificar as classes positiva e negativa. Entretanto, oferece uma comparação indispensável para interpretar a acurácia global de 50\% e reforça a necessidade de apresentar métricas por classe.
 
 A referência humana independente permanece pendente; os indicadores acima descrevem concordância modelo--autor, não consenso entre especialistas.
 
@@ -82,9 +73,7 @@ A referência humana independente permanece pendente; os indicadores acima descr
 
 \IfFileExists{generated/results_macros.tex}{\input{generated/results_macros.tex}}{}
 
-Em outubro de 2026 foi concluída a execução exploratória com 1.253 notícias elegíveis no recorte contextual. Após auditoria de validade temporal (cobertura informacional versus calendário de mercado), os estimadores foram reprocessados sobre as mesmas predições, sem nova inferência FinBERT. O painel alinhado compreende 99 semanas de SBSP3 no intervalo informacional (maio/2022--abril/2024); o contraste principal usa $n=89$ após excluir dez semanas de aquecimento. A correlação marginal ITI-H7 $\times$ retorno ($n=99$) difere do universo pareado do $\Delta$.
-
-O sinal pontual do $\Delta$ é positivo e pequeno (+0,025 na Tabela~\ref{tab:iti-primary}); o intervalo de confiança cruza zero. Não há base para afirmar superioridade estatística do ITI-H7 nem equivalência ao Soft: a ausência de rejeição da hipótese nula não demonstra igualdade entre as séries.
+Em outubro de 2026 foi concluída a execução exploratória com 1.253 notícias elegíveis no recorte contextual. Após auditoria de validade temporal (cobertura informacional versus calendário de mercado), os estimadores foram reprocessados sobre as mesmas predições, sem nova inferência FinBERT. O painel alinhado compreende 99 semanas de SBSP3 no intervalo informacional (maio/2022--abril/2024); o contraste principal usa $n=89$ após excluir dez semanas de aquecimento. A correlação marginal ITI-H7 $\times$ retorno ($n=99$) difere do universo pareado do $\Delta$. O contraste pré-registrado compara correlações \emph{assinadas} (Spearman); um $\Delta$ positivo não implica, por si só, maior magnitude absoluta de associação---interpretação na Tabela~\ref{tab:iti-primary} e na subseção~\ref{subsec:campanha-iti}.
 
 \IfFileExists{generated/tables/iti_v2_table_primary.tex}{\input{generated/tables/iti_v2_table_primary.tex}}{}
 \input{generated/iti_v2_results_snippet.tex}
@@ -95,76 +84,11 @@ O sinal pontual do $\Delta$ é positivo e pequeno (+0,025 na Tabela~\ref{tab:iti
 \input{generated/iti_v2_figures_snippet.tex}
 }{}
 
-\iffalse
-% [MIGRAÇÃO 2026-10-23] Campanhas legadas R0/R1 e tabelas históricas — preservadas no repositório, fora da narrativa principal.
-\section{Associação temporal e sensibilidade dos resultados}
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 
-\subsection{Configurações R0 e R1 na janela principal}
 
-A avaliação temporal principal utiliza notícias de novembro de 2023 a abril de 2024, representadas em frequência semanal. Foram examinadas duas configurações do ITI: R0, com parâmetro nominal $\alpha=0{,}85$, e R1, com $\alpha=0{,}70$. Cada configuração foi comparada com os quatro baselines B0–B3, pelas correlações de Pearson e Spearman, em três horizontes de retorno futuro, totalizando 24 confrontos.
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 
-\begin{table}[htbp]
-\centering
-\caption{Resumo dos confrontos favoráveis ao ITI na janela principal (corpus canônico).}
-\label{tab:r0-r1-canonico}
-\begin{tabularx}{\textwidth}{|L|r|r|r|r|}
-\hline
-Configuração & $\alpha$ & Favoráveis ao ITI & Proporção & Significativas \\
-\hline
-R0, rodada canônica & 0,85 & 5 de 24 & 20,8\% & 0 \\
-R1, rodada canônica & 0,70 & 6 de 24 & 25,0\% & 0 \\
-\hline
-\end{tabularx}
-\vspace{0.5em}
-{\footnotesize Fonte: execução canônica da campanha Sabesp, outubro de 2026; protocolo de comparação com correlações assinadas.}
-\end{table}
-
-A configuração R1 apresentou uma comparação favorável a mais que R0, mas esse resultado não demonstra que $\alpha=0{,}70$ seja, de modo geral, o melhor parâmetro de memória. A seleção de uma configuração a partir das mesmas observações utilizadas para julgar seu desempenho pode produzir otimismo experimental. Além disso, a contagem não informa a magnitude dos deltas nem suas incertezas. Nenhum dos confrontos foi classificado como significativamente favorável na rodada canônica.
-
-Em particular, os resultados não confirmam que o ITI seja superior aos baselines nessa janela. A ausência de diferenças significativas tampouco comprova equivalência entre as medidas. É possível que o sinal textual seja fraco, que os indicadores sejam parcialmente redundantes ou que o tamanho da amostra seja insuficiente para distinguir suas associações. Essas explicações são hipóteses a investigar, não conclusões demonstradas pelos percentuais apresentados.
-
-\subsection{Mudanças de corpus e resultados históricos}
-
-Ao longo da pesquisa, mudanças na seleção e na cobertura das notícias produziram versões diferentes do corpus. Os registros históricos mostram que uma configuração denominada R1, executada sobre um corpus legado, havia apresentado dez comparações favoráveis em 24, com duas diferenças nominalmente significativas. Na rodada canônica de outubro de 2026, sobre a versão atual do corpus estrito, o resultado foi de seis comparações favoráveis e nenhuma significativa.
-
-\begin{table}[htbp]
-\centering
-\caption{Síntese de execuções temporais com corpora e janelas distintas (R1).}
-\label{tab:execucoes-temporal}
-\begin{tabularx}{\textwidth}{|P{0.19\textwidth}|L|P{0.11\textwidth}|L|}
-\hline
-Recorte & Corpus / período & Config. & Resultado registrado \\
-\hline
-Janela principal (canônica) & \texttt{articles\_strict\_sabesp.csv}; nov./2023--abr./2024 & R1; $\alpha=0{,}70$ & 6/24; nenhuma diferença significativa \\
-Janela principal (legado) & \texttt{noticias\_strict\_sabesp.csv} & R1 histórico & 10/24; duas diferenças nominais significativas \\
-Janela ampliada & mai./2022--abr./2024; $\sim$1.254 matérias & R1 ampliado & 8/24 (33,3\%); sem confirmação estatística \\
-\hline
-\end{tabularx}
-\vspace{0.5em}
-{\footnotesize Fonte: histórico de campanhas e resultados consolidados da pesquisa. Os registros não representam replicações sobre um único conjunto de dados.}
-\end{table}
-
-No registro legado, as duas diferenças nominalmente significativas ocorreram em comparações contra B3 no horizonte de quatro semanas, uma com Pearson e outra com Spearman. Seus valores relatados foram $\Delta=+0{,}133$, com $p=0{,}040$, e $\Delta=+0{,}221$, com $p=0{,}046$, respectivamente. Esses números devem permanecer vinculados ao corpus e à implementação histórica; não podem ser transferidos para a análise canônica atual, que não reproduziu as mesmas conclusões.
-
-As duas diferenças também foram identificadas em meio a 24 confrontos, com dados compartilhados e sem correção de multiplicidade documentada na rodada original. Portanto, constituem indícios exploratórios frágeis. Não sustentam uma conclusão confirmatória sobre a superioridade do ITI e não autorizam apresentar o parâmetro de memória escolhido como ótimo.
-
-A janela ampliada, por sua vez, não resolveu automaticamente a limitação. Os registros indicam que diferentes versões da cobertura histórica produziram taxas de confrontos favoráveis distintas, inclusive após o preenchimento de lacunas no corpus de 2023. Esse resultado chama atenção para a relação entre quantidade de dados e qualidade de cobertura: acrescentar matérias pode aumentar o número de observações e, ao mesmo tempo, modificar a composição temática, a frequência das notícias e as condições de comparação.
-
-A divergência entre execuções representa um resultado metodológico relevante. O comportamento do índice depende da seleção do texto, da janela analisada e das regras aplicadas ao painel. A etapa final deverá reconstruir as diferenças entre conjuntos por identificador de notícia e por semana, para distinguir efeitos da cobertura daqueles associados ao modelo ou ao cálculo estatístico.
-
-\subsection{Limites da interpretação financeira}
-
-Os resultados temporais dependem da qualidade do sinal textual, do alinhamento semanal (Capítulo~\ref{cap:metodologia}) e do critério de delta \textbf{assinado}; correlações aparentes não substituem validação de construto nem implicam causalidade.
-\fi
-
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Repetição das ameaças já tratadas na metodologia e na Tabela~\ref{tab:ameacas}.
-Os resultados temporais devem ser interpretados em conjunto com as limitações da etapa textual. A polaridade utilizada na série vem de um classificador que apresentou concordância reduzida com a anotação orientada à Sabesp. Assim, mesmo uma correlação positiva em um confronto não demonstraria, isoladamente, que o índice está capturando um efeito econômico da informação relevante para a empresa.
-
-A avaliação também depende das regras de alinhamento. A construção dos retornos futuros sobre um painel com junção interna exige auditoria do calendário para evitar que semanas ausentes sejam tratadas como períodos consecutivos. Além disso, a publicação de notícias após o encerramento do pregão precisa receber tratamento temporal explícito para impedir a utilização de informação que ainda não estava disponível.
-
-Por fim, a diferença assinada de correlação empregada no código não deve ser confundida com diferença de magnitude absoluta. Uma correlação numericamente maior pode ter menor valor absoluto, dependendo dos sinais. Portanto, a expressão *confronto favorável* descreve estritamente o critério da implementação histórica. Para responder a uma hipótese sobre força de associação sem direção pré-definida, será necessário registrar outra estatística e tratá-la como novo experimento, sem modificar retroativamente os números anteriores.
-\fi
 
 \section{Discussão integrada e ameaças à validade}
 
@@ -191,8 +115,5 @@ Reprodutibilidade & Versões distintas do corpus; manifestos incompletos & Regis
 
 Em síntese: o pipeline do ITI é operacional e auditável; o sinal textual exige referência humana independente; a campanha de outubro de 2026 não confirma superioridade do ITI-H7 sobre Soft. O plano de continuidade está no Capítulo~\ref{cap:consideracoes}.
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Seção ``Contribuições'' fundida com ameaças; texto longo abaixo.
-O conjunto de experimentos permite destacar quatro aprendizados...
-Essas ameaças não significam que o projeto deva ser abandonado...
-\fi
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+

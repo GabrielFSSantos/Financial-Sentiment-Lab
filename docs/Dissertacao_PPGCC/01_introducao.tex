@@ -5,14 +5,12 @@ Notícias sobre empresas registram acontecimentos que ajudam a compreender suas 
 
 O emprego de textos como fonte de dados econômicos não é recente. \citeonline{tetlock2007media} investigou a relação entre o conteúdo da imprensa e o mercado de ações. \citeonline{baker2016epu}, por sua vez, mostraram como a cobertura jornalística pode apoiar a construção de um índice de incerteza de política econômica. Esses estudos tratam textos como observações passíveis de análise quantitativa, mas também evidenciam que índices diferentes representam fenômenos diferentes. Uma medida de incerteza, por exemplo, não deve ser interpretada automaticamente como uma medida de sentimento favorável ou desfavorável para determinada empresa.
 
-A presente pesquisa se concentra em notícias corporativas em português, inicialmente relacionadas à Sabesp. O objetivo é investigar uma forma de transformar os escores produzidos por um classificador de sentimento financeiro em uma série temporal que preserve parte das informações anteriores. Essa proposta recebe o nome de \textbf{Índice Temporal Informacional (ITI)}. O adjetivo *informacional* indica que a série é calculada a partir de textos jornalísticos; não significa que seu conteúdo represente, de maneira já comprovada, informação nova incorporada ao preço das ações.
+A presente pesquisa se concentra em notícias corporativas em português, inicialmente relacionadas à Sabesp. O objetivo é investigar uma forma de transformar os escores produzidos por um classificador de sentimento financeiro em uma série temporal que preserve parte das informações anteriores. Essa proposta recebe o nome de \textbf{Índice Temporal Informacional (ITI)}. O adjetivo \emph{informacional} indica que a série é calculada a partir de textos jornalísticos; não significa que seu conteúdo represente, de maneira já comprovada, informação nova incorporada ao preço das ações.
 
 A escolha do saneamento oferece um contexto em que assuntos financeiros, regulatórios e de interesse público frequentemente coexistem na mesma matéria; o desafio central é determinar a qual agente a avaliação se refere (detalhado no Capítulo~\ref{cap:fundamentacao} e na Seção~\ref{sec:problema}).
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Exemplo tarifário repetido na fundamentação — reativar se desejar reforço na introdução.
-A escolha do saneamento oferece um contexto em que assuntos financeiros, regulatórios e de interesse público frequentemente aparecem na mesma notícia. Uma alteração tarifária, por exemplo, pode produzir consequências diferentes para consumidores, poder público e concessionária. O desafio, portanto, não é apenas reconhecer palavras positivas ou negativas, mas determinar a qual agente a avaliação se refere. Esse problema acompanha toda a construção do índice, desde a seleção das matérias até a interpretação de sua relação com os retornos acionários.
-\fi
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+
 
 \section{Contexto e delimitação do estudo}
 
@@ -37,10 +35,8 @@ A terceira dificuldade é temporal. As notícias aparecem em datas e horários i
 
 Diante dessas dificuldades, a pergunta principal é: em que medida o ITI-H7, amostrado no mesmo cutoff semanal que o sinal Soft (sem memória), apresenta associação de Spearman com retorno logarítmico de uma semana futura de SBSP3, e quais limitações de classificação e alinhamento condicionam essa avaliação exploratória?
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Formulação anterior (ênfase em superioridade) — validar com orientador antes de reativar.
-Diante dessas dificuldades, a pergunta principal é: \textbf{em que condições um índice formado por escores de notícias corporativas em português, com agregação e memória temporal, apresenta associação com retornos futuros superior à de medidas mais simples construídas a partir das mesmas notícias, no estudo de caso da Sabesp?}
-\fi
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+
 
 Duas perguntas complementam a investigação. A primeira é se o classificador financeiro produz rótulos compatíveis com uma avaliação humana orientada especificamente à Sabesp. A segunda é em que medida a memória temporal altera o comportamento do ITI em comparação com agregações sem essa recorrência. Essas perguntas são tratadas separadamente porque a presença de associação com retornos não corrige um eventual problema de validade da classificação textual.
 
@@ -60,12 +56,8 @@ No campo computacional, a contribuição proposta envolve um procedimento modula
 
 Os experimentos já produziram contribuições delimitadas --- integração do pipeline, distinção entre sentimento genérico e anotação orientada à Sabesp, sensibilidade a versões do corpus --- sem comprovar superioridade estatística do ITI (Capítulo~\ref{cap:resultados}).
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Repetição sobre originalidade e limites.
-Os experimentos já produziram contribuições delimitadas. Foi possível executar a cadeia de processamento, identificar uma diferença entre a tarefa de sentimento genérico e a anotação orientada à Sabesp, e observar que versões distintas do corpus podem levar a conclusões nominais diferentes. Tais resultados não comprovam a hipótese de superioridade do ITI, mas delimitam condições importantes para avaliá-la corretamente.
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 
-A originalidade pretendida não depende de afirmar que jamais se construiu um índice semelhante. Ela está na investigação articulada desses componentes para a tarefa, o idioma e o estudo de caso considerados. A comparação com a literatura, apresentada nos Capítulos 2 e 3, esclarece o que é adaptado de trabalhos anteriores e o que constitui uma escolha do procedimento proposto.
-\fi
 
 \section{Hipótese e organização do trabalho}
 

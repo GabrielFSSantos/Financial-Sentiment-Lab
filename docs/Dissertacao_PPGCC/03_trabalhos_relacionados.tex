@@ -9,7 +9,7 @@ Este capítulo reúne estudos que ajudam a situar a proposta em quatro aspectos:
 
 Em outra perspectiva, \citeonline{baker2016epu} construíram uma medida de incerteza de política econômica com base, entre outros componentes, na cobertura jornalística de termos associados ao tema. O objeto do índice é diferente do sentimento corporativo, mas seu desenho mostra a importância de definir claramente o fenômeno que se pretende medir. Um índice pode ser computacionalmente consistente e ainda representar mal o construto de interesse se seus critérios de seleção não corresponderem à pergunta de pesquisa.
 
-\citeonline{shapiro2022fed} desenvolveram uma medida de sentimento a partir de notícias econômicas e financeiras, tratando também da avaliação das classificações textuais. A documentação do *Daily News Sentiment Index*, do Federal Reserve Bank of San Francisco, descreve uma forma de atribuir pesos que diminuem com a antiguidade das notícias \cite{frbsfNewsSentiment}; \citeonline{buckman2020dnsi} detalham o decaimento temporal operacional desse índice. A proximidade com o ITI está no uso de textos agregados e de um mecanismo temporal de suavização. As diferenças estão no universo de notícias, no alvo econômico e na implementação da memória; não se deve supor equivalência entre os índices apenas porque ambos atribuem menor peso a informações antigas.
+\citeonline{shapiro2022fed} desenvolveram uma medida de sentimento a partir de notícias econômicas e financeiras, tratando também da avaliação das classificações textuais. A documentação do \emph{Daily News Sentiment Index}, do Federal Reserve Bank of San Francisco, descreve uma forma de atribuir pesos que diminuem com a antiguidade das notícias \cite{frbsfNewsSentiment}; \citeonline{buckman2020dnsi} detalham o decaimento temporal operacional desse índice. A proximidade com o ITI está no uso de textos agregados e de um mecanismo temporal de suavização. As diferenças estão no universo de notícias, no alvo econômico e na implementação da memória; não se deve supor equivalência entre os índices apenas porque ambos atribuem menor peso a informações antigas.
 
 \citeonline{hiew2019bsi} propuseram um índice de sentimento financeiro baseado em probabilidades de classificação (BSI) e o confrontaram com previsibilidade de retornos. O contraste \emph{Hard-BSI} do ITI (Seção~\ref{sec:formulacao-iti}) retoma a ideia de agregação rígida por polaridade, sem a memória exponencial do candidato principal, mas sobre o mesmo escore contínuo e o mesmo corpus Sabesp.
 
@@ -35,7 +35,7 @@ A proposta atual não implementa, ainda, um classificador treinado especificamen
 
 \section{Investigações no mercado brasileiro}
 
-\citeonline{yoshinaga2012sentimento} examinaram a relação entre um índice de sentimento de mercado e retornos no Brasil. Como a medida foi construída a partir de variáveis de mercado, seu objeto não é diretamente comparável ao ITI. Ainda assim, o estudo oferece um alerta importante: relações entre sentimento e retorno podem apresentar sinais e dinâmicas distintos daqueles sugeridos por uma leitura intuitiva da palavra *positivo*.
+\citeonline{yoshinaga2012sentimento} examinaram a relação entre um índice de sentimento de mercado e retornos no Brasil. Como a medida foi construída a partir de variáveis de mercado, seu objeto não é diretamente comparável ao ITI. Ainda assim, o estudo oferece um alerta importante: relações entre sentimento e retorno podem apresentar sinais e dinâmicas distintos daqueles sugeridos por uma leitura intuitiva da palavra \emph{positivo}.
 
 \citeonline{duarte2020news} investigaram a utilização de notícias para prever quedas de preços no mercado brasileiro. A contribuição para esta dissertação está em relacionar textos em português a um desfecho financeiro e em demonstrar a necessidade de um desenho temporal coerente. Entretanto, prever um evento de queda não é equivalente a comparar correlações de índices agregados em frequência semanal. Os resultados de uma tarefa não podem ser transportados diretamente para a outra.
 
@@ -66,17 +66,5 @@ Mercado brasileiro & Sentimento, notícias e ciclos (\citeonline{yoshinaga2012se
 
 A lacuna não é a ausência de sentimento ou de médias móveis, mas a avaliação integrada --- classificação orientada à empresa, memória temporal e comparação com baselines das mesmas notícias --- no estudo de caso da Sabesp.
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Síntese longa + tabela em quatro colunas (redundante com o quadro compacto acima).
-Os trabalhos revisados se aproximam do presente estudo por caminhos diferentes. Tetlock, Baker e Shapiro fundamentam a ideia de produzir medidas quantitativas a partir de notícias; os trabalhos sobre FinBERT sustentam o uso de modelos adaptados à linguagem financeira; Cortis, Yuan e Sinha justificam a necessidade de explicitar a entidade-alvo; e os estudos brasileiros reforçam a relevância da avaliação com dados locais e recortes temporais bem definidos.
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 
-\begin{tabularx}{\textwidth}{|L|L|L|L|}
-Linha de pesquisa & Referências & Relação com o ITI & Diferença principal \\
-Notícias e mercado & \citeonline{tetlock2007media} & Associação entre conteúdo jornalístico e variáveis financeiras & Outro mercado e outra unidade textual \\
-...
-\end{tabularx}
-
-A lacuna investigada, portanto, não consiste na ausência de técnicas de análise de sentimento ou de médias móveis. Consiste em avaliar sua integração para um corpus corporativo em português, verificando a correspondência entre classificação textual, alvo empresarial, memória temporal e retorno financeiro. A comparação com baselines derivados das mesmas notícias torna essa avaliação mais informativa do que uma correlação isolada do ITI com o mercado.
-
-Na etapa atual, a contribuição mais claramente sustentada é metodológica: o procedimento permite examinar onde surgem dificuldades e quais delas precisam ser resolvidas antes de interpretar o índice como uma medida econômica robusta. Os resultados do Capítulo~\ref{cap:resultados} apresentam essa investigação sem pressupor que a superioridade estatística já tenha sido obtida.
-\fi

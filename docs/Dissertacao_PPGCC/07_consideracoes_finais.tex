@@ -9,16 +9,8 @@ O procedimento é executável; a tarefa orientada à empresa difere da classific
 
 As contribuições delimitadas são: (1) formulação operacional transparente do ITI e do Soft; (2) confronto pareado pré-registrado com bootstrap em blocos; (3) registro explícito das limitações de classificação, alinhamento e referência humana. Avaliações de informação incremental em regressão e teste confirmatório com holdout permanecem para a continuidade.
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Síntese anterior (repetia Capítulo~\ref{cap:resultados} quase integralmente).
-Esta pesquisa propôs e implementou um Índice Temporal Informacional construído a partir de notícias corporativas em português, com estudo de caso inicial na Sabesp. O procedimento utiliza probabilidades de um classificador de sentimento financeiro, combina os escores das notícias em medidas diárias e aplica uma atualização exponencial para conservar parte do estado anterior. Na avaliação financeira, a série resultante foi comparada com quatro medidas de referência e retornos futuros da ação SBSP3, em frequência semanal.
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 
-A etapa concluída demonstrou que a cadeia computacional pode ser executada, mas também revelou limites importantes de sua interpretação. Na avaliação de cem notícias anotadas pelo autor com um critério orientado à Sabesp, o classificador apresentou acurácia de 50\%, kappa de Cohen de 0,197 e F1 macro de 0,45. A distribuição dos erros chama atenção para os 35 textos humanos neutros classificados automaticamente como positivos ou negativos, bem como para a concordância numericamente menor nas matérias de agenda ou multiempresa.
-
-Na avaliação temporal canônica, a configuração R1, com parâmetro nominal de memória igual a 0,70, apresentou seis confrontos favoráveis ao ITI entre 24, sem diferenças estatisticamente significativas segundo a regra de reamostragem utilizada. A comparação histórica com versões anteriores do corpus produziu resultados diferentes, evidenciando a sensibilidade do experimento à seleção e à cobertura das notícias. Esses achados não confirmam a hipótese de superioridade do índice e não autorizam concluir que ele seja equivalente aos baselines.
-
-O avanço principal da pesquisa até a qualificação está na construção de um procedimento analisável e na identificação das condições necessárias à sua avaliação. A etapa textual mostrou que a tarefa orientada à empresa requer uma referência adequada; os experimentos temporais indicaram a importância de controlar frequência, calendário, corpus e definição dos baselines; e a análise estatística mostrou que uma contagem de comparações favoráveis não é suficiente para sustentar afirmações de ganho. O resultado é, portanto, uma base experimental e metodológica mais precisa para os testes seguintes, e não uma confirmação antecipada de desempenho financeiro.
-\fi
 
 \section{Plano de continuidade}
 
@@ -44,12 +36,5 @@ Extensão setorial & Novas empresas somente com corpus auditado & Mesmas regras 
 
 A continuidade não pressupõe generalização imediata para outras empresas de saneamento; a extensão dependerá da qualidade dos dados e da validação no estudo de caso principal.
 
-\iffalse
-% [ENXUGAMENTO 2026-10-22] Descrição longa das seis etapas (redundante com a tabela).
-A continuidade será organizada em etapas que respondem diretamente às limitações identificadas, evitando ampliar o escopo antes de consolidar o estudo de caso principal.
+% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
 
-A primeira etapa será fechar o inventário do corpus. ...
-Finalmente, a extensão para períodos adicionais e para outras empresas brasileiras de saneamento dependerá da qualidade e da cobertura dos dados. O plano não assume que um resultado observado na Sabesp possa ser generalizado para Copasa, Sanepar ou todo o setor. A análise de novas companhias deverá considerar suas diferenças institucionais e jornalísticas.
-
-A conclusão desta etapa é que o índice já possui implementação e uma avaliação exploratória capaz de orientar decisões de pesquisa, mas sua interpretação como indicador de informação economicamente relevante ainda depende de validação. A prioridade não é obter uma taxa de vitória mais alta por ajustes sucessivos; é estabelecer sob quais condições a comparação seria confiável e que resultados sobrevivem a essas condições.
-\fi

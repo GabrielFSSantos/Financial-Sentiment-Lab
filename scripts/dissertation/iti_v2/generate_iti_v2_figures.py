@@ -41,7 +41,7 @@ def figure_daily_signal(run_dir: Path, out_dir: Path) -> Path | None:
     axes[0].plot(daily["date"], daily["iti_v2_h7"], label="ITI-H7 (diário)", alpha=0.85, linewidth=1.2)
     axes[0].set_ylabel("Sinal")
     axes[0].legend(loc="upper right")
-    axes[0].set_title(f"Sinal diário — {run_dir.name}")
+    axes[0].set_title("Sinal diário Soft e ITI-H7 (campanha exploratória)")
     if "n_articles" in daily.columns:
         axes[1].bar(daily["date"], daily["n_articles"], width=1.0, color="#4c72b0", alpha=0.6)
         axes[1].set_ylabel("Nº notícias")
