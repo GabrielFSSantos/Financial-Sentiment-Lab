@@ -68,6 +68,7 @@ def normalize_model_prediction(
     *,
     index: int,
     preserve_metadata: bool = True,
+    probability_sum_tolerance: float | None = None,
 ) -> NormalizedPrediction:
     """Converte uma ``ModelPrediction`` validada pelo adaptador."""
 
@@ -94,6 +95,12 @@ def normalize_model_prediction(
         "NEUTRAL": float(prediction.prob_neutral),
     }
     probability_sum = float(sum(probabilities.values()))
+    if probability_sum_tolerance is not None:
+        if abs(probability_sum - 1.0) > probability_sum_tolerance:
+            raise PredictionValidationError(
+                f"Previsão {index}: soma de probabilidades {probability_sum:.8f} "
+                f"fora da tolerância ITI-v2 ({probability_sum_tolerance})."
+            )
     confidence = float(
         prediction.confidence
         if prediction.confidence is not None

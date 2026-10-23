@@ -9,7 +9,7 @@ Perguntas que podem **mudar** a conclusão (não repetir fine-tune/LLM como prio
 5. **Generalização** — Copasa e Sanepar com protocolo idêntico.
 6. **Parcimônia do índice** — cada dimensão melhora métrica pré-especificada ou só graus de liberdade?
 
-**Formulação estreita atual:** pipeline funciona; ITI teve vantagem exploratória localizada sobre B3 no evento; vantagem não robusta na expansão; classificador limita interpretação substantiva.
+**Formulação estreita atual:** pipeline funciona; ITI legado (R1) sem vitórias significativas no corpus canônico; campanha **ITI-v2** (`iti_v2_prod_20261022`) não detectou associação Spearman com retorno h=1 no painel exploratório — ver [part-04 §4.7](part-04-results.md); classificador e referência humana limitam interpretação substantiva.
 
 Implementação futura (juiz, κ ampliado, out-of-sample) deve atualizar [decision-register.md](decision-register.md) e [part-03-phases.md](part-03-phases.md).
 

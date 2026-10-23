@@ -45,7 +45,18 @@ python -m modules.datasets validate --dataset water_utilities_corpus
 
 Saída interna: `LoadedDataset` com colunas canônicas (`news_id`, `text`, `date`, …).
 
-## Etapa 3 — Experimento (inferência + ITI)
+## Campanha ITI-v2 (paralela ao legado `iti_liquido`)
+
+Fluxo normativo P02–P12 (`docs/plans/iti_v2_runbook.md`):
+
+```bash
+ITI_V2_INFER_LIMIT=0 ./scripts/campaigns/iti_v2.sh run-all iti_v2_prod_YYYYMMDD
+# ou: prepare → lock-protocol → infer → indices → evaluate → report → validate
+```
+
+Saídas: `outputs/campaigns/iti_v2/{run_id}/` — `predictions.csv` (views+canônico), `iti_daily.csv`, `alignment_audit.csv`, `metrics_inference.json`, `thesis_export/`.
+
+## Etapa 3 — Experimento (inferência + ITI legado)
 
 ```bash
 # Dry-run (sem gravar outputs/)

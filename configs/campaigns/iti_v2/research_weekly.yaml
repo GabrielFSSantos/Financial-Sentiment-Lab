@@ -1,0 +1,28 @@
+# Research semanal — campanha ITI-v2 (piloto Sabesp)
+
+schema_version: "2.0"
+
+defaults:
+  horizons: [1, 2, 4]
+  index_frequency: weekly
+  iti_weekly_column: iti_v2_h7
+  companies_filter: []
+  return_column: log_return
+  return_mode: cumulative
+
+experiment_run:
+  run_id: null
+  output_root: outputs/campaigns/iti_v2
+
+market:
+  config_path: configs/market.yaml
+
+mapping:
+  company_to_ticker:
+    Sabesp: SBSP3.SA
+    sabesp: SBSP3.SA
+    Copasa: CSMG3.SA
+
+validation:
+  metrics: [spearman, pearson]
+  conclusion_metrics: [spearman]

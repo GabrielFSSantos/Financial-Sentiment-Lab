@@ -1,0 +1,46 @@
+#!/bin/bash
+#SBATCH --job-name=iti_v2
+#SBATCH --partition=sequana_gpu_dev
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=30
+#SBATCH --gres=gpu:1
+#SBATCH --mem=32G
+#SBATCH --time=00:20:00
+#SBATCH --output=job_iti_v2_%j.out
+#SBATCH --error=job_iti_v2_%j.err
+
+set -euo pipefail
+module purge
+module load cuda/12.6_sequana 2>/dev/null || true
+module load anaconda3/2024.02_sequana 2>/dev/null || true
+
+: "${ITI_PROJECT_DIR:?defina ITI_PROJECT_DIR}"
+source "${ITI_PROJECT_DIR}/venv/bin/activate"
+: "${ITI_RUN_ID:?defina ITI_RUN_ID}"
+
+cd "$ITI_PROJECT_DIR"
+export ITI_V2_INFER_LIMIT=0
+export ITI_V2_BOOTSTRAP="${ITI_V2_BOOTSTRAP:-10000}"
+
+RUN_DIR="outputs/campaigns/iti_v2/${ITI_RUN_ID}"
+mkdir -p "$RUN_DIR"
+{
+  echo "job_id=${SLURM_JOB_ID:-local}"
+  echo "host=$(hostname)"
+  echo "started_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  nvidia-smi -L 2>/dev/null || echo "nvidia-smi indisponível"
+} > "$RUN_DIR/sdumont_job_metadata.txt"
+
+# check pesado (pytest) — omitir no nó se já validado no login:
+# ./scripts/campaigns/iti_v2.sh check
+test -f outputs/corpus_inventory/iti_v2_p02/protocol_lock.json \
+  || ./scripts/campaigns/iti_v2.sh lock-protocol
+
+srun ./scripts/campaigns/iti_v2.sh infer "$ITI_RUN_ID"
+srun ./scripts/campaigns/iti_v2.sh indices "$ITI_RUN_ID"
+srun ./scripts/campaigns/iti_v2.sh evaluate "$ITI_RUN_ID"
+srun ./scripts/campaigns/iti_v2.sh report "$ITI_RUN_ID"
+./scripts/campaigns/iti_v2.sh validate "$ITI_RUN_ID" || true
+./scripts/campaigns/iti_v2.sh export-thesis "$ITI_RUN_ID"
+echo "finished_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$RUN_DIR/sdumont_job_metadata.txt"

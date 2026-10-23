@@ -1,0 +1,24 @@
+\chapter{Ambiente computacional e reprodutibilidade}
+\label{cap:ambiente}
+
+\section{Organização do software}
+
+O Financial-Sentiment-Lab separa coleta, leitura de dados, modelos, construção de índices, avaliação e visualização. A reformulação ITI-v2 preserva essa organização: os modelos fornecem predições padronizadas; o índice é calculado sem consultar retornos; a avaliação financeira incorpora o mercado posteriormente (Capítulo~\ref{cap:metodologia}).
+
+Configurações, versões e hashes acompanham cada execução (\texttt{run\_id}, manifesto). As probabilidades são reutilizadas entre meias-vidas H=2, 7 e 14, evitando repetir inferência quando apenas a transformação temporal muda.
+
+\section{Uso do Santos Dumont}
+
+O processamento com GPU está previsto para o supercomputador Santos Dumont (LNCC). A utilização do HPC é infraestrutura para inferência e medição de recursos; \textbf{não} constitui evidência da validade do índice.
+
+O job modelo \texttt{jobs/sdumont/run\_iti\_v2.srm} solicita um nó, uma GPU, 30 CPUs e 32\,GiB de RAM (partição de desenvolvimento). A configuração efetiva da nova campanha ITI-v2 será registrada no manifesto e em \texttt{sacct} após a primeira execução bem-sucedida.
+
+\section{Medição de desempenho}
+
+O monitoramento distingue carregamento do modelo, preparação textual, inferência, agregação e escrita. Tempos de fila não integram o tempo de inferência. Comparações CPU--GPU exigem a mesma carga e precisão declaradas.
+
+\section{Benefícios e limitações}
+
+O HPC permite lotes maiores e comparações com registro do ambiente; o cache de predições reduz o custo de sensibilidades temporais. Limitações incluem fila, tempo máximo de job, memória e possíveis diferenças numéricas entre dispositivos. O desempenho computacional será discutido separadamente da qualidade textual e da evidência financeira (Capítulo~\ref{cap:resultados}).
+
+\textit{Nota pré-execução:} tabelas de recursos solicitados, alocados e observados serão preenchidas a partir dos manifestos da campanha \texttt{iti\_v2}, sem números simulados nesta versão do manuscrito.

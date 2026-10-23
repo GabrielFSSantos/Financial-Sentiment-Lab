@@ -143,6 +143,32 @@ Reprodutibilidade & \texttt{run\_id}, ambiente (local/HPC), hash de código e to
 
 Rótulos como R1 podem referir-se a corpora distintos; comparar estatísticas exige recuperar a execução completa, não apenas o nome da configuração.
 
+\chapter{Especificação matemática ITI-v2 e verificações}
+\label{ap:iti-v2-math}
+
+Esta seção resume a formulação normativa implementada em \texttt{modules/experiment/indexing/iti\_v2.py}. O legado (\texttt{legacy\_v1}) permanece documentado no histórico da pesquisa.
+
+\section{Escore e agregação}
+
+\[
+s_{i,c}=p^+_{i,c}-p^-_{i,c},\qquad
+S_{c,d}=\frac{1}{n_{c,d}}\sum_i s_{i,c},\qquad
+X_{c,d}=\begin{cases}S_{c,d},&n_{c,d}>0\\0,&n_{c,d}=0.\end{cases}
+\]
+
+\section{Memória por meia-vida}
+
+\[
+\lambda_H=2^{-1/H},\qquad
+ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}.
+\]
+
+Valores de referência: $\lambda_2\approx 0{,}7071$; $\lambda_7\approx 0{,}9057$; $\lambda_{14}\approx 0{,}9517$. Aquecimento: 70 dias civis antes da primeira semana avaliada.
+
+\section{Verificações automatizadas}
+
+Os testes \texttt{tests/test\_iti\_v2.py} cobrem impulso único, decaimento em dias sem notícia, validação de probabilidades e média soft em documentos mistos.
+
 \iffalse
 % [ENXUGAMENTO 2026-10-22] Prosa longa repetindo Seção 4.10 e resultados temporais.
 A identificação dos resultados por configuração é indispensável porque rótulos como R1 podem ter sido utilizados em contextos e versões de corpus diferentes. ...

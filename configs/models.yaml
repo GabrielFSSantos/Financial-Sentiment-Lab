@@ -30,6 +30,9 @@ models:
       provider: huggingface_hub
       repo_id: lucas-leme/FinBERT-PT-BR
       revision: main
+      # SHA local dos pesos (reprodutibilidade ITI-v2; atualizar se o snapshot mudar)
+      weights_sha256: 123352c03b252152acc9d71e6678aad015d9cd5200e4c4abc5f5cc20a48c6866
+      config_sha256: 56a9ee94e915266b8fe6cd84911352b6d9c92b54a0ea7e4975ba89055ccc8290
       local_dir: model_store/FinBERT-PT-BR
     files:
       required:

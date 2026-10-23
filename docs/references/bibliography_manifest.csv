@@ -1,0 +1,5 @@
+cite_key,title,year,primary_url,pdf_path,sha256,status,access_date,notes
+hiew2019bsi,BERT-based Financial Sentiment Index,2019,https://arxiv.org/abs/1906.09024v2,,,pending,2026-10-22,
+cortis2017semeval5,SemEval-2017 Task 5,2017,https://aclanthology.org/S17-2089/,,,pending,2026-10-22,
+tang2023finentity,FinEntity EMNLP 2023,2023,https://aclanthology.org/2023.emnlp-main.956/,,,pending,2026-10-22,
+shapiro2022fed,Measuring News Sentiment,2022,https://doi.org/10.1016/j.jeconom.2020.07.053,,,pending,2026-10-22,DOI corrigido no .bib

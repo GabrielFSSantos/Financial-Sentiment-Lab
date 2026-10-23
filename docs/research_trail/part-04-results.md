@@ -123,12 +123,28 @@ F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
 
 ## 4.6 Conclusão operacional
 
-1. **Exploratório e condicionado ao κ:** fechar narrativa com evento + R1 (41,7%, 2 sig.) como resultado principal exploratório.
-2. Citar expandido como robustez/limitação (33,3%, 0 sig.).
-3. **Não** investir em fine-tune/LoRA neste ciclo.
-4. Marcos 4–5 (FNSPID / FinMarBa) opcionais.
+1. **Resultado principal (corpus canônico, out./2026):** R1 sobre `articles_strict_sabesp.csv` — **6/24** confrontos favoráveis, **0** significativos no bootstrap (alinhado PC + job Slurm 11621573). Esta é a linha a citar na qualificação e na dissertação para o protocolo atual.
+2. **Legado exploratório (ago./2024, `saneamento_corpus/`):** 10/24 e **duas** diferenças nominais significativas — **não** replicado no corpus canônico; tratar como histórico com multiplicidade e corpus distinto (`historical_reconciliation.csv`).
+3. Janela ampliada / sanity 1.254: citar apenas como sensibilidade (ex.: 8/24, 33,3%, 0 sig. quando aplicável), nunca como substituto do canônico.
+4. **Não** investir em fine-tune/LoRA neste ciclo sem referência humana independente.
+5. Campanha ITI-v2 executada localmente (out./2026) — ver [§4.7](#47-campanha-iti-v2-out2026); legado R1 permanece linha histórica §4.2.
 
-## 4.7 Redação da tese
+## 4.7 Campanha ITI-v2 (out./2026)
+
+> **Modo:** exploratório (`protocol_lock.json`). **Não** substitui duelos R1 legados nem confirma hipótese. Inferência com `entity_context_v1` sobre corpus canônico P02 (`articles_canonical.csv`, 1 253 artigos).
+
+| Item | Valor |
+|------|--------|
+| `run_id` | `iti_v2_prod_20261022` |
+| Predições OK | 1 253 (`inference_manifest.json`) |
+| Sinal principal | `iti_v2_h7` (meia-vida 7 d) |
+| Painel alinhado (h=1) | n=92 semanas · Spearman ρ ≈ −0,043 · p≈0,69 · bootstrap 10 000 · IC95% [−0,22; 0,16] |
+| Holdout (12 sem. calendário, notícias) | 199 artigos reservados · métrica semanal holdout n=12 · ρ ≈ −0,17 · p ≈ 0,60 |
+| Artefatos | `outputs/campaigns/iti_v2/iti_v2_prod_20261022/` · `thesis_export/` |
+
+Reprodução: `docs/plans/iti_v2_runbook.md` · aceite: `./scripts/campaigns/iti_v2.sh validate iti_v2_prod_20261022`. Números finais de bootstrap: `metrics_primary.json` (atualizar após `ITI_V2_BOOTSTRAP=10000`).
+
+## 4.8 Redação da tese
 
 **Figuras sugeridas** (extrair de `outputs/`):
 
@@ -138,7 +154,7 @@ F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
 
 **Bibliografia sugerida:** ver [Apêndice E](#apêndice-e--bibliografia-comentada).
 
-## 4.8 Como reproduzir (dev)
+## 4.9 Como reproduzir (dev)
 
 Pré-requisitos: `./scripts/setup_env.sh --fetch-assets`, `./scripts/audit_project.sh` verde.
 
@@ -148,6 +164,7 @@ Pré-requisitos: `./scripts/setup_env.sh --fetch-assets`, `./scripts/audit_proje
 | Research semanal | Após experiment: `./scripts/run_research.sh` com `run_id` da campanha |
 | Manifest / relatórios | `outputs/campaigns/sabesp_2026/`, Marco 2 em `sabesp_marco2/` |
 | κ manual | `./scripts/campaigns/classifier_eval_pt.sh` |
+| Campanha ITI-v2 | `./scripts/campaigns/iti_v2.sh run-all <run_id>` (ver runbook) |
 
 YAML: `configs/campaigns/sabesp_2026/research_weekly.yaml`, experiments em `configs/campaigns/sabesp_2026/experiments/`. Fluxo detalhado: [11_end_to_end_flow.md](../documentation/11_end_to_end_flow.md).
 

@@ -44,4 +44,15 @@ python -m modules.evaluation classifier-pt run
 python -m modules.evaluation llm-judge-pilot --limit 10 --mock   # opcional
 ```
 
+### ITI-v2 (pacote cego, P06)
+
+```bash
+./scripts/campaigns/iti_v2.sh export-annotation-blind
+python -m modules.evaluation.manual_labels import-blind \
+  --responses <planilha.csv> --manual data/water_utilities_corpus/manual_labels_100.csv \
+  --output data/water_utilities_corpus/manual_labels_import.csv
+```
+
+Saída padrão: `outputs/campaigns/iti_v2/annotation_blind_pack/`.
+
 Narrativa: [part-04 §4.4](../research_trail/part-04-results.md) · DRs: [decision-register.md](../research_trail/decision-register.md). **Créditos por nome:** [CONTRIBUTORS.md](../../CONTRIBUTORS.md) e manuscrito em `docs/Dissertacao_PPGCC/` (agradecimentos e apêndice de anotação).

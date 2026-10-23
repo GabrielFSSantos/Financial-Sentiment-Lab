@@ -295,6 +295,88 @@ def export_annotation_worksheet(
     return frame
 
 
+def export_blind_annotation_pack(
+    manual_path: Path,
+    corpus_path: Path,
+    output_dir: Path,
+    *,
+    protocol_version: str = "iti_v2_blind_1",
+    subset_news_ids_path: Path | None = None,
+) -> dict[str, Path]:
+    """Exporta planilha cega + manifesto; sem rótulos de referência automática."""
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    worksheet = output_dir / "annotation_blind.csv"
+    frame = export_annotation_worksheet(
+        manual_path,
+        corpus_path,
+        worksheet,
+        subset_news_ids_path=subset_news_ids_path,
+        blind_for_new_expert=True,
+    )
+    manifest_path = output_dir / "blind_pack_manifest.json"
+    import json
+
+    manifest = {
+        "protocol_version": protocol_version,
+        "n_items": int(len(frame)),
+        "manual_source": str(manual_path),
+        "corpus_source": str(corpus_path),
+        "worksheet": str(worksheet),
+        "note": "Respostas individuais preservadas na importação; juízes automáticos não são humanos.",
+    }
+    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    return {"worksheet": worksheet, "manifest": manifest_path}
+
+
+def import_blind_responses(
+    responses_path: Path,
+    manual_path: Path,
+    output_path: Path,
+    *,
+    annotator_column: str = "impacto_alvo_2",
+    annotator_name_column: str = "anotador_2",
+) -> pd.DataFrame:
+    """Mescla respostas cegas validadas de volta à amostra formal."""
+
+    responses = pd.read_csv(responses_path)
+    id_col = "news_id" if "news_id" in responses.columns else "id_noticia"
+    if id_col not in responses.columns:
+        raise ValueError("Respostas cegas precisam de news_id ou id_noticia.")
+
+    label_col = annotator_column
+    pt_map = {v: k for k, v in WORKSHEET_HEADERS_PT.items()}
+    if label_col not in responses.columns and label_col in pt_map.values():
+        inv = {pt: en for en, pt in WORKSHEET_HEADERS_PT.items()}
+        for col in responses.columns:
+            if col in inv and inv[col] == label_col:
+                responses = responses.rename(columns={col: label_col})
+                break
+
+    if label_col not in responses.columns:
+        raise ValueError(f"Coluna de impacto ausente: {label_col}")
+
+    manual = pd.read_csv(manual_path)
+    if "news_id" not in manual.columns:
+        raise ValueError("Amostra manual precisa de news_id.")
+
+    merged = manual.merge(
+        responses[[id_col, label_col] + ([annotator_name_column] if annotator_name_column in responses.columns else [])],
+        left_on="news_id",
+        right_on=id_col,
+        how="left",
+        suffixes=("", "_import"),
+    )
+    if annotator_name_column in responses.columns:
+        merged[annotator_name_column] = merged[annotator_name_column + "_import"].fillna(
+            merged.get(annotator_name_column, "")
+        )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    merged.to_csv(output_path, index=False)
+    return merged
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Rótulos manuais vs FinBERT")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -324,6 +406,16 @@ def build_parser() -> argparse.ArgumentParser:
         default=str(PROJECT_ROOT / "outputs/campaigns/sabesp_2026/manual_label_report.md"),
     )
 
+    blind = sub.add_parser("export-blind", help="Pacote de anotação cega (P06)")
+    blind.add_argument("--manual", type=Path, required=True)
+    blind.add_argument("--corpus", type=Path, required=True)
+    blind.add_argument("--output-dir", type=Path, required=True)
+
+    imp = sub.add_parser("import-blind", help="Importa respostas cegas validadas")
+    imp.add_argument("--responses", type=Path, required=True)
+    imp.add_argument("--manual", type=Path, required=True)
+    imp.add_argument("--output", type=Path, required=True)
+
     return parser
 
 
@@ -352,6 +444,21 @@ def main(argv: list[str] | None = None) -> int:
             f"kappa: {metrics['cohen_kappa']:.3f} "
             f"({metrics['n_labeled']} rotulados)"
         )
+        return 0
+
+    if args.command == "export-blind":
+        paths = export_blind_annotation_pack(
+            args.manual,
+            args.corpus,
+            args.output_dir,
+        )
+        for name, path in paths.items():
+            print(f"{name}: {path}")
+        return 0
+
+    if args.command == "import-blind":
+        import_blind_responses(args.responses, args.manual, args.output)
+        print(f"Mesclado em {args.output}")
         return 0
 
     return 1

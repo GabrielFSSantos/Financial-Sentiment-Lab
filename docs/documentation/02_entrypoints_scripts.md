@@ -54,6 +54,7 @@ Ver [`scripts/campaigns/README.md`](../../scripts/campaigns/README.md) e [`confi
 
 | Script | Função |
 | --- | --- |
+| `scripts/campaigns/iti_v2.sh` | Campanha ITI-v2: `prepare` → `lock-protocol` → `infer` → `indices` → `evaluate` → `report` → `validate`; `run-all` encadeia tudo; `ITI_V2_INFER_LIMIT=0` para corpus completo |
 | `scripts/campaigns/sabesp_2026.sh` | Campanha Sabesp R0–R9 (Marco 1) |
 | `scripts/campaigns/sabesp_marco2.sh` | Marco 2 — janela expandida (`replay-event`, `analyze-periods`) |
 | `scripts/campaigns/classifier_eval_en.sh` | Trilha B — PhraseBank/NOSIBLE |

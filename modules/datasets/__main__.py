@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 
 from modules.datasets import PROJECT_ROOT
@@ -66,6 +67,44 @@ def _build_parser() -> argparse.ArgumentParser:
         default="configs/datasets.yaml",
         help="Caminho para configs/datasets.yaml.",
     )
+
+    inventory_parser = subparsers.add_parser(
+        "inventory",
+        help="Gera corpus_manifest.json para um CSV de notícias (P02).",
+    )
+    inventory_parser.add_argument(
+        "csv_path",
+        help="Caminho do corpus CSV (ex.: data/water_utilities_corpus/articles_strict_sabesp.csv).",
+    )
+    inventory_parser.add_argument(
+        "--output-dir",
+        default="outputs/corpus_inventory",
+        help="Diretório de saída do manifesto.",
+    )
+
+    prepare_parser = subparsers.add_parser(
+        "prepare-corpus",
+        help="Pipeline P02 completo (manifesto, dedup, cobertura, splits).",
+    )
+    prepare_parser.add_argument(
+        "csv_path",
+        help="Corpus CSV de entrada (somente leitura).",
+    )
+    prepare_parser.add_argument(
+        "--output-dir",
+        default="outputs/corpus_inventory/iti_v2_p02",
+        help="Diretório de artefatos P02.",
+    )
+
+    holdout_parser = subparsers.add_parser(
+        "select-holdout",
+        help="Seleciona holdout temporal (sem retornos).",
+    )
+    holdout_parser.add_argument(
+        "--corpus-dir",
+        default="outputs/corpus_inventory/iti_v2_p02",
+    )
+    holdout_parser.add_argument("--holdout-weeks", type=int, default=12)
 
     return parser
 
@@ -160,6 +199,65 @@ def _cmd_validate(args: argparse.Namespace) -> int:
     return exit_code
 
 
+def _cmd_inventory(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from modules.datasets.corpus_inventory import build_corpus_manifest, write_inventory
+
+    csv_path = Path(args.csv_path)
+    if not csv_path.is_absolute():
+        csv_path = PROJECT_ROOT / csv_path
+    try:
+        manifest = build_corpus_manifest(csv_path)
+        out = write_inventory(PROJECT_ROOT / args.output_dir, manifest)
+        print(f"Manifesto escrito em {out}")
+        return 0
+    except Exception as error:
+        print(error, file=sys.stderr)
+        return 1
+
+
+def _cmd_prepare_corpus(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from modules.datasets.corpus_prepare import run_p02_prepare
+
+    csv_path = Path(args.csv_path)
+    if not csv_path.is_absolute():
+        csv_path = PROJECT_ROOT / csv_path
+    out_dir = PROJECT_ROOT / args.output_dir
+    try:
+        paths = run_p02_prepare(csv_path, out_dir)
+        for name, path in paths.items():
+            print(f"{name}: {path}")
+        return 0
+    except Exception as error:
+        print(error, file=sys.stderr)
+        return 1
+
+
+def _cmd_select_holdout(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from modules.datasets.holdout_selection import select_calendar_holdout
+
+    corpus_dir = Path(args.corpus_dir)
+    if not corpus_dir.is_absolute():
+        corpus_dir = PROJECT_ROOT / corpus_dir
+    canonical = corpus_dir / "articles_canonical.csv"
+    try:
+        split = select_calendar_holdout(
+            canonical,
+            corpus_dir,
+            holdout_weeks=args.holdout_weeks,
+        )
+        print(json.dumps(split["external_holdout"], indent=2, ensure_ascii=False))
+        return 0
+    except Exception as error:
+        print(error, file=sys.stderr)
+        return 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(argv)
@@ -170,6 +268,12 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_check(args)
     if args.command == "validate":
         return _cmd_validate(args)
+    if args.command == "inventory":
+        return _cmd_inventory(args)
+    if args.command == "prepare-corpus":
+        return _cmd_prepare_corpus(args)
+    if args.command == "select-holdout":
+        return _cmd_select_holdout(args)
 
     parser.error(f"Comando desconhecido: {args.command}")
     return 1

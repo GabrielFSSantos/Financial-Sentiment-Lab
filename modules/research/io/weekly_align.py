@@ -9,6 +9,10 @@ from modules.experiment.indexing.baselines import resample_baselines_weekly
 from modules.research.config.loader import ResearchConfiguration
 from modules.research.io.experiment import IndexCombination
 from modules.research.validation.baselines import add_b3_column
+from modules.research.io.market_weekly_returns import (
+    attach_future_weekly_log_returns,
+    weekly_log_returns_from_prices,
+)
 
 
 def _week_end_key(series: pd.Series) -> pd.Series:
@@ -165,16 +169,44 @@ def align_weekly_combination(
     )
     panel = panel.dropna(subset=["ticker"])
 
-    weekly_market = _weekly_market_returns(
-        market_prices,
-        return_column=configuration.return_column,
-    )
-    merged = panel.merge(
-        weekly_market,
-        left_on=["date", "ticker"],
-        right_on=["period_end", "ticker"],
-        how="inner",
-    )
+    if configuration.return_column == "log_return":
+        price_col = "adj_close" if "adj_close" in market_prices.columns else "close"
+        weekly_market = weekly_log_returns_from_prices(
+            market_prices,
+            price_col=price_col,
+        )
+        weekly_market = attach_future_weekly_log_returns(
+            weekly_market,
+            horizons=configuration.horizons,
+            return_col="log_return_week",
+        )
+        merged = panel.merge(
+            weekly_market,
+            left_on=["date", "ticker"],
+            right_on=["period_end", "ticker"],
+            how="inner",
+        )
+        for horizon in configuration.horizons:
+            src = f"future_log_return_week_{horizon}"
+            dst = f"future_log_return_{horizon}"
+            if src in merged.columns:
+                merged[dst] = merged[src]
+    else:
+        weekly_market = _weekly_market_returns(
+            market_prices,
+            return_column=configuration.return_column,
+        )
+        weekly_market = attach_future_weekly_log_returns(
+            weekly_market.rename(columns={configuration.return_column: "ret_week"}),
+            horizons=configuration.horizons,
+            return_col="ret_week",
+        )
+        merged = panel.merge(
+            weekly_market,
+            left_on=["date", "ticker"],
+            right_on=["period_end", "ticker"],
+            how="inner",
+        )
 
     if merged.empty:
         raise ValueError("Nenhum overlap semanal date+ticker")
@@ -184,12 +216,6 @@ def align_weekly_combination(
             merged["period_end"] = merged["period_end_y"]
         else:
             merged["period_end"] = merged["date"]
-
-    merged = _add_future_weekly_returns(
-        merged,
-        return_column=configuration.return_column,
-        horizons=configuration.horizons,
-    )
     merged["model_key"] = combination.model_key
     merged["dataset_key"] = combination.dataset_key
 

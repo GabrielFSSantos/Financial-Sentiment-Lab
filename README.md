@@ -15,7 +15,7 @@ A pesquisa parte de notícias (datasets versionados ou coletados por scraper), a
 
 ## Entendendo a pesquisa
 
-A hipótese central é que o sentimento agregado em notícias sobre uma empresa, transformado em um índice com memória no tempo (ITI — *Information Trend Index*), pode se associar ao movimento futuro da ação melhor do que alternativas simples feitas com as mesmas notícias.
+A hipótese central é que o sentimento agregado em notícias sobre uma empresa, transformado em um índice com memória no tempo (ITI — *Informational Temporal Index*; em português, Índice Temporal Informacional), pode se associar ao movimento futuro da ação melhor do que alternativas simples feitas com as mesmas notícias. A implementação **ITI-v2** (meia-vida em dias civis, contexto focal) convive com o legado **legacy_v1** (EWMA heurístico); ver [`docs/plans/iti_v2_progress.md`](docs/plans/iti_v2_progress.md).
 
 O fluxo usa três fontes de dado distintas. As **notícias** vêm do nosso scraper ou de datasets versionados. O **sentimento** é inferido por modelos FinBERT (probabilidades por notícia). Os **preços** da B3 são baixados da internet (yfinance) e salvos em `data/market/prices.csv`. O ITI e os baselines B0–B3 são calculados apenas a partir das notícias; o mercado entra como **alvo** — medimos se o índice da semana correlaciona com o retorno futuro da ação (ex.: SBSP3).
 

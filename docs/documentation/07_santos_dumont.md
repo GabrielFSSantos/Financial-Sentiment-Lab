@@ -103,6 +103,38 @@ Anote o número retornado (`Submitted batch job 12345678`).
 squeue -u "$USER"
 ```
 
+### 7.6.1 Campanha ITI-v2 (P12)
+
+Replica opcional da pipeline ITI-v2 no GPU (inferência FinBERT + índices + avaliação). Runbook: `docs/plans/iti_v2_runbook.md`.
+
+**No PC (antes do push / VPN):**
+
+```bash
+cd ~/GitHub/Financial-Sentiment-Lab
+./scripts/campaigns/iti_v2.sh gate-local
+```
+
+**No login SDumont** (após §7.3–7.4; corpus P02 e `protocol_lock.json` devem existir — rode `prepare`, `select-holdout 12`, `lock-protocol` se ainda não estiverem no scratch):
+
+```bash
+cd "$SCRATCH/financial-sentiment-lab"
+source venv/bin/activate
+export ITI_PROJECT_DIR="$SCRATCH/financial-sentiment-lab"
+export ITI_RUN_ID="iti_v2_sdumont_$(date +%Y%m%d)"
+export ITI_V2_INFER_LIMIT=0
+export ITI_V2_BOOTSTRAP=10000
+./scripts/campaigns/iti_v2.sh sdumont-preflight
+sbatch jobs/sdumont/run_iti_v2.srm
+```
+
+| O quê | Onde |
+| --- | --- |
+| Saída Slurm | `job_iti_v2_<JOBID>.out` / `.err` |
+| Run da campanha | `outputs/campaigns/iti_v2/<ITI_RUN_ID>/` |
+| Metadados GPU | `sdumont_job_metadata.txt` no mesmo diretório |
+
+Baixar no PC: `outputs/campaigns/iti_v2/<ITI_RUN_ID>/` (inclui `thesis_export/` se o job terminou com sucesso).
+
 ### 7.7 Acompanhar logs
 
 | O quê | Onde |

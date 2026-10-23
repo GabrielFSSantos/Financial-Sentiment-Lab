@@ -1,0 +1,15 @@
+# Especificação estatística ITI-v2 (P05). Campos desconhecidos devem falhar no loader.
+schema_version: iti_v2_analysis_1
+primary_metric: spearman
+primary_horizon_weeks: 1
+horizons_weeks: [1, 2, 4]
+bootstrap_replicates: 10000
+block_length_weeks: 4
+block_sensitivity_weeks: [2, 8]
+seed: 20261022
+alpha: 0.05
+secondary_correction: holm
+week_anchor: W-FRI
+returns_before_join: true
+constant_series_policy: undefined_with_reason
+nan_as_zero_financial: forbidden

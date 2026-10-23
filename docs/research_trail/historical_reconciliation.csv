@@ -1,0 +1,10 @@
+origin,commit_or_run,corpus,protocol,metric,value,status,notes
+canonical_quali_2026-10,local+sdumont_11621573,articles_strict_sabesp.csv,R1 alpha070,win_rate,6/24,verified,rodada canônica out/2026
+canonical_quali_2026-10,local+sdumont_11621573,articles_strict_sabesp.csv,R1 alpha070,significant_bootstrap,0,verified,
+legacy_marco1_2024,sabesp_r1_alpha070,noticias_strict_sabesp.csv,R1 histórico,win_rate,10/24,verified,exploratório legado
+legacy_marco1_2024,sabesp_r1_alpha070,noticias_strict_sabesp.csv,R1 histórico,significant_bootstrap,2,verified,nominais B3 h=4w
+text_eval_exploratory,,manual_labels_100_exploratorio,simplified,accuracy,48%,verified,não comparar com rodada Sabesp
+text_eval_formal,,manual_labels_100,impacto_alvo 2026-10-07,accuracy,50%,verified,autor único não é gold especialista
+text_eval_formal,,manual_labels_100,impacto_alvo 2026-10-07,kappa,0.197,verified,
+text_eval_formal,,manual_labels_100,impacto_alvo 2026-10-07,f1_macro,0.45,verified,
+majority_baseline,,manual_labels_100,impacto_alvo 2026-10-07,accuracy_neutral_only,67%,derived,interpretação 50% vs trivial

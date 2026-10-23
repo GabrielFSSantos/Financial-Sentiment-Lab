@@ -4,11 +4,19 @@
 
 Com os conceitos da [§1.5](#15-conceitos-em-linguagem-acessível) em mente, esta seção formaliza o cálculo implementado no código.
 
-Implementação: `modules/experiment/indexing/temporal_index.py`  
-Dimensões: `modules/experiment/indexing/dimensions.py`  
-Parâmetros: `configs/experiment.yaml` → `temporal_index`
+Implementação legado (**legacy_v1**): `modules/experiment/indexing/temporal_index.py`  
+Implementação **ITI-v2**: `modules/experiment/indexing/iti_v2.py`  
+Dimensões (somente v1): `modules/experiment/indexing/dimensions.py`  
+Parâmetros: `configs/experiment.yaml` → `temporal_index` · campanha v2: `configs/campaigns/iti_v2/protocol.yaml`
 
-### 4.1 Variáveis por notícia
+### 4.0 ITI-v2 (normativo)
+
+- Escore por documento: \(s = p^+ - p^-\) com probabilidades canônicas validadas (tolerância \(10^{-5}\) na soma).
+- Agregação diária: \(S_{c,d}\) = média de \(s\) nos `news_id` únicos do dia; dias sem notícia → `soft_mean` nulo; entrada da recorrência \(X_{c,d}=S_{c,d}\) ou \(0\) se \(n_{c,d}=0\).
+- Memória: \(\lambda_H = 2^{-1/H}\), \(ITI^{(H)}_{c,d} = \lambda_H ITI^{(H)}_{c,d-1} + (1-\lambda_H) X_{c,d}\); **H=7** principal; aquecimento 70 dias civis.
+- Sem pesos \(m,r,e,c,u,q\) na fórmula principal; deduplicação e contexto focal são etapas anteriores (`text_views.py`).
+
+### 4.1 Variáveis por notícia (legacy_v1)
 
 | Símbolo | Nome | Descrição |
 | --- | --- | --- |
