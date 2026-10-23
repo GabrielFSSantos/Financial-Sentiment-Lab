@@ -1,14 +1,12 @@
 \chapter{Resultados preliminares e discussão}
 \label{cap:resultados}
-% Migração estrutura 7 capítulos (ITI-v2): conteúdo legado pré-campanha v2; seção 6.2+ do plano mestre após execução.
+% Migração estrutura 7 capítulos: núcleo ITI out./2026.
 
-Os resultados desta qualificação são apresentados em duas frentes. A primeira verifica o funcionamento do procedimento e a adequação das classificações textuais à tarefa orientada à Sabesp. A segunda examina a associação exploratória do ITI com retornos futuros, considerando configurações e versões distintas do corpus. As duas frentes devem ser interpretadas em conjunto: uma série temporal pode ser calculada corretamente e, ainda assim, carregar erros de classificação; da mesma forma, uma associação observada com retornos não comprova que os rótulos textuais representam o fenômeno pretendido.
+Os resultados desta qualificação organizam-se em duas frentes complementares. A primeira examina a adequação do classificador à tarefa orientada à Sabesp. A segunda concentra-se na avaliação temporal do \textbf{ITI} em outubro de 2026, único bloco temporal adotado como núcleo quantitativo desta versão. Uma série pode ser calculada de forma consistente e, ainda assim, refletir erros de classificação; uma correlação com retornos não valida, por si só, o construto textual.
 
-\section{Implementação e evolução do protocolo}
+\section{Implementação do pipeline do ITI}
 
-O pipeline foi executado para o estudo de caso da Sabesp, abrangendo preparação de notícias, inferência do classificador, cálculo de escores, agregação diária, atualização do ITI e avaliação com retornos futuros da ação. A execução demonstra que os módulos foram integrados e produziram saídas para análise. O código e as configurações de campanha permitem distinguir a inferência textual do cálculo do índice e da etapa financeira.
-
-O protocolo semanal (\texttt{W-FRI}) e os baselines B0--B3 foram fixados como unidade de comparação (Capítulo~\ref{cap:metodologia}). Na rodada canônica (out./2026), R1 foi replicada em ambiente local e no Santos Dumont (job \texttt{11621573}), com o mesmo resultado nominal: 6/24 confrontos favoráveis, nenhum significativo.
+O fluxo executado para a Sabesp abrange preparação do corpus, inferência do FinBERT-PT-BR na view focal \texttt{entity\_context\_v1}, agregação diária, memória por meia-vida em dias civis, amostragem semanal no cutoff conservador e junção com retornos de SBSP3 antes de contrastes pré-registrados (Capítulos~\ref{cap:metodologia} e~\ref{sec:formulacao-iti}). A separação entre inferência textual, construção do índice e etapa financeira é mantida por configuração versionada e manifesto de execução.
 
 \iffalse
 % [ENXUGAMENTO 2026-10-22] Histórico de evolução do protocolo — reativar se a banca pedir narrativa cronológica.
@@ -87,6 +85,24 @@ O principal aprendizado da avaliação textual não é apenas que o classificado
 
 Outro aprendizado é a importância de uma referência humana independente. Os rótulos do autor foram úteis para inspecionar o pipeline e levantar hipóteses de erro. Contudo, enquanto não houver concordância entre avaliadores externos e uma referência consolidada, os indicadores de desempenho devem ser tratados como resultados preliminares em relação ao critério adotado pelo próprio pesquisador.
 
+\section{Avaliação temporal do ITI e associação com retornos}
+
+\IfFileExists{generated/results_macros.tex}{\input{generated/results_macros.tex}}{}
+
+Em outubro de 2026 foi concluída a execução exploratória da avaliação temporal do ITI, com 1.253 notícias com probabilidades válidas na view primária. Uma auditoria de conformidade identificou divergências entre o protocolo normativo e versões anteriores do código (grade diária, retorno entre fechamentos semanais adjacentes, cutoff e $p$-valor bootstrap). Após correção e reprocessamento sobre as \emph{mesmas} predições, os estimadores abaixo substituem registros antigos (por exemplo, painel com $n=92$ semanas e $\Delta=-0{,}127$), que não devem ser interpretados como réplica do protocolo atual.
+
+O contraste principal $\Delta=\rho_{Spearman}(ITI^{(7)},R^{(1)})-\rho_{Spearman}(Soft,R^{(1)})$ apresenta sinal pontual ligeiramente desfavorável ao candidato com memória: $\rho_{ITI\text{-}H7}$ e $\rho_{Soft}$ são ambos negativos e próximos. O intervalo de confiança do $\Delta$ cruza zero; não há base para afirmar superioridade estatística do ITI-H7. A família secundária (oito contrastes, Holm) permanece exploratória e nenhum intervalo apresentado exclui zero de forma interpretável como confirmação.
+
+\input{generated/iti_v2_results_snippet.tex}
+\IfFileExists{generated/tables/iti_v2_table_secondary.tex}{%
+\input{generated/tables/iti_v2_table_secondary.tex}
+}{}
+\IfFileExists{generated/iti_v2_figures_snippet.tex}{%
+\input{generated/iti_v2_figures_snippet.tex}
+}{}
+
+\iffalse
+% [MIGRAÇÃO 2026-10-23] Campanhas legadas R0/R1 e tabelas históricas — preservadas no repositório, fora da narrativa principal.
 \section{Associação temporal e sensibilidade dos resultados}
 
 \subsection{Configurações R0 e R1 na janela principal}
@@ -145,6 +161,7 @@ A divergência entre execuções representa um resultado metodológico relevante
 \subsection{Limites da interpretação financeira}
 
 Os resultados temporais dependem da qualidade do sinal textual, do alinhamento semanal (Capítulo~\ref{cap:metodologia}) e do critério de delta \textbf{assinado}; correlações aparentes não substituem validação de construto nem implicam causalidade.
+\fi
 
 \iffalse
 % [ENXUGAMENTO 2026-10-22] Repetição das ameaças já tratadas na metodologia e na Tabela~\ref{tab:ameacas}.
@@ -154,15 +171,6 @@ A avaliação também depende das regras de alinhamento. A construção dos reto
 
 Por fim, a diferença assinada de correlação empregada no código não deve ser confundida com diferença de magnitude absoluta. Uma correlação numericamente maior pode ter menor valor absoluto, dependendo dos sinais. Portanto, a expressão *confronto favorável* descreve estritamente o critério da implementação histórica. Para responder a uma hipótese sobre força de associação sem direção pré-definida, será necessário registrar outra estatística e tratá-la como novo experimento, sem modificar retroativamente os números anteriores.
 \fi
-
-\IfFileExists{generated/results_macros.tex}{\input{generated/results_macros.tex}}{}
-\input{generated/iti_v2_results_snippet.tex}
-\IfFileExists{generated/tables/iti_v2_table_secondary.tex}{%
-\input{generated/tables/iti_v2_table_secondary.tex}
-}{}
-\IfFileExists{generated/iti_v2_figures_snippet.tex}{%
-\input{generated/iti_v2_figures_snippet.tex}
-}{}
 
 \section{Discussão integrada e ameaças à validade}
 
@@ -177,8 +185,8 @@ As limitações observadas podem ser organizadas de acordo com a interpretação
 Dimensão & Evidência observada & Encaminhamento necessário \\
 \hline
 Validade de construto & Baixa concordância modelo--autor; 35 das 67 neutras com polaridade incorreta & Referência humana independente e diagnóstico de erro \\
-Validade interna & Junção interna semanal; horário de publicação nem sempre conhecido & Auditoria do calendário e regras de disponibilidade \\
-Validade estatística & 24 confrontos dependentes; amostra semanal curta; bootstrap exploratório & Teste principal pré-especificado e multiplicidade \\
+Validade interna & Horário de publicação nem sempre conhecido; reexecução out./2026 corrigiu grade diária, retornos e cutoff & Manter auditoria de calendário e política conservadora de disponibilidade \\
+Validade estatística & Painel semanal amplo ($n\approx 204$ no contraste principal); oito contrastes secundários com Holm; $\Delta$ inconclusivo & Manter protocolo pré-registrado; não reinterpretar $p=1{,}0$ como equivalência \\
 Validade externa & Uma empresa e cobertura desigual & Extensão condicionada à qualidade dos dados \\
 Reprodutibilidade & Versões distintas do corpus; manifestos incompletos & \texttt{run\_id}, dados e artefatos por execução \\
 \hline
@@ -187,7 +195,7 @@ Reprodutibilidade & Versões distintas do corpus; manifestos incompletos & \text
 {\footnotesize Fonte: elaboração própria a partir das etapas experimentais apresentadas.}
 \end{table}
 
-Em síntese: o pipeline é operacional; o sinal textual exige referência humana e diagnóstico de erros; o corpus e o calendário condicionam os duelos temporais; e a hipótese de superioridade \textbf{não} foi confirmada na rodada canônica. A Tabela~\ref{tab:ameacas} organiza ameaças e encaminhamentos; o plano de continuidade está no Capítulo~\ref{cap:consideracoes}.
+Em síntese: o pipeline do ITI é operacional e auditável; o sinal textual exige referência humana independente; a campanha de outubro de 2026, após conformidade de implementação, \textbf{não} confirma superioridade do ITI-H7 sobre Soft. A Tabela~\ref{tab:ameacas} organiza ameaças e encaminhamentos; o plano de continuidade está no Capítulo~\ref{cap:consideracoes}.
 
 \iffalse
 % [ENXUGAMENTO 2026-10-22] Seção ``Contribuições'' fundida com ameaças; texto longo abaixo.

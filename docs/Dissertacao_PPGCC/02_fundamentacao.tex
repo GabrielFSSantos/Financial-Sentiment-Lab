@@ -36,7 +36,7 @@ d_i=p_i^{+}-p_i^{-}.
 
 Esse escore pertence a $[-1,1]$. Valores positivos indicam maior probabilidade atribuída à classe positiva do que à negativa; valores negativos indicam o contrário. Valores próximos de zero, entretanto, não correspondem necessariamente a notícias neutras. As saídas $(0{,}05;0{,}05;0{,}90)$ e $(0{,}45;0{,}45;0{,}10)$, ordenadas como positiva, negativa e neutra, produzem ambas $d_i=0$, mas representam distribuições bastante distintas.
 
-Por esse motivo, os três valores probabilísticos devem ser preservados junto com o rótulo e o escore. Também é importante evitar que a maior probabilidade fornecida pelo modelo seja automaticamente tratada como probabilidade de acerto. Sem verificação de calibração, um classificador pode estar confiante em previsões equivocadas. Como o ITI utiliza essa confiança entre os fatores de ponderação, erros sistemáticos do classificador podem receber peso elevado na série.
+Por esse motivo, os três valores probabilísticos devem ser preservados junto com o rótulo e o escore. Também é importante evitar que a maior probabilidade fornecida pelo modelo seja automaticamente tratada como probabilidade de acerto. Sem verificação de calibração, um classificador pode estar confiante em previsões equivocadas. Na formulação do ITI, cada documento elegível entra com o mesmo peso na média diária; erros sistemáticos do classificador ainda distorcem o sinal, mas não por ponderação heurística adicional por notícia.
 
 \section{Agregação de notícias e memória temporal}
 
@@ -50,7 +50,7 @@ z_t=\alpha z_{t-1}+(1-\alpha)x_t,\qquad 0\leq\alpha<1,
 
 em que $x_t$ é a entrada agregada no instante atual, $z_{t-1}$ é o estado anterior e $\alpha$ controla a retenção desse estado. Quanto maior o parâmetro, maior a persistência do passado, considerando uma mesma frequência de atualização.
 
-Essa suavização não comprova que o mercado incorpore notícias segundo uma função exponencial. Trata-se de uma hipótese de representação. Sua utilidade depende da comparação com alternativas sem memória e da estabilidade dos resultados quando o parâmetro é alterado. O ITI adota uma forma específica dessa atualização, descrita no Capítulo~\ref{cap:metodologia}.
+Essa suavização não comprova que o mercado incorpore notícias segundo uma função exponencial. Trata-se de uma hipótese de representação. O ITI parametriza a persistência por meia-vida $H$ em dias civis ($\lambda_H=2^{-1/H}$), com candidato principal $H=7$ e baseline Soft sem memória; a formulação operacional está no Capítulo~\ref{cap:metodologia} (Seção~\ref{sec:formulacao-iti}), sem repetir aqui as equações completas.
 
 Há ainda diferença entre ausência de novas matérias e ausência de dados coletados. Em dias com coleta adequada, a falta de notícias pode ser interpretada pelo algoritmo como ausência de entrada e provocar decaimento. Quando um portal falha ou determinado período não foi coletado, a ausência não representa necessariamente silêncio informacional. Confundir esses casos cria oscilações artificiais e torna importante documentar a cobertura temporal do corpus.
 

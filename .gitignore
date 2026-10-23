@@ -25,6 +25,9 @@ outputs/
 /job_iti_v2_*.out
 /job_iti_v2_*.err
 
+# PDFs de referência editorial (baixar localmente; ver README na pasta)
+docs/research/referencias_formatacao_ufsj/*.pdf
+
 # Pesos locais e cache Hugging Face
 model_store/
 .cache/

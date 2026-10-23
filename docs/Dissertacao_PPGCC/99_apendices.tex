@@ -108,11 +108,11 @@ Janela ampliada & Maio de 2022 a abril de 2024 \\
 Amostra textual & 100 notícias (74 focais; 26 agenda/multiempresa) \\
 Distribuição humana (rodada Sabesp) & 67 neutras; 19 positivas; 14 negativas \\
 Protocolo da rodada & 07/10/2026 \\
-Configuração R0 / R1 & $\alpha=0{,}85$ / $\alpha=0{,}70$ \\
-\texttt{run\_id} R1 & \texttt{sabesp\_r1\_alpha070} \\
-Execução HPC & Santos Dumont; job Slurm \texttt{11621573} \\
-Resultado R1 canônico & 6/24 favoráveis; nenhum significativo \\
-Resultado R1 legado & 10/24 favoráveis; dois nominalmente significativos \\
+Avaliação temporal (out./2026) & modo exploratório; manifesto de execução versionado \\
+Predições válidas (view primária) & 1.253 notícias \\
+Contraste principal ($\Delta$, $h=1$) & $n=204$ semanas; $\Delta\approx -0{,}004$; IC 95\% [-0,093; +0,222]; $p$ bilateral 1,0 \\
+Auditoria de conformidade & Out./2026: grade diária, $r_w=\log(P_w/P_{w-1})$, cutoff, $p$ bilateral \\
+Legado R0/R1 (repositório) & $\alpha=0{,}85$ / $0{,}70$; 24 duelos B0--B3 --- fora do PDF principal \\
 Referência com especialistas & Ainda não consolidada nesta etapa \\
 \hline
 \end{tabularx}
@@ -143,10 +143,10 @@ Reprodutibilidade & \texttt{run\_id}, ambiente (local/HPC), hash de código e to
 
 Rótulos como R1 podem referir-se a corpora distintos; comparar estatísticas exige recuperar a execução completa, não apenas o nome da configuração.
 
-\chapter{Especificação matemática ITI-v2 e verificações}
-\label{ap:iti-v2-math}
+\chapter{Especificação matemática do ITI e verificações}
+\label{ap:iti-math}
 
-Esta seção resume a formulação normativa da campanha ITI-v2 (Capítulo~\ref{cap:metodologia}, Seção~\ref{sec:iti-v2}). O escore $p^+-p^-$ segue \citeonline{santos2023finbert}; a memória por meia-vida dialoga com índices de notícias com decaimento \cite{shapiro2022fed,buckman2020dnsi}; o contraste Hard-BSI remete a \citeonline{hiew2019bsi}. O legado (\texttt{legacy\_v1}) permanece documentado no histórico da pesquisa.
+Esta seção resume a formulação operacional do ITI (Capítulo~\ref{cap:metodologia}, Seção~\ref{sec:formulacao-iti}). Identificadores técnicos de execução e colunas de saída constam do manifesto e do pacote de reprodutibilidade associado à campanha de outubro de 2026. O escore $p^+-p^-$ segue \citeonline{santos2023finbert}; a memória por meia-vida dialoga com índices de notícias com decaimento \cite{shapiro2022fed,buckman2020dnsi}; o contraste Hard-BSI remete a \citeonline{hiew2019bsi}. O legado (\texttt{legacy\_v1}) permanece documentado no histórico da pesquisa.
 
 \section{Escore e agregação}
 
@@ -167,7 +167,7 @@ Valores de referência: $\lambda_2\approx 0{,}7071$; $\lambda_7\approx 0{,}9057$
 
 \section{Verificações automatizadas}
 
-Os testes \texttt{tests/test\_iti\_v2.py} cobrem impulso único, decaimento em dias sem notícia, validação de probabilidades e média soft em documentos mistos.
+Os testes \texttt{tests/test\_iti\_v2.py}, \texttt{test\_market\_weekly\_returns.py} e \texttt{test\_delta\_inference.py} cobrem impulso com meia-vida, grade diária civil, retorno entre fechamentos semanais adjacentes, horizontes futuros por semana civil e bootstrap bilateral do $\Delta$.
 
 \iffalse
 % [ENXUGAMENTO 2026-10-22] Prosa longa repetindo Seção 4.10 e resultados temporais.

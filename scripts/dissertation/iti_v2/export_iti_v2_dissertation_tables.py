@@ -26,7 +26,7 @@ def write_secondary_table(run_dir: Path) -> Path | None:
     lines = [
         "% Gerado por scripts/dissertation/iti_v2/export_iti_v2_dissertation_tables.py",
         r"\begin{longtable}{@{}p{3.2cm}rrrr@{}}",
-        r"\caption{Família secundária ITI-v2 (Holm; painel completo; exploratório)}\label{tab:iti-v2-secondary} \\",
+        r"\caption{Família secundária do ITI (Holm; painel completo; exploratório)}\label{tab:iti-secondary} \\",
         r"\toprule",
         r"Contraste & $\Delta$ & IC inf. & IC sup. & $p_{\mathrm{Holm}}$ \\",
         r"\midrule",

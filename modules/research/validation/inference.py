@@ -68,15 +68,59 @@ def _block_bootstrap_indices(
     *,
     block_size: int,
     rng: np.random.Generator,
+    segment_ids: np.ndarray | None = None,
 ) -> np.ndarray:
     if length <= 0:
         return np.array([], dtype=int)
+
+    if segment_ids is not None:
+        return _block_bootstrap_indices_segmented(
+            length,
+            segment_ids=np.asarray(segment_ids, dtype=int),
+            block_size=block_size,
+            rng=rng,
+        )
 
     indices: list[int] = []
     while len(indices) < length:
         start = int(rng.integers(0, max(length - block_size + 1, 1)))
         block = list(range(start, min(start + block_size, length)))
         indices.extend(block)
+
+    return np.array(indices[:length], dtype=int)
+
+
+def _block_bootstrap_indices_segmented(
+    length: int,
+    *,
+    segment_ids: np.ndarray,
+    block_size: int,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """Reamostra blocos contíguos apenas dentro do mesmo segmento temporal."""
+    if segment_ids.shape[0] != length:
+        raise ValueError("segment_ids deve ter o mesmo comprimento do painel")
+
+    segments: dict[int, np.ndarray] = {}
+    for seg_id in np.unique(segment_ids):
+        positions = np.flatnonzero(segment_ids == seg_id)
+        if positions.size > 0:
+            segments[int(seg_id)] = positions
+
+    if not segments:
+        return np.array([], dtype=int)
+
+    indices: list[int] = []
+    seg_keys = list(segments.keys())
+    while len(indices) < length:
+        seg_id = int(rng.choice(seg_keys))
+        local = segments[seg_id]
+        local_len = int(local.size)
+        if local_len <= 0:
+            continue
+        start_local = int(rng.integers(0, max(local_len - block_size + 1, 1)))
+        block_local = local[start_local : min(start_local + block_size, local_len)]
+        indices.extend(int(i) for i in block_local)
 
     return np.array(indices[:length], dtype=int)
 
@@ -183,6 +227,7 @@ def compute_delta_inference(
     *,
     metric_fn: MetricFunction,
     inference: InferenceConfiguration,
+    segment_ids: np.ndarray | None = None,
 ) -> MetricInferenceResult:
     """Bootstrap do delta ITI − baseline (MSE: baseline − ITI)."""
 
@@ -235,6 +280,7 @@ def compute_delta_inference(
             n,
             block_size=inference.block_size,
             rng=rng,
+            segment_ids=segment_ids,
         )
         sample_iti = metric_fn(x_iti[indices], y[indices])
         sample_base = metric_fn(x_base[indices], y[indices])
@@ -257,10 +303,7 @@ def compute_delta_inference(
 
     samples = np.array(bootstrap_deltas, dtype=float)
     ci_low, ci_high = _percentile_ci(samples, ci_level=inference.ci_level)
-    if metric_name == "mse":
-        p_value = float(np.mean(samples <= 0.0))
-    else:
-        p_value = float(np.mean(samples <= 0.0))
+    p_value = _bootstrap_p_value_two_sided(samples, observed=observed)
 
     return MetricInferenceResult(
         value=observed,

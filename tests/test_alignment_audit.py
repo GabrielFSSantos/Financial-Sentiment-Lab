@@ -10,6 +10,7 @@ def test_align_emits_audit_rows() -> None:
         {
             "company_id": ["Sabesp"],
             "date": ["2024-01-05"],
+            "period_end": ["2024-01-05"],
             "week_id": ["2024-01-05/2024-01-05"],
             "iti_v2_h7": [0.2],
             "n_articles": [3],

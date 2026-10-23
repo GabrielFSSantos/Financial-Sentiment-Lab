@@ -29,6 +29,6 @@ Prosa em PT-BR; paths e código em inglês — [CONTRIBUTING.md](../CONTRIBUTING
 | Regra de negócio | [12_business_rules](documentation/12_business_rules.md) |
 | Módulo / config | [documentation/](documentation/README.md) |
 | Anotação manual | [14_manual_annotation](documentation/14_manual_annotation.md) |
-| Campanha ITI-v2 | [part-04 §4.7](research_trail/part-04-results.md) · `configs/campaigns/iti_v2/` · `./scripts/campaigns/iti_v2.sh` · aceite `logs/iti_v2/acceptance_latest.md` |
+| Campanha ITI (configs `iti_v2/`) | [part-04 §4.7](research_trail/part-04-results.md) · `./scripts/campaigns/iti_v2.sh` · aceite `logs/iti_v2/acceptance_latest.md` |
 
 Artefatos numéricos e logs de cluster: `outputs/` (gitignored). Export LaTeX da dissertação: `scripts/dissertation/iti_v2/` (via `iti_v2.sh postprocess`).

@@ -67,7 +67,27 @@ def _mask_panel(
     if missing:
         return pd.DataFrame()
     work = panel[cols].apply(pd.to_numeric, errors="coerce")
-    return panel.loc[work.notna().all(axis=1)].copy()
+    masked = panel.loc[work.notna().all(axis=1)].copy()
+    if "warmup" in masked.columns:
+        masked = masked.loc[masked["warmup"] != True].copy()
+    if "period_end" in masked.columns:
+        masked = masked.sort_values("period_end").reset_index(drop=True)
+    return masked
+
+
+def _calendar_segment_ids(period_ends: pd.Series, *, max_gap_days: int = 10) -> np.ndarray:
+    """Identifica segmentos de semanas civilmente contíguas (lacunas > max_gap_days quebram)."""
+    if period_ends.empty:
+        return np.array([], dtype=int)
+    ends = pd.Series(pd.to_datetime(period_ends, errors="coerce"))
+    seg = np.zeros(len(ends), dtype=int)
+    current = 0
+    for i in range(1, len(ends)):
+        delta = (ends.iloc[i] - ends.iloc[i - 1]).days
+        if pd.isna(delta) or int(delta) > max_gap_days:
+            current += 1
+        seg[i] = current
+    return seg
 
 
 def _inference_config(plan: AnalysisPlan, n_bootstrap: int | None = None) -> InferenceConfiguration:
@@ -123,6 +143,11 @@ def run_delta_contrast(
     cand = masked[spec.candidate_column].astype(float).to_numpy()
     base = masked[spec.baseline_column].astype(float).to_numpy()
     target = masked[target_col].astype(float).to_numpy()
+    segment_ids = (
+        _calendar_segment_ids(masked["period_end"])
+        if "period_end" in masked.columns
+        else None
+    )
 
     rho_cand = metric_fn(cand, target)
     rho_base = metric_fn(base, target)
@@ -142,6 +167,7 @@ def run_delta_contrast(
         target,
         metric_fn=metric_fn,
         inference=inference,
+        segment_ids=segment_ids,
     )
 
     row.update(

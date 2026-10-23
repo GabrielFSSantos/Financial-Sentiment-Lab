@@ -48,6 +48,7 @@ from modules.market.config.loader import load_market_configuration
 from modules.market.loader import load_market_prices
 from modules.research.config.analysis_plan import load_analysis_plan
 from modules.research.io.alignment_audit import align_iti_v2_weekly_to_market
+from modules.research.io.market_weekly_returns import weekly_market_session_calendar
 
 
 def _default_protocol_path() -> Path:
@@ -74,6 +75,18 @@ def default_corpus_dir() -> Path:
     return PROJECT_ROOT / "outputs/corpus_inventory/iti_v2_p02"
 
 
+def _corpus_span_from_p02(corpus_dir: Path | None = None) -> tuple[pd.Timestamp, pd.Timestamp] | None:
+    manifest_path = (corpus_dir or default_corpus_dir()) / "corpus_manifest.json"
+    if not manifest_path.is_file():
+        return None
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    date_min = payload.get("date_min")
+    date_max = payload.get("date_max")
+    if not date_min or not date_max:
+        return None
+    return pd.Timestamp(date_min).normalize(), pd.Timestamp(date_max).normalize()
+
+
 def _load_company_to_ticker() -> dict[str, str]:
     path = PROJECT_ROOT / "configs/campaigns/iti_v2/research_weekly.yaml"
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -85,8 +98,9 @@ def _primary_signal_column(protocol: object) -> str:
     return f"iti_v2_h{primary}"
 
 
-def _normalize_predictions_frame(frame: pd.DataFrame) -> pd.DataFrame:
+def _normalize_predictions_frame(frame: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
     work = frame.copy()
+    n_in = int(len(work))
     if "company_id" not in work.columns and "company" in work.columns:
         work["company_id"] = work["company"]
     if "news_id" not in work.columns and "id" in work.columns:
@@ -94,14 +108,24 @@ def _normalize_predictions_frame(frame: pd.DataFrame) -> pd.DataFrame:
     for col in ("p_negative", "p_neutral", "p_positive"):
         if col not in work.columns and col.replace("p_", "prob_") in work.columns:
             work[col] = work[col.replace("p_", "prob_")]
+    n_not_ok = 0
     if "status" in work.columns:
+        n_not_ok = int((work["status"] != "ok").sum())
         work = work.loc[work["status"] == "ok"].copy()
+    n_before_prob = int(len(work))
     work = work.dropna(subset=["p_negative", "p_neutral", "p_positive"])
+    n_dropped_prob = n_before_prob - int(len(work))
     required = {"date", "company_id", "news_id", "p_negative", "p_neutral", "p_positive"}
     missing = required - set(work.columns)
     if missing:
         raise ValueError(f"predictions sem colunas: {sorted(missing)}")
-    return work
+    stats = {
+        "n_predictions_in": n_in,
+        "n_excluded_not_ok": n_not_ok,
+        "n_excluded_missing_probabilities": n_dropped_prob,
+        "n_predictions_used": int(len(work)),
+    }
+    return work, stats
 
 
 def build_indices(
@@ -129,18 +153,32 @@ def build_indices(
         encoding="utf-8",
     )
 
-    preds = _normalize_predictions_frame(pd.read_csv(predictions_path))
+    preds, filter_stats = _normalize_predictions_frame(pd.read_csv(predictions_path))
     primary_view = _primary_view_id(protocol)
     if "view_id" in preds.columns:
         preds = preds.loc[preds["view_id"].astype(str) == primary_view].copy()
+        filter_stats["primary_view_id"] = primary_view
+        filter_stats["n_primary_view_used"] = int(len(preds))
+    (out_dir / "prediction_filter_manifest.json").write_text(
+        json.dumps(filter_stats, indent=2), encoding="utf-8"
+    )
+    calendar_end = pd.to_datetime(preds["date"], errors="coerce").max()
+    corpus_span = _corpus_span_from_p02()
     daily = build_daily_iti_v2_frame(
         preds,
         half_lives=protocol.half_life_days,
         warmup_days=protocol.warmup_days,
+        calendar_end=calendar_end,
+        corpus_span=corpus_span,
     )
+    market = load_market_prices(load_market_configuration(project_root=PROJECT_ROOT))
+    price_col = "adj_close" if "adj_close" in market.columns else "close"
+    sessions = weekly_market_session_calendar(market, price_col=price_col)
     weekly = build_weekly_signals(
         daily,
         week_anchor=analysis.week_anchor or protocol.week_anchor,
+        market_sessions=sessions,
+        company_to_ticker=_load_company_to_ticker(),
     )
 
     paths = {

@@ -67,16 +67,16 @@ def build_snippet(run_dir: Path) -> str:
         )
 
     return f"""% Gerado por scripts/dissertation/iti_v2/export_iti_v2_latex.py — não editar manualmente
-\\subsection{{Campanha ITI-v2 (\\texttt{{{run_id_tex}}})}}
-\\label{{subsec:iti-v2-campanha}}
+\\subsection{{Estimadores da rodada exploratória (outubro de 2026)}}
+\\label{{subsec:campanha-iti}}
 
-Execução exploratória do protocolo ITI-v2 (visões \\texttt{{entity\\_context\\_v1}} e \\texttt{{document\\_v1}}, corpus canônico P02, FinBERT-PT-BR com pesos fixados por SHA). Foram processadas {n_articles} notícias com probabilidades válidas na view primária; modo de execução: \\textbf{{{mode}}}.
+Foram processadas {n_articles} notícias com probabilidades válidas na view primária \\texttt{{entity\\_context\\_v1}}; a ablação \\texttt{{document\\_v1}} e o modo \\textbf{{{mode}}} estão registrados no manifesto de execução (Apêndice~\\ref{{ap:iti-math}}).
 
-{delta_block}A correlação marginal exploratória de Spearman entre \\texttt{{{_tex_id(str(metrics.get("signal_column", "iti_v2_h7")))}}} e retorno $h={metrics.get("horizon_weeks", 1)}$ no painel ($n={metrics.get("n_panel", "---")}$) foi {_fmt_float(metrics.get("estimate"))} (IC [{_fmt_float(metrics.get("ci_low"))}; {_fmt_float(metrics.get("ci_high"))}], $p={_fmt_float(metrics.get("p_value"))}$).{holdout_line}
+{delta_block}A correlação marginal exploratória de Spearman entre ITI-H7 e retorno $h={metrics.get("horizon_weeks", 1)}$ no painel ($n={metrics.get("n_panel", "---")}$) foi {_fmt_float(metrics.get("estimate"))} (IC [{_fmt_float(metrics.get("ci_low"))}; {_fmt_float(metrics.get("ci_high"))}], $p={_fmt_float(metrics.get("p_value"))}$).{holdout_line}
 
-A família secundária de oito contrastes está em \\texttt{{table\\_secondary.csv}} com correção de Holm (\\texttt{{result\\_registry.json}}). \\textbf{{Referência humana independente pendente}} (Capítulo~\\ref{{cap:metodologia}}); não interpretar como confirmação da hipótese substantiva.
+A Tabela~\\ref{{tab:iti-secondary}} resume os oito contrastes secundários com correção de Holm. \\textbf{{Referência humana independente pendente}} (Capítulo~\\ref{{cap:metodologia}}); não interpretar como confirmação da hipótese substantiva.
 
-\\noindent\\textit{{Fonte:}} run canônico \\texttt{{{run_id_tex}}} (out./2026); manifesto e pacote \\texttt{{thesis\\_export}} (Apêndice~\\ref{{ap:iti-v2-math}}).
+\\noindent\\textit{{Fonte:}} elaboração própria a partir da avaliação temporal do ITI em outubro de 2026 (manifesto de execução e pacote de reprodutibilidade no apêndice).
 """
 
 
@@ -102,7 +102,7 @@ def build_figures_snippet() -> str:
     )
     lines = [
         "% Gerado por scripts/dissertation/iti_v2/export_iti_v2_latex.py",
-        "\\subsubsection{Figuras da campanha ITI-v2}",
+        "\\subsubsection{Figuras da avaliação temporal}",
     ]
     for index, (filename, caption) in enumerate(names, start=1):
         path = fig_dir / filename
@@ -114,7 +114,7 @@ def build_figures_snippet() -> str:
                 "\\centering",
                 f"\\includegraphics[width=0.92\\linewidth]{{generated/figures/iti_v2/{filename}}}",
                 f"\\caption{{{caption}}}",
-                f"\\label{{fig:iti-v2-{index}}}",
+                f"\\label{{fig:iti-campanha-{index}}}",
                 "\\end{figure}",
                 "",
             ]

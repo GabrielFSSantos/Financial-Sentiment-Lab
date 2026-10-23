@@ -87,6 +87,7 @@ def aggregate_company_day(
     frame = predictions.copy()
     frame[date_col] = pd.to_datetime(frame[date_col], errors="coerce").dt.normalize()
     frame = frame.dropna(subset=[date_col, company_col, news_col])
+    frame = frame.drop_duplicates(subset=[company_col, date_col, news_col], keep="first")
 
     scores: list[float] = []
     entropies: list[float] = []
@@ -153,11 +154,22 @@ def compute_half_life_index(
         full_index = pd.date_range(start, end, freq="D")
         x_series = g[input_col].reindex(full_index)
         n_series = g.get("n_articles", pd.Series(0, index=g.index)).reindex(full_index).fillna(0)
+        cov_series = (
+            g["coverage_status"].reindex(full_index)
+            if "coverage_status" in g.columns
+            else pd.Series("eligible", index=full_index)
+        )
 
         state = float(initial_value)
         values: list[float] = []
         days_since_list: list[int] = []
         for day in full_index:
+            if str(cov_series.loc[day]) != "eligible":
+                values.append(np.nan)
+                days_since_list.append(
+                    days_since_list[-1] + 1 if days_since_list else 0
+                )
+                continue
             if day in g.index and n_series.loc[day] > 0:
                 x_t = float(x_series.loc[day])
                 days_since = 0
@@ -185,32 +197,125 @@ def compute_half_life_index(
 CoverageStatus = Literal["eligible", "unknown", "failed"]
 
 
+def _coverage_status_for_dates(
+    dates: pd.Series,
+    *,
+    corpus_span: tuple[pd.Timestamp, pd.Timestamp] | None,
+) -> pd.Series:
+    if corpus_span is None:
+        return pd.Series("eligible", index=dates.index, dtype=object)
+    dmin, dmax = corpus_span[0].normalize(), corpus_span[1].normalize()
+    normalized = pd.to_datetime(dates, errors="coerce").dt.normalize()
+    status = pd.Series("unknown", index=dates.index, dtype=object)
+    in_span = (normalized >= dmin) & (normalized <= dmax)
+    status.loc[in_span] = "eligible"
+    return status
+
+
+def _expand_daily_calendar(
+    daily_agg: pd.DataFrame,
+    *,
+    calendar_end: pd.Timestamp | None,
+    corpus_span: tuple[pd.Timestamp, pd.Timestamp] | None = None,
+    company_col: str = "company_id",
+) -> pd.DataFrame:
+    """Grade civil completa por empresa (dias sem matéria preservados na saída)."""
+
+    if daily_agg.empty:
+        return daily_agg.copy()
+
+    end = (
+        pd.Timestamp(calendar_end).normalize()
+        if calendar_end is not None
+        else pd.to_datetime(daily_agg["date"]).max().normalize()
+    )
+    parts: list[pd.DataFrame] = []
+    for company, group in daily_agg.groupby(company_col, sort=False):
+        start = pd.to_datetime(group["date"].min()).normalize()
+        full_index = pd.date_range(start, end, freq="D")
+        base = pd.DataFrame({company_col: company, "date": full_index})
+        merged = base.merge(group, on=[company_col, "date"], how="left")
+        merged["n_articles"] = merged["n_articles"].fillna(0).astype(int)
+        merged["coverage_status"] = _coverage_status_for_dates(
+            merged["date"],
+            corpus_span=corpus_span,
+        )
+        merged["soft_input"] = np.nan
+        eligible_mask = merged["coverage_status"] == "eligible"
+        merged.loc[eligible_mask, "soft_input"] = merged.loc[eligible_mask, "soft_mean"].fillna(
+            0.0
+        )
+        merged["index_version"] = merged["index_version"].fillna("iti_v2")
+        parts.append(merged)
+
+    return pd.concat(parts, ignore_index=True)
+
+
+def _resolve_ticker(company_id: str, company_to_ticker: dict[str, str]) -> str | None:
+    direct = company_to_ticker.get(company_id)
+    if direct:
+        return direct
+    lowered = {str(k).strip().lower(): v for k, v in company_to_ticker.items()}
+    return lowered.get(str(company_id).strip().lower())
+
+
+def _values_at_cutoff(
+    indexed: pd.DataFrame,
+    cutoff: pd.Timestamp,
+    value_columns: tuple[str, ...],
+) -> dict[str, object]:
+    eligible = indexed.index[indexed.index <= cutoff.normalize()]
+    if len(eligible) == 0:
+        return {col: np.nan for col in value_columns}
+    row = indexed.loc[eligible[-1]]
+    out: dict[str, object] = {col: row.get(col, np.nan) for col in value_columns}
+    if "warmup" in indexed.columns:
+        out["warmup"] = bool(row.get("warmup", False))
+    return out
+
+
 def build_daily_iti_v2_frame(
     predictions: pd.DataFrame,
     *,
     half_lives: tuple[int, ...] = (2, 7, 14),
     calendar_end: pd.Timestamp | None = None,
     warmup_days: int = 70,
+    corpus_span: tuple[pd.Timestamp, pd.Timestamp] | None = None,
 ) -> pd.DataFrame:
     """Pipeline diário: agregação + colunas ITI para cada meia-vida."""
 
-    daily = aggregate_company_day(predictions)
-    daily["coverage_status"] = "eligible"
+    daily_agg = aggregate_company_day(predictions)
+    expanded = _expand_daily_calendar(
+        daily_agg,
+        calendar_end=calendar_end,
+        corpus_span=corpus_span,
+    )
+    if expanded.empty:
+        return expanded
 
-    merged = daily
+    end = (
+        pd.Timestamp(calendar_end).normalize()
+        if calendar_end is not None
+        else pd.to_datetime(expanded["date"]).max().normalize()
+    )
+
+    result = expanded.copy()
     for h in half_lives:
         idx = compute_half_life_index(
-            daily,
+            expanded,
             h,
-            calendar_end=calendar_end,
+            calendar_end=end,
             warmup_days=warmup_days,
         )
-        merged = merged.merge(
-            idx[["date", "company_id", f"iti_v2_h{h}"]],
+        col = f"iti_v2_h{h}"
+        merge_cols = ["date", "company_id", col, "days_since_last_news", "warmup"]
+        result = result.drop(columns=[col, "days_since_last_news", "warmup"], errors="ignore")
+        result = result.merge(
+            idx[merge_cols],
             on=["date", "company_id"],
             how="left",
         )
-    return merged
+    return result
 
 
 def build_weekly_signals(
@@ -220,8 +325,10 @@ def build_weekly_signals(
     date_col: str = "date",
     week_anchor: str = "W-FRI",
     value_columns: tuple[str, ...] | None = None,
+    market_sessions: pd.DataFrame | None = None,
+    company_to_ticker: dict[str, str] | None = None,
 ) -> pd.DataFrame:
-    """Colapsa série diária para fim de semana (último valor observado na semana)."""
+    """Amostra sinais no cutoff causal (dia civil anterior ao último pregão da semana)."""
 
     if daily_frame.empty:
         return daily_frame.copy()
@@ -234,19 +341,61 @@ def build_weekly_signals(
         value_columns = tuple(
             col
             for col in work.columns
-            if col.startswith("iti_v2_h") or col in ("soft_mean", "hard_bsi", "n_articles")
+            if col.startswith("iti_v2_h")
+            or col
+            in ("soft_mean", "soft_input", "hard_bsi", "hard_input", "n_articles", "legacy_c_iti")
         )
 
-    rows: list[pd.DataFrame] = []
+    use_market = (
+        market_sessions is not None
+        and not market_sessions.empty
+        and company_to_ticker
+    )
+
+    rows: list[dict[str, object]] = []
     for company, group in work.groupby(company_col, sort=False):
         indexed = group.set_index(date_col).sort_index()
-        weekly = indexed.resample(week_anchor).last()
-        weekly = weekly.dropna(how="all", subset=list(value_columns))
-        weekly[company_col] = company
-        weekly["week_end"] = weekly.index
-        weekly["week_id"] = weekly.index.to_period(week_anchor).astype(str)
-        rows.append(weekly.reset_index(drop=True))
+        if use_market:
+            ticker = _resolve_ticker(str(company), company_to_ticker or {})
+            if not ticker:
+                continue
+            sessions = market_sessions.loc[
+                market_sessions["ticker"].astype(str) == str(ticker)
+            ].sort_values("week_id")
+            for _, session in sessions.iterrows():
+                cutoff = pd.Timestamp(session["signal_cutoff_at"]).normalize()
+                vals = _values_at_cutoff(indexed, cutoff, value_columns)
+                if all(pd.isna(vals.get(c)) for c in value_columns):
+                    continue
+                week_end = pd.Timestamp(session["week_id"]).normalize()
+                rows.append(
+                    {
+                        company_col: company,
+                        **vals,
+                        "week_end": week_end,
+                        "week_id": str(week_end.to_period(week_anchor)),
+                        "period_end": str(session.get("period_end", "")),
+                        "market_close_at": session.get("market_close_at", ""),
+                        "signal_cutoff_at": cutoff,
+                    }
+                )
+        else:
+            weekly = indexed.resample(week_anchor).last()
+            weekly = weekly.dropna(how="all", subset=list(value_columns))
+            for week_end, row in weekly.iterrows():
+                rows.append(
+                    {
+                        company_col: company,
+                        **{col: row.get(col, np.nan) for col in value_columns},
+                        "week_end": pd.Timestamp(week_end).normalize(),
+                        "week_id": str(pd.Timestamp(week_end).to_period(week_anchor)),
+                        "period_end": pd.Timestamp(week_end).date().isoformat(),
+                    }
+                )
 
-    out = pd.concat(rows, ignore_index=True)
+    if not rows:
+        return pd.DataFrame()
+
+    out = pd.DataFrame(rows)
     out["date"] = pd.to_datetime(out["week_end"]).dt.date.astype(str)
     return out

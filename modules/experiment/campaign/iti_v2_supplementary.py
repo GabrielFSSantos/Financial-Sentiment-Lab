@@ -11,6 +11,9 @@ from modules.experiment import PROJECT_ROOT
 from modules.experiment.campaign.iti_v2_legacy import attach_legacy_c_daily
 from modules.experiment.campaign.iti_v2_protocol import load_iti_v2_protocol
 from modules.experiment.indexing.iti_v2 import build_daily_iti_v2_frame, build_weekly_signals
+from modules.market.config.loader import load_market_configuration
+from modules.market.loader import load_market_prices
+from modules.research.io.market_weekly_returns import weekly_market_session_calendar
 
 
 def _protocol_views(protocol_path: Path) -> tuple[str, str, int, int]:
@@ -45,6 +48,13 @@ def build_supplementary_weekly(
 
     preds = pd.read_csv(predictions_path)
     paths: dict[str, Path] = {}
+    calendar_end = pd.to_datetime(preds["date"], errors="coerce").max()
+    market = load_market_prices(load_market_configuration(project_root=PROJECT_ROOT))
+    price_col = "adj_close" if "adj_close" in market.columns else "close"
+    sessions = weekly_market_session_calendar(market, price_col=price_col)
+    mapping_path = PROJECT_ROOT / "configs/campaigns/iti_v2/research_weekly.yaml"
+    mapping = yaml.safe_load(mapping_path.read_text(encoding="utf-8"))
+    company_to_ticker = dict(mapping.get("mapping", {}).get("company_to_ticker", {}))
 
     entity_preds = _filter_predictions(preds, primary_view)
     if entity_preds.empty:
@@ -54,6 +64,7 @@ def build_supplementary_weekly(
         entity_preds,
         half_lives=tuple(protocol.half_life_days),
         warmup_days=warmup,
+        calendar_end=calendar_end,
     )
     daily_legacy = attach_legacy_c_daily(
         daily_entity,
@@ -64,6 +75,8 @@ def build_supplementary_weekly(
         daily_legacy,
         week_anchor=protocol.week_anchor,
         value_columns=("legacy_c_iti",),
+        market_sessions=sessions,
+        company_to_ticker=company_to_ticker,
     )
     legacy_path = run_dir / "iti_weekly_legacy_c.csv"
     weekly_legacy.to_csv(legacy_path, index=False)
@@ -80,10 +93,13 @@ def build_supplementary_weekly(
             doc_preds,
             half_lives=tuple(protocol.half_life_days),
             warmup_days=warmup,
+            calendar_end=calendar_end,
         )
         weekly_doc = build_weekly_signals(
             daily_doc,
             week_anchor=protocol.week_anchor,
+            market_sessions=sessions,
+            company_to_ticker=company_to_ticker,
         )
         rename = {
             col: f"document_{col}"

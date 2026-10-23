@@ -1,11 +1,11 @@
 % Gerado por scripts/dissertation/iti_v2/export_iti_v2_latex.py — não editar manualmente
-\subsection{Campanha ITI-v2 (\texttt{iti\_v2\_prod\_20261022})}
-\label{subsec:iti-v2-campanha}
+\subsection{Estimadores da rodada exploratória (outubro de 2026)}
+\label{subsec:campanha-iti}
 
-Execução exploratória do protocolo ITI-v2 (visões \texttt{entity\_context\_v1} e \texttt{document\_v1}, corpus canônico P02, FinBERT-PT-BR com pesos fixados por SHA). Foram processadas 1253 notícias com probabilidades válidas na view primária; modo de execução: \textbf{exploratory}.
+Foram processadas 1253 notícias com probabilidades válidas na view primária \texttt{entity\_context\_v1}; a ablação \texttt{document\_v1} e o modo \textbf{exploratory} estão registrados no manifesto de execução (Apêndice~\ref{ap:iti-math}).
 
-O contraste principal pré-registrado ($\Delta = \rho_{ITI\text{-}H7} - \rho_{Soft}$, Spearman, $h=1$) foi -0,127 (IC 95\% [-0,337; 0,126], $p$ bootstrap 0,827, $n=92$). Coeficientes marginais: $\rho_{candidato}=-0,043$, $\rho_{baseline}=0,085$. A correlação marginal exploratória de Spearman entre \texttt{iti\_v2\_h7} e retorno $h=1$ no painel ($n=92$) foi -0,043 (IC [-0,219; 0,160], $p=0,687$). No holdout temporal (12 semanas civis, $n=12$ semanas no painel), Spearman marginal = -0,168 ($p=0,602$).
+O contraste principal pré-registrado ($\Delta = \rho_{ITI\text{-}H7} - \rho_{Soft}$, Spearman, $h=1$) foi -0,004 (IC 95\% [-0,093; 0,222], $p$ bootstrap 1,000, $n=204$). Coeficientes marginais: $\rho_{candidato}=-0,113$, $\rho_{baseline}=-0,109$. A correlação marginal exploratória de Spearman entre ITI-H7 e retorno $h=1$ no painel ($n=214$) foi -0,092 (IC [-0,224; 0,060], $p=0,182$). No holdout temporal (12 semanas civis, $n=126$ semanas no painel), Spearman marginal = -0,059 ($p=0,515$).
 
-A família secundária de oito contrastes está em \texttt{table\_secondary.csv} com correção de Holm (\texttt{result\_registry.json}). \textbf{Referência humana independente pendente} (Capítulo~\ref{cap:metodologia}); não interpretar como confirmação da hipótese substantiva.
+A Tabela~\ref{tab:iti-secondary} resume os oito contrastes secundários com correção de Holm. \textbf{Referência humana independente pendente} (Capítulo~\ref{cap:metodologia}); não interpretar como confirmação da hipótese substantiva.
 
-\noindent\textit{Fonte:} run canônico \texttt{iti\_v2\_prod\_20261022} (out./2026); manifesto e pacote \texttt{thesis\_export} (Apêndice~\ref{ap:iti-v2-math}).
+\noindent\textit{Fonte:} elaboração própria a partir da avaliação temporal do ITI em outubro de 2026 (manifesto de execução e pacote de reprodutibilidade no apêndice).

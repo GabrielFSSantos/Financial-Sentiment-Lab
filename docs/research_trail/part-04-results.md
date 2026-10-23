@@ -127,17 +127,17 @@ F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
 2. **Legado exploratório (ago./2024, `saneamento_corpus/`):** 10/24 e **duas** diferenças nominais significativas — **não** replicado no corpus canônico; tratar como histórico com multiplicidade e corpus distinto (`historical_reconciliation.csv`).
 3. Janela ampliada / sanity 1.254: citar apenas como sensibilidade (ex.: 8/24, 33,3%, 0 sig. quando aplicável), nunca como substituto do canônico.
 4. **Não** investir em fine-tune/LoRA neste ciclo sem referência humana independente.
-5. Campanha ITI-v2 executada localmente (out./2026) — ver [§4.7](#47-campanha-iti-v2-out2026); legado R1 permanece linha histórica §4.2.
+5. Campanha ITI executada localmente (out./2026) — ver [§4.7](#47-campanha-iti-out2026); legado R1 permanece linha histórica §4.2.
 
-## 4.7 Campanha ITI-v2 (out./2026)
+## 4.7 Campanha ITI (out./2026)
 
 > **Modo:** exploratório (`protocol_lock.json`). **Não** substitui duelos R1 legados nem confirma hipótese. Views `entity_context_v1` + `document_v1`; corpus canônico P02 (1 253 artigos na view primária).
 
 | Item | Valor |
 |------|--------|
 | `run_id` | `iti_v2_prod_20261022` |
-| Teste principal Δ (ITI-H7 − Soft, h=1) | Δ ≈ −0,127 · IC95% [−0,34; 0,13] · p≈0,83 · n=92 |
-| Marginal exploratória (ρ ITI-H7) | ρ ≈ −0,043 · p≈0,69 · bootstrap 10 000 |
+| Teste principal Δ (ITI-H7 − Soft, h=1) | Δ ≈ −0,004 · IC95% [−0,093; +0,222] · p=1,0 · n=204 |
+| Marginal exploratória (ρ ITI-H7) | ρ ≈ −0,092 · p≈0,18 · bootstrap 10 000 |
 | Família secundária | 8 contrastes + Holm · `table_secondary.csv` |
 | Registro único | `result_registry.json` |
 | Holdout notícias (exploratório) | 199 artigos · `metrics_holdout_contrasts.json` (n=12 semanas no painel) |
@@ -166,7 +166,7 @@ Pré-requisitos: `./scripts/setup_env.sh --fetch-assets`, `./scripts/audit_proje
 | Research semanal | Após experiment: `./scripts/run_research.sh` com `run_id` da campanha |
 | Manifest / relatórios | `outputs/campaigns/sabesp_2026/`, Marco 2 em `sabesp_marco2/` |
 | κ manual | `./scripts/campaigns/classifier_eval_pt.sh` |
-| Campanha ITI-v2 | `./scripts/campaigns/iti_v2.sh run-all <run_id>` (ver runbook) |
+| Campanha ITI | `./scripts/campaigns/iti_v2.sh run-all <run_id>` (ver runbook) |
 
 YAML: `configs/campaigns/sabesp_2026/research_weekly.yaml`, experiments em `configs/campaigns/sabesp_2026/experiments/`. Fluxo detalhado: [11_end_to_end_flow.md](../documentation/11_end_to_end_flow.md).
 

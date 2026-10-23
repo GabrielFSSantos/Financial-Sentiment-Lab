@@ -7,6 +7,7 @@ import pytest
 
 from modules.experiment.indexing.iti_v2 import (
     aggregate_company_day,
+    build_daily_iti_v2_frame,
     build_weekly_signals,
     compute_half_life_index,
     continuous_sentiment,
@@ -58,6 +59,55 @@ def test_validate_probabilities_rejects_bad_sum():
 
 def test_continuous_sentiment_range():
     assert continuous_sentiment(0.7, 0.1) == pytest.approx(0.6)
+
+
+def test_build_daily_preserves_silent_calendar_days():
+    rows = [
+        {
+            "news_id": "a",
+            "p_negative": 0.1,
+            "p_neutral": 0.2,
+            "p_positive": 0.7,
+        }
+    ]
+    frame = pd.DataFrame(rows)
+    frame["company_id"] = "sabesp"
+    frame["date"] = "2024-01-01"
+    daily = build_daily_iti_v2_frame(
+        frame,
+        half_lives=(2,),
+        calendar_end=pd.Timestamp("2024-01-03"),
+        warmup_days=0,
+    )
+    assert len(daily) == 3
+    assert int(daily.loc[daily["date"] == "2024-01-02", "n_articles"].iloc[0]) == 0
+    assert "iti_v2_h2" in daily.columns
+    assert "warmup" in daily.columns
+
+
+def test_corpus_span_marks_unknown_outside_inventory():
+    rows = [
+        {
+            "news_id": "a",
+            "p_negative": 0.1,
+            "p_neutral": 0.2,
+            "p_positive": 0.7,
+        }
+    ]
+    frame = pd.DataFrame(rows)
+    frame["company_id"] = "sabesp"
+    frame["date"] = "2024-01-15"
+    span = (pd.Timestamp("2024-01-01"), pd.Timestamp("2024-01-10"))
+    daily = build_daily_iti_v2_frame(
+        frame,
+        half_lives=(2,),
+        calendar_end=pd.Timestamp("2024-01-15"),
+        warmup_days=0,
+        corpus_span=span,
+    )
+    late = daily.loc[daily["date"] == "2024-01-15"].iloc[0]
+    assert late["coverage_status"] == "unknown"
+    assert pd.isna(late["soft_input"])
 
 
 def test_build_weekly_signals_friday_anchor():

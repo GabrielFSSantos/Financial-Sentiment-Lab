@@ -23,11 +23,11 @@ A implementação foi realizada em módulos que permitem separar leitura de dado
 \node[box] (a) at (-3.25,-1.55) {Amostra para\\anotação humana};
 \node[box] (t) at (-3.25,-3.15) {Concordância\\($\kappa$, F1)};
 \node[box] (s) at (0,-1.55) {Classificador\\(escore $d$)};
-\node[box] (e) at (2.85,-1.55) {Agregação\\diária};
-\node[box] (iti) at (5.7,-1.55) {ITI\\(EWMA)};
+\node[box] (e) at (2.85,-1.55) {Agregação\\diária $X$};
+\node[box] (iti) at (5.7,-1.55) {ITI\\meia-vida $H$};
 \node[box] (m) at (0,-3.25) {Retornos\\futuros};
-\node[box] (b) at (2.85,-3.25) {Baselines\\B0--B3};
-\node[box] (r) at (5.7,-3.25) {Comparação\\semanal};
+\node[box] (b) at (2.85,-3.25) {Soft\\(sem memória)};
+\node[box] (r) at (5.7,-3.25) {Contraste\\$\Delta\rho$};
 \draw[arr] (c.south) -- ++(0,-0.32) -| (a.north);
 \draw[arr] (c.south) -- ++(0,-0.32) -| (s.north);
 \draw[arr] (a.south) -- (t.north);
@@ -38,10 +38,10 @@ A implementação foi realizada em módulos que permitem separar leitura de dado
 \draw[arr] (b.east) -- (r.west);
 \draw[arr] (m.south) -- ++(0,-0.38) -| (r.south);
 \node[lane] at (-3.25,-4.2) {Validação textual\\(Cap.~\ref{cap:resultados})};
-\node[lane] at (2.85,-4.2) {Avaliação temporal\\(correlações e bootstrap)};
+\node[lane] at (2.85,-4.2) {Avaliação temporal\\(cutoff, retornos, bootstrap)};
 \end{tikzpicture}%
 }
-\caption{Fluxo da pesquisa: trilha de validação textual (esquerda) e construção do índice com comparação temporal (direita), a partir do mesmo corpus.}
+\caption{Fluxo da pesquisa: validação textual (esquerda) e avaliação temporal do ITI (direita), a partir do mesmo corpus.}
 \label{fig:pipeline}
 \vspace{0.5em}
 {\footnotesize Fonte: elaboração própria.}
@@ -59,7 +59,7 @@ Os registros do projeto incluem campos associados ao identificador da notícia, 
 
 A deduplicação também exige uma decisão explícita. Duas cópias idênticas de uma notícia não devem aumentar artificialmente o peso do acontecimento. Por outro lado, reportagens independentes sobre o mesmo fato podem acrescentar informações e não precisam ser eliminadas automaticamente. O algoritmo aplicado, as exceções e as quantidades de documentos retirados em cada etapa precisam ser apresentados para caracterizar a cobertura resultante.
 
-Na janela principal, de novembro de 2023 a abril de 2024, os registros experimentais descrevem aproximadamente 465 artigos no recorte estrito. A janela ampliada compreende maio de 2022 a abril de 2024, com diferentes versões que buscaram melhorar a cobertura, inclusive de lacunas observadas em 2023. Essas quantidades são mantidas como caracterização histórica dos experimentos. Não se atribui precisão ao total sem um relatório final de seleção, filtragem e deduplicação.
+A avaliação temporal do ITI utiliza o inventário canônico P02 (\texttt{iti\_v2\_p02}), com 1.253 notícias com probabilidades válidas na view primária após inferência (out./2026). O manifesto registra o intervalo de datas do corpus recuperado; dias fora desse intervalo recebem status de cobertura \emph{unknown} e não são tratados como silêncio informacional elegível (entrada operacional zero). Recortes anteriores (por exemplo, $\sim$465 matérias em nov./2023--abr./2024) permanecem no histórico do repositório, mas não definem o painel reportado nesta versão da dissertação. Exclusões, deduplicação e manifesto de filtros acompanham cada execução versionada.
 
 A composição do corpus pode interferir diretamente no índice. Concentração de notícias em poucos veículos, republicações, ausência de cobertura em determinados meses e presença de matérias sobre muitas empresas são fatores que afetam tanto os escores diários quanto sua evolução temporal. Por esse motivo, o corpus não é apenas uma entrada computacional; suas propriedades fazem parte das condições de validade dos resultados.
 
@@ -81,11 +81,9 @@ Os campos e exemplos operacionais estão detalhados no Apêndice~\ref{ap:protoco
 
 \section{Classificação automática e preparação da entrada}
 
-As notícias são processadas por um classificador financeiro em português. Na configuração das campanhas examinadas, a entrada é composta pela concatenação do título e do corpo, preservando essa ordem. A combinação busca oferecer ao modelo tanto a síntese inicial da matéria quanto seu desenvolvimento. Os rótulos e as probabilidades são associados ao identificador do documento, permitindo recuperar a notícia de origem.
+As notícias são processadas pelo FinBERT-PT-BR em duas \emph{views} pareadas: \texttt{entity\_context\_v1}, que seleciona sentenças com menção explícita à empresa e vizinhas \cite{cortis2017semeval5,tang2023finentity}, e \texttt{document\_v1}, que concatena título e corpo completos como ablação. A view primária define o sinal da campanha; a documental entra na família secundária de contrastes.
 
-A configuração do modelo considera comprimento máximo de 512 tokens. A sequência recebida pelo anotador humano pode ser maior que a efetivamente processada pelo classificador, já que os modelos baseados em BERT estão sujeitos ao limite de entrada definido. Assim, a igualdade entre o arquivo textual apresentado aos participantes e o arquivo textual de origem não implica igualdade do conteúdo disponível ao modelo.
-
-Para investigar essa diferença, a avaliação futura deverá registrar número de tokens antes e depois do processamento, proporção de textos truncados e posição da primeira menção substantiva à Sabesp. Uma análise de erro especialmente útil consistirá em verificar se a previsão foi feita sobre um trecho que efetivamente contém a informação necessária à classificação orientada à empresa.
+O comprimento máximo é de 512 \textbf{tokens} do tokenizador do modelo (não contagem por palavras). A inferência registra \texttt{token\_count\_original}, \texttt{token\_count\_used} e indicador de truncamento. O recorte por contexto focal é hipótese metodológica de redução de ruído, não um classificador \emph{target-aware} validado independentemente.
 
 O procedimento conserva as probabilidades de saída, a classe prevista e o escore contínuo. É essencial verificar o mapeamento entre índices numéricos e classes a partir do checkpoint carregado. Uma inversão entre positivo e negativo não necessariamente causaria falha de execução, mas alteraria o sentido do escore e comprometeria a interpretação dos índices.
 
@@ -93,6 +91,8 @@ O classificador é avaliado por matriz de confusão, acurácia, precisão, revoc
 
 O projeto adotou, como critério operacional inicial de progresso, acurácia próxima de 70\% ou kappa de pelo menos 0,40. Esses valores são decisões do protocolo de pesquisa, não limiares científicos universais derivados de \citeonline{cohen1960kappa}. Como a base é estratificada e a classe neutra é majoritária na anotação atual, a avaliação definitiva dependerá também das métricas por classe, da qualidade do consenso humano e da análise dos casos ambíguos.
 
+\iffalse
+% [MIGRAÇÃO 2026-10-23] Formulação legada (heurísticas $m_i,r_i,\ldots$, EWMA $\alpha$, B0--B3) — preservada no repositório, fora do manuscrito principal.
 \section{Construção do Índice Temporal Informacional}
 
 \subsection{Escore por notícia e dimensões auxiliares}
@@ -196,10 +196,11 @@ A agregação semanal de B1 e B2 toma a média de valores \textbf{diários}, e n
 B3 merece atenção específica. O ITI utiliza a entrada diária $x_{c,t}$, mas o arquivo semanal de pesquisa pode carregar \texttt{impacto\_dia\_sum} como representação desse componente. Portanto, embora B3 seja uma alternativa \textbf{sem recorrência EWMA}, a comparação disponível não deve ser descrita como uma ablação perfeitamente controlada da memória até que se verifique se a unidade e a agregação semanal são equivalentes às do índice. A avaliação de um efeito isolado de memória exige manter constantes as demais transformações.
 
 Também é necessário explicitar como cada baseline lida com semanas sem notícias. Contagens, médias de sentimento e valores de impacto não possuem a mesma definição quando faltam observações. A quantidade efetiva de semanas utilizadas em cada confronto deve ser registrada, evitando comparações apoiadas em subconjuntos diferentes sem essa informação.
+\fi
 
 \section{Alinhamento semanal com o mercado}
 
-A etapa de avaliação financeira relaciona indicadores derivados das notícias à série de preços da ação SBSP3. O alinhamento é feito em frequência semanal, com períodos encerrados na sexta-feira. Para o ITI, utiliza-se o estado do índice registrado ao fim de cada semana; para o mercado, são produzidos retornos semanais a partir dos retornos diários disponíveis.
+A etapa de avaliação financeira relaciona indicadores derivados das notícias à série de preços da ação SBSP3. O alinhamento é feito em frequência semanal, com períodos encerrados na sexta-feira (\texttt{W-FRI}). Para o ITI, o sinal é amostrado no \emph{cutoff} conservador (fim do dia civil anterior ao último pregão da semana); para o mercado, $P_w$ denota o preço ajustado no último pregão da semana civil $w$, e o retorno semanal contemporâneo é $r_w=\log(P_w/P_{w-1})$ antes de qualquer junção com notícias.
 
 Se $P_w$ representa um preço de referência consistente no encerramento da semana $w$, o retorno logarítmico acumulado das $h$ semanas seguintes pode ser expresso por:
 
@@ -209,7 +210,7 @@ R_w^{(h)}=\log\left(\frac{P_{w+h}}{P_w}\right), \qquad h\in\{1,2,4\}.
 
 De maneira equivalente, esse retorno corresponde à soma dos log-retornos dos pregões compreendidos no intervalo futuro, desde que os preços, o calendário e a política de ajustes sejam consistentes. A fonte utilizada nas execuções, o tratamento de proventos e a natureza do preço de referência precisam constar do manifesto experimental antes da interpretação econômica definitiva.
 
-A implementação semanal reúne ITI, baselines e retornos de mercado por identificador da empresa e período. Quando há mais de uma observação com a mesma chave semanal, a rotina de alinhamento conserva a última ocorrência disponível. Em seguida, utiliza uma junção interna para reunir as semanas encontradas nas séries textuais e financeiras e calcula retornos acumulados para horizontes de uma, duas e quatro semanas.
+A implementação semanal reúne sinais do ITI, baseline Soft e retornos de mercado por empresa e \texttt{period\_end} (último pregão da semana civil). Os retornos futuros $R_w^{(h)}$ são calculados na grade completa de semanas antes da junção com notícias. Semanas em aquecimento (70 dias civis após o início da série) são excluídas dos contrastes principais.
 
 Essa implementação exige duas verificações. A primeira é o \textbf{instante de disponibilidade da notícia}. Um texto publicado após o fechamento de sexta-feira não pode integrar um indicador considerado disponível no encerramento desse pregão para avaliar um retorno iniciado a partir dele. Quando não houver horário confiável, deve ser adotada uma política conservadora, por exemplo o deslocamento para a primeira sessão posterior elegível, acompanhada de análise de sensibilidade.
 
@@ -217,6 +218,7 @@ A segunda é a \textbf{continuidade do calendário}. Se os retornos futuros fore
 
 As últimas semanas que não possuem retornos futuros completos para um horizonte devem ser excluídas desse confronto. Como o horizonte de quatro semanas exige mais observações posteriores do que o de uma semana, os tamanhos amostrais podem diferir. O relatório final deve informar, para cada comparação, o número de pares válidos e as semanas efetivamente utilizadas.
 
+\iffalse
 \section{Procedimento estatístico}
 
 A análise exploratória combina quatro baselines, duas medidas de correlação e três horizontes de retorno. Em cada configuração, isso resulta em $4\times2\times3=24$ comparações entre o ITI líquido e as medidas de referência. As correlações de Pearson e Spearman são calculadas sobre as séries alinhadas, com os mesmos retornos futuros em cada confronto.
@@ -237,18 +239,28 @@ As 24 comparações compartilham notícias, semanas e retornos. Portanto, não s
 
 A conclusão estatística dependerá tanto dos coeficientes quanto de seus intervalos e da estabilidade entre corpora. A simples taxa de comparações favoráveis não informa o tamanho de cada diferença. Além disso, não encontrar significância não demonstra que os índices sejam equivalentes: séries pequenas ou ruidosas podem não oferecer precisão suficiente para distinguir seus comportamentos.
 
-\section{Reformulação normativa ITI-v2}
-\label{sec:iti-v2}
+\fi
 
-Paralelamente ao ITI legado (Seções anteriores, com ponderações heurísticas e parâmetro $\alpha$), a campanha \textbf{ITI-v2} fixa uma formulação auditável para a qualificação de outubro de 2026. O escore por notícia segue a diferença entre probabilidades positiva e negativa do FinBERT-PT-BR \cite{santos2023finbert}, como na literatura de índices probabilísticos \cite{hiew2019bsi}. A agregação diária $X_{c,d}$ é a média simples dos escores no dia (ou zero sem notícias), sem os fatores $m_i$, $r_i$, $e_i$ e $u_i$ do legado.
+\section{Formulação operacional e inferência do ITI}
+\label{sec:formulacao-iti}
 
-A memória utiliza meia-vida $H$ em \textbf{dias civis}, com $\lambda_H=2^{-1/H}$ e recorrência $ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}$, em analogia conceitual aos índices de notícias com decaimento temporal \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, mas com $H$ tratado como escolha operacional (valores 2, 7 e 14 dias) e não como estimativa conjunta com o mercado. O baseline principal \emph{Soft} é o mesmo $X_{c,d}$ sem memória, amostrado no cutoff semanal conservador (Seção de alinhamento com o mercado); o contraste \emph{Hard-BSI} segue a agregação rígida inspirada em \citeonline{hiew2019bsi}.
+A avaliação temporal de \textbf{outubro de 2026} define a metodologia quantitativa desta qualificação. O escore por notícia é $s_{i,c}=p^+_{i,c}-p^-_{i,c}$ do FinBERT-PT-BR \cite{santos2023finbert}. Na grade civil completa, $X_{c,d}$ é a média simples dos escores no dia quando $n_{c,d}>0$; em dias elegíveis sem matéria, a entrada operacional é zero e o estado de memória decai \cite{hiew2019bsi}.
 
-A entrada textual primária restringe o contexto ao trecho focal da empresa \cite{cortis2017semeval5,tang2023finentity}; a view \texttt{document\_v1} serve de ablação pareada. Retornos são calculados no calendário completo antes do \emph{join} com notícias; o teste principal pré-registrado é $\Delta=\rho_{Spearman}(ITI^{(7)},R^{(1)})-\rho_{Spearman}(X,R^{(1)})$, com bootstrap móvel em blocos \cite{kunsch1989bootstrap} e família secundária de oito contrastes corrigida por \citeonline{holm1979multiple}. Especificação completa, verificações e resultados exploratórios: Apêndice~\ref{ap:iti-v2-math} e Seção~\ref{subsec:iti-v2-campanha}.
+A memória utiliza meia-vida $H$ em dias civis, com $\lambda_H=2^{-1/H}$ e
+\[
+ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}.
+\]
+O candidato principal fixa $H=7$; sensibilidades usam $H\in\{2,14\}$. A escolha de $H$ é operacional, em diálogo com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}. O baseline \emph{Soft} é $X_{c,d}$ sem recorrência no cutoff semanal; contrastes secundários incluem \emph{Hard-BSI}, meias-vidas alternativas, horizontes $h\in\{2,4\}$, Pearson e referência legada C \cite{hiew2019bsi}.
+
+O teste principal pré-registrado é
+\[
+\Delta=\rho_{Spearman}\!\left(ITI^{(7)},R^{(1)}\right)-\rho_{Spearman}\!\left(X,R^{(1)}\right),
+\]
+com $R^{(1)}=R_w^{(1)}$ da Seção de alinhamento. A incerteza usa bootstrap em blocos de quatro semanas, 10.000 replicações e semente fixada no protocolo \cite{kunsch1989bootstrap}. O $p$-valor reportado segue aproximação bootstrap bilateral sobre $\Delta$ reamostrado. Oito contrastes secundários recebem correção de Holm \cite{holm1979multiple}. Equações e testes automatizados: Apêndice~\ref{ap:iti-math}; resultados: Seção~\ref{subsec:campanha-iti}.
 
 \section{Estratégia de avaliação incremental}
 
-As correlações e os deltas assinados (Seção anterior) descrevem associações marginais; \textbf{não} respondem, por si só, se o ITI acrescenta informação quando baselines e controles já estão em um modelo de regressão. Essa etapa --- comparar especificações com e sem o termo do ITI, com divisão cronológica e variáveis pré-definidas --- está planejada para após a consolidação do corpus e da referência humana (Capítulo~\ref{cap:consideracoes}, Tabela~\ref{tab:plano-continuidade}).
+As correlações e o $\Delta$ do ITI (Seção~\ref{sec:formulacao-iti}) descrevem associações marginais; \textbf{não} respondem, por si só, se o ITI acrescenta informação quando baselines e controles já estão em um modelo de regressão. Essa etapa --- comparar especificações com e sem o termo do ITI, com divisão cronológica e variáveis pré-definidas --- está planejada para após a consolidação do corpus e da referência humana (Capítulo~\ref{cap:consideracoes}, Tabela~\ref{tab:plano-continuidade}).
 
 \iffalse
 % [ENXUGAMENTO 2026-10-22] Subseção extensa sobre regressão não executada — reativar na dissertação final se o experimento for rodado.

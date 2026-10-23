@@ -12,6 +12,7 @@ import yaml
 import os
 
 from modules.datasets.text_views import build_document_view, build_entity_context_view
+from modules.datasets.token_counts import count_encoder_tokens
 from modules.experiment import PROJECT_ROOT
 from modules.experiment.campaign.protocol_lock import require_protocol_lock
 from modules.models.config.loader import load_models_configuration
@@ -208,6 +209,11 @@ def run_iti_v2_inference(
                 company_id,
                 neighbors=neighbors,
             )
+            token_original = (
+                count_encoder_tokens(view.text, model_configuration.model_dir)
+                if view.text.strip()
+                else 0
+            )
             base_row: dict[str, Any] = {
                 "news_id": news_id,
                 "article_version_id": article_version_id,
@@ -217,11 +223,9 @@ def run_iti_v2_inference(
                 "view_hash": view.view_hash,
                 "model_key": model_key,
                 "model_revision_sha": revision_sha,
-                "token_count_original": view.token_count_original,
-                "token_count_used": min(view.token_count_original or 0, max_length),
-                "truncated": bool(
-                    (view.token_count_original or 0) > max_length
-                ),
+                "token_count_original": token_original,
+                "token_count_used": min(token_original, max_length),
+                "truncated": bool(token_original > max_length),
                 "target_visible": view.target_visible,
             }
 
