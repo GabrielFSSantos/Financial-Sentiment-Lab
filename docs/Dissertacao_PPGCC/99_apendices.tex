@@ -64,6 +64,8 @@ As avaliações individuais serão preservadas antes da consolidação. A refer�
 
 \section{Síntese do estudo de caso}
 
+Este apêndice reúne os parâmetros da campanha exploratória utilizada nos resultados do Capítulo~\ref{cap:resultados}. As informações estão separadas em duas partes: a configuração da avaliação temporal, apresentada na Tabela~\ref{tab:rastreabilidade}, e a proveniência do corpus, que permite acompanhar as contagens do inventário inicial até as notícias utilizadas pelo modelo.
+
 \begin{table}[htbp]
 \centering
 \caption{Parâmetros e universo da campanha exploratória ITI (Sabesp / SBSP3).}
@@ -77,6 +79,7 @@ Notícias elegíveis (recorte contextual) & 1.253 notícias únicas \\
 Período do corpus de notícias & Maio/2022 a abril/2024 (inventário P02) \\
 Painel semanal alinhado & 104 semanas de SBSP3 (maio/2022--abr./2024; junção por \texttt{week\_key} W-FRI) \\
 Contraste principal ($\Delta\rho$, $h=1$) & $n=94$ semanas (exclui 10 de aquecimento) \\
+Contraste exploratório ITI-H7 $\times$ média semanal Soft ($h=1$) & $n=94$; $\Delta\approx -0{,}062$; IC95\% [$-0{,}165$; $+0{,}060$]; $p\approx 0{,}340$ (fora de Holm) \\
 Correlação marginal ITI-H7 $\times$ retorno ($h=1$, painel completo) & $n=\ITIvTwoNPanel$; $\rho\approx \ITIvTwoRhoMarginal$; IC cruza zero \\
 Modo estatístico & Exploratório; bootstrap 10.000; blocos de 4 semanas \\
 Holdout de notícias (reserva) & Regra \emph{calendar\_last\_12\_weeks}; 199 matérias; corte 06/02/2024 \\
@@ -95,6 +98,8 @@ Reprodutibilidade & Revisão de código, configuração e checksums dos artefato
 \vspace{0.5em}
 {\footnotesize Fonte: registro da campanha de outubro de 2026 e manifestos de execução. \emph{Nota:} o contraste principal ($\Delta\rho$) usa $n=94$ semanas após aquecimento; a correlação marginal acima inclui semanas de amortecimento no painel alinhado.}
 \end{table}
+
+A Tabela~\ref{tab:corpus-p02} detalha a proveniência do inventário P02: contagens de linhas brutas, notícias canônicas, duplicatas e artigos com probabilidades válidas na view contextual, além do número de veículos distintos representados no corpus.
 
 \begin{table}[htbp]
 \centering

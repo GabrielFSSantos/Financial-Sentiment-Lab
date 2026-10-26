@@ -45,7 +45,7 @@ A privatização da Sabesp constitui parte do contexto institucional da janela p
 
 \section{Posicionamento da pesquisa}
 
-A lacuna não é a ausência de sentimento ou de médias móveis, mas a avaliação integrada --- classificação orientada à empresa, memória temporal e comparação com baselines das mesmas notícias --- no estudo de caso da Sabesp (Tabela~\ref{tab:posicionamento}).
+Os trabalhos analisados mostram que já existem técnicas para classificar sentimentos financeiros, construir índices a partir de notícias e investigar sua relação com retornos de mercado. A proposta deste estudo não consiste em criar isoladamente cada uma dessas técnicas, mas em combiná-las em um procedimento reprodutível e avaliar suas limitações em notícias associadas a uma empresa brasileira de saneamento. O recorte contextual aproxima a entrada do classificador da empresa-alvo, mas ainda não equivale a um modelo treinado para sentimento orientado a entidades. A Tabela~\ref{tab:posicionamento} sintetiza essas aproximações e diferenças.
 
 \needspace{11\baselineskip}
 \begin{table}[H]
@@ -56,13 +56,13 @@ A lacuna não é a ausência de sentimento ou de médias móveis, mas a avaliaç
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.12}
-\begin{tabularx}{\textwidth}{@{}p{0.17\textwidth}Xp{0.26\textwidth}@{}}
+\begin{tabularx}{\textwidth}{@{}p{0.15\textwidth}Xp{0.24\textwidth}@{}}
 \toprule
 Linha & Evidência (referências) & Diferença da proposta \\
 \midrule
 Notícias e mercado & Pessimismo textual e ações (\citeonline{tetlock2007media}) & Corpus em português; alvo Sabesp \\
 Índices de notícias & Incerteza e peso temporal (\citeonline{baker2016epu}; \citeonline{shapiro2022fed}) & Polaridade orientada à empresa \\
-Sentimento financeiro em PT & FinBERT-PT-BR (\citeonline{santos2023finbert}) & Tarefa \emph{para a Sabesp} \\
+Sentimento financeiro em PT & FinBERT-PT-BR (\citeonline{santos2023finbert}) & Recorte contextual e avaliação humana orientada ao alvo \\
 Sentimento por entidade & Alvo explícito (\citeonline{cortis2017semeval5}; \citeonline{yuan2020target}; \citeonline{sinha2022sentfin}) & ITI-H7 vs Soft no mesmo corpus \\
 Mercado brasileiro & Ciclos e notícias (\citeonline{yoshinaga2012sentimento}; \citeonline{duarte2020news}; \citeonline{racef2022sentimento}) & $\Delta\rho$, cutoff causal, retornos \\
 \bottomrule

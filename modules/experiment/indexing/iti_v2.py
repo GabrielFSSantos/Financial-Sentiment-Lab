@@ -319,6 +319,31 @@ def _values_at_cutoff(
     return out
 
 
+def _soft_weekly_mean_through_cutoff(
+    indexed: pd.DataFrame,
+    cutoff: pd.Timestamp,
+    *,
+    week_anchor: str = "W-FRI",
+    input_col: str = "soft_input",
+) -> float:
+    """Média de ``input_col`` em dias elegíveis da semana civil até o cutoff (inclusive)."""
+
+    cutoff_norm = pd.Timestamp(cutoff).normalize()
+    week_start = pd.Timestamp(cutoff_norm.to_period(week_anchor).start_time).normalize()
+    if week_start > cutoff_norm:
+        return float("nan")
+
+    window = indexed.loc[(indexed.index >= week_start) & (indexed.index <= cutoff_norm)]
+    if window.empty or input_col not in window.columns:
+        return float("nan")
+    if "coverage_status" in window.columns:
+        window = window.loc[window["coverage_status"].astype(str) == "eligible"]
+    if window.empty:
+        return float("nan")
+    values = pd.to_numeric(window[input_col], errors="coerce").fillna(0.0)
+    return float(values.mean())
+
+
 def build_daily_iti_v2_frame(
     predictions: pd.DataFrame,
     *,
@@ -389,7 +414,15 @@ def build_weekly_signals(
             for col in work.columns
             if col.startswith("iti_v2_h")
             or col
-            in ("soft_mean", "soft_input", "hard_bsi", "hard_input", "n_articles", "legacy_c_iti")
+            in (
+                "soft_mean",
+                "soft_input",
+                "soft_weekly_mean",
+                "hard_bsi",
+                "hard_input",
+                "n_articles",
+                "legacy_c_iti",
+            )
         )
 
     use_market = (
@@ -421,6 +454,11 @@ def build_weekly_signals(
                 exclusion = vals.pop("signal_exclusion", "")
                 if all(pd.isna(vals.get(c)) for c in value_columns):
                     continue
+                vals["soft_weekly_mean"] = _soft_weekly_mean_through_cutoff(
+                    indexed,
+                    cutoff,
+                    week_anchor=week_anchor,
+                )
                 week_end = pd.Timestamp(session["week_id"]).normalize()
                 rows.append(
                     {

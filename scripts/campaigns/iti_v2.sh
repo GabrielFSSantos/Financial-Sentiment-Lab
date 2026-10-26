@@ -97,7 +97,7 @@ case "$cmd" in
     HARNESS_ROOT="${FSL_HARNESS_ROOT:-}"
     if [[ -n "${HARNESS_ROOT}" && -d "${HARNESS_ROOT}/scripts/dissertation/iti_v2" ]]; then
       export FSL_REPO_ROOT="${ROOT}"
-      for _ex in export_iti_v2_latex export_iti_v2_dissertation_tables generate_iti_v2_figures; do
+      for _ex in export_iti_v2_latex export_iti_v2_dissertation_tables generate_iti_v2_figures analyze_weekly_mean_baseline; do
         "$PY" "${HARNESS_ROOT}/scripts/dissertation/iti_v2/${_ex}.py" "$RUN_ID"
       done
       "$PY" "${HARNESS_ROOT}/scripts/dissertation/iti_v2/verify_run_snippets.py" "$RUN_ID"

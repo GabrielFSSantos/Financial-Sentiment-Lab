@@ -7,6 +7,7 @@ import pandas as pd
 import pytest
 
 from modules.experiment.indexing.iti_v2 import (
+    _soft_weekly_mean_through_cutoff,
     _values_at_cutoff,
     aggregate_company_day,
     build_daily_iti_v2_frame,
@@ -117,6 +118,21 @@ def test_corpus_span_marks_unknown_outside_inventory():
     assert pd.isna(late["soft_input"])
 
 
+def test_soft_weekly_mean_through_cutoff():
+    dates = pd.to_datetime(["2024-01-01", "2024-01-02", "2024-01-03"])
+    indexed = pd.DataFrame(
+        {
+            "soft_input": [0.0, 0.6, 0.2],
+            "coverage_status": ["eligible", "eligible", "eligible"],
+        },
+        index=dates,
+    )
+    cutoff = pd.Timestamp("2024-01-03")
+    mean = _soft_weekly_mean_through_cutoff(indexed, cutoff, week_anchor="W-FRI")
+    assert abs(mean - (0.0 + 0.6 + 0.2) / 3) < 1e-9
+    assert float(indexed.loc[cutoff, "soft_input"]) == 0.2
+
+
 def test_build_weekly_signals_friday_anchor():
     daily = pd.DataFrame(
         {
@@ -192,6 +208,7 @@ def test_weekly_signals_do_not_extend_past_corpus_with_long_market_calendar():
         company_to_ticker={"sabesp": "SBSP3.SA"},
         corpus_span=span,
     )
+    assert "soft_weekly_mean" in weekly.columns
     assert weekly["signal_cutoff_at"].max() <= span[1]
     after = weekly.loc[pd.to_datetime(weekly["week_end"]) > span[1]]
     assert after.empty

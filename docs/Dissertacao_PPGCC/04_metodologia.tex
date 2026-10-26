@@ -3,7 +3,7 @@
 
 \section{Delineamento e unidades de análise}
 
-A pesquisa tem caráter experimental e quantitativo e inclui o desenvolvimento de um procedimento computacional aplicado inicialmente à Sabesp. O desenho combina duas avaliações que se relacionam, mas não utilizam a mesma unidade de observação. Na avaliação textual, cada unidade é uma notícia vinculada à empresa e, quando disponível, acompanhada de um rótulo humano. Na avaliação financeira, cada unidade é um período semanal para o qual se calcula um indicador com informações disponíveis até um instante definido e se observa um retorno posterior.
+A pesquisa é de natureza aplicada e adota uma abordagem quantitativa, com desenvolvimento de um procedimento computacional e avaliação experimental exploratória em um estudo de caso da Sabesp. O desenho combina duas avaliações que se relacionam, mas não utilizam a mesma unidade de observação. Na avaliação textual, cada unidade é uma notícia vinculada à empresa e, quando disponível, acompanhada de um rótulo humano. Na avaliação financeira, cada unidade é um período semanal para o qual se calcula um indicador com informações disponíveis até um instante definido e se observa um retorno posterior.
 
 O fluxo começa na coleta ou organização de notícias, passa pela preparação dos textos, classificação de sentimento e cálculo do escore por notícia, produz agregações diárias e atualiza o ITI. A etapa financeira agrega essas séries em semanas, associa cada semana à cotação da empresa e compara o indicador com medidas de referência e retornos futuros. A anotação humana constitui um ramo de avaliação do classificador, anterior à interpretação financeira dos seus escores.
 
@@ -11,30 +11,32 @@ A implementação foi realizada em módulos que permitem separar leitura de dado
 
 \begin{figure}[htbp]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  font=\footnotesize,
-  box/.style={draw, rectangle, rounded corners=2pt, align=center, inner sep=4pt, text width=2.55cm, minimum height=1.05cm},
-  arr/.style={-{Stealth[length=1.6mm]}, thick}
+  font=\normalsize,
+  box/.style={draw, rectangle, rounded corners=2pt, align=center, inner sep=5pt, text width=2.85cm, minimum height=1.15cm},
+  arr/.style={-{Stealth[length=2mm]}, thick}
 ]
 \node[box] (c) at (0,0) {Notícias\\elegíveis};
-\node[box] (f) at (2.6,0) {Recorte\\contextual};
-\node[box] (cl) at (5.2,0) {FinBERT\\$p^+,p^0,p^-$};
-\node[box] (x) at (7.8,0) {Média diária\\$X$};
-\node[box] (iti) at (10.4,0.85) {ITI-H7};
-\node[box] (soft) at (10.4,-0.85) {Soft};
-\node[box] (ret) at (7.8,-2.1) {Retornos\\futuros};
-\node[box] (delta) at (10.4,-2.1) {Contraste\\$\Delta\rho$};
-\node[box] (hum) at (0,-2.1) {Anotação\\humana};
+\node[box] (f) at (2.5,0) {Recorte\\contextual};
+\node[box] (cl) at (5,0) {FinBERT\\$p^+,p^0,p^-$};
+\node[box] (x) at (7.5,0) {Média diária\\$X$};
+\node[box] (iti) at (5.8,-1.75) {ITI-H7};
+\node[box] (soft) at (8.1,-1.75) {Soft};
+\node[box] (ret) at (2.5,-1.75) {Retornos\\futuros};
+\node[box] (delta) at (7.5,-3.35) {Contraste\\$\Delta\rho$};
+\node[box] (hum) at (0,-3.35) {Anotação\\humana (validação)};
 \draw[arr] (c) -- (f);
 \draw[arr] (f) -- (cl);
 \draw[arr] (cl) -- (x);
-\draw[arr] (x.east) -- ++(0.35,0) |- (iti.west);
-\draw[arr] (x.east) -- ++(0.35,0) |- (soft.west);
-\draw[arr] (iti.south) -- (delta.north);
-\draw[arr] (soft.south) -- (delta.north);
+\draw[arr] (x.south) -- ++(0,-0.35) -| (iti.north);
+\draw[arr] (x.south) -- ++(0,-0.35) -| (soft.north);
+\draw[arr] (iti.south) -- (delta.north west);
+\draw[arr] (soft.south) -- (delta.north east);
 \draw[arr] (ret.east) -- (delta.west);
 \draw[arr] (c.south) -- (hum.north);
-\end{tikzpicture}
+\end{tikzpicture}%
+}
 \caption{Fluxo metodológico: construção do ITI e do Soft a partir da mesma entrada diária $X$; validação textual em paralelo.}
 \label{fig:pipeline}
 \vspace{0.5em}
@@ -75,7 +77,7 @@ Os campos e exemplos operacionais estão detalhados no Apêndice~\ref{ap:protoco
 
 \section{Classificação automática e preparação da entrada}
 
-As notícias são processadas pelo FinBERT-PT-BR em duas representações pareadas: recorte contextual da empresa-alvo (sentença com menção explícita e até uma sentença vizinha de cada lado, \texttt{context\_neighbors}=1 na configuração da campanha) \cite{cortis2017semeval5,tang2023finentity,yuan2020target}, e texto integral (título e corpo) como ablação. A largura desse recorte é escolha operacional desta pesquisa, testável por ablação; a literatura fundamenta sentimento orientado à entidade, não esta regra de janela em particular. A representação contextual define o sinal da campanha; a integral entra na família secundária de contrastes.
+Cada notícia é processada pelo FinBERT-PT-BR de duas maneiras. Na representação principal, o texto de entrada reúne as sentenças com menção explícita à Sabesp e até uma sentença vizinha de cada lado (\texttt{context\_neighbors=1}), concatenadas quando há mais de um trecho no documento. Na representação de comparação, utiliza-se o título e o corpo da matéria. A primeira procura concentrar a análise no contexto da empresa; a segunda permite verificar o que muda quando o modelo recebe o documento completo. A escolha da largura da janela contextual foi feita nesta pesquisa e é tratada como parâmetro experimental. Os trabalhos de \citeonline{cortis2017semeval5}, \citeonline{yuan2020target} e \citeonline{tang2023finentity} fundamentam a importância do alvo na análise de sentimento financeiro, mas não estabelecem essa janela específica como configuração ótima.
 
 O comprimento máximo é de 512 tokens do tokenizador do modelo (não contagem por palavras). A inferência registra comprimentos original e utilizado e se houve truncamento. O recorte contextual é hipótese de redução de ruído, não um classificador treinado para sentimento em nível de entidade.
 
@@ -108,9 +110,9 @@ ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}.
 \]
 O candidato principal fixa $H=7$ (interpretação de uma semana civil), escolha pré-definida da pesquisa; $H\in\{2,14\}$ são sensibilidades. Dez semanas iniciais (70 dias civis) são excluídas dos contrastes para amortecer a dependência da condição inicial $ITI_0$ --- com peso residual $2^{-10}\approx 0{,}001$ em $H=7$ (para $H=14$, o mesmo horizonte equivale a cinco meias-vidas e peso residual $2^{-5}=0{,}03125$) --- independentemente de haver ou não notícias nesse intervalo; em dias elegíveis sem matéria, o estado decai por $\lambda_H^k$. A formulação dialoga com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, sem atribuir a eles a equação completa do ITI.
 
-O baseline Soft amostra o mesmo $X_{c,d}$ no cutoff semanal, sem recorrência. O Soft constitui baseline de entrada pontual no cutoff e não representa o sentimento médio de toda a semana; a comparação não isola, por si só, o benefício da suavização exponencial em relação a toda agregação semanal possível. Contrastes secundários incluem escore discreto, meias-vidas alternativas, horizontes $h\in\{2,4\}$, Pearson, texto integral e suavização alternativa histórica \cite{hiew2019bsi}.
+O baseline Soft amostra o mesmo $X_{c,d}$ no cutoff semanal, sem recorrência. O Soft constitui baseline de entrada pontual no cutoff e não representa o sentimento médio de toda a semana; a comparação não isola, por si só, o benefício da suavização exponencial em relação a toda agregação semanal possível. Como extensão exploratória, fora da família secundária com correção de Holm, define-se ainda \texttt{soft\_weekly\_mean}: a média de $X_{c,d}$ nos dias civis elegíveis da semana ancorada em \texttt{W-FRI}, do início da semana até o instante de corte (inclusive), incluindo zeros em dias sem matéria no inventário. Contrastes secundários incluem escore discreto, meias-vidas alternativas, horizontes $h\in\{2,4\}$, Pearson, texto integral e suavização alternativa histórica \cite{hiew2019bsi}.
 
-O teste principal definido e registrado no protocolo desta rodada (modo exploratório) compara correlações de Spearman assinadas:
+Na avaliação exploratória principal, compara-se a correlação de Spearman do ITI-H7 com o retorno da semana seguinte à correlação do Soft com esse mesmo retorno. A diferença entre elas é definida por:
 \[
 \Delta=\rho_{S}\!\left(ITI^{(7)},R^{(1)}\right)-\rho_{S}\!\left(\mathrm{Soft},R^{(1)}\right),
 \]
@@ -118,7 +120,7 @@ em que $\rho_S$ denota Spearman e $R^{(1)}=R_w^{(1)}$ (Seção seguinte). A ince
 
 \section{Alinhamento semanal com o mercado}
 
-A etapa financeira relaciona indicadores derivados das notícias à série de preços da ação SBSP3. O calendário de pregões pode se estender além do intervalo informacional do corpus; sinais semanais só são emitidos quando o cutoff causal cai em dia de cobertura elegível (inventário P02). Semanas posteriores ao término comprovado do corpus não reutilizam o último estado do ITI nem entram no painel de teste. O alinhamento é semanal, com fechamento no último pregão disponível da semana civil. O sinal textual é amostrado no cutoff conservador (fim do dia civil anterior ao último pregão da semana). $P_w$ é o preço ajustado nesse pregão; o retorno futuro de $h$ semanas é
+A etapa financeira relaciona indicadores derivados das notícias à série de preços da ação SBSP3. O calendário de pregões pode se estender além do intervalo informacional do corpus; sinais semanais só são emitidos quando o cutoff causal cai em dia de cobertura elegível (inventário P02). Semanas posteriores ao término comprovado do corpus não reutilizam o último estado do ITI nem entram no painel de teste. O alinhamento é semanal, com fechamento no último pregão disponível da semana civil. O sinal textual é amostrado no cutoff conservador (fim do dia civil anterior ao último pregão da semana). Em uma semana cujo último pregão ocorre na sexta-feira, por exemplo, o sinal incorpora notícias até o fim da quinta-feira, enquanto o retorno é calculado a partir do fechamento da sexta-feira até o fechamento da semana futura correspondente. Essa separação é conservadora: impede o uso de notícias divulgadas depois do instante de corte, mas também deixa de utilizar informações que podem ter surgido durante a sexta-feira. $P_w$ é o preço ajustado nesse pregão; o retorno futuro de $h$ semanas é
 \[
 R_w^{(h)}=\log\left(\frac{P_{w+h}}{P_w}\right), \qquad h\in\{1,2,4\}.
 \]
@@ -138,7 +140,7 @@ Cada execução é identificável por versão do corpus, checkpoint do classific
 
 A campanha reportada em outubro de 2026 foi reprocessada localmente após auditoria de conformidade, sobre as mesmas predições. Uma replicação anterior no supercomputador Santos Dumont (LNCC) apoiou a viabilidade operacional da inferência, mas não constitui evidência da validade econômica do índice. O HPC oferece capacidade de GPU e registro de ambiente; filas e limites de job são restrições operacionais, não métricas de qualidade textual.
 
-Mudanças de corpus ou de código exigem nova execução registrada, sem sobrescrever resultados anteriores. O repositório público do projeto preserva configurações e artefatos para auditoria externa, com revisão Git fixada no registro da campanha.
+Cada alteração de corpus, configuração ou código requer uma execução identificada, de modo a preservar a distinção entre resultados obtidos em diferentes condições, sem sobrescrever execuções anteriores. O repositório público disponibiliza o código-fonte, as configurações e parte dos resultados exportados para a dissertação. Os arquivos completos de saída e os logs das campanhas são armazenados separadamente e não integram, por padrão, o versionamento Git. Por isso, a reprodução integral dos resultados também depende da disponibilidade do corpus, do checkpoint utilizado, dos dados de mercado e dos manifestos associados à execução analisada.
 
 % [trecho legado R0/R1 omitido do manuscrito, out./2026]
 

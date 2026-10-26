@@ -144,6 +144,7 @@ F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
 | ρ pareado (ITI-H7 / Soft) | ≈ −0,163 / −0,203 |
 | Marginal exploratória (ρ ITI-H7, h=1) | n=104 · ρ ≈ −0,145 |
 | Família secundária | 8 contrastes + Holm · `table_secondary.csv` |
+| Baseline média semanal Soft (exploratório) | `soft_weekly_mean` · Δ ≈ **−0,062** · IC95% [−0,165; +0,060] · **p≈0,340** · **n=94** · fora de Holm · `weekly_mean_baseline_exploratory.json` |
 | Registro único | `result_registry.json` |
 | Holdout notícias (exploratório) | 199 artigos · `metrics_holdout_contrasts.json` (**n=11** semanas no painel holdout) |
 | Artefatos | `outputs/campaigns/iti_v2/iti_v2_prod_20261022/` · `thesis_export/` |

@@ -10,6 +10,8 @@ Os resultados organizam-se em avaliação textual (classificador $\times$ anota�
 
 A avaliação reportada utiliza cem notícias anotadas pelo autor com protocolo orientado explicitamente ao efeito para a Sabesp (7 de outubro de 2026). O classificador obteve acurácia de 50\%, kappa de Cohen de 0,197 e F1 macro de 0,45. Uma rodada anterior com critério simplificado (48\%, $\kappa=0{,}163$) não é comparável diretamente, pois a referência humana mudou.
 
+Essas métricas descrevem a comparação entre o FinBERT e as anotações do autor na entrada formada por título e corpo da notícia. Como o ITI utiliza um recorte contextual menor, os valores não devem ser interpretados como medida direta da qualidade do sinal empregado no índice.
+
 \begin{table}[htbp]
 \centering
 \caption{Concordância do FinBERT-PT-BR com anotação humana ($n=100$; protocolo orientado à Sabesp em 07/10/2026).}
@@ -31,7 +33,7 @@ A reformulação do protocolo esclareceu a tarefa; a diferença de dois pontos n
 
 \subsection{Representação textual da avaliação e do ITI}
 
-As métricas da Tabela~\ref{tab:avaliacao-texto} referem-se à tarefa de anotação com \textbf{título e corpo integrais} (Capítulo~\ref{cap:metodologia}, Seção de anotação humana) e à entrada \texttt{text\_compose} usada no fluxo \texttt{classifier\_eval\_pt}. A campanha temporal de outubro de 2026 alimenta o ITI-H7 com o recorte contextual \texttt{entity\_context\_v1} (sentenças em torno das menções à Sabesp). Não se assume, portanto, que a concordância de 50\% e $\kappa=0{,}197$ quantifiquem diretamente a qualidade do sinal que entra no índice. A continuidade prevê avaliar o classificador no \emph{mesmo} recorte contextual, após consolidação da referência humana independente, antes de reinterpretar os resultados financeiros.
+Na avaliação textual, o classificador recebeu o título e o corpo completo de cada notícia, por meio da representação \texttt{text\_compose}. Já a campanha temporal utiliza \texttt{entity\_context\_v1}, um recorte de sentenças próximas às menções à Sabesp. A distinção é importante porque os dois textos de entrada podem apresentar conteúdo e graus de truncamento diferentes. A concordância entre o FinBERT e uma referência humana independente ainda deverá ser medida especificamente para o recorte utilizado no ITI, preferencialmente nas mesmas notícias, antes de atribuir validade econômica ao sinal temporal.
 
 % [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
@@ -56,7 +58,7 @@ O resultado nas matérias focais é compatível com a hipótese de que a defini�
 
 A distribuição da referência orientada à Sabesp é assimétrica. Das cem notícias, 67 foram anotadas como neutras, 19 como positivas e 14 como negativas. Entre as 67 neutras, o classificador atribuiu uma classe positiva ou negativa a 35. Esse resultado representa um problema mais específico do que uma acurácia global de 50\%: grande parte das divergências envolve a atribuição de polaridade a textos nos quais o anotador não identificou um efeito favorável ou desfavorável suficientemente definido para a empresa.
 
-Esse padrão é relevante para a construção do ITI. O escore contínuo é calculado a partir da diferença entre probabilidades positiva e negativa. Quando uma notícia realmente neutra recebe uma classificação polarizada, ela pode introduzir um sinal artificial no impacto diário; se esse sinal tiver peso elevado, sua influência pode persistir por meio da memória exponencial. Portanto, a qualidade do classificador não é uma questão independente do índice: ela afeta a interpretação da variável utilizada para construí-lo.
+Essa divergência também afeta a interpretação do ITI. Como o escore de cada notícia é calculado pela diferença entre as probabilidades positiva e negativa, uma matéria classificada como neutra pelo autor, mas à qual o modelo atribui forte polaridade, pode introduzir um sinal que não corresponde à interpretação humana provisória. Quando esses escores são agregados, as divergências podem se refletir na série diária e persistir no índice por causa da memória exponencial. Isso não demonstra, isoladamente, um erro do modelo em todos esses casos: a natureza e a frequência dos desacordos ainda precisam ser verificadas com anotações independentes.
 
 A avaliação sugere investigar três possibilidades. A primeira é a divergência entre classificar o tom geral do documento e julgar o efeito para a Sabesp. A segunda é o truncamento de matérias extensas, que pode retirar do texto processado informações essenciais. A terceira é a ambiguidade dos próprios rótulos, especialmente em situações nas quais o fato apresenta efeitos mistos ou indiretos para a empresa.
 
@@ -98,7 +100,7 @@ As limitações observadas organizam-se em construto, desenho, inferência e gen
 \toprule
 Dimensão & Evidência observada & Encaminhamento \\
 \midrule
-Construto & Concordância modelo--autor limitada; neutras com polaridade incorreta & Referência humana independente \\
+Construto & Concordância modelo--autor limitada; divergências em notícias anotadas como neutras & Referência humana independente \\
 Interna & Cutoff e calendário reauditados em out./2026 & Política conservadora de disponibilidade \\
 Estatística & $n=94$; Holm nos $p$ secundários; $\Delta$ inconclusivo & Não reinterpretar $p$ alto como equivalência \\
 Externa & Uma empresa; cobertura desigual & Extensão condicionada aos dados \\
@@ -110,7 +112,11 @@ Reprodutibilidade & Manifestos por execução & Versionamento de corpus e códig
 {\footnotesize Fonte: elaboração própria.}
 \end{table}
 
-No universo pareado do contraste principal ($n=94$ semanas), o Soft no cutoff foi zero em 36 semanas (38,3\%); no nível diário elegível, cerca de 42,5\% dos dias não tiveram matérias --- diagnóstico exploratório da campanha de outubro de 2026. Entre as semanas com Soft zero no cutoff, 33 apresentaram notícias em dias anteriores da mesma semana civil (análise auxiliar sobre \texttt{iti\_daily.csv}). O contraste permanece entre memória (ITI-H7) e entrada instantânea no cutoff, não entre baselines semanais alternativos. Em síntese, o pipeline é operacional e auditável, o sinal textual exige referência humana independente e a campanha não confirma superioridade do ITI-H7 sobre Soft (plano de continuidade no Capítulo~\ref{cap:consideracoes}).
+A interpretação do contraste principal também depende do baseline escolhido. Nas 94 semanas consideradas, o Soft foi igual a zero em 36 (38,3\%). Em 33 dessas semanas, entretanto, havia notícias em dias anteriores ao instante de corte dentro da própria semana civil. Isso ocorre porque o Soft representa apenas a entrada diária no dia do corte, enquanto o ITI-H7 preserva parte dos escores anteriores. Assim, a comparação avalia o efeito da memória em relação a uma entrada pontual, mas não permite concluir que o decaimento exponencial seja superior a outras formas de agregação semanal.
+
+\IfFileExists{generated/weekly_mean_baseline_snippet.tex}{\input{generated/weekly_mean_baseline_snippet.tex}}{}
+
+Em conjunto, os resultados mostram que o procedimento computacional pode ser executado e inspecionado, mas ainda não permitem validar o ITI como indicador de impacto econômico da notícia sobre a Sabesp. Essa interpretação depende, principalmente, da avaliação independente das classificações e de novos testes temporais.
 
 % [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
