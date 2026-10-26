@@ -59,14 +59,34 @@ Evidência no texto & Trecho que sustenta a resposta \\
 
 As avaliações individuais serão preservadas antes da consolidação. A referência para especialistas independentes (etapa futura) exigirá concordância documentada e adjudicação de empates.
 
-\chapter{Ficha técnica da execução temporal (outubro de 2026)}
+\chapter[Ficha técnica da execução temporal (outubro de 2026)]{Ficha técnica da execução temporal\\(outubro de 2026)}
 \label{ap:rastreabilidade}
 
 \section{Síntese do estudo de caso}
 
-Este apêndice reúne os parâmetros da campanha exploratória utilizada nos resultados do Capítulo~\ref{cap:resultados}. As informações estão separadas em duas partes: a configuração da avaliação temporal, apresentada na Tabela~\ref{tab:rastreabilidade}, e a proveniência do corpus, que permite acompanhar as contagens do inventário inicial até as notícias utilizadas pelo modelo.
+Este apêndice reúne a proveniência das notícias e os parâmetros da campanha exploratória utilizada nos resultados do Capítulo~\ref{cap:resultados}. A Tabela~\ref{tab:corpus-p02} mostra como o inventário P02 foi consolidado, incluindo contagens de registros, duplicatas e veículos representados. Em seguida, a Tabela~\ref{tab:rastreabilidade} apresenta as opções de classificação, construção do ITI, alinhamento com o mercado e avaliação estatística utilizadas na execução.
 
-\begin{table}[htbp]
+\begin{table}[!htbp]
+\centering
+\caption{Proveniência do inventário P02 (contagens registradas na execução).}
+\label{tab:corpus-p02}
+\begin{tabularx}{\textwidth}{@{}P{0.38\textwidth}rL@{}}
+\toprule
+Etapa & $n$ & Registro \\
+\midrule
+Linhas brutas no inventário & 1.254 & \texttt{selection\_report.json} \\
+Notícias canônicas únicas & 1.253 & idem \\
+Duplicatas mapeadas & 1 & idem \\
+Exclusões explícitas & 0 & idem \\
+Com probabilidades válidas (view contextual) & 1.253 & campanha exploratória out./2026 (\texttt{result\_registry.json}) \\
+Veículos distintos & 5 & \texttt{coverage\_daily.csv} \\
+\bottomrule
+\end{tabularx}
+\vspace{0.5em}
+{\footnotesize Fonte: inventário P02 (out./2026). Contagens por veículo (artigos): Money Times 360; InfoMoney 328; Valor Econômico 251; G1 Economia 203; Exame 111.}
+\end{table}
+
+\begin{table}[!htbp]
 \centering
 \caption{Parâmetros e universo da campanha exploratória ITI (Sabesp / SBSP3).}
 \label{tab:rastreabilidade}
@@ -99,27 +119,7 @@ Reprodutibilidade & Revisão de código, configuração e checksums dos artefato
 {\footnotesize Fonte: registro da campanha de outubro de 2026 e manifestos de execução. \emph{Nota:} o contraste principal ($\Delta\rho$) usa $n=94$ semanas após aquecimento; a correlação marginal acima inclui semanas de amortecimento no painel alinhado.}
 \end{table}
 
-A Tabela~\ref{tab:corpus-p02} detalha a proveniência do inventário P02: contagens de linhas brutas, notícias canônicas, duplicatas e artigos com probabilidades válidas na view contextual, além do número de veículos distintos representados no corpus.
-
-\begin{table}[htbp]
-\centering
-\caption{Proveniência do inventário P02 (contagens registradas na execução).}
-\label{tab:corpus-p02}
-\begin{tabularx}{\textwidth}{@{}P{0.38\textwidth}rL@{}}
-\toprule
-Etapa & $n$ & Registro \\
-\midrule
-Linhas brutas no inventário & 1.254 & \texttt{selection\_report.json} \\
-Notícias canônicas únicas & 1.253 & idem \\
-Duplicatas mapeadas & 1 & idem \\
-Exclusões explícitas & 0 & idem \\
-Com probabilidades válidas (view contextual) & 1.253 & campanha exploratória out./2026 (\texttt{result\_registry.json}) \\
-Veículos distintos & 5 & \texttt{coverage\_daily.csv} \\
-\bottomrule
-\end{tabularx}
-\vspace{0.5em}
-{\footnotesize Fonte: inventário P02 (out./2026). Contagens por veículo (artigos): Money Times 360; InfoMoney 328; Valor Econômico 251; G1 Economia 203; Exame 111.}
-\end{table}
+\FloatBarrier
 
 \chapter{Especificação matemática complementar do ITI}
 \label{ap:iti-math}

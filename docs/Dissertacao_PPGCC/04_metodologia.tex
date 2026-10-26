@@ -9,39 +9,47 @@ O fluxo começa na coleta ou organização de notícias, passa pela preparação
 
 A implementação foi realizada em módulos que permitem separar leitura de dados, inferência, construção de séries, validação e geração de relatórios. Os parâmetros das campanhas são definidos por arquivos de configuração. Essa organização torna possível registrar versões e comparar execuções, embora a existência do código não substitua a documentação dos dados efetivamente utilizados em cada resultado.
 
-\begin{figure}[htbp]
+\begin{figure}[!htbp]
 \centering
-\resizebox{\textwidth}{!}{%
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
-  font=\normalsize,
-  box/.style={draw, rectangle, rounded corners=2pt, align=center, inner sep=5pt, text width=2.85cm, minimum height=1.15cm},
-  arr/.style={-{Stealth[length=2mm]}, thick}
+  flowbox/.style={
+    draw, rectangle, rounded corners=2pt,
+    align=center, text width=2.25cm,
+    minimum height=0.88cm, inner sep=3pt,
+    font=\small
+  },
+  flowarrow/.style={-{Stealth[length=2mm]}, thick}
 ]
-\node[box] (c) at (0,0) {Notícias\\elegíveis};
-\node[box] (f) at (2.5,0) {Recorte\\contextual};
-\node[box] (cl) at (5,0) {FinBERT\\$p^+,p^0,p^-$};
-\node[box] (x) at (7.5,0) {Média diária\\$X$};
-\node[box] (iti) at (5.8,-1.75) {ITI-H7};
-\node[box] (soft) at (8.1,-1.75) {Soft};
-\node[box] (ret) at (2.5,-1.75) {Retornos\\futuros};
-\node[box] (delta) at (7.5,-3.35) {Contraste\\$\Delta\rho$};
-\node[box] (hum) at (0,-3.35) {Anotação\\humana (validação)};
-\draw[arr] (c) -- (f);
-\draw[arr] (f) -- (cl);
-\draw[arr] (cl) -- (x);
-\draw[arr] (x.south) -- ++(0,-0.35) -| (iti.north);
-\draw[arr] (x.south) -- ++(0,-0.35) -| (soft.north);
-\draw[arr] (iti.south) -- (delta.north west);
-\draw[arr] (soft.south) -- (delta.north east);
-\draw[arr] (ret.east) -- (delta.west);
-\draw[arr] (c.south) -- (hum.north);
+  \node[flowbox] (news) at (0,0) {Notícias\\elegíveis};
+  \node[flowbox] (context) at (3.2,0) {Recorte\\contextual};
+  \node[flowbox] (model) at (6.4,0) {FinBERT\\$p^+,p^0,p^-$};
+  \node[flowbox] (daily) at (9.6,0) {Média diária\\$X$};
+
+  \node[flowbox] (human) at (0,-2.1) {Anotação humana\\(validação)};
+  \node[flowbox] (iti) at (8,-2.1) {ITI-H7};
+  \node[flowbox] (soft) at (11.2,-2.1) {Soft};
+  \node[flowbox] (returns) at (3.2,-4.4) {Retornos\\futuros};
+  \node[flowbox] (delta) at (9.6,-4.4) {Contraste\\$\Delta\rho$};
+
+  \draw[flowarrow] (news.east) -- (context.west);
+  \draw[flowarrow] (context.east) -- (model.west);
+  \draw[flowarrow] (model.east) -- (daily.west);
+  \draw[flowarrow] (news.south) -- (human.north);
+  \draw[flowarrow] (daily.south west) -- (iti.north);
+  \draw[flowarrow] (daily.south east) -- (soft.north);
+  \draw[flowarrow] (iti.south) -- (delta.north west);
+  \draw[flowarrow] (soft.south) -- (delta.north east);
+  \draw[flowarrow] (returns.east) -- (delta.west);
 \end{tikzpicture}%
 }
-\caption{Fluxo metodológico: construção do ITI e do Soft a partir da mesma entrada diária $X$; validação textual em paralelo.}
+\caption{Etapas de construção do ITI e do Soft, com avaliação humana do classificador em paralelo.}
 \label{fig:pipeline}
-\vspace{0.5em}
+\vspace{0.4em}
 {\footnotesize Fonte: elaboração própria.}
 \end{figure}
+
+\FloatBarrier
 
 Os experimentos apresentados na qualificação são exploratórios. A referência humana independente e os testes confirmatórios permanecem como atividades futuras. Esse limite não invalida a avaliação do pipeline, mas impede interpretar as correlações observadas como uma demonstração definitiva da hipótese.
 
@@ -69,9 +77,7 @@ Além da classe, cada notícia recebe uma caracterização quanto ao seu foco. U
 
 A pesquisa passou por uma primeira anotação exploratória, de critério simplificado, e uma rodada posterior orientada de maneira mais explícita ao efeito descrito para a Sabesp. Essas rodadas não constituem avaliações equivalentes de um classificador sob um único padrão fixo: o referencial de anotação mudou. A interpretação de seus resultados deve preservar essa diferença, conforme discutido no Capítulo~\ref{cap:resultados}.
 
-Na continuidade, a referência deverá ser ampliada por avaliações independentes de participantes com conhecimento econômico-financeiro. O desenho previsto considera pelo menos três especialistas e um conjunto comum de notícias para estimar concordância entre anotadores. Os rótulos individuais serão preservados antes da discussão de divergências. Quando houver maioria, ela poderá orientar a referência consolidada; casos sem decisão majoritária exigirão adjudicação documentada.
-
-O tamanho do subconjunto efetivamente compartilhado entre avaliadores deverá ser informado. Caso apenas cerca de trinta notícias recebam mais de uma anotação, as estatísticas de concordância humana serão calculadas e interpretadas \textbf{para esses itens}, sem sugerir que todos os cem textos tenham recebido avaliações independentes.
+A continuidade da pesquisa prevê uma rodada de anotação independente por participante com conhecimento econômico-financeiro, utilizando o mesmo protocolo e preservando os julgamentos individuais. A ampliação para outros avaliadores será buscada de acordo com a disponibilidade e os critérios de seleção definidos para a pesquisa. Quando houver avaliações de pelo menos dois participantes sobre os mesmos itens, será examinada a concordância entre eles por medida apropriada ao número de avaliadores e ao desenho do estudo. Divergências e situações sem decisão consensual serão documentadas antes da formação de uma referência consolidada. A quantidade efetiva de notícias avaliadas em comum será informada, sem atribuir concordância humana a itens anotados por uma única pessoa.
 
 Os campos e exemplos operacionais estão detalhados no Apêndice~\ref{ap:protocolo}. O protocolo também prevê distinguir neutralidade, ambiguidade e insuficiência de informação. Essa separação evita que limitações na extração ou no vínculo entre notícia e companhia apareçam indevidamente como rótulos neutros.
 
@@ -85,7 +91,7 @@ O procedimento conserva as probabilidades de saída, a classe prevista e o escor
 
 O classificador é avaliado por matriz de confusão, acurácia, precisão, revocação, F1 por classe, F1 macro e kappa, sempre identificando a referência humana utilizada e a representação textual da inferência (integral versus contextual). Também deve ser calculado um baseline que atribui a todos os itens a classe predominante da amostra. Essa comparação auxilia a verificar se o resultado observado acrescenta algo além da distribuição das classes. Os resultados reportados na qualificação para a amostra de cem notícias utilizam título e corpo; a distinção em relação ao recorte do ITI é explicitada no Capítulo~\ref{cap:resultados}.
 
-O projeto adotou, como critério operacional inicial de progresso, acurácia próxima de 70\% ou kappa de pelo menos 0,40. Esses valores são decisões do protocolo de pesquisa, não limiares científicos universais derivados de \citeonline{cohen1960kappa}. Como a base é estratificada e a classe neutra é majoritária na anotação atual, a avaliação definitiva dependerá também das métricas por classe, da qualidade do consenso humano e da análise dos casos ambíguos.
+A avaliação do classificador será conduzida a partir de diferentes medidas, sem tomar um único limiar de acurácia como condição suficiente de adequação. Como a amostra anotada apresenta predominância da classe neutra, serão examinados o F1 macro, as métricas por classe, a matriz de confusão e o kappa, sempre em comparação com a classe majoritária. Os resultados serão interpretados considerando a concordância humana, as possíveis ambiguidades do protocolo e a representação textual efetivamente utilizada pelo ITI. Eventuais critérios quantitativos de seleção de modelos serão definidos e justificados antes das próximas comparações, com registro das escolhas realizadas.
 
 % [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
@@ -108,7 +114,7 @@ A memória utiliza meia-vida $H$ em dias civis. Deseja-se $\lambda_H^H=\tfrac{1}
 \[
 ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}.
 \]
-O candidato principal fixa $H=7$ (interpretação de uma semana civil), escolha pré-definida da pesquisa; $H\in\{2,14\}$ são sensibilidades. Dez semanas iniciais (70 dias civis) são excluídas dos contrastes para amortecer a dependência da condição inicial $ITI_0$ --- com peso residual $2^{-10}\approx 0{,}001$ em $H=7$ (para $H=14$, o mesmo horizonte equivale a cinco meias-vidas e peso residual $2^{-5}=0{,}03125$) --- independentemente de haver ou não notícias nesse intervalo; em dias elegíveis sem matéria, o estado decai por $\lambda_H^k$. A formulação dialoga com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, sem atribuir a eles a equação completa do ITI.
+Na campanha apresentada nesta dissertação, adotou-se $H=7$ dias civis como configuração principal, com $H\in\{2,14\}$ nas análises de sensibilidade. A escolha permite examinar um horizonte de memória de aproximadamente uma semana civil e não decorre de uma constante estimada na literatura. Essas configurações pertencem ao protocolo da campanha exploratória relatada e não constituem pré-registro confirmatório independente. O período inicial de 70 dias civis foi excluído das comparações para reduzir a influência da condição inicial do índice, conforme a política de aquecimento implementada --- com peso residual $2^{-10}\approx 0{,}001$ em $H=7$ (para $H=14$, o mesmo horizonte equivale a cinco meias-vidas e peso residual $2^{-5}=0{,}03125$) --- independentemente de haver ou não notícias nesse intervalo; em dias elegíveis sem matéria, o estado decai por $\lambda_H^k$. A formulação dialoga com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, sem atribuir a eles a equação completa do ITI.
 
 O baseline Soft amostra o mesmo $X_{c,d}$ no cutoff semanal, sem recorrência. O Soft constitui baseline de entrada pontual no cutoff e não representa o sentimento médio de toda a semana; a comparação não isola, por si só, o benefício da suavização exponencial em relação a toda agregação semanal possível. Como extensão exploratória, fora da família secundária com correção de Holm, define-se ainda \texttt{soft\_weekly\_mean}: a média de $X_{c,d}$ nos dias civis elegíveis da semana ancorada em \texttt{W-FRI}, do início da semana até o instante de corte (inclusive), incluindo zeros em dias sem matéria no inventário. Contrastes secundários incluem escore discreto, meias-vidas alternativas, horizontes $h\in\{2,4\}$, Pearson, texto integral e suavização alternativa histórica \cite{hiew2019bsi}.
 
