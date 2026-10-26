@@ -77,7 +77,7 @@ Notícias elegíveis (recorte contextual) & 1.253 notícias únicas \\
 Período do corpus de notícias & Maio/2022 a abril/2024 (inventário P02) \\
 Painel semanal alinhado & 104 semanas de SBSP3 (maio/2022--abr./2024; junção por \texttt{week\_key} W-FRI) \\
 Contraste principal ($\Delta\rho$, $h=1$) & $n=94$ semanas (exclui 10 de aquecimento) \\
-Correlação marginal ITI-H7 $\times$ retorno & $n=99$; $\rho\approx -0{,}132$; IC cruza zero \\
+Correlação marginal ITI-H7 $\times$ retorno ($h=1$, painel completo) & $n=\ITIvTwoNPanel$; $\rho\approx \ITIvTwoRhoMarginal$; IC cruza zero \\
 Modo estatístico & Exploratório; bootstrap 10.000; blocos de 4 semanas \\
 Holdout de notícias (reserva) & Regra \emph{calendar\_last\_12\_weeks}; 199 matérias; corte 06/02/2024 \\
 Subpainel holdout (semanas) & $n=11$ semanas alinhadas (reserva de 12 semanas de notícias; corte 2024-02-06--2024-04-30) \\
@@ -93,7 +93,27 @@ Reprodutibilidade & Revisão de código, configuração e checksums dos artefato
 \bottomrule
 \end{tabularx}
 \vspace{0.5em}
-{\footnotesize Fonte: registro da campanha de outubro de 2026 e manifestos de execução.}
+{\footnotesize Fonte: registro da campanha de outubro de 2026 e manifestos de execução. \emph{Nota:} o contraste principal ($\Delta\rho$) usa $n=94$ semanas após aquecimento; a correlação marginal acima inclui semanas de amortecimento no painel alinhado.}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Proveniência do inventário P02 (contagens registradas na execução).}
+\label{tab:corpus-p02}
+\begin{tabularx}{\textwidth}{@{}P{0.38\textwidth}rL@{}}
+\toprule
+Etapa & $n$ & Registro \\
+\midrule
+Linhas brutas no inventário & 1.254 & \texttt{selection\_report.json} \\
+Notícias canônicas únicas & 1.253 & idem \\
+Duplicatas mapeadas & 1 & idem \\
+Exclusões explícitas & 0 & idem \\
+Com probabilidades válidas (view contextual) & 1.253 & campanha \texttt{iti\_v2\_prod\_20261022} \\
+Veículos distintos & 5 & \texttt{coverage\_daily.csv} \\
+\bottomrule
+\end{tabularx}
+\vspace{0.5em}
+{\footnotesize Fonte: inventário P02 (out./2026). Contagens por veículo (artigos): Money Times 360; InfoMoney 328; Valor Econômico 251; G1 Economia 203; Exame 111.}
 \end{table}
 
 \chapter{Especificação matemática complementar do ITI}

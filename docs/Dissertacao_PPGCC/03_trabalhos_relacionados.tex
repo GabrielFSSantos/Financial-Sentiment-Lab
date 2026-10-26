@@ -11,7 +11,7 @@ Em outra perspectiva, \citeonline{baker2016epu} construíram uma medida de incer
 
 \citeonline{shapiro2022fed} desenvolveram uma medida de sentimento a partir de notícias econômicas e financeiras, tratando também da avaliação das classificações textuais. A documentação do \emph{Daily News Sentiment Index}, do Federal Reserve Bank of San Francisco, descreve uma forma de atribuir pesos que diminuem com a antiguidade das notícias \cite{frbsfNewsSentiment}; \citeonline{buckman2020dnsi} detalham o decaimento temporal operacional desse índice. A proximidade com o ITI está no uso de textos agregados e de um mecanismo temporal de suavização. As diferenças estão no universo de notícias, no alvo econômico e na implementação da memória; não se deve supor equivalência entre os índices apenas porque ambos atribuem menor peso a informações antigas.
 
-\citeonline{hiew2019bsi} propuseram um índice de sentimento financeiro baseado em probabilidades de classificação (BSI) e o confrontaram com previsibilidade de retornos. O contraste \emph{Hard-BSI} do ITI (Seção~\ref{sec:formulacao-iti}) retoma a ideia de agregação rígida por polaridade, sem a memória exponencial do candidato principal, mas sobre o mesmo escore contínuo e o mesmo corpus Sabesp.
+\citeonline{hiew2019bsi} propuseram um índice de sentimento financeiro baseado em probabilidades de classificação (BSI) e o confrontaram com previsibilidade de retornos. O contraste \emph{Hard-BSI} do ITI (Seção~\ref{sec:formulacao-iti}) retoma a ideia de agregação rígida por polaridade a partir das probabilidades do classificador (discretização em rótulos), sem a memória exponencial do candidato principal, sobre o mesmo corpus Sabesp e a mesma inferência FinBERT.
 
 \section{Modelos de sentimento financeiro em português}
 

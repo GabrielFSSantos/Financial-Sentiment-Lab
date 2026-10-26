@@ -123,7 +123,7 @@ F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
 
 ## 4.6 Conclusão operacional
 
-1. **Resultado principal (corpus canônico, out./2026):** R1 sobre `articles_strict_sabesp.csv` — **6/24** confrontos favoráveis, **0** significativos no bootstrap (alinhado PC + job Slurm 11621573). Esta é a linha a citar na qualificação e na dissertação para o protocolo atual.
+1. **Legado R1 (corpus canônico estrito, histórico):** R1 sobre `articles_strict_sabesp.csv` — **6/24** confrontos favoráveis, **0** significativos no bootstrap (job Slurm 11621573). **Não** é o núcleo quantitativo do manuscrito out./2026; citar como linha histórica (§4.2).
 2. **Legado exploratório (ago./2024, `saneamento_corpus/`):** 10/24 e **duas** diferenças nominais significativas — **não** replicado no corpus canônico; tratar como histórico com multiplicidade e corpus distinto (`historical_reconciliation.csv`).
 3. Janela ampliada / sanity 1.254: citar apenas como sensibilidade (ex.: 8/24, 33,3%, 0 sig. quando aplicável), nunca como substituto do canônico.
 4. **Não** investir em fine-tune/LoRA neste ciclo sem referência humana independente.

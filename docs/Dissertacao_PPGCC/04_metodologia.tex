@@ -12,8 +12,8 @@ A implementação foi realizada em módulos que permitem separar leitura de dado
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
-  font=\small,
-  box/.style={draw, rectangle, rounded corners=2pt, align=center, inner sep=3pt, text width=2.35cm, minimum height=0.95cm},
+  font=\footnotesize,
+  box/.style={draw, rectangle, rounded corners=2pt, align=center, inner sep=4pt, text width=2.55cm, minimum height=1.05cm},
   arr/.style={-{Stealth[length=1.6mm]}, thick}
 ]
 \node[box] (c) at (0,0) {Notícias\\elegíveis};
@@ -75,7 +75,7 @@ Os campos e exemplos operacionais estão detalhados no Apêndice~\ref{ap:protoco
 
 \section{Classificação automática e preparação da entrada}
 
-As notícias são processadas pelo FinBERT-PT-BR em duas representações pareadas: recorte contextual da empresa-alvo (sentenças com menção explícita e vizinhas) \cite{cortis2017semeval5,tang2023finentity}, e texto integral (título e corpo) como ablação. A representação contextual define o sinal da campanha; a integral entra na família secundária de contrastes.
+As notícias são processadas pelo FinBERT-PT-BR em duas representações pareadas: recorte contextual da empresa-alvo (sentença com menção explícita e até uma sentença vizinha de cada lado, \texttt{context\_neighbors}=1 na configuração da campanha) \cite{cortis2017semeval5,tang2023finentity,yuan2020target}, e texto integral (título e corpo) como ablação. A largura desse recorte é escolha operacional desta pesquisa, testável por ablação; a literatura fundamenta sentimento orientado à entidade, não esta regra de janela em particular. A representação contextual define o sinal da campanha; a integral entra na família secundária de contrastes.
 
 O comprimento máximo é de 512 tokens do tokenizador do modelo (não contagem por palavras). A inferência registra comprimentos original e utilizado e se houve truncamento. O recorte contextual é hipótese de redução de ruído, não um classificador treinado para sentimento em nível de entidade.
 
@@ -106,11 +106,11 @@ A memória utiliza meia-vida $H$ em dias civis. Deseja-se $\lambda_H^H=\tfrac{1}
 \[
 ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}.
 \]
-O candidato principal fixa $H=7$ (interpretação de uma semana civil), escolha pré-definida da pesquisa; $H\in\{2,14\}$ são sensibilidades. Dez semanas iniciais (70 dias civis) são excluídas dos contrastes para amortecer a dependência da condição inicial $ITI_0$ --- com peso residual $2^{-10}\approx 0{,}001$ em $H=7$ --- independentemente de haver ou não notícias nesse intervalo; em dias elegíveis sem matéria, o estado decai por $\lambda_H^k$. A formulação dialoga com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, sem atribuir a eles a equação completa do ITI.
+O candidato principal fixa $H=7$ (interpretação de uma semana civil), escolha pré-definida da pesquisa; $H\in\{2,14\}$ são sensibilidades. Dez semanas iniciais (70 dias civis) são excluídas dos contrastes para amortecer a dependência da condição inicial $ITI_0$ --- com peso residual $2^{-10}\approx 0{,}001$ em $H=7$ (para $H=14$, o mesmo horizonte equivale a cinco meias-vidas e peso residual $2^{-5}=0{,}03125$) --- independentemente de haver ou não notícias nesse intervalo; em dias elegíveis sem matéria, o estado decai por $\lambda_H^k$. A formulação dialoga com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, sem atribuir a eles a equação completa do ITI.
 
-O baseline Soft amostra o mesmo $X_{c,d}$ no cutoff semanal, sem recorrência. Contrastes secundários incluem escore discreto, meias-vidas alternativas, horizontes $h\in\{2,4\}$, Pearson, texto integral e suavização alternativa histórica \cite{hiew2019bsi}.
+O baseline Soft amostra o mesmo $X_{c,d}$ no cutoff semanal, sem recorrência. O Soft constitui baseline de entrada pontual no cutoff e não representa o sentimento médio de toda a semana; a comparação não isola, por si só, o benefício da suavização exponencial em relação a toda agregação semanal possível. Contrastes secundários incluem escore discreto, meias-vidas alternativas, horizontes $h\in\{2,4\}$, Pearson, texto integral e suavização alternativa histórica \cite{hiew2019bsi}.
 
-O teste principal pré-especificado no protocolo da rodada compara correlações de Spearman assinadas:
+O teste principal definido e registrado no protocolo desta rodada (modo exploratório) compara correlações de Spearman assinadas:
 \[
 \Delta=\rho_{S}\!\left(ITI^{(7)},R^{(1)}\right)-\rho_{S}\!\left(\mathrm{Soft},R^{(1)}\right),
 \]

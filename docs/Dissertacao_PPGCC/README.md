@@ -6,13 +6,19 @@ latexmk -pdf ufsj-abntex2.tex
 # ou: make pdf
 ```
 
-Exportar números e figuras da campanha (raiz do lab):
+O repositório versiona `generated/*.tex` e figuras em `generated/figures/iti_v2/` para compilação offline do PDF.
+
+## Regenerar números e figuras a partir da campanha
+
+Na raiz do lab:
 
 ```bash
 ./scripts/campaigns/iti_v2.sh postprocess iti_v2_prod_20261022
 ```
 
-Isso atualiza `generated/iti_v2_results_snippet.tex`, `generated/tables/`, `generated/figures/iti_v2/` e tenta `latexmk` nesta pasta.
+O passo `postprocess` reexecuta métricas e, quando a variável de ambiente **`FSL_HARNESS_ROOT`** aponta para os scripts de exportação LaTeX ITI (ambiente de desenvolvimento do autor), atualiza `generated/` e opcionalmente recompila o PDF. Sem essa variável, apenas os artefatos JSON da campanha são atualizados; o PDF ainda pode ser gerado a partir dos `.tex` versionados.
+
+Alternativa mínima no repo: `export-thesis` (JSON/manifestos) via o mesmo script de campanha.
 
 ## Estrutura ativa
 
@@ -24,4 +30,4 @@ Isso atualiza `generated/iti_v2_results_snippet.tex`, `generated/tables/`, `gene
 
 Não versionar nesta pasta rascunhos de revisão editorial (`REVISAO*.md`) nem capítulos LaTeX legados retirados da compilação.
 
-Números canônicos da campanha: `docs/research_trail/part-04-results.md`.
+Números canônicos da campanha: `docs/research_trail/part-04-results.md` §4.7.

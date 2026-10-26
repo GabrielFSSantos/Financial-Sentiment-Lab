@@ -105,7 +105,7 @@ case "$cmd" in
         (cd docs/Dissertacao_PPGCC && latexmk -pdf -interaction=nonstopmode ufsj-abntex2.tex) || true
       fi
     else
-      echo "[INFO] FSL_HARNESS_ROOT ausente — export LaTeX/figuras omitido; use export-thesis para JSON." >&2
+      echo "[INFO] FSL_HARNESS_ROOT ausente — export LaTeX/figuras omitido; PDF ainda compila com generated/ versionado; use export-thesis para JSON." >&2
     fi
     exec "$PY" -m modules.experiment.campaign.iti_v2_pipeline export-thesis --run-id "$RUN_ID"
     ;;
