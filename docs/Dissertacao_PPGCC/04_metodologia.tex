@@ -43,7 +43,7 @@ A implementação foi realizada em módulos que permitem separar leitura de dado
   \draw[flowarrow] (returns.east) -- (delta.west);
 \end{tikzpicture}%
 }
-\caption{Etapas de construção do ITI e do Soft, com avaliação humana do classificador em paralelo.}
+\caption{Etapas de construção do ITI e do Soft; as anotações humanas são comparadas às previsões do classificador em uma avaliação textual separada.}
 \label{fig:pipeline}
 \vspace{0.4em}
 {\footnotesize Fonte: elaboração própria.}
@@ -89,9 +89,7 @@ O comprimento máximo é de 512 tokens do tokenizador do modelo (não contagem p
 
 O procedimento conserva as probabilidades de saída, a classe prevista e o escore contínuo. É essencial verificar o mapeamento entre índices numéricos e classes a partir do checkpoint carregado. Uma inversão entre positivo e negativo não necessariamente causaria falha de execução, mas alteraria o sentido do escore e comprometeria a interpretação dos índices.
 
-O classificador é avaliado por matriz de confusão, acurácia, precisão, revocação, F1 por classe, F1 macro e kappa, sempre identificando a referência humana utilizada e a representação textual da inferência (integral versus contextual). Também deve ser calculado um baseline que atribui a todos os itens a classe predominante da amostra. Essa comparação auxilia a verificar se o resultado observado acrescenta algo além da distribuição das classes. Os resultados reportados na qualificação para a amostra de cem notícias utilizam título e corpo; a distinção em relação ao recorte do ITI é explicitada no Capítulo~\ref{cap:resultados}.
-
-A avaliação do classificador será conduzida a partir de diferentes medidas, sem tomar um único limiar de acurácia como condição suficiente de adequação. Como a amostra anotada apresenta predominância da classe neutra, serão examinados o F1 macro, as métricas por classe, a matriz de confusão e o kappa, sempre em comparação com a classe majoritária. Os resultados serão interpretados considerando a concordância humana, as possíveis ambiguidades do protocolo e a representação textual efetivamente utilizada pelo ITI. Eventuais critérios quantitativos de seleção de modelos serão definidos e justificados antes das próximas comparações, com registro das escolhas realizadas.
+Na avaliação textual apresentada nesta qualificação, são reportados acurácia, F1 macro e kappa, além de comparações entre tipos de notícia e com a classe majoritária. Os resultados correspondem às cem notícias anotadas pelo autor e à representação formada por título e corpo. A regra que prevê sempre a classe predominante serve como referência para interpretar a acurácia, mas não substitui a avaliação do desempenho nas classes positiva e negativa. Na continuidade da pesquisa, a análise será ampliada com matriz de confusão completa, precisão, revocação e F1 por classe, além da comparação entre a entrada integral e o recorte contextual empregado no ITI. A interpretação desses resultados considerará a concordância entre anotadores, a presença de casos ambíguos e eventuais diferenças entre as representações textuais. Se forem adotados critérios quantitativos para selecionar modelos, eles deverão ser definidos e justificados antes dos novos experimentos, com registro das escolhas realizadas. As limitações da avaliação atual são discutidas no Capítulo~\ref{cap:resultados}.
 
 % [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
@@ -130,6 +128,8 @@ A etapa financeira relaciona indicadores derivados das notícias à série de pr
 \[
 R_w^{(h)}=\log\left(\frac{P_{w+h}}{P_w}\right), \qquad h\in\{1,2,4\}.
 \]
+
+A configuração de mercado do projeto prevê a obtenção da série histórica de \texttt{SBSP3.SA} por meio do \texttt{yfinance}, com ajuste automático dos preços. Os retornos são calculados a partir da série de preços carregada para a execução. Para reproduzir exatamente as estimativas, é necessário identificar e preservar a versão desse arquivo juntamente com os demais registros da campanha, pois uma nova extração pode produzir dados diferentes.
 
 Os retornos são calculados na grade completa de semanas de mercado antes da junção; permanecem no painel apenas semanas com sinal válido e retornos futuros definidos. Dez semanas iniciais de aquecimento do índice são excluídas do contraste principal. O subpainel de holdout exploratório limita-se às semanas alinhadas entre o corte de reserva de notícias e o fim do corpus (12 semanas de calendário informacional, não semanas de mercado após o corpus). Horizontes maiores reduzem levemente $n$ por exigir semanas futuras adicionais. Quando o horário de publicação é desconhecido, a política conservadora de data evita, na medida do possível, utilizar texto ainda indisponível no instante do cutoff.
 

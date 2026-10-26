@@ -64,7 +64,7 @@ A avaliação sugere investigar três possibilidades. A primeira é a divergênc
 
 Os dados atuais não permitem repartir as 35 divergências entre essas causas. Para isso, será necessário examinar uma matriz de confusão completa, recuperar exemplos concretos, analisar os trechos processados pelo modelo e comparar avaliações humanas independentes. É justamente esse diagnóstico que deve orientar eventuais adaptações do classificador, evitando que mudanças de arquitetura sejam feitas antes de entender o problema.
 
-O desempenho do modelo também deve ser confrontado com a classe majoritária. Como 67\% da referência humana corresponde à classe neutra, um classificador que sempre previsse \emph{neutro} teria, nessa amostra específica, acurácia de 67\%. Esse valor não demonstra que uma regra trivial seja um bom modelo, pois ela falharia em identificar as classes positiva e negativa. Entretanto, oferece uma comparação indispensável para interpretar a acurácia global de 50\% e reforça a necessidade de apresentar métricas por classe.
+Na amostra anotada, 67 das cem notícias receberam o rótulo neutro. Uma regra que previsse sempre essa classe alcançaria, portanto, 67\% de acurácia, enquanto o FinBERT-PT-BR obteve 50\%. Essa comparação mostra que a acurácia isolada não sustenta, nesta etapa, a adequação do modelo à tarefa orientada à Sabesp. A regra majoritária também é insuficiente, pois deixa de identificar notícias positivas e negativas. Por isso, a continuidade da avaliação deve priorizar o F1 macro, as métricas por classe e a análise dos desacordos com anotações humanas independentes.
 
 A referência humana independente permanece pendente; os indicadores acima descrevem concordância modelo--autor, não consenso entre especialistas.
 

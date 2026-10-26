@@ -6,6 +6,8 @@ latexmk -pdf ufsj-abntex2.tex
 # ou: make pdf
 ```
 
+**PDF:** manter somente `ufsj-abntex2.pdf` nesta pasta (saída da compilação). Não criar cópias datadas (`ufsj-abntex2(…).pdf`), `novo.pdf` nem outros aliases — o `.gitignore` já ignora `*.pdf`.
+
 O repositório versiona `generated/*.tex` e figuras em `generated/figures/iti_v2/` para compilação offline do PDF.
 
 ## Regenerar números e figuras a partir da campanha
