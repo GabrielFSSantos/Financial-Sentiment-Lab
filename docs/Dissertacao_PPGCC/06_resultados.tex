@@ -70,7 +70,7 @@ A referência humana independente permanece pendente; os indicadores acima descr
 
 \IfFileExists{generated/results_macros.tex}{\input{generated/results_macros.tex}}{}
 
-Em outubro de 2026 foi concluída a execução exploratória documentada no Apêndice~\ref{ap:rastreabilidade}: 1.253 notícias elegíveis no recorte contextual, reprocessamento dos estimadores após auditoria de validade temporal (sem nova inferência FinBERT) e painel de 99 semanas de SBSP3 no intervalo informacional (maio/2022--abril/2024).
+Em outubro de 2026 foi concluída a execução exploratória documentada no Apêndice~\ref{ap:rastreabilidade}: 1.253 notícias elegíveis no recorte contextual, reprocessamento dos estimadores após correção do alinhamento semanal sinal$\times$mercado por chave \texttt{W-FRI} (sem nova inferência FinBERT) e painel de 104 semanas de SBSP3 no intervalo informacional (maio/2022--abril/2024).
 
 \IfFileExists{generated/tables/iti_v2_table_primary.tex}{\input{generated/tables/iti_v2_table_primary.tex}}{}
 \input{generated/iti_v2_results_snippet.tex}
@@ -100,7 +100,7 @@ Dimensão & Evidência observada & Encaminhamento \\
 \midrule
 Construto & Concordância modelo--autor limitada; neutras com polaridade incorreta & Referência humana independente \\
 Interna & Cutoff e calendário reauditados em out./2026 & Política conservadora de disponibilidade \\
-Estatística & $n=89$; Holm nos $p$ secundários; $\Delta$ inconclusivo & Não reinterpretar $p$ alto como equivalência \\
+Estatística & $n=94$; Holm nos $p$ secundários; $\Delta$ inconclusivo & Não reinterpretar $p$ alto como equivalência \\
 Externa & Uma empresa; cobertura desigual & Extensão condicionada aos dados \\
 Reprodutibilidade & Manifestos por execução & Versionamento de corpus e código \\
 \bottomrule
@@ -110,7 +110,7 @@ Reprodutibilidade & Manifestos por execução & Versionamento de corpus e códig
 {\footnotesize Fonte: elaboração própria.}
 \end{table}
 
-No universo pareado do contraste principal ($n=89$ semanas), o Soft no cutoff foi zero em 34 semanas (38,2\%); no nível diário elegível, cerca de 42,5\% dos dias não tiveram matérias --- diagnóstico exploratório da campanha de outubro de 2026, sem alterar estimadores canônicos. O contraste permanece entre memória (ITI-H7) e entrada instantânea no cutoff, não entre baselines semanais alternativos. Em síntese, o pipeline é operacional e auditável, o sinal textual exige referência humana independente e a campanha não confirma superioridade do ITI-H7 sobre Soft (plano de continuidade no Capítulo~\ref{cap:consideracoes}).
+No universo pareado do contraste principal ($n=94$ semanas), o Soft no cutoff foi zero em 36 semanas (38,3\%); no nível diário elegível, cerca de 42,5\% dos dias não tiveram matérias --- diagnóstico exploratório da campanha de outubro de 2026. Entre as semanas com Soft zero no cutoff, 33 apresentaram notícias em dias anteriores da mesma semana civil (análise auxiliar sobre \texttt{iti\_daily.csv}). O contraste permanece entre memória (ITI-H7) e entrada instantânea no cutoff, não entre baselines semanais alternativos. Em síntese, o pipeline é operacional e auditável, o sinal textual exige referência humana independente e a campanha não confirma superioridade do ITI-H7 sobre Soft (plano de continuidade no Capítulo~\ref{cap:consideracoes}).
 
 % [trecho legado R0/R1 omitido do manuscrito, out./2026]
 

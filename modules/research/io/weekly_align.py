@@ -13,6 +13,7 @@ from modules.research.io.market_weekly_returns import (
     attach_future_weekly_log_returns,
     weekly_log_returns_from_prices,
 )
+from modules.research.io.week_key import week_key_series
 
 
 def _week_end_key(series: pd.Series) -> pd.Series:
@@ -180,10 +181,13 @@ def align_weekly_combination(
             horizons=configuration.horizons,
             return_col="log_return_week",
         )
+        panel = panel.copy()
+        panel["week_key"] = week_key_series(panel["date"])
+        weekly_market = weekly_market.copy()
+        weekly_market["week_key"] = week_key_series(weekly_market["week_id"])
         merged = panel.merge(
             weekly_market,
-            left_on=["date", "ticker"],
-            right_on=["period_end", "ticker"],
+            on=["ticker", "week_key"],
             how="inner",
         )
         for horizon in configuration.horizons:
@@ -201,10 +205,13 @@ def align_weekly_combination(
             horizons=configuration.horizons,
             return_col="ret_week",
         )
+        panel = panel.copy()
+        panel["week_key"] = week_key_series(panel["date"])
+        weekly_market = weekly_market.copy()
+        weekly_market["week_key"] = week_key_series(weekly_market["period_end"])
         merged = panel.merge(
             weekly_market,
-            left_on=["date", "ticker"],
-            right_on=["period_end", "ticker"],
+            on=["ticker", "week_key"],
             how="inner",
         )
 

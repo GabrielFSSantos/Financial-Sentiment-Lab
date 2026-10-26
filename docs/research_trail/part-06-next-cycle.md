@@ -1,6 +1,6 @@
 # Parte 6 — Próximo ciclo
 
-> **Números ITI-v2:** usar sempre [part-04 §4.7](part-04-results.md) (pós-auditoria temporal, n=89/99). Valores com n=204 são obsoletos.
+> **Números ITI-v2:** usar sempre [part-04 §4.7](part-04-results.md) (pós-correção C05 `week_key`, n=94/104). Valores com n=204 ou n=89/99 pré-C05 são obsoletos.
 
 Perguntas que podem **mudar** a conclusão (não repetir fine-tune/LLM como prioridade deste ciclo):
 

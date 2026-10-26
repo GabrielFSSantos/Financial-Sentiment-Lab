@@ -30,5 +30,22 @@ def test_delta_inference_two_sided_p_not_one_sided_mass() -> None:
     )
     assert result.p_value is not None
     assert 0.0 <= result.p_value <= 1.0
-    one_sided = float(np.mean(np.array([result.value or 0.0]) <= 0.0))
-    assert result.p_value != one_sided or result.n_bootstrap > 0
+    assert result.n_bootstrap == 500
+    assert result.ci_low is not None
+    assert result.ci_high is not None
+    if result.value is not None and result.ci_low is not None and result.ci_high is not None:
+        assert result.ci_low <= result.value <= result.ci_high
+    rng2 = np.random.default_rng(0)
+    y2 = rng2.normal(size=n)
+    iti2 = y2.copy()
+    base2 = y2.copy()
+    null_result = compute_delta_inference(
+        "spearman",
+        iti2,
+        base2,
+        y2,
+        metric_fn=NUMPY_METRIC_FUNCTIONS["spearman"],
+        inference=config,
+    )
+    assert null_result.p_value is not None
+    assert null_result.p_value >= 0.05

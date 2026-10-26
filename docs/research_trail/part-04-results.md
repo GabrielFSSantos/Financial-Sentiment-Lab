@@ -133,15 +133,16 @@ F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
 
 > **Modo:** exploratório (`protocol_lock.json`). **Não** substitui duelos R1 legados nem confirma hipótese. Views `entity_context_v1` (primária) + `document_v1` (ablação); corpus canônico P02 (1 253 artigos na view primária).
 
-> **Auditoria temporal (out./2026):** números que citavam n=204/214 e Δ≈−0,004 referiam-se a alinhamento pré-correção; **obsoletos**. Fonte canônica: `result_registry.json` e `metrics_primary_delta.json` da run abaixo.
+> **Auditoria temporal (out./2026):** números que citavam n=204/214 e Δ≈−0,004 referiam-se a alinhamento pré-correção; **obsoletos**.  
+> **Junção semanal C05 (26/out.):** merge sinal×mercado por `week_key` (W-FRI), sem sobrescrever `period_end` do mercado; re-run `evaluate`+`report` na mesma run.
 
 | Item | Valor |
 |------|--------|
 | `run_id` | `iti_v2_prod_20261022` |
-| Painel alinhado | 99 semanas (intervalo informacional maio/2022–abr/2024) |
-| Teste principal Δρ (ITI-H7 − Soft, h=1) | Δ ≈ **+0,025** · IC95% [−0,066; +0,284] · **p≈0,209** · **n=89** |
-| ρ pareado (ITI-H7 / Soft) | ≈ −0,148 / −0,174 |
-| Marginal exploratória (ρ ITI-H7, h=1) | n=99 · ρ ≈ −0,132 |
+| Painel alinhado | 104 semanas (intervalo informacional maio/2022–abr/2024) |
+| Teste principal Δρ (ITI-H7 − Soft, h=1) | Δ ≈ **+0,040** · IC95% [−0,127; +0,241] · **p≈0,512** · **n=94** |
+| ρ pareado (ITI-H7 / Soft) | ≈ −0,163 / −0,203 |
+| Marginal exploratória (ρ ITI-H7, h=1) | n=104 · ρ ≈ −0,145 |
 | Família secundária | 8 contrastes + Holm · `table_secondary.csv` |
 | Registro único | `result_registry.json` |
 | Holdout notícias (exploratório) | 199 artigos · `metrics_holdout_contrasts.json` (**n=11** semanas no painel holdout) |
