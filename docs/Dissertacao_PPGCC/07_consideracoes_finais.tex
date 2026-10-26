@@ -5,9 +5,9 @@
 
 Esta pesquisa implementou o Índice Temporal Informacional (ITI) para notícias corporativas em português, com estudo de caso na Sabesp: recorte contextual, agregação diária, memória por meia-vida $H=7$ em dias civis e confronto semanal com retornos de SBSP3 frente ao baseline Soft no mesmo cutoff.
 
-O procedimento é executável; a tarefa orientada à empresa difere da classificação genérica (concordância limitada na amostra de cem notícias anotadas pelo autor, com destaque para neutras e matérias multiempresa). Na avaliação temporal de outubro de 2026 (após correção de extrapolação informacional), o contraste principal pré-especificado permanece inconclusivo (Tabela~\ref{tab:iti-primary}) e não favorece o candidato com memória. Não se confirma superioridade estatística do ITI-H7 nem equivalência ao Soft.
+O procedimento é executável; a tarefa orientada à empresa difere da classificação genérica (concordância limitada na amostra de cem notícias anotadas pelo autor, com destaque para neutras e matérias multiempresa). Na avaliação temporal de outubro de 2026 (após correção de extrapolação informacional), o contraste principal definido no protocolo desta rodada permanece inconclusivo (Tabela~\ref{tab:iti-primary}) e não favorece o candidato com memória. Não se confirma superioridade estatística do ITI-H7 nem equivalência ao Soft.
 
-As contribuições delimitadas desta qualificação são: (1) \textbf{procedimento verificável} de corpus P02 a índices ITI-v2 (recorte contextual, agregação diária, memória $H=7$, registro em \texttt{result\_registry.json}); (2) \textbf{protocolo de avaliação} com contrastes pareados pré-especificados, bootstrap em blocos e família secundária com Holm; (3) \textbf{caracterização honesta dos limites} --- concordância textual ainda fraca, cobertura presumida no intervalo do inventário, contraste principal inconclusivo e holdout apenas exploratório. Demonstrar associação ou informação incremental preditiva permanece condicionada à referência humana independente e a testes confirmatórios na continuidade.
+As contribuições delimitadas desta qualificação são: (1) \textbf{procedimento verificável} de corpus P02 ao ITI (recorte contextual, agregação diária, memória $H=7$, registro em \texttt{result\_registry.json}); (2) \textbf{protocolo de avaliação} com contrastes pareados definidos e registrados na rodada, bootstrap em blocos e família secundária com Holm; (3) \textbf{caracterização honesta dos limites} --- concordância textual ainda fraca, cobertura presumida no intervalo do inventário, contraste principal inconclusivo e holdout apenas exploratório. Demonstrar associação ou informação incremental preditiva permanece condicionada à referência humana independente e a testes confirmatórios na continuidade.
 
 % [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
@@ -38,6 +38,8 @@ Extensão setorial & Novas empresas com corpus auditado & Mesmas regras de cutof
 \vspace{0.35em}
 {\footnotesize Fonte: elaboração própria.}
 \end{table}
+
+Sensibilidades adicionais de parâmetros (por exemplo, varredura sistemática de $H$ ou de regras de recorte) permanecem como exploração \emph{pós-qualificação}, com protocolo fixado antes de inspecionar resultados em períodos novos.
 
 % [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
