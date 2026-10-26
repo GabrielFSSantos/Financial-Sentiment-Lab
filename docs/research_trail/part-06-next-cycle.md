@@ -1,5 +1,7 @@
 # Parte 6 — Próximo ciclo
 
+> **Números ITI-v2:** usar sempre [part-04 §4.7](part-04-results.md) (pós-auditoria temporal, n=89/99). Valores com n=204 são obsoletos.
+
 Perguntas que podem **mudar** a conclusão (não repetir fine-tune/LLM como prioridade deste ciclo):
 
 1. **Validação humana maior** — estratificar por gênero, fonte, classe, período (n>100).

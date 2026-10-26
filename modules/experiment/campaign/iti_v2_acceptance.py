@@ -11,7 +11,10 @@ import yaml
 
 from modules.experiment import PROJECT_ROOT
 from modules.experiment.campaign.iti_v2_inference import ITI_V2_PREDICTION_COLUMNS
-from modules.experiment.campaign.protocol_lock import require_protocol_lock
+from modules.experiment.campaign.protocol_lock import (
+    require_protocol_lock,
+    verify_protocol_lock_integrity,
+)
 from modules.research.config.analysis_plan import load_analysis_plan
 
 
@@ -44,14 +47,28 @@ def _check_p02(corpus_dir: Path) -> list[AcceptanceResult]:
     return results
 
 
-def _check_lock(corpus_dir: Path) -> AcceptanceResult:
+def _check_lock(corpus_dir: Path) -> list[AcceptanceResult]:
     try:
         lock = require_protocol_lock(corpus_dir)
         hashes = lock.get("hashes", {})
-        ok = bool(hashes.get("protocol_sha256") and hashes.get("corpus_source_sha256"))
-        return AcceptanceResult("P11:protocol_lock", ok, json.dumps(hashes, indent=0)[:200])
+        present = bool(hashes.get("protocol_sha256") and hashes.get("corpus_source_sha256"))
+        results = [
+            AcceptanceResult(
+                "P11:protocol_lock",
+                present,
+                json.dumps(hashes, indent=0)[:200],
+            )
+        ]
+        ok_integrity, mismatches = verify_protocol_lock_integrity(corpus_dir)
+        detail = "hashes conferem" if ok_integrity else "; ".join(mismatches[:3])
+        if mismatches and len(mismatches) > 3:
+            detail += f" (+{len(mismatches) - 3} divergências)"
+        results.append(
+            AcceptanceResult("P11:protocol_lock_integrity", ok_integrity, detail)
+        )
+        return results
     except Exception as error:
-        return AcceptanceResult("P11:protocol_lock", False, str(error))
+        return [AcceptanceResult("P11:protocol_lock", False, str(error))]
 
 
 def _check_predictions(path: Path) -> list[AcceptanceResult]:
@@ -185,7 +202,7 @@ def run_acceptance(
     results: list[AcceptanceResult] = []
     results.extend(_check_configs())
     results.extend(_check_p02(corpus_dir))
-    results.append(_check_lock(corpus_dir))
+    results.extend(_check_lock(corpus_dir))
     if run_id:
         run_dir = PROJECT_ROOT / "outputs/campaigns/iti_v2" / run_id
         pred = run_dir / "predictions.csv"

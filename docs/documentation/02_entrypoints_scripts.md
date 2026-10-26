@@ -39,7 +39,7 @@ flowchart TB
 | --- | --- |
 | `scripts/setup_env.sh` | Cria `venv/`, instala deps; `--fetch-assets` baixa modelos, datasets e mercado |
 | `scripts/audit_project.sh` | Estrutura, YAML, pytest, dry-run |
-| `scripts/run_experiment.sh` | Chama `python -m modules.experiment`; `--campaign sabesp_2026 --campaign-run r0_baseline` resolve config/run/model/dataset |
+| `scripts/run_experiment.sh` | Chama `python -m modules.experiment`; use `--experiment-config` e `--run-id` explícitos |
 | `scripts/run_research.sh` | Chama `python -m modules.research validate` |
 | `scripts/run_dashboard.sh` | Dashboard Streamlit de exploração da pesquisa |
 | `modules/scrapers/scripts/scrape.sh` | Wrapper de coleta |
@@ -48,30 +48,16 @@ flowchart TB
 | `modules/models/scripts/fetch.sh` | Download isolado de modelos |
 | `modules/datasets/scripts/fetch.sh` | Download isolado de datasets |
 
-### Scripts de campanha (descartáveis)
+### Scripts de campanha
 
 Ver [`scripts/campaigns/README.md`](../../scripts/campaigns/README.md) e [`configs/campaigns/README.md`](../../configs/campaigns/README.md).
 
 | Script | Função |
 | --- | --- |
-| `scripts/campaigns/iti_v2.sh` | Campanha ITI-v2: `prepare` → `lock-protocol` → `infer` → `indices` → `evaluate` → `report` → `validate`; `run-all` encadeia tudo; `ITI_V2_INFER_LIMIT=0` para corpus completo |
-| `scripts/campaigns/sabesp_2026.sh` | Campanha Sabesp R0–R9 (Marco 1) |
-| `scripts/campaigns/sabesp_marco2.sh` | Marco 2 — janela expandida (`replay-event`, `analyze-periods`) |
-| `scripts/campaigns/classifier_eval_en.sh` | Trilha B — PhraseBank/NOSIBLE |
-| `scripts/campaigns/fnspid_pilot.sh` | Marco 4 — piloto FNSPID |
-| `scripts/campaigns/finmarba_diag.sh` | Marco 5 — FinMarBa |
+| `scripts/campaigns/iti_v2.sh` | Campanha ITI-v2: `prepare` → `lock-protocol` → `infer` → `indices` → `evaluate` → `report` → `validate`; `postprocess` com `FSL_HARNESS_ROOT` opcional para LaTeX |
 | `scripts/campaigns/classifier_eval_pt.sh` | κ bateria PT (FinBERT vs controles) |
 
-### Exportação dissertação (ITI-v2)
-
-Chamados por `scripts/campaigns/iti_v2.sh postprocess`:
-
-| Script | Saída |
-| --- | --- |
-| `scripts/dissertation/iti_v2/export_iti_v2_latex.py` | `docs/Dissertacao_PPGCC/generated/iti_v2_results_snippet.tex`, `results_macros.tex` |
-| `scripts/dissertation/iti_v2/export_iti_v2_dissertation_tables.py` | `generated/tables/iti_v2_table_secondary.tex` |
-| `scripts/dissertation/iti_v2/generate_iti_v2_figures.py` | `generated/figures/iti_v2/*.png` |
-| `scripts/references/export_references_downloads_pending.py` | `docs/references/downloads_pending.md` |
+Campanhas históricas (Sabesp R0–R9, pilotos) foram retiradas do repo; resultados na trilha §4.
 
 ### CLIs `python -m modules.*`
 

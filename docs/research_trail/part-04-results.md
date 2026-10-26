@@ -4,7 +4,7 @@
 
 ## 4.1 Protocolo
 
-Ver [Parte 2](#parte-2--protocolo-e-critérios-de-progresso). Research: `configs/campaigns/sabesp_2026/research_weekly.yaml`.
+Ver [Parte 2](#parte-2--protocolo-e-critérios-de-progresso). **Núcleo quantitativo da qualificação (out./2026):** campanha ITI-v2 ([§4.7](#47-campanha-iti-out2026)). Duelos semanais R0–R9 (`sabesp_2026`) permanecem **histórico** ([§4.2](#42-resultado-principal-janela-evento)); configs legadas arquivadas fora do repo ativo.
 
 ## 4.2 Resultado principal (janela evento)
 
@@ -131,18 +131,24 @@ F1 macro FinBERT na formal: 0,45. Gate (70% ou κ≥0,40): **não** atingido.
 
 ## 4.7 Campanha ITI (out./2026)
 
-> **Modo:** exploratório (`protocol_lock.json`). **Não** substitui duelos R1 legados nem confirma hipótese. Views `entity_context_v1` + `document_v1`; corpus canônico P02 (1 253 artigos na view primária).
+> **Modo:** exploratório (`protocol_lock.json`). **Não** substitui duelos R1 legados nem confirma hipótese. Views `entity_context_v1` (primária) + `document_v1` (ablação); corpus canônico P02 (1 253 artigos na view primária).
+
+> **Auditoria temporal (out./2026):** números que citavam n=204/214 e Δ≈−0,004 referiam-se a alinhamento pré-correção; **obsoletos**. Fonte canônica: `result_registry.json` e `metrics_primary_delta.json` da run abaixo.
 
 | Item | Valor |
 |------|--------|
 | `run_id` | `iti_v2_prod_20261022` |
-| Teste principal Δ (ITI-H7 − Soft, h=1) | Δ ≈ −0,004 · IC95% [−0,093; +0,222] · p=1,0 · n=204 |
-| Marginal exploratória (ρ ITI-H7) | ρ ≈ −0,092 · p≈0,18 · bootstrap 10 000 |
+| Painel alinhado | 99 semanas (intervalo informacional maio/2022–abr/2024) |
+| Teste principal Δρ (ITI-H7 − Soft, h=1) | Δ ≈ **+0,025** · IC95% [−0,066; +0,284] · **p≈0,209** · **n=89** |
+| ρ pareado (ITI-H7 / Soft) | ≈ −0,148 / −0,174 |
+| Marginal exploratória (ρ ITI-H7, h=1) | n=99 · ρ ≈ −0,132 |
 | Família secundária | 8 contrastes + Holm · `table_secondary.csv` |
 | Registro único | `result_registry.json` |
-| Holdout notícias (exploratório) | 199 artigos · `metrics_holdout_contrasts.json` (n=12 semanas no painel) |
+| Holdout notícias (exploratório) | 199 artigos · `metrics_holdout_contrasts.json` (**n=11** semanas no painel holdout) |
 | Artefatos | `outputs/campaigns/iti_v2/iti_v2_prod_20261022/` · `thesis_export/` |
 | Replica HPC | Job **11622600** · `iti_v2_sdumont_20261022` · métricas alinhadas ao prod |
+
+**Limites de cobertura (validade):** dias elegíveis no índice seguem o intervalo mínimo–máximo do inventário P02; ausência de matéria em dia elegível entra como \(X_d=0\) com decaimento EWMA. Isso não distingue, por si só, silêncio informacional de lacuna de coleta — manifesto fonte×dia permanece melhoria planejada pós-qualificação.
 
 Reprodução: `./scripts/campaigns/iti_v2.sh postprocess iti_v2_prod_20261022` · aceite: `logs/iti_v2/acceptance_latest.md`. **Citar na tese:** run local; HPC como reprodutibilidade operacional.
 
@@ -162,13 +168,14 @@ Pré-requisitos: `./scripts/setup_env.sh --fetch-assets`, `./scripts/audit_proje
 
 | Etapa | Comando (exemplo) |
 | --- | --- |
-| Experimento R1 evento | `./scripts/campaigns/sabesp_2026.sh` (subcomando da run desejada — ver script) |
-| Research semanal | Após experiment: `./scripts/run_research.sh` com `run_id` da campanha |
-| Manifest / relatórios | `outputs/campaigns/sabesp_2026/`, Marco 2 em `sabesp_marco2/` |
-| κ manual | `./scripts/campaigns/classifier_eval_pt.sh` |
-| Campanha ITI | `./scripts/campaigns/iti_v2.sh run-all <run_id>` (ver runbook) |
+| Campanha ITI (prepare → inferência → índices → research) | `./scripts/campaigns/iti_v2.sh` — ver `configs/campaigns/iti_v2/README.md` |
+| Pós-processamento / export dissertação | `./scripts/campaigns/iti_v2.sh postprocess iti_v2_prod_20261022` |
+| κ manual / FinBERT × humano | `./scripts/campaigns/classifier_eval_pt.sh` |
+| Trilha B (amostra manual) | `./scripts/campaigns/trilha_b/` (se aplicável) |
+| Artefatos ITI canônicos | `outputs/campaigns/iti_v2/iti_v2_prod_20261022/` |
+| Duelos R1 legados (histórico) | Requer configs `sabesp_2026` arquivadas — não fazem parte do gate ativo do repo |
 
-YAML: `configs/campaigns/sabesp_2026/research_weekly.yaml`, experiments em `configs/campaigns/sabesp_2026/experiments/`. Fluxo detalhado: [11_end_to_end_flow.md](../documentation/11_end_to_end_flow.md).
+YAML ITI: `configs/campaigns/iti_v2/`. Fluxo: [11_end_to_end_flow.md](../documentation/11_end_to_end_flow.md) (seção ITI-v2).
 
 **Não** reexecutar números desta Parte 4 sem registrar novo `run_id` e atualizar tabelas aqui.
 

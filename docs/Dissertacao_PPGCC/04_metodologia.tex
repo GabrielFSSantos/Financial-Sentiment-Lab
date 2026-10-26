@@ -81,14 +81,14 @@ O comprimento máximo é de 512 tokens do tokenizador do modelo (não contagem p
 
 O procedimento conserva as probabilidades de saída, a classe prevista e o escore contínuo. É essencial verificar o mapeamento entre índices numéricos e classes a partir do checkpoint carregado. Uma inversão entre positivo e negativo não necessariamente causaria falha de execução, mas alteraria o sentido do escore e comprometeria a interpretação dos índices.
 
-O classificador é avaliado por matriz de confusão, acurácia, precisão, revocação, F1 por classe, F1 macro e kappa, sempre identificando a referência humana utilizada. Também deve ser calculado um baseline que atribui a todos os itens a classe predominante da amostra. Essa comparação auxilia a verificar se o resultado observado acrescenta algo além da distribuição das classes.
+O classificador é avaliado por matriz de confusão, acurácia, precisão, revocação, F1 por classe, F1 macro e kappa, sempre identificando a referência humana utilizada e a representação textual da inferência (integral versus contextual). Também deve ser calculado um baseline que atribui a todos os itens a classe predominante da amostra. Essa comparação auxilia a verificar se o resultado observado acrescenta algo além da distribuição das classes. Os resultados reportados na qualificação para a amostra de cem notícias utilizam título e corpo; a distinção em relação ao recorte do ITI é explicitada no Capítulo~\ref{cap:resultados}.
 
 O projeto adotou, como critério operacional inicial de progresso, acurácia próxima de 70\% ou kappa de pelo menos 0,40. Esses valores são decisões do protocolo de pesquisa, não limiares científicos universais derivados de \citeonline{cohen1960kappa}. Como a base é estratificada e a classe neutra é majoritária na anotação atual, a avaliação definitiva dependerá também das métricas por classe, da qualidade do consenso humano e da análise dos casos ambíguos.
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
 
 \section{Formulação operacional e inferência do ITI}
@@ -129,7 +129,7 @@ Os retornos são calculados na grade completa de semanas de mercado antes da jun
 
 As correlações e o $\Delta$ do ITI (Seção~\ref{sec:formulacao-iti}) descrevem associações marginais; \textbf{não} respondem, por si só, se o ITI acrescenta informação quando baselines e controles já estão em um modelo de regressão. Essa etapa --- comparar especificações com e sem o termo do ITI, com divisão cronológica e variáveis pré-definidas --- está planejada para após a consolidação do corpus e da referência humana (Capítulo~\ref{cap:consideracoes}, Tabela~\ref{tab:plano-continuidade}).
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
 
 \section{Registro, ambiente de execução e reprodutibilidade}
@@ -140,5 +140,5 @@ A campanha reportada em outubro de 2026 foi reprocessada localmente após audito
 
 Mudanças de corpus ou de código exigem nova execução registrada, sem sobrescrever resultados anteriores. O repositório público do projeto preserva configurações e artefatos para auditoria externa, com revisão Git fixada no registro da campanha.
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 

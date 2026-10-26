@@ -24,12 +24,6 @@ REPORT_DIR = _SETTINGS.report_dir
 CLASSIFIER_CONFIG = (
     PROJECT_ROOT / "configs/campaigns/trilha_b/classifier_diag.yaml"
 )
-R1_CONFIG = (
-    PROJECT_ROOT / "configs/campaigns/sabesp_2026/experiments/r1_alpha070.yaml"
-)
-RESEARCH_CONFIG = (
-    PROJECT_ROOT / "configs/campaigns/sabesp_2026/research_weekly.yaml"
-)
 
 MODELS: tuple[str, ...] = _SETTINGS.battery_models or (
     "finbert_ptbr",
@@ -242,51 +236,11 @@ def run_battery(*, skip_setup: bool = True) -> list[dict[str, float | int | str]
     return results
 
 
-def run_conditional_iti(winner: str, *, skip_setup: bool = True) -> None:
-    run_id = f"sabesp_ctrl_event_r1_{winner}"
-    cmd_exp = [
-        str(PROJECT_ROOT / "scripts/run_experiment.sh"),
-    ]
-    if skip_setup:
-        cmd_exp.append("--skip-setup")
-    cmd_exp.extend(
-        [
-            "--experiment-config",
-            str(R1_CONFIG.relative_to(PROJECT_ROOT)),
-            "--run-id",
-            run_id,
-            "--dataset",
-            "saneamento_sabesp_strict_event",
-            "--model",
-            winner,
-        ]
-    )
-    subprocess.run(cmd_exp, cwd=PROJECT_ROOT, check=True)
-
-    cmd_res = [
-        str(PROJECT_ROOT / "scripts/run_research.sh"),
-        "--run-id",
-        run_id,
-        "--dataset",
-        "saneamento_sabesp_strict_event",
-        "--model",
-        winner,
-        "--config",
-        str(RESEARCH_CONFIG.relative_to(PROJECT_ROOT)),
-    ]
-    subprocess.run(cmd_res, cwd=PROJECT_ROOT, check=True)
-    print(f"ITI condicional concluído: outputs/{run_id}/")
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Bateria PT vs rótulos manuais")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("prepare", help="Gera rotulos_manual_100_eval.csv")
     sub.add_parser("run", help="Inferência + κ para os 3 modelos PT")
-    sub.add_parser(
-        "iti-if-gate",
-        help="Roda ITI evento só se algum modelo passar o gate",
-    )
     return parser
 
 
@@ -304,17 +258,6 @@ def main(argv: list[str] | None = None) -> int:
                 f"{float(item['accuracy']):.1%} | κ={float(item['cohen_kappa']):.3f}"
             )
         print(f"Relatório: {REPORT_DIR / 'comparative_report.md'}")
-        return 0
-    if args.command == "iti-if-gate":
-        summary_path = REPORT_DIR / "summary.json"
-        if not summary_path.is_file():
-            run_battery()
-        summary = json.loads(summary_path.read_text(encoding="utf-8"))
-        winner = summary.get("winner")
-        if not winner:
-            print("Gate não atingido — ITI condicional omitido.")
-            return 0
-        run_conditional_iti(str(winner))
         return 0
     return 1
 

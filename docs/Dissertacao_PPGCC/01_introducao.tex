@@ -9,7 +9,7 @@ A presente pesquisa se concentra em notícias corporativas em português, inicia
 
 A escolha do saneamento oferece um contexto em que assuntos financeiros, regulatórios e de interesse público frequentemente coexistem na mesma matéria; o desafio central é determinar a qual agente a avaliação se refere (detalhado no Capítulo~\ref{cap:fundamentacao} e na Seção~\ref{sec:problema}).
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
 
 \section{Contexto e delimitação do estudo}
@@ -33,18 +33,18 @@ A segunda dificuldade envolve o significado da classificação. Um modelo treina
 
 A terceira dificuldade é temporal. As notícias aparecem em datas e horários irregulares, enquanto os retornos financeiros seguem um calendário de negociação. Um índice calculado no encerramento de uma semana só pode ser comparado com retornos posteriores se as informações utilizadas já estavam disponíveis naquele instante. Além disso, a forma de agregar matérias e a escolha do parâmetro de memória alteram a série obtida. Uma correlação aparente pode refletir essas escolhas, e não uma propriedade estável da informação jornalística.
 
-Diante dessas dificuldades, a pergunta principal é: em que medida o ITI-H7, amostrado no mesmo cutoff semanal que o sinal Soft (sem memória), apresenta associação de Spearman com retorno logarítmico de uma semana futura de SBSP3, e quais limitações de classificação e alinhamento condicionam essa avaliação exploratória?
+Diante dessas dificuldades, a pergunta principal é: \textbf{como construir e avaliar de forma verificável} um índice temporal orientado à Sabesp a partir de notícias em português --- corpus, recorte contextual, escore probabilístico, agregação diária e memória por meia-vida --- e \textbf{quais limitações} (classificação, cobertura do corpus e alinhamento temporal) condicionam a interpretação dos resultados? A associação de Spearman entre ITI-H7 e retorno logarítmico de uma semana futura de SBSP3, confrontada ao Soft no mesmo cutoff, integra essa avaliação como \emph{eixo exploratório}, sem presupor superioridade preditiva do índice.
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
 
 Duas perguntas complementam a investigação. A primeira é se o classificador financeiro produz rótulos compatíveis com uma avaliação humana orientada especificamente à Sabesp. A segunda é em que medida a memória temporal altera o comportamento do ITI em comparação com agregações sem essa recorrência. Essas perguntas são tratadas separadamente porque a presença de associação com retornos não corrige um eventual problema de validade da classificação textual.
 
 \section{Objetivos}
 
-O objetivo geral é desenvolver e avaliar um índice temporal calculado a partir de notícias corporativas em português sobre empresas brasileiras de saneamento, utilizando a Sabesp como estudo de caso inicial.
+O objetivo geral é desenvolver e documentar um \textbf{procedimento reprodutível} para transformar notícias corporativas em português em uma série temporal orientada a uma empresa-alvo, utilizando a Sabesp como estudo de caso inicial.
 
-Para atingir esse objetivo, o trabalho procura organizar um corpus com identificação da empresa, conteúdo, origem e data das notícias; examinar a adequação de um classificador financeiro à atribuição de polaridade para uma empresa-alvo; implementar escores e agregações temporais com memória explícita; comparar essa representação com medidas de referência derivadas das mesmas notícias; verificar sua associação com retornos futuros em diferentes horizontes; e registrar as configurações necessárias para interpretar e reproduzir os experimentos.
+Para atingir esse objetivo, o trabalho procura organizar um corpus com identificação da empresa, conteúdo, origem e data das notícias; examinar a adequação de um classificador financeiro à atribuição de polaridade para a empresa-alvo; implementar escores e agregações temporais com memória explícita; comparar representações pré-especificadas no protocolo da rodada; registrar limitações de cobertura e alinhamento; e, de forma exploratória, verificar associação com retornos futuros em horizontes semanais, com configurações suficientes para interpretar e reproduzir os experimentos.
 
 Esses objetivos têm graus diferentes de conclusão na etapa de qualificação. A integração computacional e as comparações exploratórias já foram executadas. A referência humana independente, o inventário definitivo do corpus e a avaliação estatística confirmatória ainda precisam ser consolidados. Essa distinção orienta a apresentação dos resultados sem confundir componentes concluídos com atividades previstas.
 
@@ -52,11 +52,11 @@ Esses objetivos têm graus diferentes de conclusão na etapa de qualificação. 
 
 A justificativa do trabalho está na necessidade de avaliar, de maneira integrada, a passagem de textos jornalísticos para indicadores quantitativos relacionados a uma empresa. Modelos de classificação, procedimentos de suavização temporal e estatísticas de associação são conhecidos isoladamente. A questão é saber como suas escolhas se combinam e quais limitações aparecem quando aplicadas a notícias reais, em português, sobre uma companhia de saneamento.
 
-No campo computacional, a contribuição proposta envolve um procedimento modular que reúne corpus, inferência, construção do índice e avaliação experimental. Essa estrutura permite inspecionar resultados intermediários e alterar uma etapa sem tratar todo o fluxo como uma única transformação opaca. Na dimensão metodológica, o trabalho examina a adequação da referência textual e a sensibilidade dos resultados às versões do corpus e às escolhas de alinhamento.
+A contribuição central proposta é \textbf{metodológica e de engenharia de pesquisa}: um procedimento modular que reúne corpus, inferência, construção do índice e avaliação experimental, permitindo inspecionar resultados intermediários e alterar uma etapa sem tratar todo o fluxo como uma transformação opaca. O estudo de caso na Sabesp examina quando o sinal textual e a série temporal são interpretáveis e quando falham --- cobertura, neutros majoritários, alinhamento causal --- em vez de defender, nesta etapa, um indicador superior para antecipar o mercado.
 
-Os experimentos já produziram contribuições delimitadas --- integração do pipeline, distinção entre sentimento genérico e anotação orientada à Sabesp, sensibilidade a versões do corpus --- sem comprovar superioridade estatística do ITI (Capítulo~\ref{cap:resultados}).
+Os experimentos já produziram evidências delimitadas --- pipeline auditável, distinção entre sentimento genérico e anotação orientada à Sabesp, contrastes temporais pré-especificados --- \textbf{sem} comprovar superioridade estatística do ITI-H7 sobre o Soft (Capítulo~\ref{cap:resultados}).
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
 
 \section{Hipótese e organização do trabalho}

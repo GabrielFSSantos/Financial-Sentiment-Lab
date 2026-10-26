@@ -6,7 +6,7 @@
 #   ./scripts/run_experiment.sh --skip-setup
 #   ./scripts/run_experiment.sh --model finbert_ptbr --dataset noticias_exemplo_ptbr
 #   ./scripts/run_experiment.sh --run-id meu_experimento
-#   ./scripts/run_experiment.sh --campaign sabesp_2026 --campaign-run r0_baseline
+#   ./scripts/run_experiment.sh --experiment-config configs/... --run-id my_run
 
 set -euo pipefail
 
@@ -72,19 +72,8 @@ HELP
 done
 
 if [[ -n "${CAMPAIGN}" || -n "${CAMPAIGN_RUN}" ]]; then
-    if [[ -z "${CAMPAIGN}" || -z "${CAMPAIGN_RUN}" ]]; then
-        printf 'Use --campaign e --campaign-run juntos.\n' >&2
-        exit 1
-    fi
-    # shellcheck disable=SC1090
-    eval "$("${SCRIPT_DIR}/lib/resolve_campaign_run.sh" "${CAMPAIGN}" "${CAMPAIGN_RUN}")"
-    RUNNER_ARGS=(
-        --experiment-config "${PROJECT_ROOT}/${CAMPAIGN_EXPERIMENT_CONFIG}"
-        --run-id "${CAMPAIGN_RUN_ID}"
-        --model "${CAMPAIGN_MODEL}"
-        --dataset "${CAMPAIGN_DATASET}"
-        "${RUNNER_ARGS[@]}"
-    )
+    printf 'Opção --campaign/--campaign-run descontinuada (campanhas legado arquivadas). Use --experiment-config e --run-id explícitos.\n' >&2
+    exit 1
 fi
 
 if [[ "${SKIP_SETUP}" == false && ! -f "${VENV_DIR}/bin/activate" ]]; then

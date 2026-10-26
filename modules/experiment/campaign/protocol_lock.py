@@ -115,3 +115,53 @@ def require_protocol_lock(corpus_dir: Path) -> dict[str, Any]:
             f"protocol_lock.json ausente em {corpus_dir}. Rode lock-protocol após prepare."
         )
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def verify_protocol_lock_integrity(
+    corpus_dir: Path,
+    *,
+    project_root: Path = PROJECT_ROOT,
+    model_key: str = "finbert_ptbr",
+) -> tuple[bool, list[str]]:
+    """Confere hashes gravados no lock com artefatos atuais em disco."""
+
+    lock = require_protocol_lock(corpus_dir)
+    stored = lock.get("hashes", {})
+    refs = lock.get("references", {})
+    errors: list[str] = []
+
+    manifest_path = corpus_dir / "corpus_manifest.json"
+    canonical_path = corpus_dir / "articles_canonical.csv"
+    split_path = corpus_dir / "split_manifest.json"
+    for required in (manifest_path, canonical_path, split_path):
+        if not required.is_file():
+            raise ProtocolLockError(f"Artefato P02 ausente para verificação: {required}")
+
+    protocol_path = Path(
+        refs.get("protocol_path", project_root / "configs/campaigns/iti_v2/protocol.yaml")
+    )
+    analysis_plan_path = Path(
+        refs.get(
+            "analysis_plan_path",
+            project_root / "configs/campaigns/iti_v2/analysis_plan.yaml",
+        )
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    protocol = load_iti_v2_protocol(protocol_path)
+
+    expected: dict[str, str | None] = {
+        "corpus_source_sha256": manifest.get("sha256"),
+        "articles_canonical_sha256": file_sha256(canonical_path),
+        "corpus_manifest_sha256": file_sha256(manifest_path),
+        "split_manifest_sha256": file_sha256(split_path),
+        "protocol_sha256": protocol.content_sha256,
+        "analysis_plan_sha256": file_sha256(analysis_plan_path),
+        f"{model_key}_weights_sha256": _model_weights_sha(project_root, model_key),
+    }
+    for key, current in expected.items():
+        recorded = stored.get(key)
+        if recorded is None and current is None:
+            continue
+        if recorded != current:
+            errors.append(f"{key}: lock={recorded!r} atual={current!r}")
+    return (not errors, errors)

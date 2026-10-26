@@ -94,11 +94,19 @@ case "$cmd" in
     "$PY" -m modules.experiment.campaign.iti_v2_pipeline report --run-id "$RUN_ID"
     "$PY" -m modules.experiment.campaign.iti_v2_pipeline validate \
       --corpus-dir "$CORPUS" --run-id "$RUN_ID"
-    "$PY" scripts/dissertation/iti_v2/export_iti_v2_latex.py "$RUN_ID"
-    "$PY" scripts/dissertation/iti_v2/export_iti_v2_dissertation_tables.py "$RUN_ID"
-    "$PY" scripts/dissertation/iti_v2/generate_iti_v2_figures.py "$RUN_ID"
-    (cd docs/Dissertacao_PPGCC && latexmk -pdf -interaction=nonstopmode ufsj-abntex2.tex) || true
-    "$PY" scripts/references/export_references_downloads_pending.py
+    HARNESS_ROOT="${FSL_HARNESS_ROOT:-}"
+    if [[ -n "${HARNESS_ROOT}" && -d "${HARNESS_ROOT}/scripts/dissertation/iti_v2" ]]; then
+      export FSL_REPO_ROOT="${ROOT}"
+      for _ex in export_iti_v2_latex export_iti_v2_dissertation_tables generate_iti_v2_figures; do
+        "$PY" "${HARNESS_ROOT}/scripts/dissertation/iti_v2/${_ex}.py" "$RUN_ID"
+      done
+      "$PY" "${HARNESS_ROOT}/scripts/dissertation/iti_v2/verify_run_snippets.py" "$RUN_ID"
+      if command -v latexmk >/dev/null 2>&1; then
+        (cd docs/Dissertacao_PPGCC && latexmk -pdf -interaction=nonstopmode ufsj-abntex2.tex) || true
+      fi
+    else
+      echo "[INFO] FSL_HARNESS_ROOT ausente — export LaTeX/figuras omitido; use export-thesis para JSON." >&2
+    fi
     exec "$PY" -m modules.experiment.campaign.iti_v2_pipeline export-thesis --run-id "$RUN_ID"
     ;;
   pin-env)

@@ -96,10 +96,11 @@ paths:
         )
 
 
-def test_load_weekly_sabesp_research_configuration(project_root: Path) -> None:
+def test_load_weekly_sabesp_research_configuration_fixture(project_root: Path) -> None:
     configuration = load_research_configuration(
         project_root=project_root,
-        config_path=project_root / "configs/campaigns/sabesp_2026/research_weekly.yaml",
+        config_path=project_root
+        / "tests/fixtures/campaigns/sabesp_2026/research_weekly.yaml",
     )
     assert configuration.index_frequency == "weekly"
     assert configuration.horizons == (1, 2, 4)

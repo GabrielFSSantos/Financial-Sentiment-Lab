@@ -31,4 +31,4 @@ Prosa em PT-BR; paths e código em inglês — [CONTRIBUTING.md](../CONTRIBUTING
 | Anotação manual | [14_manual_annotation](documentation/14_manual_annotation.md) |
 | Campanha ITI (configs `iti_v2/`) | [part-04 §4.7](research_trail/part-04-results.md) · `./scripts/campaigns/iti_v2.sh` · aceite `logs/iti_v2/acceptance_latest.md` |
 
-Artefatos numéricos e logs de cluster: `outputs/` (gitignored). Export LaTeX da dissertação: `scripts/dissertation/iti_v2/` (via `iti_v2.sh postprocess`).
+Artefatos numéricos e logs de cluster: `outputs/` (gitignored). Export LaTeX da dissertação: passo opcional de `iti_v2.sh postprocess` com `FSL_HARNESS_ROOT` no ambiente local (ver [13_dev_reading_guide.md](documentation/13_dev_reading_guide.md)).

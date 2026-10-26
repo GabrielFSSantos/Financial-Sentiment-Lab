@@ -20,8 +20,8 @@ Isso atualiza `generated/iti_v2_results_snippet.tex`, `generated/tables/`, `gene
 
 `\qualificacaoparcialtrue` limita a caps. 1–2 + apêndice; o padrão é o volume completo (`\qualificacaoparcialfalse`).
 
-## Fora deste diretório
+## Artefatos auxiliares
 
-Relatórios de auditoria editorial, planos Cursor e capítulos LaTeX legados ficam no meta-workspace `Workspaces/financial-sentiment-lab/` (`harness/qualification/reports/`, `plans/`, `archive/`). Não adicionar `REVISAO*.md` aqui.
+Não versionar nesta pasta rascunhos de revisão editorial (`REVISAO*.md`) nem capítulos LaTeX legados retirados da compilação.
 
 Números canônicos da campanha: `docs/research_trail/part-04-results.md`.

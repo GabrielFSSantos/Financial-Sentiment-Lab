@@ -56,3 +56,7 @@ python -m modules.evaluation.manual_labels import-blind \
 Saída padrão: `outputs/campaigns/iti_v2/annotation_blind_pack/`.
 
 Narrativa: [part-04 §4.4](../research_trail/part-04-results.md) · DRs: [decision-register.md](../research_trail/decision-register.md). **Créditos por nome:** [CONTRIBUTORS.md](../../CONTRIBUTORS.md) e manuscrito em `docs/Dissertacao_PPGCC/` (agradecimentos e apêndice de anotação).
+
+## Próxima avaliação (recorte contextual)
+
+A campanha ITI-v2 usa `entity_context_v1` como view primária; a amostra de κ reportada na qualificação segue **título + corpo** (`text_compose`). Após merge da referência independente (P06), recalcular FinBERT × humano **no mesmo recorte contextual** que alimenta o ITI-H7, com N e protocolo documentados, antes de usar κ como gate de validade do sinal temporal.

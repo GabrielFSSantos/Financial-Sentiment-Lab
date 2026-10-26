@@ -29,7 +29,11 @@ Agenda ou multiempresa & 26 & 42,3\% & $\approx$ $-$0,03 & --- \\
 
 A reformulação do protocolo esclareceu a tarefa; a diferença de dois pontos na acurácia entre rodadas não mede ganho do classificador, pois a referência humana mudou.
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+\subsection{Representação textual da avaliação e do ITI}
+
+As métricas da Tabela~\ref{tab:avaliacao-texto} referem-se à tarefa de anotação com \textbf{título e corpo integrais} (Capítulo~\ref{cap:metodologia}, Seção de anotação humana) e à entrada \texttt{text\_compose} usada no fluxo \texttt{classifier\_eval\_pt}. A campanha temporal de outubro de 2026 alimenta o ITI-H7 com o recorte contextual \texttt{entity\_context\_v1} (sentenças em torno das menções à Sabesp). Não se assume, portanto, que a concordância de 50\% e $\kappa=0{,}197$ quantifiquem diretamente a qualidade do sinal que entra no índice. A continuidade prevê avaliar o classificador no \emph{mesmo} recorte contextual, após consolidação da referência humana independente, antes de reinterpretar os resultados financeiros.
+
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 
 
 % --- Figuras quantitativas (descomentar quando existir artefato verificável em outputs/) ---
@@ -108,5 +112,5 @@ Reprodutibilidade & Manifestos por execução & Versionamento de corpus e códig
 
 No universo pareado do contraste principal ($n=89$ semanas), o Soft no cutoff foi zero em 34 semanas (38,2\%); no nível diário elegível, cerca de 42,5\% dos dias não tiveram matérias --- diagnóstico exploratório da campanha de outubro de 2026, sem alterar estimadores canônicos. O contraste permanece entre memória (ITI-H7) e entrada instantânea no cutoff, não entre baselines semanais alternativos. Em síntese, o pipeline é operacional e auditável, o sinal textual exige referência humana independente e a campanha não confirma superioridade do ITI-H7 sobre Soft (plano de continuidade no Capítulo~\ref{cap:consideracoes}).
 
-% [legado R0/R1 arquivado no meta-workspace, 2026-10-23]
+% [trecho legado R0/R1 omitido do manuscrito, out./2026]
 

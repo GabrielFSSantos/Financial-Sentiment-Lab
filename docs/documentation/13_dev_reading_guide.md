@@ -10,6 +10,18 @@
 
 Antes de alterar comportamento científico: [12_business_rules.md](12_business_rules.md) e [research_trail](../research_trail/README.md).
 
+## Export LaTeX (dissertação ITI)
+
+O repositório versiona o pipeline e `export-thesis` (JSON). Snippets e figuras em `docs/Dissertacao_PPGCC/generated/` são gerados no ambiente local do pesquisador:
+
+```bash
+export FSL_HARNESS_ROOT=/caminho/para/harness   # pasta com scripts/dissertation/iti_v2/
+export FSL_REPO_ROOT="$PWD"
+./scripts/campaigns/iti_v2.sh postprocess iti_v2_prod_20261022
+```
+
+Alternativa: `$FSL_HARNESS_ROOT/scripts/dissertation/iti_v2/run_thesis_export.sh <run_id>`.
+
 ## Gate após mudanças
 
 ```bash
