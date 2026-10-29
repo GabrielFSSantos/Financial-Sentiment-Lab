@@ -1,147 +1,167 @@
 \chapter{Protocolo de anotação orientada à empresa}
 \label{ap:protocolo}
 
-
 \section{Finalidade e versão do protocolo}
 
-Este apêndice descreve o protocolo destinado à anotação da polaridade de notícias em relação à Sabesp. O objetivo não é avaliar se o tom geral do texto é agradável ou desfavorável nem prever o retorno posterior da ação. A tarefa consiste em identificar, nas informações apresentadas, se o fato relatado tem orientação favorável, desfavorável ou neutra para a empresa-alvo.
-
-Os resultados quantitativos do Capítulo~\ref{cap:resultados} referem-se à rodada de cem notícias anotadas pelo autor (protocolo orientado à Sabesp, outubro de 2026). As regras a seguir consolidam orientações para a continuidade com avaliadores independentes.
+Este apêndice apresenta as regras da tarefa de anotação de notícias em relação à Sabesp. O objetivo é identificar a orientação do acontecimento para a empresa-alvo, conforme o texto disponível, e não avaliar o tom emocional da reportagem ou prever a reação posterior da ação SBSP3. Os resultados apresentados no Capítulo~\ref{cap:resultados} utilizam cem notícias anotadas pelo autor no protocolo orientado à Sabesp, em outubro de 2026. As regras descritas aqui também servem de base para a etapa independente planejada.
 
 \section{Material apresentado ao anotador}
 
-Cada notícia deverá ser disponibilizada com identificador estável, título, corpo, identificação da empresa-alvo e campos de resposta. O material textual precisa corresponder a uma versão preservada, para que alterações posteriores na página de origem não modifiquem o conteúdo efetivamente avaliado.
-
-Durante a etapa independente, os anotadores não deverão consultar as previsões do classificador, os rótulos atribuídos por outros participantes ou o retorno posterior da ação.
+Cada item deverá apresentar identificador estável, título, corpo da notícia, empresa-alvo e campos destinados ao registro do julgamento e de sua justificativa. A versão do texto deve ser preservada, para que eventuais alterações posteriores na página jornalística não modifiquem o material efetivamente avaliado. O anotador deverá utilizar o conteúdo apresentado e não consultar as previsões do modelo, as respostas de outros participantes ou os retornos posteriores da ação durante o julgamento independente.
 
 \section{Pergunta de anotação e categorias}
 
-\textit{Pergunta orientadora:} considerando apenas o título e o corpo apresentados, o acontecimento descrito contém informação favorável, desfavorável ou neutra para a Sabesp?
+A pergunta orientadora é: \emph{considerando o título e o corpo da notícia, o acontecimento relatado contém informação favorável, desfavorável ou neutra para a Sabesp?} O julgamento deve estar sustentado pelo conteúdo do texto, sem presumir que todo fato considerado positivo para a companhia provoque valorização de suas ações.
 
 \begin{itemize}
-  \item \textit{Positiva:} informação que indica efeito favorável para a Sabesp, com sustentação no conteúdo.
-  \item \textit{Negativa:} informação que indica efeito desfavorável para a Sabesp, com sustentação no conteúdo.
-  \item \textit{Neutra:} conteúdo sobre a Sabesp sem orientação favorável ou desfavorável predominante.
+    \item \textbf{Positiva:} o conteúdo apresenta informação favorável para a Sabesp, com fundamento identificável na matéria.
+    \item \textbf{Negativa:} o conteúdo apresenta informação desfavorável para a Sabesp, também sustentada no texto.
+    \item \textbf{Neutra:} há conteúdo relativo à Sabesp, mas não se identifica orientação favorável ou desfavorável predominante segundo o protocolo.
+    \item \textbf{Não avaliável:} o material é insuficiente, tangencial ou inadequado para um julgamento confiável; essa categoria deverá ser registrada separadamente na rodada futura, não convertida automaticamente em neutra.
 \end{itemize}
 
-\textit{Não avaliável} distingue-se das três classes e não deve ser convertido em neutro.
+A categoria ``não avaliável'' não foi coletada sistematicamente como classe separada nas cem notícias da rodada atual do autor. Portanto, a introdução dessa categoria na etapa futura exige versionamento do protocolo e cuidado ao comparar métricas produzidas por regras diferentes.
 
 \section{Categorias de foco e casos difíceis}
 
+O tipo de matéria é registrado independentemente do sentimento:
 \begin{itemize}
-  \item \textit{Focal:} a Sabesp é assunto principal ou recebe desenvolvimento substantivo.
-  \item \textit{Agenda ou multiempresa:} a Sabesp aparece junto a outras companhias ou movimentos de mercado.
-  \item \textit{Tangencial:} menção sem conteúdo suficiente para polaridade confiável.
+    \item \textbf{Focal:} a Sabesp é o assunto principal ou recebe desenvolvimento substantivo;
+    \item \textbf{Agenda ou multiempresa:} a Sabesp aparece junto de outras empresas ou temas gerais de mercado;
+    \item \textbf{Tangencial:} a menção não contém informação suficiente para uma avaliação confiável da empresa.
 \end{itemize}
 
-Em matérias multiempresa, a polaridade refere-se apenas à Sabesp. O tipo da notícia não determina o rótulo de sentimento.
+Em matérias multiempresa, a polaridade deve se referir apenas à Sabesp. A categoria de foco não determina o sentimento. Quando uma notícia apresenta efeitos mistos ou indiretos, o anotador deverá registrar a evidência e, se necessário, a dificuldade de julgamento, em lugar de atribuir uma classe apenas pela presença de uma palavra positiva ou negativa.
 
 \section{Campos de registro e consolidação da referência}
 
 \begin{table}[htbp]
 \centering
-\caption{Campos de registro previstos no protocolo de anotação.}
+\caption{Campos de registro para a anotação orientada à Sabesp.}
 \label{tab:campos-anotacao}
-\begin{tabularx}{\textwidth}{@{}lL@{}}
+\begin{tabularx}{\textwidth}{@{}P{0.32\textwidth}L@{}}
 \toprule
 Campo & Finalidade \\
 \midrule
-Identificador da notícia & Vincular a anotação ao corpus preservado \\
-Versão do protocolo & Identificar as regras efetivamente utilizadas \\
-Classe de polaridade & Positivo, negativo ou neutro \\
-Tipo de notícia & Focal, agenda/multiempresa ou tangencial \\
-Evidência no texto & Trecho que sustenta a resposta \\
+Identificador da notícia & Relacionar julgamento e versão do corpus \\
+Identificação do anotador & Preservar a autoria dos julgamentos independentes \\
+Versão do protocolo & Registrar quais regras foram utilizadas \\
+Classe de polaridade & Positiva, negativa, neutra ou não avaliável (etapa futura) \\
+Tipo de matéria & Focal, agenda/multiempresa ou tangencial \\
+Evidência textual & Registrar o trecho que sustenta o julgamento \\
+Observação de ambiguidade & Explicitar casos de efeitos mistos ou insuficiência informacional \\
 \bottomrule
 \end{tabularx}
-\vspace{0.5em}
+\vspace{0.4em}
 {\footnotesize Fonte: elaboração própria.}
 \end{table}
 
-As avaliações individuais serão preservadas antes da consolidação. A referência para especialistas independentes (etapa futura) exigirá concordância documentada e adjudicação de empates.
+As anotações individuais serão preservadas antes de qualquer referência consolidada. A concordância será calculada somente sobre itens efetivamente avaliados por participantes comparáveis. Havendo divergências, sua resolução será documentada por procedimento de adjudicação, isto é, uma decisão posterior registrada sem apagar os julgamentos independentes. O número de participantes, os itens compartilhados e as regras de consolidação deverão constar da descrição da nova avaliação.
 
 \chapter[Ficha técnica da execução temporal (outubro de 2026)]{Ficha técnica da execução temporal\\(outubro de 2026)}
 \label{ap:rastreabilidade}
 
 \section{Síntese do estudo de caso}
 
-Este apêndice reúne a proveniência das notícias e os parâmetros da campanha exploratória utilizada nos resultados do Capítulo~\ref{cap:resultados}. A Tabela~\ref{tab:corpus-p02} mostra como o inventário P02 foi consolidado, incluindo contagens de registros, duplicatas e veículos representados. Em seguida, a Tabela~\ref{tab:rastreabilidade} apresenta as opções de classificação, construção do ITI, alinhamento com o mercado e avaliação estatística utilizadas na execução.
+Este apêndice registra os principais números do inventário de notícias e as condições da campanha temporal exploratória apresentada no Capítulo~\ref{cap:resultados}. A Tabela~\ref{tab:corpus-p02} descreve a consolidação das notícias do inventário P02, e a Tabela~\ref{tab:rastreabilidade} reúne o universo analisado, os parâmetros e as medidas reportadas. As contagens são provenientes dos registros existentes na campanha, e não de nova execução realizada para esta reescrita.
 
-\begin{table}[!htbp]
+\begin{table}[htbp]
 \centering
-\caption{Proveniência do inventário P02 (contagens registradas na execução).}
+\caption{Composição do inventário P02 utilizado na campanha temporal.}
 \label{tab:corpus-p02}
-\begin{tabularx}{\textwidth}{@{}P{0.38\textwidth}rL@{}}
+\begin{tabularx}{\textwidth}{@{}LrL@{}}
 \toprule
-Etapa & $n$ & Registro \\
+Registro & Quantidade & Evidência de execução \\
 \midrule
 Linhas brutas no inventário & 1.254 & \texttt{selection\_report.json} \\
-Notícias canônicas únicas & 1.253 & idem \\
-Duplicatas mapeadas & 1 & idem \\
-Exclusões explícitas & 0 & idem \\
-Com probabilidades válidas (view contextual) & 1.253 & campanha exploratória out./2026 (\texttt{result\_registry.json}) \\
+Notícias canônicas únicas & 1.253 & \texttt{selection\_report.json} \\
+Duplicatas mapeadas & 1 & \texttt{selection\_report.json} \\
+Exclusões explícitas & 0 & \texttt{selection\_report.json} \\
+Notícias com probabilidades válidas, entrada contextual & 1.253 & \texttt{result\_registry.json} \\
 Veículos distintos & 5 & \texttt{coverage\_daily.csv} \\
 \bottomrule
 \end{tabularx}
-\vspace{0.5em}
-{\footnotesize Fonte: inventário P02 (out./2026). Contagens por veículo (artigos): Money Times 360; InfoMoney 328; Valor Econômico 251; G1 Economia 203; Exame 111.}
+\vspace{0.4em}
+{\footnotesize Fonte: inventário P02 e registros da campanha de outubro de 2026. Distribuição das notícias únicas por veículo: Money Times, 360; InfoMoney, 328; Valor Econômico, 251; G1 Economia, 203; Exame, 111.}
 \end{table}
 
-\begin{table}[!htbp]
+As quantidades da Tabela~\ref{tab:corpus-p02} descrevem o inventário preservado para a execução, não a cobertura completa de todas as notícias publicadas sobre a Sabesp no período. A ausência de um artigo no inventário não prova que nenhum veículo publicou conteúdo relevante naquele dia.
+
+\begin{table}[htbp]
 \centering
-\caption{Parâmetros e universo da campanha exploratória ITI (Sabesp / SBSP3).}
+\caption{Parâmetros e resultados registrados na campanha exploratória ITI (Sabesp/SBSP3).}
 \label{tab:rastreabilidade}
 \begin{tabularx}{\textwidth}{@{}P{0.34\textwidth}L@{}}
 \toprule
 Item & Registro \\
 \midrule
 Empresa e ativo & Sabesp; SBSP3 \\
-Notícias elegíveis (recorte contextual) & 1.253 notícias únicas \\
-Período do corpus de notícias & Maio/2022 a abril/2024 (inventário P02) \\
-Painel semanal alinhado & 104 semanas de SBSP3 (maio/2022--abr./2024; junção por \texttt{week\_key} W-FRI) \\
-Contraste principal ($\Delta\rho$, $h=1$) & $n=94$ semanas (exclui 10 de aquecimento) \\
-Contraste exploratório ITI-H7 $\times$ média semanal Soft ($h=1$) & $n=94$; $\Delta\approx -0{,}062$; IC95\% [$-0{,}165$; $+0{,}060$]; $p\approx 0{,}340$ (fora de Holm) \\
-Correlação marginal ITI-H7 $\times$ retorno ($h=1$, painel completo) & $n=\ITIvTwoNPanel$; $\rho\approx \ITIvTwoRhoMarginal$; IC cruza zero \\
-Modo estatístico & Exploratório; bootstrap 10.000; blocos de 4 semanas \\
-Holdout de notícias (reserva) & Regra \emph{calendar\_last\_12\_weeks}; 199 matérias; corte 06/02/2024 \\
-Subpainel holdout (semanas) & $n=11$ semanas alinhadas (reserva de 12 semanas de notícias; corte 2024-02-06--2024-04-30) \\
-$\Delta\rho$ no holdout (exploratório) & $+0{,}186$; IC 95\% [$-0{,}057$; $+0{,}670$]; $p\approx 0{,}111$; exploratório; não confirma hipótese principal \\
-Referência humana independente & Pendente (anotação atual: autor, $n=100$) \\
-\midrule
-\multicolumn{2}{@{}l}{\textit{Rastreabilidade por execução (blocos mínimos)}} \\
-Corpus & Período, filtros, deduplicação e contagens \\
-Classificação & Checkpoint, truncamento e mapeamento de classes \\
-ITI & Meia-vida $H=7$, sensibilidades $H\in\{2,14\}$, amortecimento inicial 70 dias civis, Soft \\
-Mercado e estatística & Preços ajustados, cutoff semanal, retornos $h\in\{1,2,4\}$, $\Delta\rho$, Holm \\
-Reprodutibilidade & Revisão de código, configuração e checksums dos artefatos de saída \\
+Período informacional & Maio de 2022 a abril de 2024 (P02) \\
+Entrada do classificador para o ITI & Recorte de sentenças sobre a Sabesp, com uma vizinha de cada lado; limite 512 tokens \\
+Meia-vida principal & $H=7$ dias civis; sensibilidades $H=2$ e $H=14$ \\
+Aquecimento & 70 dias civis, equivalentes a dez semanas iniciais excluídas do contraste \\
+Painel semanal alinhado & 104 semanas, chave W-FRI \\
+Comparação principal & 94 semanas; $\Delta\rho=+0{,}040$; IC $[-0{,}127;\,0{,}241]$; $p=0{,}512$ \\
+Média semanal versus ITI-H7 & 94 semanas; $\Delta\rho=-0{,}062$; IC $[-0{,}165;\,0{,}060]$; $p=0{,}340$; exploratório fora de Holm \\
+Correlação marginal ITI-H7 em painel completo & 104 semanas; $\rho\simeq-0{,}145$; inclui aquecimento \\
+Bootstrap & 10.000 reamostragens, blocos de quatro semanas; valores $p$ exploratórios \\
+Reserva de notícias & Regra \texttt{calendar\_last\_12\_weeks}; 199 matérias; corte em 06/02/2024 \\
+Subpainel da reserva & 11 semanas alinhadas, exploração temporal já inspecionada \\
+Contraste na reserva & $\Delta\rho=+0{,}186$; IC $[-0{,}057;\,0{,}670]$; $p\simeq0{,}111$; não confirmatório \\
+Avaliação humana independente & Pendente; anotação do autor: 100 notícias \\
 \bottomrule
 \end{tabularx}
-\vspace{0.5em}
-{\footnotesize Fonte: registro da campanha de outubro de 2026 e manifestos de execução. \emph{Nota:} o contraste principal ($\Delta\rho$) usa $n=94$ semanas após aquecimento; a correlação marginal acima inclui semanas de amortecimento no painel alinhado.}
+\vspace{0.4em}
+{\footnotesize Fonte: registros da campanha de outubro de 2026. Intervalos apresentados são bootstrap nominais; não inferir confirmação por seus limites isolados.}
 \end{table}
 
-\FloatBarrier
+A correlação marginal calculada sobre 104 semanas não deve ser confundida com o contraste principal de 94 semanas, que exclui o aquecimento. Da mesma forma, a reserva de aproximadamente doze semanas de calendário de notícias gerou onze observações semanais alinhadas; o subpainel já foi examinado e não constitui período confirmatório independente.
+
+Para que outra pessoa possa reproduzir exatamente os cálculos, cada execução precisa identificar a versão do corpus, os filtros e a deduplicação, o checkpoint do modelo, o mapeamento de classes, a representação textual, o parâmetro de meia-vida, os preços ajustados efetivamente carregados, as regras temporais e o ambiente de software. A disponibilidade apenas do código e das tabelas finais não substitui os dados e os manifestos associados à execução.
 
 \chapter{Especificação matemática complementar do ITI}
 \label{ap:iti-math}
 
-Esta seção complementa a Seção~\ref{sec:formulacao-iti} com derivação algébrica curta, exemplo ilustrativo e política de ausências.
+Este apêndice complementa as equações da Seção~\ref{sec:formulacao-iti} com uma derivação curta da meia-vida, a política de ausências e um exemplo numérico. Os valores ilustrativos não são resultados da avaliação temporal da Sabesp.
 
 \section{Derivação da meia-vida}
 
-Com $ITI_{d}= \lambda_H ITI_{d-1}+(1-\lambda_H)X_d$ e $X_d=0$, a parcela inicial decai como $\lambda_H^k ITI_0$. A condição $\lambda_H^H=\tfrac{1}{2}$ implica $\lambda_H=2^{-1/H}$ (já apresentada no Capítulo~\ref{cap:metodologia}).
+Na ausência de novas entradas, $X_{c,d}=0$, a recorrência do ITI fica $ITI_{c,d}^{(H)}=\lambda_H ITI_{c,d-1}^{(H)}$. Após $k$ dias consecutivos elegíveis sem entrada, a contribuição remanescente do estado inicial será
+\begin{equation}
+    ITI_{c,d+k}^{(H)}=\lambda_H^k ITI_{c,d}^{(H)}.
+\end{equation}
+A definição de meia-vida exige que, para $k=H$, o fator seja $1/2$. Logo, $\lambda_H^H=1/2$, de onde $H\log\lambda_H=-\log 2$ e, finalmente,
+\begin{equation}
+    \lambda_H=2^{-1/H}.
+\end{equation}
+A expressão descreve a persistência matemática do indicador, sem afirmar que o efeito econômico de uma notícia se reduza à metade nesse mesmo período.
 
 \section{Política de ausências (resumo)}
 
 \begin{itemize}
-  \item Dia elegível com notícias: $X=S$ (média dos escores).
-  \item Dia elegível sem notícias: $X=0$ (decaimento; não equivale a notícia neutra).
-  \item Dia sem cobertura confiável: não imputar $X=0$ por presunção; a política executada consta do registro da campanha.
+    \item \textbf{Dia elegível com notícias:} $X_{c,d}$ é a média simples dos escores das matérias do dia.
+    \item \textbf{Dia elegível sem notícia observada:} $X_{c,d}=0$, e o estado do índice decai. Esse zero não corresponde à classificação de uma notícia como neutra.
+    \item \textbf{Dia fora da cobertura delimitada:} não se cria sinal para avaliação temporal; ausência não é imputada como silêncio informacional.
 \end{itemize}
 
-\section{Exemplo ilustrativo (não experimental)}
+Dentro da janela P02, a elegibilidade é definida pelo intervalo inventariado, não por comprovação individual de coleta bem-sucedida em todos os dias. A documentação dessa cobertura é uma pendência metodológica, e a interpretação dos zeros precisa reconhecer essa limitação.
 
-Para uma notícia com $p^+=0{,}6$, $p^0=0{,}3$, $p^-=0{,}1$, o escore é $s=0{,}5$. Com três notícias diárias de escores $0{,}5$, $-0{,}2$ e $0{,}1$, a entrada é $X=(0{,}5-0{,}2+0{,}1)/3\approx 0{,}133$. Com $ITI_0=0$ e $H=7$, no primeiro dia $ITI_1\approx (1-0{,}9057)\times 0{,}133\approx 0{,}0126$. Sem notícia no dia seguinte elegível, $ITI$ decai e Soft$=0$.
+\section{Esperança matemática do escore}
+
+Se as classes são codificadas por $Y\in\{-1,0,+1\}$, o escore $s=p^+-p^-$ corresponde à média dos valores de classe ponderada pela distribuição prevista pelo modelo:
+\begin{equation}
+    \operatorname{E}_{\mathrm{modelo}}[Y] = (+1)p^++(0)p^0+(-1)p^-=p^+-p^-.
+\end{equation}
+Essa identidade é algébrica e não constitui demonstração de calibração das probabilidades, de acerto na classificação ou de impacto econômico do texto.
+
+\section{Exemplo ilustrativo complementar (não experimental)}
+
+Considere uma notícia para a qual $p^+=0{,}60$, $p^0=0{,}30$ e $p^-=0{,}10$. Seu escore é $s=0{,}50$. Em um dia com três notícias cujos escores sejam $0{,}50$, $-0{,}20$ e $0{,}10$, a entrada diária será
+\begin{equation}
+    X=\frac{0{,}50-0{,}20+0{,}10}{3}\simeq0{,}1333.
+\end{equation}
+Partindo de $ITI_0=0$ e adotando $H=7$ (portanto $\lambda_7\simeq0{,}9057$), o primeiro dia produz $ITI_1\simeq(1-0{,}9057)\times0{,}1333\simeq0{,}0126$. Se o dia seguinte for elegível e não contiver notícia observada, $X_2=0$, o Soft será zero e o ITI passará a aproximadamente $0{,}9057\times0{,}0126\simeq0{,}0114$.
 
 \section{Verificações numéricas}
 
-Casos controlados na implementação cobrem impulso com meia-vida, grade diária civil, retornos semanais e bootstrap bilateral do $\Delta$, conforme a suíte de testes do repositório do projeto (revisão fixada no registro da campanha).
+A suíte de testes do projeto contempla casos controlados de meia-vida e decaimento, construção da grade diária, alinhamento de retornos semanais e procedimentos estatísticos. A existência desses testes é parte da documentação da implementação, mas não significa que todos os dados originais ou todos os resultados da campanha tenham sido reproduzidos de modo independente nesta revisão editorial. A reexecução integral depende dos artefatos e configurações identificados no Apêndice~\ref{ap:rastreabilidade}.

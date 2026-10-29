@@ -1,123 +1,139 @@
 \chapter{Resultados preliminares e discussão}
 \label{cap:resultados}
-% Migração estrutura 7 capítulos: núcleo ITI out./2026.
 
-Os resultados organizam-se em avaliação textual (classificador $\times$ anotação do autor) e avaliação temporal exploratória do ITI (outubro de 2026). Correlação com retornos não valida, por si só, o construto textual nem implica causalidade (delimitação na Seção~\ref{sec:formulacao-iti}).
+Este capítulo apresenta duas avaliações complementares. A primeira compara as previsões automáticas com as anotações do autor em cem notícias sobre a Sabesp. A segunda investiga como o ITI, construído com a representação contextual das notícias, se associa aos retornos posteriores da ação SBSP3. A distinção é necessária porque as duas avaliações utilizam entradas textuais diferentes. Os resultados são discutidos separadamente antes de examinar suas implicações conjuntas.
 
 \section{Avaliação do sinal textual}
 
 \subsection{Rodadas de anotação e concordância com o classificador}
 
-A avaliação reportada utiliza cem notícias anotadas pelo autor com protocolo orientado explicitamente ao efeito para a Sabesp (7 de outubro de 2026). O classificador obteve acurácia de 50\%, kappa de Cohen de 0,197 e F1 macro de 0,45. Uma rodada anterior com critério simplificado (48\%, $\kappa=0{,}163$) não é comparável diretamente, pois a referência humana mudou.
+As cem notícias da avaliação textual foram anotadas pelo autor conforme o protocolo orientado ao efeito para a Sabesp, datado de 7 de outubro de 2026. Uma rodada anterior utilizou critérios mais simples e produziu acurácia de 48\% e kappa de 0,163. Como a definição da tarefa foi alterada entre as rodadas, esses valores não representam uma trajetória comparável de melhora ou piora do classificador.
 
-Essas métricas descrevem a comparação entre o FinBERT e as anotações do autor na entrada formada por título e corpo da notícia. Como o ITI utiliza um recorte contextual menor, os valores não devem ser interpretados como medida direta da qualidade do sinal empregado no índice.
+Na avaliação utilizada nesta qualificação, o FinBERT-PT-BR concordou com o autor em cinquenta das cem notícias. A acurácia de 50\% precisa ser considerada junto à composição da referência: 67 matérias receberam o rótulo neutro. Uma regra que atribuísse ``neutro'' a todos os textos alcançaria 67\% de acurácia, embora não reconhecesse nenhum exemplo positivo ou negativo. A comparação demonstra que a acurácia isolada não é suficiente para julgar a qualidade das previsões. O F1 macro de 0,45 e o kappa de Cohen de 0,197 complementam essa avaliação, sem substituir a inspeção dos erros por classe.
 
 \begin{table}[htbp]
 \centering
-\caption{Concordância do FinBERT-PT-BR com anotação humana ($n=100$; protocolo orientado à Sabesp em 07/10/2026).}
+\caption{Concordância do FinBERT-PT-BR com as anotações do autor, em 100 notícias sobre a Sabesp.}
 \label{tab:avaliacao-texto}
 \begin{tabularx}{\textwidth}{@{}Lrrrr@{}}
 \toprule
 Subconjunto & $n$ & Acurácia & Kappa & F1 macro \\
 \midrule
-Amostra completa (protocolo 07/10/2026) & 100 & 50\% & 0,197 & 0,45 \\
-Matérias focais & 74 & 52,7\% & $\approx$ 0,26 & --- \\
-Agenda ou multiempresa & 26 & 42,3\% & $\approx$ $-$0,03 & --- \\
+Amostra completa & 100 & 50,0\% & 0,197 & 0,45 \\
+Matérias focais & 74 & 52,7\% & $\simeq 0{,}26$ & --- \\
+Agenda ou multiempresa & 26 & 42,3\% & $\simeq -0{,}03$ & --- \\
 \bottomrule
 \end{tabularx}
-\vspace{0.5em}
-{\footnotesize Fonte: resultados experimentais da pesquisa. F1 por subconjunto não calculado.}
+\vspace{0.4em}
+{\footnotesize Fonte: resultados experimentais da pesquisa, anotação orientada à Sabesp em 07/10/2026. F1 por subconjunto não calculado.}
 \end{table}
 
-A reformulação do protocolo esclareceu a tarefa; a diferença de dois pontos na acurácia entre rodadas não mede ganho do classificador, pois a referência humana mudou.
+As divergências merecem atenção especial na classe neutra. Entre as 67 notícias anotadas dessa forma pelo autor, o modelo previu uma classe positiva ou negativa em 35. Uma matéria considerada neutra pela referência provisória pode, portanto, receber do classificador um escore com polaridade e contribuir para a média diária e para o ITI. Esse resultado não prova que todos os 35 julgamentos do modelo estejam incorretos: a anotação do autor também está sujeita a interpretações discutíveis, motivo pelo qual a comparação independente é necessária.
 
 \subsection{Representação textual da avaliação e do ITI}
 
-Na avaliação textual, o classificador recebeu o título e o corpo completo de cada notícia, por meio da representação \texttt{text\_compose}. Já a campanha temporal utiliza \texttt{entity\_context\_v1}, um recorte de sentenças próximas às menções à Sabesp. A distinção é importante porque os dois textos de entrada podem apresentar conteúdo e graus de truncamento diferentes. A concordância entre o FinBERT e uma referência humana independente ainda deverá ser medida especificamente para o recorte utilizado no ITI, preferencialmente nas mesmas notícias, antes de atribuir validade econômica ao sinal temporal.
+A concordância apresentada na Tabela~\ref{tab:avaliacao-texto} foi calculada com a entrada formada por título e corpo das notícias, sujeita ao limite de tokens do modelo. O índice temporal, por sua vez, utiliza trechos selecionados em torno das menções à Sabesp. Esses textos podem conter informações diferentes e sofrer graus distintos de truncamento. Por isso, a acurácia de 50\% não é uma medida direta da qualidade das probabilidades utilizadas na construção do ITI.
 
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
+A avaliação futura deverá comparar as duas representações nas mesmas notícias, mantendo a referência humana e o protocolo constantes. A inspeção dos trechos efetivamente apresentados ao modelo ajudará a verificar se as divergências decorrem de ausência de contexto, presença de outras empresas, ambiguidades econômicas ou dificuldades do próprio classificador.
 
+\subsection{Tipos de notícia e limitações da amostra}
 
-% --- Figuras quantitativas (descomentar quando existir artefato verificável em outputs/) ---
-%\begin{figure}[htbp]
-%\centering
-%\includegraphics[width=0.72\textwidth]{imgs/confusion_matrix_sabesp_20261007}
-%\caption{Matriz de confusão FinBERT-PT-BR $\times$ referência humana (protocolo 07/10/2026).}
-%\label{fig:confusao-texto}
-%\end{figure}
-%\begin{figure}[htbp]
-%\centering
-%\includegraphics[width=\textwidth]{imgs/deltas_iti_baselines_canonico}
-%\caption{Principais deltas assinados ITI $\times$ baselines (corpus canônico; intervalos do bootstrap).}
-%\label{fig:deltas-temporal}
-%\end{figure}
+As 74 matérias focais apresentaram acurácia de 52,7\%, enquanto as 26 notícias de agenda ou multiempresa apresentaram 42,3\%. A diferença é compatível com a possibilidade de que textos com alvo mais definido sejam mais fáceis de classificar. Contudo, os subconjuntos são pequenos e podem diferir em tamanho, conteúdo, distribuição das classes e grau de ambiguidade. Não é possível atribuir o desempenho inferior exclusivamente à presença de várias empresas.
 
-O resultado nas matérias focais é compatível com a hipótese de que a definição clara do assunto principal facilita a classificação. Já a baixa concordância nas notícias multiempresa indica que essas matérias merecem inspeção específica. Não se pode, contudo, afirmar que a presença de várias empresas seja a causa isolada do desempenho: os subconjuntos também podem diferir em tamanho de texto, proporções de classes e presença de informação econômica ambígua.
-
-\subsection{Distribuição das classes e tipos de erro}
-
-A distribuição da referência orientada à Sabesp é assimétrica. Das cem notícias, 67 foram anotadas como neutras, 19 como positivas e 14 como negativas. Entre as 67 neutras, o classificador atribuiu uma classe positiva ou negativa a 35. Esse resultado representa um problema mais específico do que uma acurácia global de 50\%: grande parte das divergências envolve a atribuição de polaridade a textos nos quais o anotador não identificou um efeito favorável ou desfavorável suficientemente definido para a empresa.
-
-Essa divergência também afeta a interpretação do ITI. Como o escore de cada notícia é calculado pela diferença entre as probabilidades positiva e negativa, uma matéria classificada como neutra pelo autor, mas à qual o modelo atribui forte polaridade, pode introduzir um sinal que não corresponde à interpretação humana provisória. Quando esses escores são agregados, as divergências podem se refletir na série diária e persistir no índice por causa da memória exponencial. Isso não demonstra, isoladamente, um erro do modelo em todos esses casos: a natureza e a frequência dos desacordos ainda precisam ser verificadas com anotações independentes.
-
-A avaliação sugere investigar três possibilidades. A primeira é a divergência entre classificar o tom geral do documento e julgar o efeito para a Sabesp. A segunda é o truncamento de matérias extensas, que pode retirar do texto processado informações essenciais. A terceira é a ambiguidade dos próprios rótulos, especialmente em situações nas quais o fato apresenta efeitos mistos ou indiretos para a empresa.
-
-Os dados atuais não permitem repartir as 35 divergências entre essas causas. Para isso, será necessário examinar uma matriz de confusão completa, recuperar exemplos concretos, analisar os trechos processados pelo modelo e comparar avaliações humanas independentes. É justamente esse diagnóstico que deve orientar eventuais adaptações do classificador, evitando que mudanças de arquitetura sejam feitas antes de entender o problema.
-
-Na amostra anotada, 67 das cem notícias receberam o rótulo neutro. Uma regra que previsse sempre essa classe alcançaria, portanto, 67\% de acurácia, enquanto o FinBERT-PT-BR obteve 50\%. Essa comparação mostra que a acurácia isolada não sustenta, nesta etapa, a adequação do modelo à tarefa orientada à Sabesp. A regra majoritária também é insuficiente, pois deixa de identificar notícias positivas e negativas. Por isso, a continuidade da avaliação deve priorizar o F1 macro, as métricas por classe e a análise dos desacordos com anotações humanas independentes.
-
-A referência humana independente permanece pendente; os indicadores acima descrevem concordância modelo--autor, não consenso entre especialistas.
+A amostra foi organizada com base em classes previstas pelo próprio classificador e não foi sorteada aleatoriamente do corpus. Seus resultados descrevem os cem exemplos estudados e não permitem estimar, sem ressalvas, a acurácia do modelo em todas as notícias coletadas. A referência atual é individual, produzida pelo autor. Nenhum dos indicadores desta seção representa concordância entre especialistas independentes.
 
 \section{Avaliação temporal do ITI e associação com retornos}
 
-\IfFileExists{generated/results_macros.tex}{\input{generated/results_macros.tex}}{}
+A campanha exploratória de outubro de 2026 foi construída com 1.253 notícias canônicas que apresentaram probabilidades válidas na entrada contextual. Após a revisão do alinhamento por semana de mercado, foi obtido um painel de 104 semanas com sinais elegíveis e observações financeiras. O contraste principal considera 94 semanas, após excluir as dez iniciais de aquecimento. A revisão do calendário alterou o alinhamento das séries, sem necessidade de executar novamente o FinBERT.
 
-Em outubro de 2026 foi concluída a execução exploratória documentada no Apêndice~\ref{ap:rastreabilidade}: 1.253 notícias elegíveis no recorte contextual, reprocessamento dos estimadores após correção do alinhamento semanal sinal$\times$mercado por chave \texttt{W-FRI} (sem nova inferência FinBERT) e painel de 104 semanas de SBSP3 no intervalo informacional (maio/2022--abril/2024).
+\input{generated/tables/iti_v2_table_primary.tex}
 
-\IfFileExists{generated/tables/iti_v2_table_primary.tex}{\input{generated/tables/iti_v2_table_primary.tex}}{}
-\input{generated/iti_v2_results_snippet.tex}
-\IfFileExists{generated/tables/iti_v2_table_secondary.tex}{%
+\subsection{Contraste principal}
+\label{subsec:campanha-iti}
+
+Na comparação principal, a correlação de Spearman entre ITI-H7 e retorno da semana seguinte foi de $-0{,}163$. Para o Soft, calculado nas mesmas 94 semanas, a correlação foi de $-0{,}203$ (Tabela~\ref{tab:iti-primary}). As duas associações observadas foram negativas. Isso significa que, neste conjunto de dados, valores mais altos dos indicadores tenderam a acompanhar posições mais baixas na ordenação dos retornos posteriores. A observação não demonstra causalidade nem capacidade de prever novos períodos.
+
+A diferença entre as correlações assinadas foi $\Delta\rho=+0{,}040$. Esse valor positivo não representa ganho de qualidade do ITI: $-0{,}163$ é numericamente maior que $-0{,}203$, mas possui magnitude absoluta menor. Assim, o ITI-H7 apresentou associação marginal mais fraca em valor absoluto nesta amostra. O intervalo bootstrap nominal de 95\% para a diferença foi $[-0{,}127;\,0{,}241]$, incluindo zero, e o valor $p$ exploratório foi de $0{,}512$. Não há evidência suficiente para sustentar uma diferença entre as associações, e tampouco para afirmar equivalência estatística entre os dois indicadores.
+
+A análise não demonstra superioridade do uso de memória exponencial sobre o Soft. Também não permite concluir que a memória seja inútil em qualquer configuração ou período: o experimento apresenta uma escolha de meia-vida, uma representação textual, um estudo de caso e um conjunto finito de observações. A interpretação precisa manter essas condições explícitas.
+
+\subsection{Sensibilidades e contrastes secundários}
+
+Foram examinados oito contrastes adicionais para verificar a sensibilidade das associações às escolhas de meia-vida, representação textual, escore, medida de correlação, horizonte financeiro e suavização. A Tabela~\ref{tab:iti-secondary} apresenta as diferenças estimadas, os intervalos bootstrap nominais e os valores $p$ corrigidos por Holm. Essas análises pertencem à campanha exploratória e não constituem oito confirmações independentes da hipótese principal.
+
 \input{generated/tables/iti_v2_table_secondary.tex}
+
+Na comparação entre recorte contextual e texto integral, o intervalo nominal de 95\% não incluiu zero, mas o valor $p$ ajustado por Holm foi de $0{,}200$. Como os intervalos individuais não receberam correção para múltiplas comparações, esse resultado não deve ser apresentado como evidência conclusiva na família de testes. Ele indica uma diferença que pode merecer investigação posterior, sobretudo porque a qualidade textual de cada representação ainda não foi comparada à mesma referência humana independente.
+
+As demais sensibilidades também não oferecem evidência confirmatória de uma diferença. A ausência de resultado estatisticamente conclusivo não demonstra estabilidade, equivalência nem ausência de efeito. Ela limita as afirmações possíveis com os dados e procedimentos utilizados.
+
+\subsection{Visualização temporal e sensibilidades}
+
+A Figura~\ref{fig:iti-campanha-1} apresenta o Soft, o ITI-H7 e a quantidade diária de notícias elegíveis. As oscilações mais rápidas do Soft e a persistência do ITI-H7 decorrem das regras de cálculo descritas no Capítulo~\ref{cap:metodologia}. Essa diferença visual confirma o comportamento esperado da transformação temporal, mas não prova que uma das séries seja economicamente mais informativa.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\linewidth]{generated/figures/iti_v2/figure_daily_signal.png}
+\caption{Sinal diário sem memória (Soft), ITI-H7 e quantidade de notícias elegíveis.}
+\label{fig:iti-campanha-1}
+\par\smallskip
+{\footnotesize\raggedright Fonte: elaboração própria, com dados da campanha de outubro de 2026.\par}
+\end{figure}
+
+A Figura~\ref{fig:iti-campanha-2} compara as séries com meias-vidas de dois, sete e quatorze dias calculadas sobre as mesmas probabilidades. Quanto maior a meia-vida, mais lentamente o estado anterior perde peso. Não há, contudo, motivo para interpretar a série mais suave como automaticamente mais adequada ao comportamento da ação.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\linewidth]{generated/figures/iti_v2/figure_h_sensitivity.png}
+\caption{Sensibilidade do ITI a diferentes meias-vidas: $H=2$, $H=7$ e $H=14$ dias civis.}
+\label{fig:iti-campanha-2}
+\par\smallskip
+{\footnotesize\raggedright Fonte: elaboração própria, com dados da campanha de outubro de 2026.\par}
+\end{figure}
+
+A Figura~\ref{fig:iti-campanha-3} sintetiza as diferenças de correlação e os intervalos nominais dos contrastes secundários. A linha vertical em zero marca a ausência de diferença assinada. O ajuste de Holm se aplica aos valores $p$ da Tabela~\ref{tab:iti-secondary}, e não aos intervalos exibidos na figura.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\linewidth]{generated/figures/iti_v2/figure_delta_intervals.png}
+\caption{Diferenças de correlação dos contrastes secundários e intervalos bootstrap nominais de 95\%.}
+\label{fig:iti-campanha-3}
+\par\smallskip
+{\footnotesize\raggedright Fonte: elaboração própria, com dados da campanha de outubro de 2026.\par}
+\end{figure}
 \FloatBarrier
-}{}
-\IfFileExists{generated/iti_v2_figures_snippet.tex}{%
-\input{generated/iti_v2_figures_snippet.tex}
-\FloatBarrier
-}{}
+
+\subsection{Interpretação do Soft e da média semanal}
+
+A leitura do contraste principal depende da definição do Soft. Das 94 semanas comparadas, ele apresentou valor zero em 36, correspondentes a 38,3\% do conjunto. Em 33 dessas semanas, havia notícias em dias anteriores ao corte dentro da própria semana civil. Assim, Soft zero não significa necessariamente ausência de notícias durante toda a semana; pode significar somente que não houve matéria observada no dia específico em que o indicador foi amostrado.
+
+Para examinar uma referência que também incorporasse vários dias, realizou-se uma comparação adicional entre o ITI-H7 e a média semanal dos sinais diários. No mesmo painel de 94 semanas, a diferença entre as correlações de Spearman foi de $-0{,}062$, com intervalo bootstrap nominal de 95\% $[-0{,}165;\,0{,}060]$ e valor $p$ exploratório de $0{,}340$. O intervalo inclui zero, de modo que a análise permanece inconclusiva.
+
+Essa comparação adicional não integra a família de oito contrastes corrigida por Holm e não substitui retroativamente a hipótese principal. Ela torna explícita uma limitação do Soft pontual: o contraste inicial avalia memória em relação ao sinal do dia de corte, e não demonstra superioridade da memória exponencial sobre todas as estratégias que agregam notícias ao longo de uma semana.
 
 \section{Discussão integrada e ameaças à validade}
 
-As limitações observadas organizam-se em construto, desenho, inferência e generalização (Tabela~\ref{tab:ameacas}).
+Os resultados textuais e temporais precisam ser interpretados conjuntamente. A implementação permite calcular e comparar o ITI, mas a associação com retornos não corrige eventuais problemas nas probabilidades de sentimento. Em particular, a baixa concordância na avaliação baseada em título e corpo e a ausência de validação independente da entrada contextual impedem atribuir ao índice uma validade econômica que ainda não foi demonstrada.
 
-\needspace{11\baselineskip}
-\begin{table}[H]
+A Tabela~\ref{tab:ameacas} reúne as principais ameaças observadas e as providências que podem reduzi-las na continuidade da pesquisa.
+
+\begin{table}[htbp]
 \centering
-\caption{Ameaças à validade, evidências observadas e encaminhamentos.}
+\caption{Ameaças à validade identificadas na etapa exploratória.}
 \label{tab:ameacas}
-\begingroup
-\footnotesize
-\renewcommand{\arraystretch}{1.1}
-\begin{tabularx}{\textwidth}{@{}P{0.2\textwidth}XX@{}}
+\begin{tabularx}{\textwidth}{@{}P{0.19\textwidth}L L@{}}
 \toprule
-Dimensão & Evidência observada & Encaminhamento \\
+Dimensão & Limitação observada & Encaminhamento \\
 \midrule
-Construto & Concordância modelo--autor limitada; divergências em notícias anotadas como neutras & Referência humana independente \\
-Interna & Cutoff e calendário reauditados em out./2026 & Política conservadora de disponibilidade \\
-Estatística & $n=94$; Holm nos $p$ secundários; $\Delta$ inconclusivo & Não reinterpretar $p$ alto como equivalência \\
-Externa & Uma empresa; cobertura desigual & Extensão condicionada aos dados \\
-Reprodutibilidade & Manifestos por execução & Versionamento de corpus e código \\
+Construto & Discordâncias entre FinBERT e anotação do autor; entrada contextual ainda sem validação humana independente & Anotação independente e diagnóstico na mesma entrada do ITI \\
+Desenho & Cobertura diária não comprovada em todo o corpus; informação de horários incompleta & Inventário auditável de fontes, datas e disponibilidade \\
+Estatística & 94 semanas no contraste; intervalos amplos; testes exploratórios e múltiplas comparações & Novo período de avaliação com protocolo congelado \\
+Externa & Estudo de caso da Sabesp, sem comparação equivalente entre empresas & Novos casos somente após documentar a cobertura e o alvo \\
+Reprodução & Artefatos completos de execução não integralmente versionados no Git público & Preservar manifestos, checkpoint, preços e dados da campanha \\
 \bottomrule
 \end{tabularx}
-\endgroup
-\vspace{0.35em}
-{\footnotesize Fonte: elaboração própria.}
+\vspace{0.4em}
+{\footnotesize Fonte: elaboração própria com base nas etapas e nos resultados da pesquisa.}
 \end{table}
 
-A interpretação do contraste principal também depende do baseline escolhido. Nas 94 semanas consideradas, o Soft foi igual a zero em 36 (38,3\%). Em 33 dessas semanas, entretanto, havia notícias em dias anteriores ao instante de corte dentro da própria semana civil. Isso ocorre porque o Soft representa apenas a entrada diária no dia do corte, enquanto o ITI-H7 preserva parte dos escores anteriores. Assim, a comparação avalia o efeito da memória em relação a uma entrada pontual, mas não permite concluir que o decaimento exponencial seja superior a outras formas de agregação semanal.
-
-\IfFileExists{generated/weekly_mean_baseline_snippet.tex}{\input{generated/weekly_mean_baseline_snippet.tex}}{}
-
-Em conjunto, os resultados mostram que o procedimento computacional pode ser executado e inspecionado, mas ainda não permitem validar o ITI como indicador de impacto econômico da notícia sobre a Sabesp. Essa interpretação depende, principalmente, da avaliação independente das classificações e de novos testes temporais.
-
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-
+Em síntese, os experimentos mostram que o procedimento pode ser executado e examinado e identificam suas limitações mais importantes. Eles ainda não validam o ITI como indicador de impacto econômico das notícias sobre a Sabesp. O principal passo seguinte é verificar a qualidade das classificações que efetivamente entram no índice e repetir a avaliação temporal sob condições previamente definidas.

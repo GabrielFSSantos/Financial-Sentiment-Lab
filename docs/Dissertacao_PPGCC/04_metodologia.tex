@@ -3,150 +3,174 @@
 
 \section{Delineamento e unidades de análise}
 
-A pesquisa é de natureza aplicada e adota uma abordagem quantitativa, com desenvolvimento de um procedimento computacional e avaliação experimental exploratória em um estudo de caso da Sabesp. O desenho combina duas avaliações que se relacionam, mas não utilizam a mesma unidade de observação. Na avaliação textual, cada unidade é uma notícia vinculada à empresa e, quando disponível, acompanhada de um rótulo humano. Na avaliação financeira, cada unidade é um período semanal para o qual se calcula um indicador com informações disponíveis até um instante definido e se observa um retorno posterior.
+A pesquisa é aplicada, com abordagem quantitativa e desenvolvimento de um procedimento computacional avaliado de forma exploratória no estudo de caso da Sabesp. O trabalho envolve duas avaliações distintas, embora relacionadas. A primeira examina se as classificações automáticas correspondem à interpretação humana de notícias sobre a empresa; sua unidade de análise é a notícia anotada. A segunda investiga a associação entre indicadores construídos a partir do noticiário e retornos futuros da ação SBSP3; sua unidade de análise é a observação semanal disponível após o alinhamento temporal.
 
-O fluxo começa na coleta ou organização de notícias, passa pela preparação dos textos, classificação de sentimento e cálculo do escore por notícia, produz agregações diárias e atualiza o ITI. A etapa financeira agrega essas séries em semanas, associa cada semana à cotação da empresa e compara o indicador com medidas de referência e retornos futuros. A anotação humana constitui um ramo de avaliação do classificador, anterior à interpretação financeira dos seus escores.
+O procedimento inicia-se na organização de notícias e na seleção dos trechos que se referem à empresa. O classificador atribui probabilidades às classes de sentimento, que são convertidas em escores e agregadas por dia. A partir dessas médias, calculam-se o ITI, com memória, e as referências sem memória. Em seguida, os indicadores são observados em instantes semanais definidos e relacionados com retornos posteriores da ação. A anotação humana é utilizada para avaliar a classificação textual e não constitui uma entrada de treinamento ou de correção automática do índice nesta campanha.
 
-A implementação foi realizada em módulos que permitem separar leitura de dados, inferência, construção de séries, validação e geração de relatórios. Os parâmetros das campanhas são definidos por arquivos de configuração. Essa organização torna possível registrar versões e comparar execuções, embora a existência do código não substitua a documentação dos dados efetivamente utilizados em cada resultado.
+A Figura~\ref{fig:pipeline} resume o encadeamento. As etapas são implementadas em módulos separados e recebem configurações registradas por execução. Essa separação ajuda a distinguir problemas de seleção de notícias, classificação, agregação e comparação temporal; não substitui, entretanto, a auditoria dos arquivos efetivamente utilizados.
 
 \begin{figure}[!htbp]
 \centering
-\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
-  flowbox/.style={
-    draw, rectangle, rounded corners=2pt,
-    align=center, text width=2.25cm,
-    minimum height=0.88cm, inner sep=3pt,
-    font=\small
-  },
-  flowarrow/.style={-{Stealth[length=2mm]}, thick}
+  >=Stealth,
+  every node/.style={font=\footnotesize, align=center},
+  caixa/.style={draw, rounded corners=2pt, text width=2.42cm,
+               minimum height=0.92cm, inner sep=3pt},
+  verificacao/.style={caixa, dashed, text width=2.35cm},
+  fluxo/.style={-Stealth, thick},
+  apoio/.style={-Stealth, dashed, thick}
 ]
-  \node[flowbox] (news) at (0,0) {Notícias\\elegíveis};
-  \node[flowbox] (context) at (3.2,0) {Recorte\\contextual};
-  \node[flowbox] (model) at (6.4,0) {FinBERT\\$p^+,p^0,p^-$};
-  \node[flowbox] (daily) at (9.6,0) {Média diária\\$X$};
+  % Etapa textual: leitura da esquerda para a direita.
+  \node[caixa] (noticias) at (0,0) {Notícias elegíveis\\da Sabesp};
+  \node[caixa] (recorte) at (3.18,0) {Recorte textual\\orientado à empresa};
+  \node[caixa] (finbert) at (6.36,0) {FinBERT-PT-BR\\probabilidades};
+  \node[caixa] (diario) at (9.54,0) {Escore por notícia\\e média diária};
+  \draw[fluxo] (noticias.east) -- (recorte.west);
+  \draw[fluxo] (recorte.east) -- (finbert.west);
+  \draw[fluxo] (finbert.east) -- (diario.west);
 
-  \node[flowbox] (human) at (0,-2.1) {Anotação humana\\(validação)};
-  \node[flowbox] (iti) at (8,-2.1) {ITI-H7};
-  \node[flowbox] (soft) at (11.2,-2.1) {Soft};
-  \node[flowbox] (returns) at (3.2,-4.4) {Retornos\\futuros};
-  \node[flowbox] (delta) at (9.6,-4.4) {Contraste\\$\Delta\rho$};
+  % Avaliação humana independente: não alimenta o ITI da campanha.
+  \node[verificacao] (humana) at (4.7,-1.78)
+    {Avaliação textual\\com anotação humana};
+  \draw[apoio] (finbert.south) -- (humana.north);
 
-  \draw[flowarrow] (news.east) -- (context.west);
-  \draw[flowarrow] (context.east) -- (model.west);
-  \draw[flowarrow] (model.east) -- (daily.west);
-  \draw[flowarrow] (news.south) -- (human.north);
-  \draw[flowarrow] (daily.south west) -- (iti.north);
-  \draw[flowarrow] (daily.south east) -- (soft.north);
-  \draw[flowarrow] (iti.south) -- (delta.north west);
-  \draw[flowarrow] (soft.south) -- (delta.north east);
-  \draw[flowarrow] (returns.east) -- (delta.west);
-\end{tikzpicture}%
-}
-\caption{Etapas de construção do ITI e do Soft; as anotações humanas são comparadas às previsões do classificador em uma avaliação textual separada.}
+  % Derivação de dois indicadores a partir da mesma entrada diária.
+  \node[caixa] (iti) at (8.0,-1.85) {ITI-H7\\com memória};
+  \node[caixa] (soft) at (11.2,-1.85) {Soft\\sem memória};
+  \coordinate (bif) at (9.54,-0.98);
+  \draw[thick] (diario.south) -- (bif);
+  \draw[fluxo] (bif) -| (iti.north);
+  \draw[fluxo] (bif) -| (soft.north);
+
+  % Mercado é uma entrada independente da avaliação, não saída do ITI.
+  \node[caixa] (retornos) at (7.45,-3.67)
+    {Retornos futuros\\da SBSP3};
+  \node[caixa] (comparacao) at (11.18,-3.67)
+    {Comparação\\de associações};
+  \draw[fluxo] (retornos.east) -- (comparacao.west);
+  \draw[fluxo] (soft.south) -- ([xshift=0.60cm]comparacao.north);
+  \draw[fluxo] (iti.south) -- ([xshift=-0.62cm]comparacao.north);
+\end{tikzpicture}
+\caption{Construção dos indicadores e avaliação exploratória. ITI e Soft usam a mesma entrada diária; os retornos são obtidos separadamente. A avaliação humana constitui outra frente de análise.}
 \label{fig:pipeline}
-\vspace{0.4em}
-{\footnotesize Fonte: elaboração própria.}
+\par\smallskip
+{\footnotesize\raggedright Fonte: elaboração própria.\par}
 \end{figure}
-
-\FloatBarrier
-
-Os experimentos apresentados na qualificação são exploratórios. A referência humana independente e os testes confirmatórios permanecem como atividades futuras. Esse limite não invalida a avaliação do pipeline, mas impede interpretar as correlações observadas como uma demonstração definitiva da hipótese.
 
 \section{Formação e delimitação do corpus}
 
-O corpus reúne notícias em português associadas a empresas do setor de saneamento. A análise principal utiliza matérias vinculadas à Sabesp. A implementação conserva versões distintas do conjunto coletado: um corpus geral, uma seleção estrita para a empresa e uma versão filtrada para reduzir determinados tipos de matérias de agenda ou acompanhamento de mercado.
+O conjunto de notícias foi organizado para incluir matérias em português relacionadas a empresas do setor de saneamento. O estudo de caso utiliza registros vinculados à Sabesp. Na implementação, há diferentes seleções de notícias, incluindo o conjunto mais amplo coletado e versões filtradas por relevância ou tipo de matéria; essas versões não devem ser confundidas ao descrever uma execução específica.
 
-A inclusão de uma notícia requer vínculo identificável com a empresa, conteúdo textual suficiente e referência temporal utilizável. Uma matéria que cite a Sabesp apenas em uma relação de papéis negociados, por exemplo, não equivale a uma notícia cujo assunto central seja uma decisão regulatória ou um investimento da companhia. A simples presença da palavra \emph{Sabesp} não é critério suficiente para assegurar que o texto seja informativo para o alvo de classificação.
+Uma notícia elegível precisa ter vínculo identificável com a empresa, texto aproveitável e referência temporal. A simples menção à Sabesp em uma lista de ações, por exemplo, não significa que o conteúdo forneça informação suficiente para atribuir uma orientação econômica à companhia. O procedimento também distingue registros repetidos: cópias de uma notícia não devem multiplicar o peso do mesmo texto, enquanto reportagens independentes sobre um acontecimento não são necessariamente duplicatas.
 
-Os registros do projeto incluem campos associados ao identificador da notícia, título, corpo, data, veículo e endereço de origem, além de informações de empresa e ativo. Para uma reconstrução rigorosa dos experimentos, também é necessário conhecer a data de coleta, a disponibilidade do horário de publicação, eventuais atualizações no texto e a versão do arquivo utilizado. Se esses campos não estiverem disponíveis para algum registro, essa ausência deverá constar do inventário, em vez de ser preenchida por suposição.
+O inventário utilizado na avaliação temporal recebe o identificador P02. Seu registro contém 1.254 linhas brutas, das quais foi mapeada uma duplicata, resultando em 1.253 notícias canônicas únicas. A campanha de outubro de 2026 dispõe de probabilidades válidas para essas 1.253 notícias na representação contextual, conforme os registros de execução sintetizados no Apêndice~\ref{ap:rastreabilidade}. O intervalo informacional vai aproximadamente de maio de 2022 a abril de 2024, e os cinco veículos identificados constam no inventário.
 
-A deduplicação também exige uma decisão explícita. Duas cópias idênticas de uma notícia não devem aumentar artificialmente o peso do acontecimento. Por outro lado, reportagens independentes sobre o mesmo fato podem acrescentar informações e não precisam ser eliminadas automaticamente. O algoritmo aplicado, as exceções e as quantidades de documentos retirados em cada etapa precisam ser apresentados para caracterizar a cobertura resultante.
+Para reproduzir exatamente a campanha, a contagem total não é suficiente. São necessários os critérios de inclusão, os textos preservados, as datas registradas, as regras de deduplicação e a versão dos arquivos utilizados. Em notícias extraídas da web, também importam a presença ou ausência de horário de publicação e possíveis alterações posteriores na página original. Esses dados devem ser registrados como disponíveis ou ausentes, sem preenchimento por suposições.
 
-A avaliação temporal do ITI utiliza o inventário canônico P02, com 1.253 notícias únicas com probabilidades válidas no recorte contextual após inferência (out./2026), no intervalo aproximado de maio de 2022 a abril de 2024. O registro da execução delimita as datas inicial e final do intervalo inventariado: dias fora desse intervalo recebem status de cobertura desconhecida e não entram no teste; dentro do intervalo, dias sem artigo observado são tratados como entrada zero (silêncio informacional sob o inventário), o que não equivale a comprovar coleta bem-sucedida em cada dia civil. Exclusões, deduplicação e critérios de elegibilidade acompanham cada execução versionada (Apêndice~\ref{ap:rastreabilidade}).
-
-A composição do corpus pode interferir diretamente no índice. Concentração de notícias em poucos veículos, republicações, ausência de cobertura em determinados meses e presença de matérias sobre muitas empresas são fatores que afetam tanto os escores diários quanto sua evolução temporal. Por esse motivo, o corpus não é apenas uma entrada computacional; suas propriedades fazem parte das condições de validade dos resultados.
+O intervalo inventariado delimita onde o índice é calculado e avaliado. Fora desse intervalo, não se presume cobertura informacional. Nos dias internos sem notícia observada, o procedimento atribui entrada zero à série diária; contudo, não há comprovação de coleta bem-sucedida em cada dia civil. A convenção é necessária para descrever o cálculo executado, mas representa uma limitação: uma falha de extração e a ausência real de notícias podem produzir a mesma entrada observada.
 
 \section{Amostra e protocolo de anotação humana}
 
-A avaliação textual preliminar utiliza uma amostra de cem notícias associadas à Sabesp. Sua seleção foi organizada para contemplar classes previstas pelo classificador, favorecendo a inspeção de comportamentos diferentes do modelo. Esse procedimento não equivale a uma amostragem aleatória simples do corpus. Portanto, a acurácia calculada na amostra não deve ser apresentada automaticamente como estimativa da acurácia que o modelo teria em todas as matérias coletadas.
+A avaliação textual preliminar utiliza cem notícias relacionadas à Sabesp. A seleção foi organizada para incluir exemplos de diferentes classes previstas pelo modelo, o que favorece a inspeção de possíveis erros. Ela não é uma amostra aleatória simples de todo o inventário; portanto, a acurácia observada nesse conjunto não deve ser generalizada automaticamente para as 1.253 notícias da campanha temporal.
 
-A tarefa de anotação é definida pela seguinte pergunta: \textbf{considerando o título e o corpo da notícia, o acontecimento relatado contém informação favorável, desfavorável ou neutra para a Sabesp?} A resposta deve ser fundamentada no conteúdo disponível ao anotador, sem utilizar a variação posterior do preço da ação como critério de decisão.
+A tarefa apresentada ao anotador pergunta: \textbf{considerando o título e o corpo da notícia, o acontecimento relatado contém informação favorável, desfavorável ou neutra para a Sabesp?} O julgamento deve se apoiar no texto apresentado, sem consultar a variação posterior do preço da ação. A interpretação procura descrever a orientação do acontecimento para a empresa, e não o tom emocional de uma manchete ou uma previsão de valorização.
 
-Além da classe, cada notícia recebe uma caracterização quanto ao seu foco. Uma notícia focal discute a Sabesp como assunto principal ou com desenvolvimento substantivo. Matérias de agenda ou multiempresa abordam diferentes companhias ou movimentos mais amplos do mercado. As menções tangenciais são registradas separadamente quando não há conteúdo suficiente sobre a empresa-alvo. Na amostra reportada, foram identificados 74 textos focais e 26 de agenda ou multiempresa.
+Além do sentimento, cada texto recebe uma classificação quanto ao foco da matéria. Notícias focais tratam a Sabesp como assunto principal ou a desenvolvem substantivamente; matérias de agenda ou multiempresa incluem várias companhias ou movimentos gerais de mercado. Menções apenas tangenciais e situações sem informação suficiente devem ser identificadas separadamente. Na amostra examinada, 74 notícias foram classificadas como focais e 26 como agenda ou multiempresa.
 
-A pesquisa passou por uma primeira anotação exploratória, de critério simplificado, e uma rodada posterior orientada de maneira mais explícita ao efeito descrito para a Sabesp. Essas rodadas não constituem avaliações equivalentes de um classificador sob um único padrão fixo: o referencial de anotação mudou. A interpretação de seus resultados deve preservar essa diferença, conforme discutido no Capítulo~\ref{cap:resultados}.
+Houve uma rodada inicial de anotação com regras mais simples e uma segunda rodada, datada de 7 de outubro de 2026, mais explicitamente orientada à Sabesp. Como a definição da referência humana mudou, seus percentuais de concordância não constituem medições equivalentes sob um único protocolo fixo. A segunda rodada, anotada pelo autor, é a referência provisória utilizada nos resultados apresentados.
 
-A continuidade da pesquisa prevê uma rodada de anotação independente por participante com conhecimento econômico-financeiro, utilizando o mesmo protocolo e preservando os julgamentos individuais. A ampliação para outros avaliadores será buscada de acordo com a disponibilidade e os critérios de seleção definidos para a pesquisa. Quando houver avaliações de pelo menos dois participantes sobre os mesmos itens, será examinada a concordância entre eles por medida apropriada ao número de avaliadores e ao desenho do estudo. Divergências e situações sem decisão consensual serão documentadas antes da formação de uma referência consolidada. A quantidade efetiva de notícias avaliadas em comum será informada, sem atribuir concordância humana a itens anotados por uma única pessoa.
-
-Os campos e exemplos operacionais estão detalhados no Apêndice~\ref{ap:protocolo}. O protocolo também prevê distinguir neutralidade, ambiguidade e insuficiência de informação. Essa separação evita que limitações na extração ou no vínculo entre notícia e companhia apareçam indevidamente como rótulos neutros.
+A continuidade prevê avaliações independentes, idealmente sobre as mesmas notícias e utilizando regras estáveis. Os julgamentos individuais deverão ser preservados antes de qualquer consolidação, para permitir medir a concordância e examinar divergências. A quantidade final de avaliadores e de itens compartilhados será registrada conforme a participação efetivamente obtida; não se atribui consenso a notícias anotadas por uma única pessoa. O Apêndice~\ref{ap:protocolo} reúne as regras e os campos de anotação, incluindo a categoria ``não avaliável'' para uso na etapa futura.
 
 \section{Classificação automática e preparação da entrada}
 
-Cada notícia é processada pelo FinBERT-PT-BR de duas maneiras. Na representação principal, o texto de entrada reúne as sentenças com menção explícita à Sabesp e até uma sentença vizinha de cada lado (\texttt{context\_neighbors=1}), concatenadas quando há mais de um trecho no documento. Na representação de comparação, utiliza-se o título e o corpo da matéria. A primeira procura concentrar a análise no contexto da empresa; a segunda permite verificar o que muda quando o modelo recebe o documento completo. A escolha da largura da janela contextual foi feita nesta pesquisa e é tratada como parâmetro experimental. Os trabalhos de \citeonline{cortis2017semeval5}, \citeonline{yuan2020target} e \citeonline{tang2023finentity} fundamentam a importância do alvo na análise de sentimento financeiro, mas não estabelecem essa janela específica como configuração ótima.
+O classificador inicial da pesquisa é o FinBERT-PT-BR \cite{santos2023finbert}. A campanha utiliza duas representações de entrada. A primeira, empregada na construção do ITI, seleciona as sentenças com menção explícita à Sabesp e até uma sentença vizinha de cada lado (\texttt{context\_neighbors=1}); quando existem várias menções, os trechos são reunidos. A segunda representação contém título e corpo da notícia e foi utilizada na avaliação textual preliminar com as cem anotações do autor.
 
-O comprimento máximo é de 512 tokens do tokenizador do modelo (não contagem por palavras). A inferência registra comprimentos original e utilizado e se houve truncamento. O recorte contextual é hipótese de redução de ruído, não um classificador treinado para sentimento em nível de entidade.
+O recorte contextual foi adotado para aproximar o conteúdo processado da empresa-alvo e reduzir a possibilidade de que trechos irrelevantes dominem a entrada. A largura de uma sentença vizinha é uma escolha do projeto, não um parâmetro ótimo demonstrado pelos estudos de sentimento por entidade \cite{cortis2017semeval5,yuan2020target,tang2023finentity}. O recorte também pode perder informações importantes que estejam fora da janela; sua utilidade precisa ser examinada empiricamente.
 
-O procedimento conserva as probabilidades de saída, a classe prevista e o escore contínuo. É essencial verificar o mapeamento entre índices numéricos e classes a partir do checkpoint carregado. Uma inversão entre positivo e negativo não necessariamente causaria falha de execução, mas alteraria o sentido do escore e comprometeria a interpretação dos índices.
+A configuração do modelo limita a entrada a 512 tokens. A execução registra os comprimentos antes e depois da preparação e a ocorrência de truncamento. Também preserva as probabilidades previstas, o rótulo e o escore contínuo. O mapeamento entre índices de saída e nomes das classes deve corresponder ao checkpoint realmente carregado: uma inversão entre positivo e negativo poderia alterar os sinais do ITI sem necessariamente interromper o software.
 
-Na avaliação textual apresentada nesta qualificação, são reportados acurácia, F1 macro e kappa, além de comparações entre tipos de notícia e com a classe majoritária. Os resultados correspondem às cem notícias anotadas pelo autor e à representação formada por título e corpo. A regra que prevê sempre a classe predominante serve como referência para interpretar a acurácia, mas não substitui a avaliação do desempenho nas classes positiva e negativa. Na continuidade da pesquisa, a análise será ampliada com matriz de confusão completa, precisão, revocação e F1 por classe, além da comparação entre a entrada integral e o recorte contextual empregado no ITI. A interpretação desses resultados considerará a concordância entre anotadores, a presença de casos ambíguos e eventuais diferenças entre as representações textuais. Se forem adotados critérios quantitativos para selecionar modelos, eles deverão ser definidos e justificados antes dos novos experimentos, com registro das escolhas realizadas. As limitações da avaliação atual são discutidas no Capítulo~\ref{cap:resultados}.
+A avaliação textual disponível neste documento reporta acurácia, F1 macro e kappa, além da comparação entre tipos de notícia e com a classe majoritária. Esses resultados descrevem a entrada formada por título e corpo, e não a entrada contextual do ITI. A continuidade deverá examinar matriz de confusão e métricas por classe, confrontar as duas representações nas mesmas notícias e utilizar uma referência humana independente. A escolha futura de modelos ou parâmetros deve seguir critérios de avaliação definidos antes do exame de novos resultados.
 
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-
-
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-
-
-\section{Formulação operacional e inferência do ITI}
+\section{Construção do ITI e comparação com o sinal sem memória}
 \label{sec:formulacao-iti}
 
-A avaliação temporal de outubro de 2026 define a metodologia quantitativa desta qualificação. Para a notícia $i$ e empresa $c$, o FinBERT-PT-BR fornece probabilidades $p^-_{i,c}$, $p^0_{i,c}$ e $p^+_{i,c}$ \cite{santos2023finbert}. Com rótulos numéricos $Y\in\{-1,0,+1\}$, o escore
-\[
-s_{i,c}=p^+_{i,c}-p^-_{i,c}
-\]
-equivale à esperança da classe sob a distribuição prevista pelo modelo; a massa em neutro contribui com peso zero. Esse escore pertence a $[-1,1]$, mas $s=0$ pode indicar alta probabilidade neutra ou equilíbrio entre polaridades (Capítulo~\ref{cap:fundamentacao}).
+O ITI é calculado em três operações: transformar a saída do classificador em um escore por notícia, agregar os escores de cada dia e atualizar um estado temporal que mantém parte das entradas anteriores. O Soft utiliza a mesma média diária, sem essa atualização de memória. Desse modo, os dois indicadores compartilham o conteúdo textual e as probabilidades de entrada, diferindo na transformação temporal aplicada a elas.
 
-Seja $\mathcal{N}_{c,d}$ o conjunto de notícias elegíveis no dia civil $d$, com $n_{c,d}=|\mathcal{N}_{c,d}|$. A entrada diária é a média simples $X_{c,d}=\frac{1}{n_{c,d}}\sum_{i\in\mathcal{N}_{c,d}} s_{i,c}$ quando $n_{c,d}>0$; em dias elegíveis sem matéria, $X_{c,d}=0$ e o estado de memória decai. A média igualmente ponderada é escolha autoral para transparência e confronto controlado, não uma regra extraída do artigo do FinBERT.
+\paragraph{Do texto ao escore.}
+Para uma notícia $i$ associada à empresa $c$, o modelo fornece probabilidades $p^+_{i,c}$, $p^-_{i,c}$ e $p^0_{i,c}$ para as classes positiva, negativa e neutra, respectivamente. O escore é
+\begin{equation}
+    s_{i,c}=p^+_{i,c}-p^-_{i,c}.
+    \label{eq:iti-escore}
+\end{equation}
+O índice $i$ identifica a notícia e $c$ identifica a empresa, que neste estudo é a Sabesp. O escore pertence ao intervalo $[-1,1]$, mas zero pode resultar tanto de probabilidade neutra elevada quanto de equilíbrio entre as probabilidades positiva e negativa. Assim, o escore resume a saída do modelo e não é tomado como medida direta do efeito econômico da notícia.
 
-A memória utiliza meia-vida $H$ em dias civis. Deseja-se $\lambda_H^H=\tfrac{1}{2}$, donde $\lambda_H=2^{-1/H}$ e
-\[
-ITI^{(H)}_{c,d}=\lambda_H ITI^{(H)}_{c,d-1}+(1-\lambda_H)X_{c,d}.
-\]
-Na campanha apresentada nesta dissertação, adotou-se $H=7$ dias civis como configuração principal, com $H\in\{2,14\}$ nas análises de sensibilidade. A escolha permite examinar um horizonte de memória de aproximadamente uma semana civil e não decorre de uma constante estimada na literatura. Essas configurações pertencem ao protocolo da campanha exploratória relatada e não constituem pré-registro confirmatório independente. O período inicial de 70 dias civis foi excluído das comparações para reduzir a influência da condição inicial do índice, conforme a política de aquecimento implementada --- com peso residual $2^{-10}\approx 0{,}001$ em $H=7$ (para $H=14$, o mesmo horizonte equivale a cinco meias-vidas e peso residual $2^{-5}=0{,}03125$) --- independentemente de haver ou não notícias nesse intervalo; em dias elegíveis sem matéria, o estado decai por $\lambda_H^k$. A formulação dialoga com índices de notícias com decaimento \cite{shapiro2022fed,frbsfNewsSentiment,buckman2020dnsi}, sem atribuir a eles a equação completa do ITI.
+\paragraph{Do escore à média diária.}
+Seja $\mathcal{N}_{c,d}$ o conjunto das notícias elegíveis da empresa $c$ no dia civil $d$ e $n_{c,d}=|\mathcal{N}_{c,d}|$ sua quantidade. Quando existem matérias observadas, a entrada diária é a média simples:
+\begin{equation}
+    X_{c,d}=\frac{1}{n_{c,d}}\sum_{i\in\mathcal{N}_{c,d}}s_{i,c},\qquad n_{c,d}>0.
+    \label{eq:iti-entrada-diaria}
+\end{equation}
+Cada matéria recebe peso igual, independentemente da fonte ou da confiança aparente do classificador. Essa opção torna a agregação simples de inspecionar, mas não representa uma ponderação por importância econômica ou por volume de cobertura. Para dia elegível sem matéria observada, define-se $X_{c,d}=0$. Esse valor indica ausência de entrada no inventário, e não uma notícia neutra ou comprovação de que nada foi publicado.
 
-O baseline Soft amostra o mesmo $X_{c,d}$ no cutoff semanal, sem recorrência. O Soft constitui baseline de entrada pontual no cutoff e não representa o sentimento médio de toda a semana; a comparação não isola, por si só, o benefício da suavização exponencial em relação a toda agregação semanal possível. Como extensão exploratória, fora da família secundária com correção de Holm, define-se ainda \texttt{soft\_weekly\_mean}: a média de $X_{c,d}$ nos dias civis elegíveis da semana ancorada em \texttt{W-FRI}, do início da semana até o instante de corte (inclusive), incluindo zeros em dias sem matéria no inventário. Contrastes secundários incluem escore discreto, meias-vidas alternativas, horizontes $h\in\{2,4\}$, Pearson, texto integral e suavização alternativa histórica \cite{hiew2019bsi}.
+\paragraph{Da entrada diária ao índice com memória.}
+A persistência temporal é descrita por uma meia-vida $H$, medida em dias civis. O fator $\lambda_H$ é a proporção do estado anterior mantida a cada atualização. Para que essa contribuição remanescente caia à metade após $H$ dias sem novas entradas, utiliza-se
+\begin{equation}
+    \lambda_H=2^{-1/H}.
+    \label{eq:iti-lambda}
+\end{equation}
+O ITI é atualizado diariamente por
+\begin{equation}
+    ITI_{c,d}^{(H)}=\lambda_H ITI_{c,d-1}^{(H)}+(1-\lambda_H)X_{c,d}.
+    \label{eq:iti-recorrencia}
+\end{equation}
+O primeiro termo conserva parte do estado anterior; o segundo incorpora o sinal do dia. Na configuração principal, $H=7$ e $\lambda_7\simeq0{,}9057$. Assim, a cada dia civil, aproximadamente 90,57\% do estado anterior é retido e 9,43\% do novo sinal diário entra na combinação. Esses pesos não representam probabilidades de reação dos investidores.
 
-Na avaliação exploratória principal, compara-se a correlação de Spearman do ITI-H7 com o retorno da semana seguinte à correlação do Soft com esse mesmo retorno. A diferença entre elas é definida por:
-\[
-\Delta=\rho_{S}\!\left(ITI^{(7)},R^{(1)}\right)-\rho_{S}\!\left(\mathrm{Soft},R^{(1)}\right),
-\]
-em que $\rho_S$ denota Spearman e $R^{(1)}=R_w^{(1)}$ (Seção seguinte). A incerteza usa bootstrap em blocos de quatro semanas, 10.000 replicações e semente fixada \cite{kunsch1989bootstrap}; o $p$-valor bilateral sobre $\Delta$ é uma estimativa exploratória de evidência (não se presume calibração confirmatória automática sob a hipótese nula). Oito contrastes secundários recebem correção de Holm \cite{holm1979multiple} nos $p$-valores, não nos intervalos percentílicos. Derivações e exemplo ilustrativo: Apêndice~\ref{ap:iti-math}; resultados: Seção~\ref{subsec:campanha-iti}.
+Como exemplo ilustrativo, se $ITI_{c,d-1}^{(7)}=0{,}20$ e $X_{c,d}=0{,}50$, o novo valor será aproximadamente $0{,}9057\times0{,}20+0{,}0943\times0{,}50=0{,}2283$. Se o dia seguinte tiver entrada zero, o índice decairá gradualmente. A operação matemática não pressupõe que o mercado incorpore notícias segundo a mesma dinâmica.
+
+A meia-vida principal de sete dias foi escolhida para investigar uma escala próxima de uma semana civil. Ela não foi estimada como ótimo nem obtida como constante de um artigo anterior. Foram examinadas também meias-vidas de dois e quatorze dias para avaliar sensibilidade a essa escolha. O uso de decaimento temporal dialoga com índices de notícias anteriores \cite{shapiro2022fed,buckman2020dnsi,frbsfNewsSentiment}, sem atribuir a eles a fórmula completa do ITI.
+
+O início da série é afetado pelo valor de inicialização. Para reduzir essa influência, a comparação principal exclui os primeiros 70 dias civis de aquecimento. Na meia-vida de sete dias, o peso residual de uma condição inicial após esse intervalo é $2^{-10}\simeq0{,}001$; na meia-vida de quatorze dias, é $2^{-5}=0{,}03125$. Portanto, o mesmo aquecimento não elimina igualmente a influência inicial para todas as configurações. A atualização ocorre em dias civis, inclusive fins de semana e feriados; em $k$ dias consecutivos elegíveis sem entrada, o estado remanescente é multiplicado por $\lambda_H^k$.
+
+\paragraph{Indicadores de referência e sensibilidades.}
+O Soft corresponde ao valor $X_{c,d}$ sem memória, observado no dia de corte de cada semana. Uma semana pode conter várias notícias e ainda apresentar Soft zero caso não exista matéria no dia específico amostrado. Por essa razão, o contraste principal avalia a memória em relação a uma entrada diária pontual, não a superioridade da memória exponencial sobre toda agregação semanal possível.
+
+Uma comparação adicional utiliza a média dos sinais diários da janela semanal definida na implementação, até o instante de corte, incluindo os zeros elegíveis; seu identificador é \texttt{soft\_weekly\_mean}. Essa média dá peso igual aos dias, não necessariamente a todas as notícias da semana, pois as quantidades de matérias podem variar. Ela é tratada como análise exploratória separada e não é incluída retroativamente na família secundária com correção de Holm.
+
+As sensibilidades secundárias compreendem outras meias-vidas, horizontes financeiros de duas e quatro semanas, correlação de Pearson, entrada com título e corpo, escore discreto e suavização alternativa. O escore discreto transforma a classe de maior probabilidade em valor $-1$, $0$ ou $+1$ antes da média diária. A suavização alternativa usa a recorrência histórica do projeto com parâmetro fixo $\alpha=0{,}7$, distinta da parametrização por meia-vida do candidato principal. Essas análises examinam escolhas do procedimento e não representam confirmações independentes.
+
+\paragraph{Contraste e incerteza estatística.}
+Na comparação principal, os indicadores são amostrados nas mesmas semanas e confrontados com o retorno da semana seguinte. Se $\rho_S$ representa o coeficiente de Spearman e $R_w^{(1)}$ o retorno futuro de uma semana, define-se
+\begin{equation}
+    \Delta\rho=\rho_S\!\left(ITI^{(7)},R^{(1)}\right)-\rho_S\!\left(Soft,R^{(1)}\right).
+    \label{eq:iti-delta}
+\end{equation}
+A diferença é calculada entre correlações \emph{assinadas}. Portanto, $\Delta\rho>0$ significa que a primeira correlação é numericamente maior, e não necessariamente mais intensa em valor absoluto ou mais útil para prever retornos.
+
+A incerteza exploratória é examinada por bootstrap em blocos de quatro semanas, com 10.000 reamostragens e semente fixada, de forma a preservar parte da dependência local entre observações temporais \cite{kunsch1989bootstrap}. O intervalo apresentado é percentílico nominal, e o valor $p$ bilateral possui interpretação exploratória; a escolha do bootstrap não garante, por si só, calibração confirmatória perfeita sob a hipótese nula.
+
+A família de oito contrastes secundários recebe ajuste de Holm nos valores $p$ \cite{holm1979multiple}. Os intervalos de confiança exibidos não passam pelo mesmo ajuste. Consequentemente, um intervalo nominal isolado que exclua zero não deve ser tratado como conclusão confirmada após considerar as múltiplas comparações. O Apêndice~\ref{ap:iti-math} apresenta derivação e exemplos complementares.
 
 \section{Alinhamento semanal com o mercado}
 
-A etapa financeira relaciona indicadores derivados das notícias à série de preços da ação SBSP3. O calendário de pregões pode se estender além do intervalo informacional do corpus; sinais semanais só são emitidos quando o cutoff causal cai em dia de cobertura elegível (inventário P02). Semanas posteriores ao término comprovado do corpus não reutilizam o último estado do ITI nem entram no painel de teste. O alinhamento é semanal, com fechamento no último pregão disponível da semana civil. O sinal textual é amostrado no cutoff conservador (fim do dia civil anterior ao último pregão da semana). Em uma semana cujo último pregão ocorre na sexta-feira, por exemplo, o sinal incorpora notícias até o fim da quinta-feira, enquanto o retorno é calculado a partir do fechamento da sexta-feira até o fechamento da semana futura correspondente. Essa separação é conservadora: impede o uso de notícias divulgadas depois do instante de corte, mas também deixa de utilizar informações que podem ter surgido durante a sexta-feira. $P_w$ é o preço ajustado nesse pregão; o retorno futuro de $h$ semanas é
-\[
-R_w^{(h)}=\log\left(\frac{P_{w+h}}{P_w}\right), \qquad h\in\{1,2,4\}.
-\]
+O alinhamento temporal define quais notícias podem entrar no cálculo de cada indicador. Para cada semana de mercado, identifica-se seu último pregão e utiliza-se, como limite de inclusão de notícias, o final do dia civil anterior a esse pregão. Em uma semana cujo último pregão ocorre na sexta-feira, o corte textual é o fim da quinta-feira; se a sexta-feira for feriado e o último pregão ocorrer na quinta-feira, o corte passa a ser o fim da quarta-feira. Essa regra evita assumir equivocadamente que toda semana termina com negociação na sexta-feira.
 
-A configuração de mercado do projeto prevê a obtenção da série histórica de \texttt{SBSP3.SA} por meio do \texttt{yfinance}, com ajuste automático dos preços. Os retornos são calculados a partir da série de preços carregada para a execução. Para reproduzir exatamente as estimativas, é necessário identificar e preservar a versão desse arquivo juntamente com os demais registros da campanha, pois uma nova extração pode produzir dados diferentes.
+Os sinais ITI e Soft são observados nesse corte. O retorno futuro é calculado a partir do preço de fechamento do último pregão da semana atual e do fechamento da semana futura correspondente. A regra é conservadora: deixa de incorporar notícias que possam ter sido divulgadas durante o próprio último pregão, mas reduz o risco de comparar o indicador com informação posterior ao instante escolhido.
 
-Os retornos são calculados na grade completa de semanas de mercado antes da junção; permanecem no painel apenas semanas com sinal válido e retornos futuros definidos. Dez semanas iniciais de aquecimento do índice são excluídas do contraste principal. O subpainel de holdout exploratório limita-se às semanas alinhadas entre o corte de reserva de notícias e o fim do corpus (12 semanas de calendário informacional, não semanas de mercado após o corpus). Horizontes maiores reduzem levemente $n$ por exigir semanas futuras adicionais. Quando o horário de publicação é desconhecido, a política conservadora de data evita, na medida do possível, utilizar texto ainda indisponível no instante do cutoff.
+Se $P_w$ representa o preço ajustado no último pregão da semana $w$, o retorno logarítmico futuro para $h$ semanas é
+\begin{equation}
+    R_w^{(h)}=\log\left(\frac{P_{w+h}}{P_w}\right),\qquad h\in\{1,2,4\}.
+    \label{eq:iti-retorno}
+\end{equation}
+O índice $w$ identifica a semana, e $h$ indica a distância até o fechamento futuro. O horizonte principal é uma semana; os horizontes de duas e quatro semanas são sensibilidades. O retorno logarítmico é positivo quando o preço futuro excede o atual, negativo quando é menor e zero quando são iguais.
 
-\section{Estratégia de avaliação incremental}
+A identificação semanal W-FRI fornece uma chave comum para agrupar semanas de notícias e semanas de mercado, mesmo quando o último pregão não ocorre na sexta-feira. Os retornos futuros são calculados primeiro na grade completa de mercado e só depois relacionados aos sinais que possuem cobertura temporal válida. Não são criados novos sinais após o término da janela informacional; preços posteriores podem, quando disponíveis, completar retornos de semanas cujo sinal já era elegível.
 
-As correlações e o $\Delta$ do ITI (Seção~\ref{sec:formulacao-iti}) descrevem associações marginais; \textbf{não} respondem, por si só, se o ITI acrescenta informação quando baselines e controles já estão em um modelo de regressão. Essa etapa --- comparar especificações com e sem o termo do ITI, com divisão cronológica e variáveis pré-definidas --- está planejada para após a consolidação do corpus e da referência humana (Capítulo~\ref{cap:consideracoes}, Tabela~\ref{tab:plano-continuidade}).
+A configuração do projeto prevê o uso de \texttt{yfinance} para a série \texttt{SBSP3.SA}, com ajuste automático de preços. Essa configuração não prova, sozinha, qual arquivo foi efetivamente empregado na campanha. A reprodução numérica exige identificar e preservar a versão da série carregada, juntamente com o corpus, as configurações e os registros de execução. Um novo download pode produzir diferenças nos dados históricos.
 
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-
+No experimento reportado, o painel alinhado contém 104 observações semanais. A comparação principal utiliza 94 após excluir dez semanas iniciais de aquecimento. A reserva de aproximadamente doze semanas de calendário informacional produz um subpainel exploratório de onze observações alinhadas; essas quantidades descrevem universos diferentes e não devem ser uniformizadas. Quando o horário de publicação é desconhecido, o uso da data civil e do corte conservador reduz o risco de antecipação, mas não comprova o horário efetivo de disponibilidade de todos os textos.
 
 \section{Registro, ambiente de execução e reprodutibilidade}
 
-Cada execução é identificável por versão do corpus, checkpoint do classificador, parâmetros do ITI, preços e regras de alinhamento (Apêndice~\ref{ap:rastreabilidade}). O software separa coleta, inferência, construção do índice e avaliação financeira; as probabilidades são reutilizadas entre meias-vidas $H\in\{2,7,14\}$ quando apenas a transformação temporal muda.
+A implementação separa a preparação das notícias, a inferência do classificador, o cálculo do ITI e a análise financeira. A reprodução de uma campanha depende de identificar o corpus, o checkpoint, as configurações, a série de preços, o código e os manifestos utilizados (Apêndice~\ref{ap:rastreabilidade}). Quando apenas a meia-vida muda, as probabilidades de sentimento podem ser reutilizadas.
 
-A campanha reportada em outubro de 2026 foi reprocessada localmente após auditoria de conformidade, sobre as mesmas predições. Uma replicação anterior no supercomputador Santos Dumont (LNCC) apoiou a viabilidade operacional da inferência, mas não constitui evidência da validade econômica do índice. O HPC oferece capacidade de GPU e registro de ambiente; filas e limites de job são restrições operacionais, não métricas de qualidade textual.
-
-Cada alteração de corpus, configuração ou código requer uma execução identificada, de modo a preservar a distinção entre resultados obtidos em diferentes condições, sem sobrescrever execuções anteriores. O repositório público disponibiliza o código-fonte, as configurações e parte dos resultados exportados para a dissertação. Os arquivos completos de saída e os logs das campanhas são armazenados separadamente e não integram, por padrão, o versionamento Git. Por isso, a reprodução integral dos resultados também depende da disponibilidade do corpus, do checkpoint utilizado, dos dados de mercado e dos manifestos associados à execução analisada.
-
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-
+A campanha de outubro de 2026 foi reprocessada localmente após a correção do alinhamento semanal, sem refazer a inferência. Uma execução anterior no supercomputador Santos Dumont (LNCC) havia demonstrado a viabilidade do processamento, não a validade econômica do índice. O GitHub público disponibiliza código, configurações e parte das tabelas; saídas e logs completos ficam fora do versionamento padrão. Por isso, o acesso ao repositório, isoladamente, não garante a reprodução integral dos resultados.

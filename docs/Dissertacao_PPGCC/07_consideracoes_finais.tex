@@ -3,45 +3,39 @@
 
 \section{Síntese dos resultados da qualificação}
 
-Este trabalho apresentou um procedimento para construir e avaliar um Índice Temporal Informacional (ITI) a partir de notícias corporativas em português. A aplicação inicial à Sabesp integrou seleção de matérias, classificação financeira, cálculo de escores por notícia, agregação diária e memória exponencial por meia-vida. A avaliação temporal utilizou a ação SBSP3 e comparou o ITI-H7 com um sinal diário sem memória, observado nos mesmos instantes semanais.
+Esta dissertação desenvolveu um procedimento para transformar notícias em português sobre a Sabesp em uma série temporal de escores de sentimento. O ITI combina as médias diárias de um classificador financeiro com parte das informações anteriores, por meio de uma memória exponencial parametrizada por meia-vida. A aplicação à Sabesp permitiu organizar o conjunto de notícias, calcular o índice e compará-lo com referências obtidas das mesmas entradas textuais.
 
-A implementação permitiu executar essa sequência e registrar os resultados intermediários. Na avaliação textual preliminar, a concordância entre o FinBERT-PT-BR e as anotações do autor foi limitada, especialmente nas matérias anotadas como neutras e nas notícias com várias empresas. Como o sinal textual utilizado no índice corresponde a um recorte contextual, sua qualidade ainda precisa ser avaliada diretamente nessa representação e com referência humana independente.
+Os resultados preliminares também mostraram por que a execução computacional não equivale à validação do indicador. A comparação do FinBERT-PT-BR com as cem anotações do autor apresentou concordância limitada e evidenciou dificuldades em notícias classificadas como neutras e em matérias que mencionam várias empresas. Além disso, essa avaliação utilizou título e corpo, enquanto a série do ITI foi construída com recorte contextual. A qualidade das probabilidades efetivamente empregadas no índice ainda requer exame específico e uma referência humana independente.
 
-Na análise temporal exploratória, a diferença entre as correlações do ITI-H7 e do Soft com retornos futuros não apresentou evidência estatística suficiente para afirmar uma associação distinta. O resultado não demonstra superioridade do índice com memória, mas também não estabelece equivalência entre os dois sinais. A principal contribuição desta etapa é a formulação e documentação de um procedimento verificável, acompanhado da identificação das limitações que precisam ser tratadas antes de ampliar seu uso e sua interpretação econômica.
+No contraste temporal principal, as correlações entre ITI-H7 e retornos futuros e entre Soft e esses mesmos retornos foram negativas. A diferença assinada foi pequena e seu intervalo de confiança incluiu zero. Portanto, a análise não ofereceu evidência suficiente de associações distintas, não demonstrou superioridade do indicador com memória e tampouco estabeleceu equivalência entre os sinais. A comparação adicional com a média semanal também permaneceu inconclusiva.
 
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-
+A contribuição desta etapa está na explicitação do problema, na formulação matemática e na implementação verificável do procedimento, acompanhadas de resultados que orientam os próximos testes. A continuidade da pesquisa deve investigar a qualidade do sinal textual e a cobertura informacional antes de ampliar as afirmações sobre seu significado econômico.
 
 \section{Plano de continuidade}
 
-As prioridades seguem as ameaças à validade (Tabela~\ref{tab:ameacas}): inventário do corpus, anotação independente, diagnóstico de erros do classificador e auditoria do alinhamento temporal antes de ampliar escopo setorial. O quadro~\ref{tab:plano-continuidade} resume etapas e critérios; a continuidade não pressupõe generalização imediata para outras empresas de saneamento. Um teste temporal \emph{confirmatório} exigirá período ainda não examinado nos retornos --- o holdout atual de onze semanas permanece apenas exploratório (Capítulo~\ref{cap:resultados}).
+As próximas etapas seguem uma ordem lógica. Primeiro, é necessário consolidar o inventário de notícias, com atenção a fontes, datas, exclusões e dias sem cobertura demonstrada. Em seguida, deve-se obter anotação independente das mesmas notícias sob protocolo estável, comparar as representações textuais e diagnosticar os principais desacordos do classificador. Somente com essa base será apropriado avançar para novas comparações temporais e, eventualmente, outros modelos ou empresas.
 
-\needspace{10\baselineskip}
-\begin{table}[H]
+A Tabela~\ref{tab:plano-continuidade} organiza as entregas e as condições de avanço. As quantidades de anotadores e os limiares de desempenho não são fixados aqui sem justificativa metodológica e disponibilidade demonstrada. Também não se considera o período já inspecionado como teste confirmatório novo.
+
+\begin{table}[htbp]
 \centering
-\caption{Plano de continuidade: etapas, entregas e critérios de avanço.}
+\caption{Plano de continuidade e condições para novos experimentos.}
 \label{tab:plano-continuidade}
-\begingroup
-\footnotesize
-\renewcommand{\arraystretch}{1.15}
-\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Xp{0.28\textwidth}@{}}
+\begin{tabularx}{\textwidth}{@{}P{0.25\textwidth}L L@{}}
 \toprule
-Etapa & Produto esperado & Condição para avanço \\
+Etapa & Produto esperado & Condição para avançar \\
 \midrule
-Referência humana independente & Concordância entre especialistas documentada & Critério estável para comparação com o modelo \\
-Teste temporal confirmatório & Protocolo fixado em período \emph{novo} & Não reutilizar holdout já inspecionado nem selecionar $H$ nele \\
-Diagnóstico textual & Matriz de confusão e erros em neutras/multiempresa & Limitações do classificador caracterizadas \\
-Extensão setorial & Novas empresas com corpus auditado & Mesmas regras de cutoff e registro \\
+Inventário do corpus & Registro auditável de fontes, textos, datas, cobertura e exclusões & Delimitação clara dos dias e registros utilizáveis \\
+Referência humana & Anotações independentes e concordância documentada & Protocolo estável e julgamentos sobre itens compartilhados \\
+Diagnóstico textual & Matriz de confusão, métricas por classe e avaliação do recorte contextual & Principais erros e ambiguidades descritos \\
+Novo teste temporal & Comparação com parâmetros e período ainda não inspecionado & Protocolo estatístico e critérios definidos antes dos retornos novos \\
+Extensão setorial & Aplicação a outra empresa com corpus próprio & Evidência de que as regras de alvo, cobertura e corte podem ser reproduzidas \\
 \bottomrule
 \end{tabularx}
-\endgroup
-\vspace{0.35em}
+\vspace{0.4em}
 {\footnotesize Fonte: elaboração própria.}
 \end{table}
 
-O contraste exploratório entre ITI-H7 e a média semanal do sinal diário sem memória (\texttt{soft\_weekly\_mean}) foi executado no mesmo painel de 94 semanas e permanece inconclusivo; a confirmação exige período de retornos ainda não inspecionado e fixação prévia no protocolo, sem ampliar retroativamente a família Holm.
+Os resultados exploratórios já obtidos, incluindo o contraste com a média semanal dos sinais diários e a reserva temporal usada na campanha, não deverão ser reapresentados como evidência confirmatória independente. A comparação futura pode examinar outras meias-vidas, classificadores e formas de agregação, desde que essas decisões sejam definidas antes de observar novos resultados de mercado.
 
-Sensibilidades adicionais de parâmetros (por exemplo, varredura sistemática de $H$ ou de regras de recorte) permanecem como exploração \emph{pós-qualificação}, com protocolo fixado antes de inspecionar resultados em períodos novos.
-
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-
+O ITI permanece, assim, uma proposta metodológica em avaliação. Seu desenvolvimento posterior dependerá menos da complexidade de novas fórmulas e mais da clareza da tarefa de sentimento, da qualidade do corpus e da capacidade de testar o procedimento com dados e critérios bem documentados.

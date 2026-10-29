@@ -1,76 +1,61 @@
 \chapter{Trabalhos relacionados}
 \label{cap:relacionados}
 
-Este capítulo reúne estudos que ajudam a situar a proposta em quatro aspectos: extração de indicadores a partir de notícias, classificação de textos financeiros, identificação da entidade-alvo e associação entre medidas textuais e dados de mercado. O objetivo não é estabelecer uma comparação direta entre resultados obtidos em bases diferentes, mas identificar quais decisões desses trabalhos contribuem para o desenho e a avaliação do ITI.
+Este capítulo aproxima a proposta de quatro linhas de pesquisa: índices construídos com notícias, modelos de sentimento financeiro em português, análise orientada a entidades e estudos que relacionam texto e mercado brasileiro. O objetivo não é transportar resultados entre bases diferentes, mas identificar quais decisões metodológicas foram adotadas na literatura e em que aspectos o ITI se aproxima ou se distingue delas.
 
 \section{Indicadores construídos a partir de notícias}
 
-\citeonline{tetlock2007media} investigou como o conteúdo de uma coluna jornalística se relacionava com variáveis do mercado acionário norte-americano. O autor utilizou a linguagem da imprensa para produzir uma medida quantitativa de pessimismo e examinou sua associação com movimentos de mercado. Para a presente pesquisa, a contribuição está em mostrar que o conteúdo textual pode ser tratado como uma variável observável, desde que se explicitem a origem do texto, a forma de mensuração e o desfecho analisado. O estudo não fornece, entretanto, uma regra pronta para classificar notícias corporativas brasileiras por empresa.
+\citeonline{tetlock2007media} utilizou linguagem da imprensa para investigar sua relação com o mercado acionário norte-americano. Esse estudo demonstra que o conteúdo jornalístico pode ser representado quantitativamente, desde que sejam identificados o tipo de texto, o fenômeno medido e o desfecho financeiro utilizado. Ele não oferece, entretanto, um procedimento pronto para classificar notícias brasileiras em relação a uma empresa específica.
 
-Em outra perspectiva, \citeonline{baker2016epu} construíram uma medida de incerteza de política econômica com base, entre outros componentes, na cobertura jornalística de termos associados ao tema. O objeto do índice é diferente do sentimento corporativo, mas seu desenho mostra a importância de definir claramente o fenômeno que se pretende medir. Um índice pode ser computacionalmente consistente e ainda representar mal o construto de interesse se seus critérios de seleção não corresponderem à pergunta de pesquisa.
+O estudo de \citeonline{baker2016epu} construiu um índice de incerteza de política econômica que utiliza, entre outros componentes, a cobertura jornalística. Sua contribuição para esta dissertação está em mostrar que a seleção de textos precisa corresponder ao construto de interesse. Uma notícia pode ser relevante para medir incerteza sem apresentar orientação positiva ou negativa identificável para a Sabesp.
 
-\citeonline{shapiro2022fed} desenvolveram uma medida de sentimento a partir de notícias econômicas e financeiras, tratando também da avaliação das classificações textuais. A documentação do \emph{Daily News Sentiment Index}, do Federal Reserve Bank of San Francisco, descreve uma forma de atribuir pesos que diminuem com a antiguidade das notícias \cite{frbsfNewsSentiment}; \citeonline{buckman2020dnsi} detalham o decaimento temporal operacional desse índice. A proximidade com o ITI está no uso de textos agregados e de um mecanismo temporal de suavização. As diferenças estão no universo de notícias, no alvo econômico e na implementação da memória; não se deve supor equivalência entre os índices apenas porque ambos atribuem menor peso a informações antigas.
+\citeonline{shapiro2022fed} desenvolveram medidas de sentimento a partir de notícias econômicas e financeiras e avaliaram modelos de classificação com apoio de anotações humanas. O \emph{Daily News Sentiment Index} do Federal Reserve Bank of San Francisco utiliza agregação diária e ponderação de notícias anteriores com pesos decrescentes \cite{frbsfNewsSentiment,buckman2020dnsi}. Esse antecedente é especialmente próximo da ideia de preservar informações no tempo, mas seu alvo econômico, seleção de fontes, ajuste de composição e regra de agregação não são idênticos aos do ITI.
 
-\citeonline{hiew2019bsi} propuseram um índice de sentimento financeiro baseado em probabilidades de classificação (BSI) e o confrontaram com previsibilidade de retornos. O contraste \emph{Hard-BSI} do ITI (Seção~\ref{sec:formulacao-iti}) retoma a ideia de agregação rígida por polaridade a partir das probabilidades do classificador (discretização em rótulos), sem a memória exponencial do candidato principal, sobre o mesmo corpus Sabesp e a mesma inferência FinBERT.
+\citeonline{hiew2019bsi} também estudaram a construção de índice de sentimento financeiro a partir de modelos de linguagem, relacionando a medida a dados de mercado. O trabalho sustenta a investigação de representações agregadas que não se limitam à análise individual de cada texto. Nesta pesquisa, um contraste por escore discreto, denominado Hard-BSI na implementação, serve como referência de agregação por classe prevista; ele não reproduz integralmente o método daquele estudo.
 
 \section{Modelos de sentimento financeiro em português}
 
-O desenvolvimento de modelos ajustados ao domínio financeiro busca reduzir problemas causados por usos específicos do vocabulário econômico. \citeonline{loughran2011liability} já haviam demonstrado, no contexto de documentos financeiros, que a interpretação de termos depende do domínio. A investigação de \citeonline{araci2020finbert} estendeu essa preocupação aos modelos de linguagem pré-treinados, explorando adaptações voltadas à classificação de sentimento financeiro.
+No domínio financeiro, o significado de palavras pode depender do contexto econômico. \citeonline{loughran2011liability} mostraram limitações de abordagens lexicais gerais aplicadas a textos financeiros; \citeonline{araci2020finbert} investigou o emprego de modelos BERT nesse domínio. Esses trabalhos ajudam a justificar a escolha de um classificador ajustado ao vocabulário financeiro em lugar de uma abordagem exclusivamente baseada em palavras isoladas.
 
-No Brasil, \citeonline{santos2023finbert} apresentaram o FinBERT-PT-BR e modelos relacionados à classificação de sentimento em textos financeiros em português. O trabalho descreve uma etapa de adaptação linguística ao domínio e uma avaliação supervisionada de classificação. Na tarefa e na base de teste reportadas pelos autores, o modelo de classificação alcançou aproximadamente 0,76 de acurácia e 0,73 de F1. Esses números caracterizam o experimento original; não são um desempenho esperado automaticamente para notícias completas de saneamento.
+No Brasil, \citeonline{santos2023finbert} apresentaram o FinBERT-PT-BR e examinaram sua utilização em textos financeiros em português. Os resultados do estudo original, incluindo aproximadamente 0,76 de acurácia e 0,73 de F1 nas condições relatadas pelos autores, fornecem um antecedente para a escolha do modelo. Não devem, contudo, ser interpretados como desempenho esperado em notícias extensas de saneamento ou como garantia de sentimento orientado à Sabesp.
 
-O mesmo estudo apresenta uma medida agregada construída a partir de quantidades de textos classificados como positivos e negativos, normalizadas pela quantidade total de textos, inclusive neutros. Esse antecedente é importante porque demonstra que a análise não precisa terminar no rótulo de uma notícia: diferentes observações podem ser combinadas em um indicador. Nesta pesquisa, o ITI utiliza a diferença entre as probabilidades positiva e negativa, uma média diária simples e memória exponencial parametrizada por meia-vida em dias civis.
-
-A avaliação local revelou que a transferência para notícias vinculadas à Sabesp merece atenção. O conjunto inclui temas regulatórios, matérias sobre várias empresas e textos de tamanho variável. Além disso, o rótulo humano solicitado é específico à Sabesp, enquanto uma classificação genérica pode refletir o documento inteiro. Por isso, a comparação com números obtidos em outras bases deve servir para formular perguntas sobre transferência de domínio, e não para afirmar melhoria ou piora absoluta de arquiteturas sem uma avaliação comum.
+O mesmo estudo explora a agregação de classificações em uma medida quantitativa baseada na contagem de textos positivos e negativos. O ITI difere desse procedimento ao utilizar a diferença entre as probabilidades de cada notícia, calcular médias diárias e aplicar memória exponencial. Essas escolhas são formuladas e avaliadas no presente trabalho; não são apresentadas como resultados diretamente demonstrados pelo artigo do FinBERT.
 
 \section{Sentimento orientado a entidades}
 
-A análise de sentimento orientada a entidades procura relacionar a polaridade de um trecho à pessoa, organização ou ativo a que ele se refere. A tarefa SemEval-2017 Task 5, apresentada por \citeonline{cortis2017semeval5}, investigou sentimentos expressos em textos financeiros com referência a empresas e instrumentos específicos. A unidade de avaliação, nesse contexto, não é necessariamente o documento completo.
+A tarefa SemEval-2017 Task 5, apresentada por \citeonline{cortis2017semeval5}, investigou a análise fina de sentimento em textos financeiros com referências explícitas a empresas e instrumentos. Em notícias sobre organizações distintas, atribuir um único rótulo ao documento pode ser insuficiente quando os efeitos econômicos descritos não são os mesmos para cada entidade.
 
-\citeonline{yuan2020target} estudaram a anotação de notícias financeiras em chinês com alvos explícitos. O trabalho é relevante por tratar a definição da entidade como parte do protocolo de anotação, e não como um detalhe posterior à classificação. De forma semelhante, \citeonline{sinha2022sentfin} apresentaram o corpus SEntFiN 1.0, composto por manchetes financeiras anotadas em relação às entidades mencionadas, incluindo situações em que organizações distintas recebem polaridades diferentes. \citeonline{tang2023finentity} formalizam classificação de sentimento em nível de entidade em textos financeiros recentes, reforçando que a unidade analítica deve acompanhar o alvo econômico --- alinhada ao recorte contextual adotado na avaliação temporal do ITI.
+\citeonline{yuan2020target} estudaram a anotação de notícias financeiras chinesas com alvos definidos. \citeonline{sinha2022sentfin}, por sua vez, apresentaram o corpus SEntFiN 1.0, com identificação da orientação de manchetes em relação às entidades mencionadas. \citeonline{tang2023finentity} também investigaram a classificação de sentimento em nível de entidade. Em conjunto, esses trabalhos mostram que identificar o alvo não é um detalhe secundário da tarefa, mas uma decisão necessária para interpretar seus resultados.
 
-A principal lição desses estudos é que \textbf{sentimento de um texto} e \textbf{sentimento referente a uma empresa} não são tarefas intercambiáveis. Essa distinção é especialmente importante quando uma matéria apresenta fatos simultâneos: o desempenho de um ativo pode ser desfavorável enquanto o desempenho de outro é favorável, apesar de ambos constarem da mesma manchete.
-
-A proposta atual não implementa, ainda, um classificador treinado especificamente para o par notícia–Sabesp. Ela avalia até que ponto um classificador financeiro disponível consegue atender a essa tarefa e utiliza uma anotação orientada à empresa como referência. Assim, os trabalhos sobre entidades dão fundamento à definição do problema e apontam uma possível extensão metodológica, sem permitir que se atribua ao modelo existente uma capacidade que ainda não foi demonstrada.
+A presente pesquisa utiliza essa literatura para fundamentar a pergunta feita aos anotadores e a preparação da entrada textual próxima às menções à Sabesp. Existe, porém, uma distinção importante: selecionar sentenças sobre a empresa não equivale a treinar um modelo para reconhecer explicitamente o par notícia--entidade. A capacidade do FinBERT-PT-BR de atender à tarefa ainda precisa ser medida na entrada efetivamente utilizada pelo ITI.
 
 \section{Investigações no mercado brasileiro}
 
-\citeonline{yoshinaga2012sentimento} examinaram a relação entre um índice de sentimento de mercado e retornos no Brasil. Como a medida foi construída a partir de variáveis de mercado, seu objeto não é diretamente comparável ao ITI. Ainda assim, o estudo oferece um alerta importante: relações entre sentimento e retorno podem apresentar sinais e dinâmicas distintos daqueles sugeridos por uma leitura intuitiva da palavra \emph{positivo}.
+\citeonline{yoshinaga2012sentimento} analisaram relações entre sentimento de mercado e retornos acionários no Brasil. Seu índice foi construído a partir de variáveis diferentes daquelas utilizadas neste trabalho; por isso, os resultados não são diretamente comparáveis, mas reforçam a importância de interpretar o sinal e a natureza da medida investigada.
 
-\citeonline{duarte2020news} investigaram a utilização de notícias para prever quedas de preços no mercado brasileiro. A contribuição para esta dissertação está em relacionar textos em português a um desfecho financeiro e em demonstrar a necessidade de um desenho temporal coerente. Entretanto, prever um evento de queda não é equivalente a comparar correlações de índices agregados em frequência semanal. Os resultados de uma tarefa não podem ser transportados diretamente para a outra.
+\citeonline{duarte2020news} estudaram a utilização de notícias para investigar quedas de preços no mercado brasileiro. O trabalho aproxima processamento textual e desfecho financeiro, mas sua tarefa de previsão de eventos não equivale a uma comparação de correlações marginais entre séries semanais. \citeonline{racef2022sentimento} também examinaram associação entre sentimento de investidores e fases do mercado, lembrando que o período analisado importa para a interpretação de relações financeiras.
 
-\citeonline{racef2022sentimento} estudaram a associação entre sentimento de investidores e ciclos de mercado, indicando a importância de considerar o período analisado. Essa preocupação também aparece no presente estudo: um intervalo com mudanças institucionais e cobertura jornalística intensa pode se comportar de forma diferente de períodos de menor exposição da empresa.
-
-A privatização da Sabesp constitui parte do contexto institucional da janela principal. O estudo de \citeonline{foco2025sabesp}, sobre reação do mercado associada ao processo de privatização, utiliza um desenho de estudo de evento para ações da Equatorial Energia. Sua análise é pertinente para contextualizar a operação, mas não oferece evidência direta sobre o ITI nem substitui o exame dos retornos de SBSP3. A distinção entre companhia, variável financeira e método de avaliação precisa ser preservada.
+A reorganização societária da Sabesp constitui parte do contexto institucional do setor. O estudo de \citeonline{foco2025sabesp}, publicado em 2026, examinou, por estudo de eventos, a reação das ações da Equatorial Energia (EQTL3) a um anúncio ligado à privatização da Sabesp. Seu desfecho é diferente do retorno da SBSP3 utilizado nesta dissertação, e a publicação não valida a construção do ITI. Ela é citada apenas como exemplo de investigação de um acontecimento relacionado ao setor com outro método e outra variável financeira.
 
 \section{Posicionamento da pesquisa}
 
-Os trabalhos analisados mostram que já existem técnicas para classificar sentimentos financeiros, construir índices a partir de notícias e investigar sua relação com retornos de mercado. A proposta deste estudo não consiste em criar isoladamente cada uma dessas técnicas, mas em combiná-las em um procedimento reprodutível e avaliar suas limitações em notícias associadas a uma empresa brasileira de saneamento. O recorte contextual aproxima a entrada do classificador da empresa-alvo, mas ainda não equivale a um modelo treinado para sentimento orientado a entidades. A Tabela~\ref{tab:posicionamento} sintetiza essas aproximações e diferenças.
+A literatura oferece fundamentos para quatro decisões: transformar textos em medidas, adotar um classificador financeiro em português, considerar a empresa-alvo e estudar o papel de notícias anteriores por meio de agregação temporal. A contribuição do ITI nesta etapa está em integrar essas decisões num procedimento explícito e submetê-lo a verificações textuais e temporais no estudo de caso da Sabesp. A Tabela~\ref{tab:posicionamento} resume o posicionamento, sem alegar que os procedimentos anteriores são equivalentes.
 
-\needspace{11\baselineskip}
-\begin{table}[H]
+\begin{table}[htbp]
 \centering
-\caption{Posicionamento do ITI em relação às principais linhas da literatura.}
+\caption{Relação entre a proposta do ITI e linhas de pesquisa anteriores.}
 \label{tab:posicionamento}
-\begingroup
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.12}
-\begin{tabularx}{\textwidth}{@{}p{0.15\textwidth}Xp{0.24\textwidth}@{}}
+\begin{tabularx}{\textwidth}{@{}P{0.22\textwidth}L L@{}}
 \toprule
-Linha & Evidência (referências) & Diferença da proposta \\
+Linha & Antecedentes & Delimitação neste trabalho \\
 \midrule
-Notícias e mercado & Pessimismo textual e ações (\citeonline{tetlock2007media}) & Corpus em português; alvo Sabesp \\
-Índices de notícias & Incerteza e peso temporal (\citeonline{baker2016epu}; \citeonline{shapiro2022fed}) & Índice orientado a empresa com meia-vida explícita e comparação ao sinal diário sem memória \\
-Sentimento financeiro em PT & FinBERT-PT-BR (\citeonline{santos2023finbert}) & Recorte contextual e avaliação humana orientada ao alvo \\
-Sentimento por entidade & Alvo explícito (\citeonline{cortis2017semeval5}; \citeonline{yuan2020target}; \citeonline{sinha2022sentfin}) & Recorte contextual da Sabesp e avaliação por alvo, sem treinamento específico de modelo para entidades \\
-Mercado brasileiro & Ciclos e notícias (\citeonline{yoshinaga2012sentimento}; \citeonline{duarte2020news}; \citeonline{racef2022sentimento}) & $\Delta\rho$, cutoff causal, retornos \\
+Notícias e mercado & \citeonline{tetlock2007media}; \citeonline{baker2016epu} & Corpus em português e alvo empresarial definido \\
+Índices de notícias & \citeonline{shapiro2022fed}; \citeonline{buckman2020dnsi} & Média diária e meia-vida em dias civis, sem equivalência metodológica presumida \\
+Sentimento financeiro & \citeonline{santos2023finbert} & Probabilidades e avaliação local do classificador \\
+Sentimento por entidade & \citeonline{cortis2017semeval5}; \citeonline{sinha2022sentfin}; \citeonline{tang2023finentity} & Protocolo orientado à Sabesp e recorte contextual, ainda sem modelo especializado por alvo \\
+Mercado brasileiro & \citeonline{yoshinaga2012sentimento}; \citeonline{duarte2020news} & Associação exploratória com retornos futuros de SBSP3 \\
 \bottomrule
 \end{tabularx}
-\endgroup
-\vspace{0.35em}
+\vspace{0.4em}
 {\footnotesize Fonte: elaboração própria com base nos trabalhos citados.}
 \end{table}
-
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-

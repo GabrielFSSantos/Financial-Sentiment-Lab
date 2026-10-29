@@ -1,79 +1,82 @@
 \chapter{Fundamentação teórica}
 \label{cap:fundamentacao}
 
+Este capítulo apresenta os conceitos necessários à construção e à avaliação do ITI. Primeiro, discute-se o significado de sentimento em notícias financeiras e a atuação de classificadores de linguagem. Em seguida, são explicados o escore por notícia, a agregação temporal e as medidas usadas para avaliar tanto as classificações quanto sua associação com retornos. A descrição dos valores efetivamente utilizados no experimento é reservada ao Capítulo~\ref{cap:metodologia}.
+
 \section{Análise de sentimentos em notícias financeiras}
 
-A análise de sentimentos procura identificar uma orientação expressa em textos. Em problemas de classificação, essa orientação pode ser representada por classes como positiva, negativa e neutra. Entretanto, uma classe só adquire significado quando se define \textbf{o que está sendo avaliado}. A mesma notícia pode ter tom negativo para o mercado em geral e, ao mesmo tempo, relatar um fato favorável a determinada companhia.
+A análise de sentimentos procura identificar orientações expressas em textos, frequentemente representadas como positivas, negativas ou neutras. No contexto financeiro, entretanto, uma palavra ou um acontecimento não tem necessariamente a mesma interpretação para todas as empresas. Uma notícia sobre reajuste tarifário pode descrever custos maiores para consumidores e, ao mesmo tempo, perspectivas de receita para uma concessionária. Por isso, a definição do alvo da avaliação faz parte do próprio problema de classificação.
 
-Em textos financeiros, essa diferença é particularmente relevante, como ilustrado na Introdução com o exemplo hipotético de reajuste tarifário. Atribuir uma única polaridade a todo o documento não resolve a pergunta sobre uma empresa-alvo. É necessário separar o sentimento do documento da polaridade da informação referente à entidade investigada, como discutido nas tarefas orientadas a alvos de \citeonline{cortis2017semeval5}, \citeonline{yuan2020target} e \citeonline{sinha2022sentfin}.
+Há uma diferença entre o sentimento geral de um documento e a avaliação de um fato em relação a determinada entidade. Trabalhos como os de \citeonline{cortis2017semeval5}, \citeonline{yuan2020target} e \citeonline{sinha2022sentfin} investigam tarefas financeiras nas quais a polaridade é atribuída em relação a um alvo identificado. Essas pesquisas são relevantes para este estudo porque uma matéria pode mencionar a Sabesp e outras companhias, com possíveis orientações distintas para cada uma.
 
-Nesta pesquisa, o rótulo humano considera se o fato relatado é favorável, desfavorável ou neutro \textbf{para a Sabesp, de acordo com o conteúdo da notícia}. Não se trata de prever se a ação subirá. Uma notícia pode descrever um benefício operacional sem que o preço se mova no mesmo sentido, seja porque a informação já era conhecida, seja porque outros acontecimentos afetam simultaneamente o mercado.
+Na tarefa adotada nesta dissertação, a anotação humana responde se o conteúdo apresentado contém informação favorável, desfavorável ou neutra para a Sabesp. Não se pede ao anotador que preveja o comportamento posterior da ação. Uma informação percebida como favorável pode já ser conhecida pelos investidores ou coexistir com outros acontecimentos que influenciam os preços. A distinção entre orientação do texto e retorno financeiro será mantida em todas as etapas da avaliação.
 
-A classe neutra difere de \emph{não avaliável} e de menções tangenciais; as regras operacionais de distinção estão no Apêndice~\ref{ap:protocolo}.
-
-% [trecho legado R0/R1 omitido do manuscrito, out./2026]
-
+Também é necessário separar notícia neutra de notícia não avaliável. Uma matéria pode conter informações suficientes sobre a empresa sem indicar orientação favorável ou desfavorável predominante; outra pode apenas citá-la de passagem ou não fornecer conteúdo útil para a tarefa. O protocolo de anotação diferencia essas situações no Apêndice~\ref{ap:protocolo}.
 
 \section{Modelos BERT e classificação no domínio financeiro}
 
-Os modelos baseados em BERT são pré-treinados para aprender representações contextuais da linguagem e podem ser ajustados a tarefas de classificação \cite{devlin2019bert}. Uma aplicação de análise de sentimentos normalmente utiliza uma camada de classificação que produz escores para classes predefinidas. A arquitetura e os pesos do modelo, porém, precisam ser distinguidos: conhecer o nome da família BERT não identifica o conjunto de parâmetros efetivamente empregado em um experimento.
+Modelos da família BERT representam palavras e trechos considerando o contexto em que aparecem. Eles passam por uma etapa de pré-treinamento e podem ser ajustados a tarefas específicas, como a classificação de sentimento \cite{devlin2019bert}. Para o português brasileiro, o BERTimbau oferece modelos treinados no idioma \cite{souza2020bertimbau}. Já o domínio financeiro apresenta usos particulares de termos comuns, como discutido por \citeonline{loughran2011liability} e por \citeonline{araci2020finbert} em estudos sobre recursos de linguagem e classificação financeira.
 
-O BERTimbau disponibiliza modelos de linguagem adaptados ao português brasileiro \cite{souza2020bertimbau}. Já o desenvolvimento de modelos financeiros responde a uma dificuldade adicional: palavras comuns podem apresentar usos diferentes em textos econômicos. \citeonline{loughran2011liability} demonstraram que a aplicação indiscriminada de recursos lexicais gerais a documentos financeiros pode produzir interpretações inadequadas. \citeonline{araci2020finbert} investigou a adaptação de BERT à análise financeira em inglês, e \citeonline{santos2023finbert} exploraram essa linha para textos do mercado brasileiro.
+O FinBERT-PT-BR, apresentado por \citeonline{santos2023finbert}, foi desenvolvido para análise de sentimentos em textos financeiros em português. A existência de um modelo já ajustado permite iniciar a pesquisa sem treinar uma arquitetura nova. Contudo, o desempenho descrito no artigo original refere-se ao conjunto e à tarefa estudados por seus autores. Não é evidência de que o mesmo modelo classifique corretamente matérias completas sobre saneamento ou identifique a orientação de cada notícia especificamente para a Sabesp.
 
-O FinBERT-PT-BR foi selecionado como referência principal em português nos experimentos preliminares. O fato de um classificador conhecer linguagem financeira representa uma vantagem potencial, não uma garantia de adequação a matérias completas sobre saneamento. A avaliação local é indispensável porque tamanho dos documentos, distribuição das classes, temas regulatórios e presença de outras empresas podem diferir dos exemplos usados no treinamento original.
+Nesta dissertação, \emph{inferência} é a aplicação do modelo já treinado a um texto ainda não classificado. O \emph{checkpoint} é o conjunto de parâmetros salvo e efetivamente carregado pelo software. Registrar esse identificador é importante: duas execuções que utilizem a mesma família de modelos, mas parâmetros diferentes, podem produzir probabilidades distintas.
 
-Outra restrição vem do comprimento da entrada. A configuração empregada admite até 512 tokens. Em matérias extensas, o truncamento pode excluir justamente o parágrafo no qual aparece a informação sobre a Sabesp. Uma previsão incorreta pode, portanto, resultar tanto de uma interpretação inadequada do trecho recebido quanto da ausência de parte do conteúdo no trecho efetivamente processado. O protocolo de avaliação precisa distinguir essas possibilidades.
+O texto é dividido em \emph{tokens}, unidades que podem corresponder a palavras inteiras ou partes de palavras. A configuração utilizada admite até 512 tokens, quantidade que não equivale a 512 palavras. Quando uma notícia excede esse limite, ocorre truncamento, isto é, parte do texto deixa de ser apresentada ao modelo. Em uma matéria longa, esse corte pode excluir justamente uma informação relevante sobre a Sabesp.
+
+Uma alternativa examinada nesta pesquisa é selecionar as sentenças que mencionam a empresa e uma pequena quantidade de sentenças vizinhas. Essa preparação aproxima o texto de entrada do alvo de interesse, mas não transforma o FinBERT em um classificador especificamente treinado para o par notícia--Sabesp. A utilidade do recorte precisa ser avaliada empiricamente, assim como seu possível custo de omitir contexto relevante.
 
 \section{Probabilidades de classificação e escore contínuo}
 
-Para uma notícia $i$, o classificador fornece probabilidades associadas às classes positiva, negativa e neutra. Essas saídas são indicadas por $p_i^{+}$, $p_i^{-}$ e $p_i^{0}$, respectivamente. Quando normalizadas, satisfazem $p_i^{+}+p_i^{-}+p_i^{0}=1$. O escore contínuo adotado no projeto é:
+Para cada notícia $i$, o classificador fornece probabilidades atribuídas às classes positiva, negativa e neutra, representadas por $p_i^+$, $p_i^-$ e $p_i^0$. Essas probabilidades somam um:
+\begin{equation}
+    p_i^+ + p_i^- + p_i^0 = 1.
+\end{equation}
 
-\[
-d_i=p_i^{+}-p_i^{-}.
-\]
+Para obter uma medida contínua da orientação da previsão, utiliza-se a diferença entre as probabilidades positiva e negativa:
+\begin{equation}
+    s_i = p_i^+ - p_i^- , \qquad -1 \leq s_i \leq 1.
+\end{equation}
 
-Se os rótulos são codificados por $Y\in\{-1,0,+1\}$, então $d_i=\mathrm{E}[Y\mid\text{modelo}]$ sob a distribuição prevista; a classe neutra contribui com peso nulo. Esse escore pertence a $[-1,1]$. Valores positivos indicam maior probabilidade atribuída à classe positiva do que à negativa; valores negativos indicam o contrário. Valores próximos de zero, entretanto, não correspondem necessariamente a notícias neutras. As saídas $(0{,}05;0{,}05;0{,}90)$ e $(0{,}45;0{,}45;0{,}10)$, ordenadas como positiva, negativa e neutra, produzem ambas $d_i=0$, mas representam distribuições bastante distintas.
+O escore é positivo quando a probabilidade da classe positiva supera a da negativa; é negativo na situação inversa. Por exemplo, se o modelo atribuir $p_i^+=0{,}60$, $p_i^-=0{,}10$ e $p_i^0=0{,}30$, o escore será $s_i=0{,}50$. Esse número descreve a saída do classificador: \emph{não} corresponde a uma probabilidade de 50\% de valorização da ação nem comprova que o acontecimento foi favorável à empresa.
 
-Por esse motivo, os três valores probabilísticos devem ser preservados junto com o rótulo e o escore. Também é importante evitar que a maior probabilidade fornecida pelo modelo seja automaticamente tratada como probabilidade de acerto. Sem verificação de calibração, um classificador pode estar confiante em previsões equivocadas. Na formulação do ITI, cada documento elegível entra com o mesmo peso na média diária; erros sistemáticos do classificador ainda distorcem o sinal, mas não por ponderação heurística adicional por notícia.
+Um escore zero não equivale necessariamente a uma previsão neutra. Por exemplo, as distribuições $(0{,}05;0{,}05;0{,}90)$ e $(0{,}45;0{,}45;0{,}10)$, na ordem positiva, negativa e neutra, geram o mesmo escore zero, mas representam situações diferentes. Por essa razão, o procedimento preserva as três probabilidades, além do escore e da classe prevista.
+
+A diferença entre as probabilidades também pode ser entendida como a média dos valores $+1$, $-1$ e $0$ ponderada pelas probabilidades previstas para cada classe. Essa propriedade algébrica é explicada no Apêndice~\ref{ap:iti-math}. Ela não implica que as probabilidades estejam calibradas: sem comparação entre confiança e frequência de acertos, o valor numérico da saída não deve ser tratado como probabilidade real de uma classificação correta.
 
 \section{Agregação de notícias e memória temporal}
 
-Os escores por notícia descrevem observações individuais. Para estudar sua evolução, é necessário reuni-los por empresa e por intervalo de tempo. A contagem de matérias registra a intensidade da cobertura; a média dos escores representa uma orientação predominante; e uma combinação ponderada procura atribuir importâncias diferentes às observações. Cada escolha responde a uma pergunta própria.
+Uma previsão por notícia representa apenas uma observação. Para acompanhar a orientação das classificações ao longo do tempo, é necessário construir uma \emph{série temporal}, ou seja, uma sequência de valores associados a datas. Nesta pesquisa, o sinal diário é a média dos escores das notícias elegíveis naquele dia. A quantidade de matérias e a orientação média das classificações são medidas distintas: aumentar o volume de publicações não torna o escore diário automaticamente mais alto.
 
-Quando o interesse inclui a persistência da informação, é possível manter uma parcela do estado anterior por meio de uma média móvel exponencial. Sua forma geral é:
+O Soft é o nome dado à entrada diária sem memória. Em uma comparação observada semanalmente, seu valor corresponde ao dia de corte da informação. Se o inventário não contiver notícia nesse dia elegível, o Soft terá entrada zero, ainda que tenham sido observadas matérias nos dias anteriores. Isso significa que o Soft não é, por definição, uma média de todas as notícias da semana.
 
-\[
-z_t=\alpha z_{t-1}+(1-\alpha)x_t,\qquad 0\leq\alpha<1,
-\]
+O ITI adiciona uma regra de persistência: a cada dia, combina a entrada atual com parte do índice do dia anterior. Esse mecanismo é uma forma de \emph{suavização exponencial}, na qual a contribuição de estados anteriores diminui com o tempo. A duração da memória é expressa por uma meia-vida $H$, em dias civis. No ITI-H7, um estado remanescente de $0{,}40$, na ausência de novas entradas, seria reduzido a aproximadamente $0{,}20$ após sete dias e $0{,}10$ após quatorze dias. Se houver novas notícias, seus escores também entram no cálculo, de modo que o índice pode subir ou descer.
 
-em que $x_t$ é a entrada agregada no instante atual, $z_{t-1}$ é o estado anterior e $\alpha$ controla a retenção desse estado. Quanto maior o parâmetro, maior a persistência do passado, considerando uma mesma frequência de atualização.
+O emprego de peso temporal decrescente encontra antecedentes em índices construídos a partir de notícias, como a medida descrita por \citeonline{shapiro2022fed} e a documentação do \emph{Daily News Sentiment Index} \cite{frbsfNewsSentiment,buckman2020dnsi}. Essas referências sustentam o uso de agregação de textos e decaimento temporal, mas não estabelecem que sete dias seja a melhor meia-vida para a Sabesp ou que o mercado responda segundo a equação do ITI.
 
-Essa suavização não comprova que o mercado incorpore notícias segundo uma função exponencial. Trata-se de uma hipótese de representação. O ITI parametriza a persistência por meia-vida $H$ em dias civis ($\lambda_H=2^{-1/H}$), com candidato principal $H=7$ e baseline Soft sem memória; a formulação operacional está no Capítulo~\ref{cap:metodologia} (Seção~\ref{sec:formulacao-iti}), sem repetir aqui as equações completas.
-
-Há ainda diferença entre ausência de novas matérias e ausência de dados coletados. Em dias com coleta adequada, a falta de notícias pode ser interpretada pelo algoritmo como ausência de entrada e provocar decaimento. Quando um portal falha ou determinado período não foi coletado, a ausência não representa necessariamente silêncio informacional. Confundir esses casos cria oscilações artificiais e torna importante documentar a cobertura temporal do corpus.
+A política para dias sem notícia também interfere na série. Dentro do intervalo elegível, o experimento trata a ausência de matéria observada como entrada zero. Essa convenção permite o decaimento do índice, mas não é prova de que nenhuma notícia tenha sido publicada: pode ter ocorrido falha de coleta. Dias fora da cobertura delimitada não são interpretados como silêncio informacional. Essas condições são descritas na metodologia e devem ser consideradas na leitura dos resultados.
 
 \section{Referência humana e medidas de avaliação}
 
-Uma avaliação de classificação precisa de rótulos de referência. Em tarefas de linguagem, esses rótulos dependem de instruções suficientemente claras para que pessoas diferentes consigam aplicar critérios semelhantes. A referência humana não representa uma verdade econômica absoluta; ela descreve uma interpretação operacional da tarefa, cuja consistência também pode ser medida \cite{artstein2008agreement}.
+Para avaliar um classificador, suas previsões precisam ser comparadas com rótulos de referência. Em tarefas dependentes de interpretação humana, essa referência exige regras estáveis, exemplos e registro de divergências entre participantes \cite{artstein2008agreement}. A concordância com uma anotação do autor não deve ser confundida com a concordância entre especialistas independentes.
 
-A acurácia corresponde à proporção de previsões iguais aos rótulos de referência. Essa medida, isoladamente, pode ser enganosa quando uma classe predomina. Um modelo que sempre prevê a classe majoritária pode atingir acurácia considerável sem identificar adequadamente os demais casos. Por isso, convém apresentar a distribuição das classes, a matriz de confusão, a precisão, a revocação e o F1 por classe. O F1 macro calcula a média dos F1 das classes e dá visibilidade ao desempenho nas menos frequentes.
+A \emph{acurácia} é a proporção de previsões iguais aos rótulos de referência. Quando uma classe predomina, ela pode produzir uma impressão enganosa: um classificador que sempre prevê a classe majoritária pode acertar muitos exemplos sem reconhecer os demais. Por isso, são úteis a matriz de confusão, que registra quais classes são confundidas, e medidas calculadas separadamente para cada classe.
 
-O coeficiente kappa de Cohen ajusta a concordância observada pela parcela esperada sob um modelo de concordância ao acaso baseado nas distribuições marginais \cite{cohen1960kappa}:
+A \emph{precisão} de uma classe indica a proporção de previsões dessa classe que corresponde à referência; a \emph{revocação} indica a proporção de exemplos daquela classe na referência que o modelo identificou. O \emph{F1} combina precisão e revocação. O \emph{F1 macro} é a média aritmética dos F1 de todas as classes, dando o mesmo peso a cada uma e tornando visíveis dificuldades que podem ficar escondidas na acurácia global.
 
-\[
-\kappa=\frac{p_o-p_e}{1-p_e},
-\]
+O coeficiente kappa de Cohen considera, além da concordância observada, a parcela esperada a partir da distribuição das classes \cite{cohen1960kappa}:
+\begin{equation}
+    \kappa = \frac{p_o-p_e}{1-p_e},
+\end{equation}
+\noindent em que $p_o$ é a proporção de concordâncias observadas e $p_e$ é a concordância esperada segundo as frequências marginais. O resultado depende da prevalência das classes e das características da tarefa; não é adequado transformá-lo em uma medida absoluta de verdade econômica.
 
-em que $p_o$ é a concordância observada e $p_e$ é a concordância esperada. O valor deve ser interpretado à luz da prevalência das classes e do desenho da anotação, sem transformar faixas convencionais em verdades universais. Para três ou mais anotadores, podem ser usadas medidas apropriadas ao desenho dos julgamentos compartilhados, como o kappa de Fleiss, quando suas condições forem atendidas \cite{fleiss1971nominal}.
-
-A concordância \textbf{entre anotadores humanos} e a concordância \textbf{entre modelo e referência humana} respondem a perguntas diferentes. A primeira informa se a tarefa tem definição suficientemente estável entre participantes. A segunda descreve a proximidade das previsões automáticas dessa referência. No estudo atual, os indicadores publicados referem-se à comparação entre classificador e anotação do autor; não devem ser chamados de concordância entre especialistas.
+Quando vários participantes anotam os mesmos itens, a consistência de suas respostas pode ser examinada por medidas escolhidas conforme o desenho do estudo, incluindo alternativas discutidas por \citeonline{fleiss1971nominal}. Antes de comparar o classificador a uma referência consolidada, é preciso documentar quem anotou cada notícia, como as divergências foram tratadas e quais itens permaneceram ambíguos.
 
 \section{Associação temporal, previsão e causalidade}
 
-O coeficiente de Pearson mede a intensidade e o sentido de uma associação linear. O coeficiente de Spearman aplica a comparação às posições relativas dos valores e permite investigar associações monotônicas. Os dois são úteis como diagnósticos, mas nenhum demonstra, por si só, que uma variável causa a outra ou melhora previsões em novos períodos.
+Depois de construir um indicador, é possível examinar sua relação com retornos financeiros. O coeficiente de Pearson mede associação linear, enquanto o coeficiente de Spearman verifica se a ordenação dos valores do indicador acompanha a ordenação dos retornos. Os dois coeficientes possuem sinal e magnitude: valores negativos indicam relação inversa observada, e valores próximos de zero indicam associação fraca sob a medida considerada.
 
-A separação entre o momento de produção do ITI e o intervalo de retorno é necessária. Ainda assim, notícias e preços podem reagir a um acontecimento comum. Além disso, algumas matérias descrevem movimentos de mercado já ocorridos. Se seus horários não forem tratados corretamente, a série textual pode incorporar informação que não estava disponível no instante em que uma previsão hipotética seria realizada.
+Uma correlação entre notícias e retornos posteriores não demonstra causalidade. Um acontecimento pode afetar tanto a cobertura jornalística quanto os preços, e algumas notícias descrevem movimentos já ocorridos. O uso de um instante de corte anterior ao início da janela de retorno é necessário para evitar incluir informações futuras, mas não elimina todos os fatores que podem produzir associação.
 
-Há diferença entre apresentar uma correlação maior e demonstrar \textbf{informação incremental}. O ITI e uma média de sentimento utilizam textos compartilhados e podem conter informação redundante. Uma correlação individual mais alta não significa necessariamente que o ITI contribua quando outras variáveis já estão presentes em um modelo. Essa segunda questão exige comparações condicionais ou testes preditivos em períodos reservados, respeitando a ordem temporal dos dados.
+Também é importante distinguir \emph{associação marginal} de \emph{informação incremental}. A primeira considera a relação direta entre um indicador e um retorno. A segunda pergunta se o indicador acrescenta informação quando outras variáveis já são utilizadas em um modelo. Essa segunda questão requer avaliações condicionais ou preditivas, preferencialmente com divisão temporal entre períodos de desenvolvimento e teste.
 
-Assim, a avaliação preliminar desta dissertação deve ser lida como um estudo de associação e de sensibilidade metodológica. O alcance preditivo e a eventual contribuição incremental constituem etapas distintas, cuja execução depende primeiro da qualidade do sinal textual e da confiabilidade da comparação temporal.
+A análise desta qualificação é exploratória. Um valor $p$ não corresponde à probabilidade de a hipótese de pesquisa estar correta, e um intervalo que inclua zero não prova igualdade entre indicadores. Em séries temporais, as estimativas também exigem atenção à dependência entre observações próximas. O desenho de bootstrap em blocos empregado nesta pesquisa é apresentado no Capítulo~\ref{cap:metodologia}, com apoio em \citeonline{kunsch1989bootstrap}.
