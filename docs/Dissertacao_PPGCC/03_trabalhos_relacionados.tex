@@ -17,7 +17,7 @@ O estudo de \citeonline{baker2016epu} construiu um índice de incerteza de polí
 
 No domínio financeiro, o significado de palavras pode depender do contexto econômico. \citeonline{loughran2011liability} mostraram limitações de abordagens lexicais gerais aplicadas a textos financeiros; \citeonline{araci2020finbert} investigou o emprego de modelos BERT nesse domínio. Esses trabalhos ajudam a justificar a escolha de um classificador ajustado ao vocabulário financeiro em lugar de uma abordagem exclusivamente baseada em palavras isoladas.
 
-No Brasil, \citeonline{santos2023finbert} apresentaram o FinBERT-PT-BR e examinaram sua utilização em textos financeiros em português. Os resultados do estudo original, incluindo aproximadamente 0,76 de acurácia e 0,73 de F1 nas condições relatadas pelos autores, fornecem um antecedente para a escolha do modelo. Não devem, contudo, ser interpretados como desempenho esperado em notícias extensas de saneamento ou como garantia de sentimento orientado à Sabesp.
+No Brasil, \citeonline{santos2023finbert} apresentaram o modelo de linguagem FinBERT-PT-BR e o classificador SentFinBERT-PT-BR, ajustado para sentimento. A Tabela 3 daquele artigo reporta acurácia de 0,76 e F1 de 0,73 para o classificador, nas condições experimentais dos autores. Esses resultados fornecem um antecedente para a escolha da família de modelos. Não devem, contudo, ser interpretados como desempenho esperado em notícias extensas de saneamento ou como garantia de sentimento orientado à Sabesp.
 
 O mesmo estudo explora a agregação de classificações em uma medida quantitativa baseada na contagem de textos positivos e negativos. O ITI difere desse procedimento ao utilizar a diferença entre as probabilidades de cada notícia, calcular médias diárias e aplicar memória exponencial. Essas escolhas são formuladas e avaliadas no presente trabalho; não são apresentadas como resultados diretamente demonstrados pelo artigo do FinBERT.
 
@@ -37,25 +37,29 @@ A presente pesquisa utiliza essa literatura para fundamentar a pergunta feita ao
 
 A reorganização societária da Sabesp constitui parte do contexto institucional do setor. O estudo de \citeonline{foco2025sabesp}, publicado em 2026, examinou, por estudo de eventos, a reação das ações da Equatorial Energia (EQTL3) a um anúncio ligado à privatização da Sabesp. Seu desfecho é diferente do retorno da SBSP3 utilizado nesta dissertação, e a publicação não valida a construção do ITI. Ela é citada apenas como exemplo de investigação de um acontecimento relacionado ao setor com outro método e outra variável financeira.
 
+
 \section{Posicionamento da pesquisa}
 
-A literatura oferece fundamentos para quatro decisões: transformar textos em medidas, adotar um classificador financeiro em português, considerar a empresa-alvo e estudar o papel de notícias anteriores por meio de agregação temporal. A contribuição do ITI nesta etapa está em integrar essas decisões num procedimento explícito e submetê-lo a verificações textuais e temporais no estudo de caso da Sabesp. A Tabela~\ref{tab:posicionamento} resume o posicionamento, sem alegar que os procedimentos anteriores são equivalentes.
+A proposta se apoia em técnicas já estabelecidas: classificação financeira em português, avaliação de sentimento por entidade e agregação temporal de textos. O espaço de investigação está em verificar como essas decisões se articulam no estudo de caso da Sabesp e quais limitações impedem interpretar o sinal resultante como informação economicamente validada. A Tabela~\ref{tab:posicionamento} compara os antecedentes pelas dimensões relevantes a essa pergunta, sem supor que todos tenham o mesmo objetivo.
 
 \begin{table}[htbp]
 \centering
-\caption{Relação entre a proposta do ITI e linhas de pesquisa anteriores.}
+\caption{Posicionamento do ITI em relação aos antecedentes centrais.}
 \label{tab:posicionamento}
-\begin{tabularx}{\textwidth}{@{}P{0.22\textwidth}L L@{}}
+\begin{tabularx}{\textwidth}{@{}P{0.17\textwidth}L L L L@{}}
 \toprule
-Linha & Antecedentes & Delimitação neste trabalho \\
+Estudo & Sentimento financeiro & Orientação à entidade & Agregação temporal & Papel em relação ao ITI \\
 \midrule
-Notícias e mercado & \citeonline{tetlock2007media}; \citeonline{baker2016epu} & Corpus em português e alvo empresarial definido \\
-Índices de notícias & \citeonline{shapiro2022fed}; \citeonline{buckman2020dnsi} & Média diária e meia-vida em dias civis, sem equivalência metodológica presumida \\
-Sentimento financeiro & \citeonline{santos2023finbert} & Probabilidades e avaliação local do classificador \\
-Sentimento por entidade & \citeonline{cortis2017semeval5}; \citeonline{sinha2022sentfin}; \citeonline{tang2023finentity} & Protocolo orientado à Sabesp e recorte contextual, ainda sem modelo especializado por alvo \\
-Mercado brasileiro & \citeonline{yoshinaga2012sentimento}; \citeonline{duarte2020news} & Associação exploratória com retornos futuros de SBSP3 \\
+\citeonline{santos2023finbert} & Classificador em português & A aplicação citada considera notícias de mercado & Índice por contagens de classes em um intervalo & Base para o classificador; não valida seu uso local \\
+\citeonline{sinha2022sentfin} & Manchetes anotadas & Rótulos associados às entidades, inclusive com polaridades distintas & Examina relações agregadas com o mercado & Fundamenta a tarefa por alvo; não determina a recorrência do ITI \\
+\citeonline{shapiro2022fed}; DNSI \cite{frbsfNewsSentiment} & Notícias econômicas e financeiras & Indicador econômico agregado & Série diária; DNSI com pesos decrescentes e ajuste de composição & Antecedente de agregação e persistência, com outro corpus e objetivo \\
+Este estudo & Probabilidades do classificador em português & Recorte próximo à Sabesp; sem treino específico notícia--empresa & Média diária, Soft pontual, média semanal e ITI-H7 & Avaliação conjunta dos limites textuais e das associações temporais \\
 \bottomrule
 \end{tabularx}
 \vspace{0.4em}
-{\footnotesize Fonte: elaboração própria com base nos trabalhos citados.}
+{\footnotesize Fonte: elaboração própria com base nas publicações citadas. Unidade de comparação: estudo ou aplicação; não se comparam desempenhos entre amostras diferentes. DNSI: \emph{Daily News Sentiment Index}.}
 \end{table}
+
+Selecionar um trecho que menciona a empresa não equivale a dispor de um classificador treinado para o par notícia--entidade. Da mesma forma, adotar decaimento exponencial não demonstra que a informação jornalística ou a reação do mercado sigam essa dinâmica. A implementação realizada torna as operações inspecionáveis; a contribuição científica pretendida depende de avaliar suas consequências e suas limitações.
+
+Caso a comparação não identifique diferença conclusiva entre as associações, ainda será possível documentar quais notícias são omitidas pelo Soft pontual, quais classes concentram desacordos e quais escolhas precisam ser controladas no experimento seguinte. Esse conhecimento delimita a utilidade e as condições de avaliação da proposta, sem transformar ausência de significância em prova de equivalência.

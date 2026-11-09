@@ -20,11 +20,16 @@ A segunda dificuldade está na classificação automática. Modelos de linguagem
 
 A terceira dificuldade é temporal. As notícias são publicadas em dias civis, inclusive fora do horário de negociação, enquanto os preços de ações são observados nos pregões. Para comparar um indicador textual com retornos futuros, é necessário estabelecer um instante de corte que impeça a inclusão de matérias publicadas depois da informação supostamente disponível. Também é preciso definir se notícias anteriores deixam de participar imediatamente do indicador ou se conservam algum peso por determinado período.
 
-Diante dessas dificuldades, a pergunta de pesquisa é: \textbf{como construir, a partir de notícias em português sobre a Sabesp, um indicador temporal reprodutível e avaliar se a memória atribuída aos sinais das notícias modifica sua associação com retornos futuros da ação SBSP3?}
 
-A hipótese investigada é que preservar parte das entradas anteriores, por meio de memória exponencial, pode produzir uma associação diferente daquela obtida com a entrada diária sem memória observada no mesmo instante. Essa hipótese não pressupõe uma diferença positiva, maior associação em valor absoluto ou ganho preditivo. A comparação considera as correlações dos dois indicadores com o retorno da semana seguinte e a incerteza associada à diferença estimada.
+Diante dessas dificuldades, a pergunta de pesquisa é: \textbf{como a representação textual e a agregação temporal de notícias em português orientadas à Sabesp condicionam a construção de um sinal reprodutível e a interpretação de sua associação com retornos posteriores da ação SBSP3?} O problema científico está na relação entre a validade do sinal textual e sua transformação em uma medida temporal. Integrar um classificador e uma regra de memória não basta para demonstrar que a série representa adequadamente a empresa ou acrescenta informação sobre o mercado.
 
-A configuração principal usa meia-vida de sete dias civis, denominada ITI-H7. \emph{Meia-vida}, neste contexto, é o intervalo necessário para que a contribuição remanescente de um estado anterior seja reduzida à metade na ausência de novas entradas. O candidato é comparado ao Soft, definido como o sinal médio das notícias do próprio dia de corte, sem transportar os valores de dias anteriores. Portanto, a comparação principal não equivale a confrontar o ITI com toda forma possível de agregação semanal.
+A motivação científica é compreender quais conclusões podem ser sustentadas quando a classificação é aplicada a uma entidade específica, a cobertura das notícias é irregular e diferentes agregações utilizam parcelas distintas do histórico. A avaliação textual examina a correspondência entre classes previstas e uma referência humana; a avaliação temporal examina associações entre sinais e retornos. Essas frentes são complementares, mas uma associação financeira não substitui a validação da tarefa de sentimento.
+
+A hipótese operacional é que a associação do ITI-H7 com o retorno da semana seguinte difere daquela observada para o Soft pontual. O ITI-H7 utiliza memória exponencial com meia-vida de sete dias civis: na ausência de novas entradas, a contribuição remanescente de um estado anterior é reduzida à metade nesse intervalo. O Soft pontual corresponde à média dos escores das notícias do próprio dia de corte, sem transportar valores de dias anteriores. Ambos utilizam as mesmas probabilidades de sentimento e são avaliados nas mesmas semanas.
+
+O contraste estima $\Delta\rho=\rho_S(ITI^{(7)},R^{(1)})-\rho_S(Soft,R^{(1)})$, em que $\rho_S$ é a correlação de Spearman e $R^{(1)}$ é o retorno futuro de uma semana. A ausência de diferença corresponde a $\Delta\rho=0$, e a hipótese de diferença é bilateral, $\Delta\rho\neq0$. Trata-se de um contraste exploratório entre correlações assinadas: uma diferença positiva não significa necessariamente associação mais forte em valor absoluto, previsão mais precisa ou benefício econômico.
+
+O contraste principal compara uma série que conserva histórico com uma entrada diária pontual. Portanto, ele altera simultaneamente a extensão da informação considerada e sua ponderação; não isola o efeito exclusivo dos pesos exponenciais. Uma análise complementar compara o ITI-H7 à média dos sinais diários da janela semanal até o corte. Essa análise ajuda a examinar a escolha do baseline, mas também não mantém idênticas as janelas históricas e não constitui confirmação independente.
 
 \section{Objetivos}
 
@@ -43,7 +48,15 @@ Esses objetivos encontram-se em etapas diferentes de execução. O procedimento 
 
 \section{Contribuições e escopo}
 
-A contribuição desta etapa está na definição e implementação de um procedimento verificável que conecta seleção de notícias, preparação de textos, classificação financeira, agregação temporal e comparação com dados de mercado. Ao manter as operações separadas, a pesquisa permite investigar se uma dificuldade decorre da coleta, da tarefa de sentimento, da regra de memória ou do alinhamento com os preços.
+
+A pesquisa organiza suas contribuições em três eixos:
+\begin{enumerate}
+    \item \textbf{Procedimento reprodutível:} especificar as unidades de análise, a preparação da entrada, a conversão das probabilidades em escores, a memória temporal e o corte de informação. A implementação já existe; a reprodução integral da campanha depende da preservação e disponibilização de seus dados, pesos e registros.
+    \item \textbf{Protocolo de avaliação do sinal textual:} distinguir sentimento do documento, orientação em relação à empresa e representação efetivamente processada pelo classificador. O diagnóstico das cem notícias identifica desacordos com uma referência individual; a validação humana independente do recorte contextual permanece pendente.
+    \item \textbf{Análise comparativa de agregações temporais:} investigar como o sinal pontual, a média da janela semanal e a memória exponencial condicionam as associações observadas com retornos posteriores. A contribuição pretendida é estabelecer o alcance e as limitações dessas comparações, sem reivindicar inovação na arquitetura do classificador ou na suavização exponencial.
+\end{enumerate}
+
+Mesmo que não se demonstre superioridade do ITI, o estudo pode produzir conhecimento sobre a perda de informação na amostragem pontual, a relação entre neutralidade e polaridade prevista e as condições necessárias para comparar agregações de notícias. Um resultado inconclusivo delimita o que os dados permitem afirmar e orienta novos experimentos; não comprova igualdade entre métodos nem torna dispensável a avaliação do sinal textual.
 
 No estudo de caso, a série temporal utiliza 1.253 notícias únicas com probabilidades válidas na representação contextual e compreende aproximadamente maio de 2022 a abril de 2024. O corpus inclui matérias sobre a Sabesp em um setor marcado por decisões contratuais, regulatórias e societárias. A Lei nº 14.026/2020 integra esse contexto institucional \cite{lei14026}, mas a dissertação não estima separadamente o efeito dessa legislação sobre os retornos.
 

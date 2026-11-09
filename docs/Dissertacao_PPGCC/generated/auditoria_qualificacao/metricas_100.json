@@ -1,0 +1,139 @@
+{
+  "source": "data/water_utilities_corpus/manual_labels_100_eval.csv",
+  "source_sha256": "c3d90e89ad7a2269f125baf7062aa4ee3fa169bde433f5176ff552e8d09c8d3e",
+  "labels_order": [
+    "NEG",
+    "NEU",
+    "POS"
+  ],
+  "confusion_matrix": [
+    [
+      13,
+      1,
+      0
+    ],
+    [
+      21,
+      32,
+      14
+    ],
+    [
+      4,
+      10,
+      5
+    ]
+  ],
+  "kappa": 0.1969161580469002,
+  "report": {
+    "NEG": {
+      "precision": 0.34210526315789475,
+      "recall": 0.9285714285714286,
+      "f1-score": 0.5,
+      "support": 14.0
+    },
+    "NEU": {
+      "precision": 0.7441860465116279,
+      "recall": 0.47761194029850745,
+      "f1-score": 0.5818181818181818,
+      "support": 67.0
+    },
+    "POS": {
+      "precision": 0.2631578947368421,
+      "recall": 0.2631578947368421,
+      "f1-score": 0.2631578947368421,
+      "support": 19.0
+    },
+    "accuracy": 0.5,
+    "macro avg": {
+      "precision": 0.4498164014687882,
+      "recall": 0.556447087868926,
+      "f1-score": 0.4483253588516746,
+      "support": 100.0
+    },
+    "weighted avg": {
+      "precision": 0.5964993880048959,
+      "recall": 0.5,
+      "f1-score": 0.5098181818181817,
+      "support": 100.0
+    }
+  },
+  "subsets": {
+    "focal_sabesp": {
+      "n": 74,
+      "kappa": 0.2597885110031438,
+      "report": {
+        "NEG": {
+          "precision": 0.4482758620689655,
+          "recall": 0.9285714285714286,
+          "f1-score": 0.6046511627906976,
+          "support": 14.0
+        },
+        "NEU": {
+          "precision": 0.6774193548387096,
+          "recall": 0.4883720930232558,
+          "f1-score": 0.5675675675675675,
+          "support": 43.0
+        },
+        "POS": {
+          "precision": 0.35714285714285715,
+          "recall": 0.29411764705882354,
+          "f1-score": 0.3225806451612903,
+          "support": 17.0
+        },
+        "accuracy": 0.527027027027027,
+        "macro avg": {
+          "precision": 0.49427935801684414,
+          "recall": 0.5703537228845027,
+          "f1-score": 0.49826645850651846,
+          "support": 74.0
+        },
+        "weighted avg": {
+          "precision": 0.5604908499791702,
+          "recall": 0.527027027027027,
+          "f1-score": 0.5183026034083393,
+          "support": 74.0
+        }
+      }
+    },
+    "roundup_agenda": {
+      "n": 26,
+      "kappa": -0.031746031746031855,
+      "report": {
+        "NEG": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 0.0
+        },
+        "NEU": {
+          "precision": 0.9166666666666666,
+          "recall": 0.4583333333333333,
+          "f1-score": 0.6111111111111112,
+          "support": 24.0
+        },
+        "POS": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 2.0
+        },
+        "accuracy": 0.4230769230769231,
+        "macro avg": {
+          "precision": 0.3055555555555555,
+          "recall": 0.15277777777777776,
+          "f1-score": 0.20370370370370372,
+          "support": 26.0
+        },
+        "weighted avg": {
+          "precision": 0.8461538461538461,
+          "recall": 0.4230769230769231,
+          "f1-score": 0.5641025641025641,
+          "support": 26.0
+        }
+      }
+    }
+  },
+  "new_inference": false,
+  "probabilities_available_in_source": false,
+  "representation": "titulo e corpo, conforme protocolo documentado; entrada tokenizada não disponível"
+}

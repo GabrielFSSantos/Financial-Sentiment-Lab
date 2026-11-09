@@ -73,12 +73,12 @@ Este apêndice registra os principais números do inventário de notícias e as 
 \toprule
 Registro & Quantidade & Evidência de execução \\
 \midrule
-Linhas brutas no inventário & 1.254 & \texttt{selection\_report.json} \\
-Notícias canônicas únicas & 1.253 & \texttt{selection\_report.json} \\
-Duplicatas mapeadas & 1 & \texttt{selection\_report.json} \\
-Exclusões explícitas & 0 & \texttt{selection\_report.json} \\
-Notícias com probabilidades válidas, entrada contextual & 1.253 & \texttt{result\_registry.json} \\
-Veículos distintos & 5 & \texttt{coverage\_daily.csv} \\
+Linhas brutas no inventário & 1.254 & \texttt{selection\_\allowbreak{}report.json} \\
+Notícias canônicas únicas & 1.253 & \texttt{selection\_\allowbreak{}report.json} \\
+Duplicatas mapeadas & 1 & \texttt{selection\_\allowbreak{}report.json} \\
+Exclusões explícitas & 0 & \texttt{selection\_\allowbreak{}report.json} \\
+Notícias com probabilidades válidas, entrada contextual & 1.253 & \texttt{result\_\allowbreak{}registry.json} \\
+Veículos distintos & 5 & \texttt{coverage\_\allowbreak{}daily.csv} \\
 \bottomrule
 \end{tabularx}
 \vspace{0.4em}
@@ -102,10 +102,10 @@ Meia-vida principal & $H=7$ dias civis; sensibilidades $H=2$ e $H=14$ \\
 Aquecimento & 70 dias civis, equivalentes a dez semanas iniciais excluídas do contraste \\
 Painel semanal alinhado & 104 semanas, chave W-FRI \\
 Comparação principal & 94 semanas; $\Delta\rho=+0{,}040$; IC $[-0{,}127;\,0{,}241]$; $p=0{,}512$ \\
-Média semanal versus ITI-H7 & 94 semanas; $\Delta\rho=-0{,}062$; IC $[-0{,}165;\,0{,}060]$; $p=0{,}340$; exploratório fora de Holm \\
+ITI-H7 menos média semanal & 94 semanas; $\Delta\rho=-0{,}062$; IC $[-0{,}165;\,0{,}060]$; $p=0{,}340$; exploratório fora de Holm \\
 Correlação marginal ITI-H7 em painel completo & 104 semanas; $\rho\simeq-0{,}145$; inclui aquecimento \\
 Bootstrap & 10.000 reamostragens, blocos de quatro semanas; valores $p$ exploratórios \\
-Reserva de notícias & Regra \texttt{calendar\_last\_12\_weeks}; 199 matérias; corte em 06/02/2024 \\
+Reserva de notícias & Regra \texttt{calendar\_\allowbreak{}last\_\allowbreak{}12\_\allowbreak{}weeks}; 199 matérias; corte em 06/02/2024 \\
 Subpainel da reserva & 11 semanas alinhadas, exploração temporal já inspecionada \\
 Contraste na reserva & $\Delta\rho=+0{,}186$; IC $[-0{,}057;\,0{,}670]$; $p\simeq0{,}111$; não confirmatório \\
 Avaliação humana independente & Pendente; anotação do autor: 100 notícias \\
@@ -118,6 +118,59 @@ Avaliação humana independente & Pendente; anotação do autor: 100 notícias \
 A correlação marginal calculada sobre 104 semanas não deve ser confundida com o contraste principal de 94 semanas, que exclui o aquecimento. Da mesma forma, a reserva de aproximadamente doze semanas de calendário de notícias gerou onze observações semanais alinhadas; o subpainel já foi examinado e não constitui período confirmatório independente.
 
 Para que outra pessoa possa reproduzir exatamente os cálculos, cada execução precisa identificar a versão do corpus, os filtros e a deduplicação, o checkpoint do modelo, o mapeamento de classes, a representação textual, o parâmetro de meia-vida, os preços ajustados efetivamente carregados, as regras temporais e o ambiente de software. A disponibilidade apenas do código e das tabelas finais não substitui os dados e os manifestos associados à execução.
+
+
+\section{Ficha do corpus e disponibilidade dos artefatos}
+
+A ficha abaixo distingue informações descritas nos registros da dissertação daquelas verificáveis nos arquivos públicos consultados. Essa separação segue a preocupação com documentação da motivação, composição, obtenção e limitações de conjuntos de dados \cite{gebru2021datasheets}. Não se atribui cobertura completa a uma coleção somente porque seus arquivos podem ser processados.
+
+\begin{table}[htbp]
+\centering
+\caption{Ficha sintética do corpus temporal P02.}
+\label{tab:ficha-corpus}
+\begin{tabularx}{\textwidth}{@{}P{0.25\textwidth}L@{}}
+\toprule
+Campo & Informação e limite de documentação \\
+\midrule
+Finalidade e unidade & Estudo de caso da Sabesp; unidade textual: notícia canônica em português \\
+Período & Aproximadamente maio de 2022 a abril de 2024; limites diários exatos não documentados nos artefatos da campanha disponíveis nesta revisão \\
+Fontes e contagens & Money Times: 360; InfoMoney: 328; Valor Econômico: 251; G1 Economia: 203; Exame: 111; total reportado: 1.253 \\
+Obtenção & O projeto contém rotinas de coleta web; sua existência não comprova quais execuções produziram cada registro P02 \\
+Inclusão & Vínculo com a Sabesp, conteúdo aproveitável e referência temporal; lista de elegibilidade e filtros efetivamente aplicados depende do inventário da execução \\
+Deduplicação & 1.254 linhas brutas e uma duplicata mapeada, segundo os registros reportados; par de identificadores e justificativa não disponíveis para nova conferência \\
+Datas & Data de publicação orienta o cálculo; data de coleta não deve substituí-la. Horários completos, data de captura e alterações posteriores não estão documentados para todo o P02 \\
+Cobertura & Intervalo inventariado, sem comprovação de coleta bem-sucedida em cada dia; ausência observada não equivale a silêncio informacional \\
+\bottomrule
+\end{tabularx}
+\par\smallskip
+{\footnotesize Fonte: descrição da campanha, configurações e código consultados. Contagens por fonte reproduzidas dos registros reportados, cuja soma foi conferida; não se afirma uma nova auditoria linha a linha do P02.}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Rastreabilidade dos materiais necessários à reprodução.}
+\label{tab:artefatos-reproducao}
+\begin{tabularx}{\textwidth}{@{}P{0.29\textwidth}L L@{}}
+\toprule
+Artefato & Disponibilidade na revisão & Consequência \\
+\midrule
+CSV das 100 notícias & Disponível com texto, IDs e dois rótulos & Permite recalcular a matriz e as métricas; não contém probabilidades \\
+Inventário canônico P02 & Não localizado como pacote completo da campanha & Outros CSVs públicos não provam identidade com o P02 \\
+\texttt{selection\_\allowbreak{}report.json} & Citado, não localizado no Git consultado & Deduplicação e seleção não reauditadas linha a linha \\
+\texttt{result\_\allowbreak{}registry.json} & Citado, não localizado no Git consultado & Probabilidades e status da campanha não recontados \\
+\texttt{coverage\_\allowbreak{}daily.csv} & Citado, não localizado no Git consultado & Cobertura diária não revalidada \\
+Checkpoint & Repositório e hashes esperados em configuração; pesos não incluídos & Necessário conferir os arquivos efetivamente usados \\
+Série de preços carregada & Configuração disponível; arquivo exato não localizado & Novo download não comprova reprodução dos preços originais \\
+Parâmetros e código & Configurações ITI-v2 e rotinas disponíveis & Permitem verificar fórmulas, janelas e pareamento \\
+Tabelas e figuras & Saídas selecionadas versionadas & Permitem conferir valores reportados, não reexecutar a campanha \\
+Logs e ambiente completo & Não localizados como pacote da execução & Reconstituição integral permanece pendente \\
+\bottomrule
+\end{tabularx}
+\par\smallskip
+{\footnotesize Fonte: inspeção do repositório público na revisão de novembro de 2026. Unidade: artefato ou grupo de artefatos; ``não localizado'' não significa inexistente no ambiente local do pesquisador.}
+\end{table}
+
+A configuração nominal de modelo usa \texttt{lucas-leme/FinBERT-PT-BR}, revisão \texttt{main}, e contém hashes esperados. A configuração estatística prevê 10.000 reamostragens, blocos de quatro semanas e semente 20261022; a função de contraste deriva dessa semente o gerador de reamostragem. São especificações verificáveis no código, não prova de que todos os arquivos e logs da execução original estejam disponíveis.
 
 \chapter{Especificação matemática complementar do ITI}
 \label{ap:iti-math}
@@ -165,3 +218,47 @@ Partindo de $ITI_0=0$ e adotando $H=7$ (portanto $\lambda_7\simeq0{,}9057$), o p
 \section{Verificações numéricas}
 
 A suíte de testes do projeto contempla casos controlados de meia-vida e decaimento, construção da grade diária, alinhamento de retornos semanais e procedimentos estatísticos. A existência desses testes é parte da documentação da implementação, mas não significa que todos os dados originais ou todos os resultados da campanha tenham sido reproduzidos de modo independente nesta revisão editorial. A reexecução integral depende dos artefatos e configurações identificados no Apêndice~\ref{ap:rastreabilidade}.
+
+
+\chapter{Divergências documentadas na amostra textual}
+\label{ap:divergencias}
+
+Os doze casos abaixo foram selecionados de forma intencional entre as cinquenta divergências do CSV de cem notícias. Não constituem amostra aleatória nem permitem estimar a frequência das hipóteses de erro. Os identificadores permitem recuperar título, corpo, fonte e URL no arquivo preservado; os trechos entre aspas são excertos curtos dos títulos. A ordem ``autor/modelo'' informa as classes preservadas, sem adjudicar qual delas é correta. As hipóteses são interpretações desta inspeção e não categorias anteriormente anotadas.
+
+\paragraph{Caso 1: multiempresa.}
+\texttt{infomoney\_\allowbreak{}45c918c63e4e}. Autor/modelo: positiva/neutra. Trecho: ``Sabesp é uma delas. {discussion}
+
+\paragraph{Caso 2: ambiguidade econômica.}
+\texttt{infomoney\_\allowbreak{}192bc16d0d56}. Autor/modelo: positiva/neutra. Trecho: ``investimentos de R\$ 70 bilhões. {discussion}
+
+\paragraph{Caso 3: ambiguidade econômica.}
+\texttt{exame\_\allowbreak{}087999564454}. Autor/modelo: positiva/neutra. Trecho: ``Tarifa de água será mais barata. {discussion}
+
+\paragraph{Caso 4: neutralidade.}
+\texttt{g1\_\allowbreak{}economia\_\allowbreak{}91801d1ceba8}. Autor/modelo: positiva/neutra. Trecho: ``é aprovado por comissão. {discussion}
+
+\paragraph{Caso 5: ambiguidade econômica.}
+\texttt{infomoney\_\allowbreak{}fc861d984b2c}. Autor/modelo: positiva/neutra. Trecho: ``vai reajustar as tarifas em 6,45\%. {discussion}
+
+\paragraph{Caso 6: neutralidade.}
+\texttt{exame\_\allowbreak{}549fd653e723}. Autor/modelo: neutra/negativa. Trecho: ``até 100\% de desconto em juros. {discussion}
+
+\paragraph{Caso 7: neutralidade.}
+\texttt{g1\_\allowbreak{}economia\_\allowbreak{}d860246981f5}. Autor/modelo: neutra/negativa. Trecho: ``falta de saneamento básico. {discussion}
+
+\paragraph{Caso 8: multiempresa.}
+\texttt{exame\_\allowbreak{}32cc2fcae6e9}. Autor/modelo: neutra/negativa. Trecho: ``Europa evita recessão, debêntures da Sabesp. {discussion}
+
+\paragraph{Caso 9: multiempresa.}
+\texttt{valor\_\allowbreak{}ae7eb6499f1a}. Autor/modelo: neutra/negativa. Trecho: ``desagrada deputados. {discussion}
+
+\paragraph{Caso 10: multiempresa.}
+\texttt{money\_\allowbreak{}times\_\allowbreak{}01b4d0ecf1de}. Autor/modelo: neutra/negativa. Trecho: ``Ibovespa (IBOV) abre em alta. {discussion}
+
+\paragraph{Caso 11: ambiguidade econômica.}
+\texttt{money\_\allowbreak{}times\_\allowbreak{}16f81a194434}. Autor/modelo: positiva/negativa. Trecho: ``pode destravar valorização de até 200\%. {discussion}
+
+\paragraph{Caso 12: multiempresa.}
+\texttt{money\_\allowbreak{}times\_\allowbreak{}c4ecf7910961}. Autor/modelo: neutra/negativa. Trecho: ``Ibovespa (IBOV), relatório Focus e mais. {discussion}
+
+A disponibilidade desses textos permite discutir hipóteses e rever julgamentos, mas não demonstra por que o modelo produziu cada classe. Sem as probabilidades, a versão exata do checkpoint e a entrada após tokenização, não é possível atribuir as divergências a confiança, truncamento ou mecanismos internos específicos. O próximo diagnóstico deverá preservar esses elementos e comparar a entrada contextual com a documental nos mesmos itens.

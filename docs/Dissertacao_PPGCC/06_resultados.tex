@@ -19,16 +19,61 @@ Na avaliação utilizada nesta qualificação, o FinBERT-PT-BR concordou com o a
 \toprule
 Subconjunto & $n$ & Acurácia & Kappa & F1 macro \\
 \midrule
-Amostra completa & 100 & 50,0\% & 0,197 & 0,45 \\
-Matérias focais & 74 & 52,7\% & $\simeq 0{,}26$ & --- \\
-Agenda ou multiempresa & 26 & 42,3\% & $\simeq -0{,}03$ & --- \\
+Amostra completa & 100 & 50,0\% & 0,197 & 0,448 \\
+Grupo focal (heurística) & 74 & 52,7\% & 0,260 & 0,498 \\
+Agenda/multiempresa (heurística) & 26 & 42,3\% & $-0{,}032$ & 0,204 \\
 \bottomrule
 \end{tabularx}
 \vspace{0.4em}
-{\footnotesize Fonte: resultados experimentais da pesquisa, anotação orientada à Sabesp em 07/10/2026. F1 por subconjunto não calculado.}
+{\footnotesize Fonte: resultados experimentais da pesquisa, anotação orientada à Sabesp em 07/10/2026. Tipologia obtida por heurística de título e notas, não por anotação independente. F1 macro calculado sobre as três classes fixas, atribuindo zero quando indefinido.}
 \end{table}
 
 As divergências merecem atenção especial na classe neutra. Entre as 67 notícias anotadas dessa forma pelo autor, o modelo previu uma classe positiva ou negativa em 35. Uma matéria considerada neutra pela referência provisória pode, portanto, receber do classificador um escore com polaridade e contribuir para a média diária e para o ITI. Esse resultado não prova que todos os 35 julgamentos do modelo estejam incorretos: a anotação do autor também está sujeita a interpretações discutíveis, motivo pelo qual a comparação independente é necessária.
+
+
+As Tabelas~\ref{tab:confusao-100} e~\ref{tab:metricas-classe-100} foram calculadas a partir dos mesmos cem pares de rótulos preservados em \texttt{manual\_\allowbreak{}labels\_\allowbreak{}100\_\allowbreak{}eval.csv}, sem executar novamente o classificador. A referência contém 14 notícias negativas, 67 neutras e 19 positivas; as previsões contêm, respectivamente, 38, 43 e 19 registros.
+
+\begin{table}[htbp]
+\centering
+\caption{Matriz de confusão na avaliação documental das 100 notícias.}
+\label{tab:confusao-100}
+\begin{tabular}{lrrrr}
+\toprule
+Rótulo do autor & Prev. negativa & Prev. neutra & Prev. positiva & Total \\
+\midrule
+Negativa & 13 & 1 & 0 & 14 \\
+Neutra & 21 & 32 & 14 & 67 \\
+Positiva & 4 & 10 & 5 & 19 \\
+\midrule
+Total & 38 & 43 & 19 & 100 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\footnotesize Fonte: cálculo sobre os rótulos preservados da amostra. Unidade: notícia; linhas: anotação do autor; colunas: classe prevista. Entrada documentada: título e corpo.}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Métricas por classe na mesma amostra de 100 notícias.}
+\label{tab:metricas-classe-100}
+\begin{tabular}{lrrrr}
+\toprule
+Classe & Precisão & Revocação & F1 & Suporte \\
+\midrule
+Negativa & 0,342 & 0,929 & 0,500 & 14 \\
+Neutra & 0,744 & 0,478 & 0,582 & 67 \\
+Positiva & 0,263 & 0,263 & 0,263 & 19 \\
+\midrule
+Média macro & 0,450 & 0,556 & 0,448 & 100 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\footnotesize Fonte: cálculo sobre os mesmos rótulos da Tabela~\ref{tab:confusao-100}. Métricas adimensionais; suporte: número de notícias na referência. Acurácia: 0,500; kappa: 0,197.}
+\end{table}
+
+O modelo recuperou 13 das 14 notícias negativas da referência, mas atribuiu essa classe a 38 textos: a revocação elevada coexistiu com precisão de apenas 0,342. Na classe positiva, identificou cinco dos 19 registros humanos. Na classe neutra, 21 notícias foram previstas como negativas e 14 como positivas. Esses padrões descrevem desacordos com a referência individual e não identificam, por si só, sua causa.
+
+O Apêndice~\ref{ap:divergencias} apresenta doze divergências com identificadores e trechos auditáveis. As categorias indicam hipóteses de leitura, como mistura de empresas, ambiguidade econômica e dificuldade de delimitar neutralidade; não são causas demonstradas do comportamento do modelo. As probabilidades e os textos tokenizados dessas cem inferências não estão no CSV consultado, o que impede atribuir um escore específico a cada divergência ou comprovar se o trecho discutido foi efetivamente visto pelo classificador.
 
 \subsection{Representação textual da avaliação e do ITI}
 
@@ -38,7 +83,7 @@ A avaliação futura deverá comparar as duas representações nas mesmas notíc
 
 \subsection{Tipos de notícia e limitações da amostra}
 
-As 74 matérias focais apresentaram acurácia de 52,7\%, enquanto as 26 notícias de agenda ou multiempresa apresentaram 42,3\%. A diferença é compatível com a possibilidade de que textos com alvo mais definido sejam mais fáceis de classificar. Contudo, os subconjuntos são pequenos e podem diferir em tamanho, conteúdo, distribuição das classes e grau de ambiguidade. Não é possível atribuir o desempenho inferior exclusivamente à presença de várias empresas.
+Os grupos definidos pela heurística apresentaram acurácia de 52,7\% em 74 registros focais e 42,3\% em 26 registros de agenda ou multiempresa. A heurística utiliza título e notas e pode classificar como focal uma notícia que mencione várias empresas sem acionar seus padrões. Além disso, os grupos diferem em tamanho e composição de classes: o grupo de agenda contém 24 rótulos humanos neutros, dois positivos e nenhum negativo. Seu F1 macro de 0,204 utiliza as três classes fixas, incluindo F1 zero para a classe sem suporte. Portanto, a comparação não isola o efeito da presença de várias empresas e precisa ser interpretada como diagnóstico descritivo.
 
 A amostra foi organizada com base em classes previstas pelo próprio classificador e não foi sorteada aleatoriamente do corpus. Seus resultados descrevem os cem exemplos estudados e não permitem estimar, sem ressalvas, a acurácia do modelo em todas as notícias coletadas. A referência atual é individual, produzida pelo autor. Nenhum dos indicadores desta seção representa concordância entre especialistas independentes.
 
@@ -46,12 +91,12 @@ A amostra foi organizada com base em classes previstas pelo próprio classificad
 
 A campanha exploratória de outubro de 2026 foi construída com 1.253 notícias canônicas que apresentaram probabilidades válidas na entrada contextual. Após a revisão do alinhamento por semana de mercado, foi obtido um painel de 104 semanas com sinais elegíveis e observações financeiras. O contraste principal considera 94 semanas, após excluir as dez iniciais de aquecimento. A revisão do calendário alterou o alinhamento das séries, sem necessidade de executar novamente o FinBERT.
 
-\input{generated/tables/iti_v2_table_primary.tex}
-
 \subsection{Contraste principal}
 \label{subsec:campanha-iti}
 
 Na comparação principal, a correlação de Spearman entre ITI-H7 e retorno da semana seguinte foi de $-0{,}163$. Para o Soft, calculado nas mesmas 94 semanas, a correlação foi de $-0{,}203$ (Tabela~\ref{tab:iti-primary}). As duas associações observadas foram negativas. Isso significa que, neste conjunto de dados, valores mais altos dos indicadores tenderam a acompanhar posições mais baixas na ordenação dos retornos posteriores. A observação não demonstra causalidade nem capacidade de prever novos períodos.
+
+\input{generated/tables/iti_v2_table_primary.tex}
 
 A diferença entre as correlações assinadas foi $\Delta\rho=+0{,}040$. Esse valor positivo não representa ganho de qualidade do ITI: $-0{,}163$ é numericamente maior que $-0{,}203$, mas possui magnitude absoluta menor. Assim, o ITI-H7 apresentou associação marginal mais fraca em valor absoluto nesta amostra. O intervalo bootstrap nominal de 95\% para a diferença foi $[-0{,}127;\,0{,}241]$, incluindo zero, e o valor $p$ exploratório foi de $0{,}512$. Não há evidência suficiente para sustentar uma diferença entre as associações, e tampouco para afirmar equivalência estatística entre os dois indicadores.
 
@@ -63,7 +108,7 @@ Foram examinados oito contrastes adicionais para verificar a sensibilidade das a
 
 \input{generated/tables/iti_v2_table_secondary.tex}
 
-Na comparação entre recorte contextual e texto integral, o intervalo nominal de 95\% não incluiu zero, mas o valor $p$ ajustado por Holm foi de $0{,}200$. Como os intervalos individuais não receberam correção para múltiplas comparações, esse resultado não deve ser apresentado como evidência conclusiva na família de testes. Ele indica uma diferença que pode merecer investigação posterior, sobretudo porque a qualidade textual de cada representação ainda não foi comparada à mesma referência humana independente.
+Na comparação entre recorte contextual e texto integral, a diferença assinada foi $-0{,}061$, com intervalo nominal de 95\% $[-0{,}195;\,-0{,}013]$, mas o valor $p$ ajustado por Holm foi de $0{,}200$. Como os intervalos individuais não receberam correção para múltiplas comparações, esse resultado não deve ser apresentado como evidência conclusiva na família de testes. Ele indica uma diferença que pode merecer investigação posterior, sobretudo porque a qualidade textual de cada representação ainda não foi comparada à mesma referência humana independente.
 
 As demais sensibilidades também não oferecem evidência confirmatória de uma diferença. A ausência de resultado estatisticamente conclusivo não demonstra estabilidade, equivalência nem ausência de efeito. Ela limita as afirmações possíveis com os dados e procedimentos utilizados.
 
@@ -105,9 +150,29 @@ A Figura~\ref{fig:iti-campanha-3} sintetiza as diferenças de correlação e os 
 
 \subsection{Interpretação do Soft e da média semanal}
 
-A leitura do contraste principal depende da definição do Soft. Das 94 semanas comparadas, ele apresentou valor zero em 36, correspondentes a 38,3\% do conjunto. Em 33 dessas semanas, havia notícias em dias anteriores ao corte dentro da própria semana civil. Assim, Soft zero não significa necessariamente ausência de notícias durante toda a semana; pode significar somente que não houve matéria observada no dia específico em que o indicador foi amostrado.
+A leitura do contraste principal depende da definição do Soft. Das 94 semanas comparadas, ele apresentou valor zero em 36, correspondentes a 38,3\% do conjunto. Em 33 dessas 36 semanas, havia notícias anteriores ao corte na janela semanal considerada pelo diagnóstico. Assim, Soft zero não significa necessariamente ausência de notícias durante toda a semana; pode significar somente que não houve matéria observada no dia específico em que o indicador foi amostrado.
 
 Para examinar uma referência que também incorporasse vários dias, realizou-se uma comparação adicional entre o ITI-H7 e a média semanal dos sinais diários. No mesmo painel de 94 semanas, a diferença entre as correlações de Spearman foi de $-0{,}062$, com intervalo bootstrap nominal de 95\% $[-0{,}165;\,0{,}060]$ e valor $p$ exploratório de $0{,}340$. O intervalo inclui zero, de modo que a análise permanece inconclusiva.
+
+A Tabela~\ref{tab:contrastes-baselines} coloca os resultados lado a lado. Nos dois casos, $\Delta\rho$ é a correlação do ITI-H7 menos a correlação da referência indicada, e não uma medida de ganho preditivo.
+
+\begin{table}[htbp]
+\centering
+\caption{Contraste principal e comparação complementar com agregação semanal.}
+\label{tab:contrastes-baselines}
+\begin{tabularx}{\textwidth}{@{}Lr rr P{0.25\textwidth}@{}}
+\toprule
+Referência e papel & $n$ & $\Delta\rho$ & $p$ & IC nominal de 95\% \\
+\midrule
+Soft pontual; principal exploratório & 94 & $+0{,}040$ & 0,512 & $[-0{,}127;\,0{,}241]$ \\
+Média semanal; complementar exploratório & 94 & $-0{,}062$ & 0,340 & $[-0{,}165;\,0{,}060]$ \\
+\bottomrule
+\end{tabularx}
+\par\smallskip
+{\footnotesize Fonte: resultados preservados da campanha. Unidade: semana; retorno futuro de uma semana; Spearman; $\Delta\rho=\rho_S(ITI\text{-}H7,R)-\rho_S(\text{referência},R)$. Valores $p$ exploratórios, sem ajuste de Holm nesta tabela.}
+\end{table}
+
+O Soft pontual deixa de representar notícias de outros dias na observação semanal, enquanto a média semanal retém os dias da janela W-FRI até o corte. O ITI também pode transportar entradas anteriores a essa janela. Assim, as diferenças observadas combinam extensão do histórico, ponderação e política de ausência de notícias. Os dois intervalos incluem zero; nenhum deles demonstra superioridade, igualdade ou ausência de efeito.
 
 Essa comparação adicional não integra a família de oito contrastes corrigida por Holm e não substitui retroativamente a hipótese principal. Ela torna explícita uma limitação do Soft pontual: o contraste inicial avalia memória em relação ao sinal do dia de corte, e não demonstra superioridade da memória exponencial sobre todas as estratégias que agregam notícias ao longo de uma semana.
 
@@ -135,5 +200,9 @@ Reprodução & Artefatos completos de execução não integralmente versionados 
 \vspace{0.4em}
 {\footnotesize Fonte: elaboração própria com base nas etapas e nos resultados da pesquisa.}
 \end{table}
+
+A cobertura jornalística e o contexto regulatório e societário podem influenciar simultaneamente o conteúdo das notícias e os preços. A campanha não identifica separadamente efeitos da privatização, de movimentos gerais do mercado ou de mudanças na composição das fontes. Notícias que descrevem uma alta já ocorrida também podem contribuir para o sinal textual, sem que isso represente informação nova sobre retornos futuros. O corte temporal reduz antecipação de informação, mas não resolve essas fontes de confundimento.
+
+O diagnóstico por classe fortalece a descrição do experimento, mas não valida diretamente o escore contínuo nem o recorte contextual. Classes preservadas permitem recalcular concordância; para avaliar calibração, confiança ou contribuição de cada notícia ao ITI são necessárias as probabilidades da representação correspondente. A escolha futura de parâmetros deverá ser separada da avaliação final: selecionar uma configuração pelos mesmos resultados usados para defendê-la pode produzir uma impressão otimista \cite{varma2006bias}. A avaliação em novo período também deve respeitar a estrutura temporal dos dados \cite{roberts2017cross}.
 
 Em síntese, os experimentos mostram que o procedimento pode ser executado e examinado e identificam suas limitações mais importantes. Eles ainda não validam o ITI como indicador de impacto econômico das notícias sobre a Sabesp. O principal passo seguinte é verificar a qualidade das classificações que efetivamente entram no índice e repetir a avaliação temporal sob condições previamente definidas.
