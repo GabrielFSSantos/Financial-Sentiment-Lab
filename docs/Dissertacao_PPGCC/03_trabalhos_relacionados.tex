@@ -5,29 +5,29 @@ Este capítulo aproxima a proposta de quatro linhas de pesquisa: índices constr
 
 \section{Indicadores construídos a partir de notícias}
 
-\citeonline{tetlock2007media} utilizou linguagem da imprensa para investigar sua relação com o mercado acionário norte-americano. Esse estudo demonstra que o conteúdo jornalístico pode ser representado quantitativamente, desde que sejam identificados o tipo de texto, o fenômeno medido e o desfecho financeiro utilizado. Ele não oferece, entretanto, um procedimento pronto para classificar notícias brasileiras em relação a uma empresa específica.
+O uso de notícias em indicadores econômicos antecede os modelos atuais de linguagem. \citeonline{tetlock2007media} investigou relações entre o conteúdo da imprensa e o mercado acionário, enquanto \citeonline{baker2016epu} construíram uma medida de incerteza econômica a partir de diferentes fontes, incluindo cobertura jornalística. Embora investiguem fenômenos distintos, esses trabalhos evidenciam uma decisão comum: definir primeiro o que se deseja medir e, somente depois, escolher os textos e a agregação apropriados.
 
-O estudo de \citeonline{baker2016epu} construiu um índice de incerteza de política econômica que utiliza, entre outros componentes, a cobertura jornalística. Sua contribuição para esta dissertação está em mostrar que a seleção de textos precisa corresponder ao construto de interesse. Uma notícia pode ser relevante para medir incerteza sem apresentar orientação positiva ou negativa identificável para a Sabesp.
+Mais próximo da proposta temporal deste estudo, \citeonline{shapiro2022fed} desenvolveram medidas de sentimento a partir de notícias econômicas e financeiras, com avaliação apoiada em anotações humanas. O \emph{Daily News Sentiment Index}, descrito pelo Federal Reserve Bank of San Francisco, combina valores diários e pondera observações anteriores com pesos que diminuem geometricamente \cite{buckman2020dnsi,frbsfNewsSentiment}. Esse antecedente fundamenta a investigação de persistência temporal; entretanto, difere do ITI quanto às fontes, ao alvo de análise, à composição do indicador e ao procedimento de classificação.
 
-\citeonline{shapiro2022fed} desenvolveram medidas de sentimento a partir de notícias econômicas e financeiras e avaliaram modelos de classificação com apoio de anotações humanas. O \emph{Daily News Sentiment Index} do Federal Reserve Bank of San Francisco utiliza agregação diária e ponderação de notícias anteriores com pesos decrescentes \cite{frbsfNewsSentiment,buckman2020dnsi}. Esse antecedente é especialmente próximo da ideia de preservar informações no tempo, mas seu alvo econômico, seleção de fontes, ajuste de composição e regra de agregação não são idênticos aos do ITI.
+\citeonline{hiew2019bsi} também exploraram índices de sentimento financeiro derivados de modelos de linguagem e sua relação com informações de mercado. O presente trabalho utiliza, entre as sensibilidades, uma agregação por classes discretas denominada Hard-BSI. Ela é uma referência operacional inspirada em estratégias de escores categóricos, não uma reprodução integral daquele método.
 
-\citeonline{hiew2019bsi} também estudaram a construção de índice de sentimento financeiro a partir de modelos de linguagem, relacionando a medida a dados de mercado. O trabalho sustenta a investigação de representações agregadas que não se limitam à análise individual de cada texto. Nesta pesquisa, um contraste por escore discreto, denominado Hard-BSI na implementação, serve como referência de agregação por classe prevista; ele não reproduz integralmente o método daquele estudo.
+Em conjunto, os antecedentes justificam construir séries a partir de notícias, mas não fornecem evidência de que o ITI-H7 terá maior associação com retornos da Sabesp. Essa questão precisa ser respondida a partir dos dados e das comparações definidos para o estudo de caso.
 
 \section{Modelos de sentimento financeiro em português}
 
-No domínio financeiro, o significado de palavras pode depender do contexto econômico. \citeonline{loughran2011liability} mostraram limitações de abordagens lexicais gerais aplicadas a textos financeiros; \citeonline{araci2020finbert} investigou o emprego de modelos BERT nesse domínio. Esses trabalhos ajudam a justificar a escolha de um classificador ajustado ao vocabulário financeiro em lugar de uma abordagem exclusivamente baseada em palavras isoladas.
+Textos econômicos podem atribuir sentidos particulares a palavras frequentes na linguagem cotidiana, dificuldade discutida por \citeonline{loughran2011liability}. \citeonline{araci2020finbert} investigou modelos de linguagem pré-treinados para classificação de sentimento no domínio financeiro, oferecendo uma alternativa a procedimentos baseados apenas em palavras isoladas.
 
-No Brasil, \citeonline{santos2023finbert} apresentaram o modelo de linguagem FinBERT-PT-BR e o classificador SentFinBERT-PT-BR, ajustado para sentimento. A Tabela 3 daquele artigo reporta acurácia de 0,76 e F1 de 0,73 para o classificador, nas condições experimentais dos autores. Esses resultados fornecem um antecedente para a escolha da família de modelos. Não devem, contudo, ser interpretados como desempenho esperado em notícias extensas de saneamento ou como garantia de sentimento orientado à Sabesp.
+Para o português, \citeonline{santos2023finbert} apresentaram o FinBERT-PT-BR e seu classificador de sentimento, denominado SentFinBERT-PT-BR no artigo. Os autores reportaram, em seu protocolo experimental, acurácia de aproximadamente 0,76 e F1 de 0,73. Esses valores fundamentam a escolha de um classificador financeiro em português para a primeira implementação, mas não podem ser transferidos diretamente para notícias de saneamento ou para a tarefa específica de avaliar a Sabesp.
 
-O mesmo estudo explora a agregação de classificações em uma medida quantitativa baseada na contagem de textos positivos e negativos. O ITI difere desse procedimento ao utilizar a diferença entre as probabilidades de cada notícia, calcular médias diárias e aplicar memória exponencial. Essas escolhas são formuladas e avaliadas no presente trabalho; não são apresentadas como resultados diretamente demonstrados pelo artigo do FinBERT.
+O estudo também propõe uma medida agregada baseada em classificações positivas e negativas. Aqui, a representação parte da diferença entre as probabilidades previstas, calcula médias diárias e aplica uma memória temporal parametrizada. Essa distinção descreve escolhas de construção do ITI, sem atribuir originalidade a operações conhecidas nem afirmar desempenho superior ao trabalho anterior.
 
 \section{Sentimento orientado a entidades}
 
-A tarefa SemEval-2017 Task 5, apresentada por \citeonline{cortis2017semeval5}, investigou a análise fina de sentimento em textos financeiros com referências explícitas a empresas e instrumentos. Em notícias sobre organizações distintas, atribuir um único rótulo ao documento pode ser insuficiente quando os efeitos econômicos descritos não são os mesmos para cada entidade.
+A tarefa SemEval-2017 Task 5 analisou sentimento em textos financeiros nos quais a referência a uma empresa ou instrumento é relevante para o rótulo \cite{cortis2017semeval5}. \citeonline{yuan2020target} estudaram anotação com alvos definidos em notícias financeiras chinesas. Já \citeonline{sinha2022sentfin} apresentaram o corpus SEntFiN 1.0, no qual manchetes podem receber polaridades diferentes para entidades distintas, e também examinaram aplicações agregadas do sentimento ao mercado.
 
-\citeonline{yuan2020target} estudaram a anotação de notícias financeiras chinesas com alvos definidos. \citeonline{sinha2022sentfin}, por sua vez, apresentaram o corpus SEntFiN 1.0, com identificação da orientação de manchetes em relação às entidades mencionadas. \citeonline{tang2023finentity} também investigaram a classificação de sentimento em nível de entidade. Em conjunto, esses trabalhos mostram que identificar o alvo não é um detalhe secundário da tarefa, mas uma decisão necessária para interpretar seus resultados.
+Outra contribuição importante é o FinEntity, de \citeonline{tang2023finentity}, que trata a identificação de entidades e a atribuição de sentimento em nível de entidade. Esses trabalhos fornecem evidência de que a escolha do alvo precisa fazer parte da definição da tarefa de classificação. Não demonstram, porém, que um classificador de sentimento geral se torne orientado à entidade apenas porque recebe frases próximas à menção de uma empresa.
 
-A presente pesquisa utiliza essa literatura para fundamentar a pergunta feita aos anotadores e a preparação da entrada textual próxima às menções à Sabesp. Existe, porém, uma distinção importante: selecionar sentenças sobre a empresa não equivale a treinar um modelo para reconhecer explicitamente o par notícia--entidade. A capacidade do FinBERT-PT-BR de atender à tarefa ainda precisa ser medida na entrada efetivamente utilizada pelo ITI.
+A presente pesquisa aproxima a entrada do FinBERT-PT-BR da Sabesp por meio de um recorte textual, mas essa estratégia é apenas uma preparação da entrada. Sua adequação deve ser avaliada com uma referência humana sobre o mesmo conteúdo efetivamente apresentado ao modelo. Essa diferença entre objetivo de classificação e representação de entrada é central para interpretar os resultados preliminares.
 
 \section{Investigações no mercado brasileiro}
 
@@ -40,26 +40,37 @@ A reorganização societária da Sabesp constitui parte do contexto instituciona
 
 \section{Posicionamento da pesquisa}
 
-A proposta se apoia em técnicas já estabelecidas: classificação financeira em português, avaliação de sentimento por entidade e agregação temporal de textos. O espaço de investigação está em verificar como essas decisões se articulam no estudo de caso da Sabesp e quais limitações impedem interpretar o sinal resultante como informação economicamente validada. A Tabela~\ref{tab:posicionamento} compara os antecedentes pelas dimensões relevantes a essa pergunta, sem supor que todos tenham o mesmo objetivo.
+A literatura fornece três componentes necessários à proposta: classificadores para textos financeiros, tarefas de sentimento dirigidas a uma entidade e indicadores agregados ao longo do tempo. A contribuição pretendida aqui não é reivindicar a criação isolada desses componentes, mas examinar sua combinação em um procedimento reprodutível, cuja entrada e interpretação possam ser avaliadas no estudo de caso da Sabesp.
 
-\begin{table}[htbp]
+A Tabela~\ref{tab:posicionamento} resume os antecedentes selecionados. As linhas descrevem seus objetivos e operações pertinentes a esta dissertação, sem comparar acurácias ou atribuir-lhes limitações que não tenham sido documentadas.
+
+\begin{table}[!htbp]
 \centering
-\caption{Posicionamento do ITI em relação aos antecedentes centrais.}
+\caption{Antecedentes e delimitação da proposta do ITI.}
 \label{tab:posicionamento}
-\begin{tabularx}{\textwidth}{@{}P{0.17\textwidth}L L L L@{}}
+\begingroup
+\renewcommand{\dissertacaotabelaparams}{%
+  \setlength{\tabcolsep}{3pt}%
+  \setlength{\extrarowheight}{0pt}%
+  \renewcommand{\arraystretch}{1.10}%
+}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}P{0.17\textwidth}P{0.16\textwidth}P{0.19\textwidth}P{0.18\textwidth}L@{}}
 \toprule
-Estudo & Sentimento financeiro & Orientação à entidade & Agregação temporal & Papel em relação ao ITI \\
+Estudo & \shortstack[l]{Sentimento\\financeiro} & \shortstack[l]{Orientação à\\entidade} & \shortstack[l]{Agregação\\temporal} & \shortstack[l]{Papel nesta\\pesquisa} \\
 \midrule
-\citeonline{santos2023finbert} & Classificador em português & A aplicação citada considera notícias de mercado & Índice por contagens de classes em um intervalo & Base para o classificador; não valida seu uso local \\
-\citeonline{sinha2022sentfin} & Manchetes anotadas & Rótulos associados às entidades, inclusive com polaridades distintas & Examina relações agregadas com o mercado & Fundamenta a tarefa por alvo; não determina a recorrência do ITI \\
-\citeonline{shapiro2022fed}; DNSI \cite{frbsfNewsSentiment} & Notícias econômicas e financeiras & Indicador econômico agregado & Série diária; DNSI com pesos decrescentes e ajuste de composição & Antecedente de agregação e persistência, com outro corpus e objetivo \\
-Este estudo & Probabilidades do classificador em português & Recorte próximo à Sabesp; sem treino específico notícia--empresa & Média diária, Soft pontual, média semanal e ITI-H7 & Avaliação conjunta dos limites textuais e das associações temporais \\
+FinBERT-PT-BR & Classes em português & Não focaliza Sabesp & Agregação por classe & Classificador inicial \\
+SEntFiN & Manchetes financeiras & Rótulos por empresa & Análises agregadas & Relevância do alvo \\
+Shapiro et al. & Notícias econômicas & Sentimento agregado & Série diária & Índice textual \\
+DNSI & Notícias econômicas & Sentimento agregado & Pesos decrescentes & Referência temporal \\
+Este estudo & Saídas do classificador & Recorte Sabesp & Soft, média semanal e ITI-H7 & Diagnóstico e comparação \\
 \bottomrule
 \end{tabularx}
-\vspace{0.4em}
-{\footnotesize Fonte: elaboração própria com base nas publicações citadas. Unidade de comparação: estudo ou aplicação; não se comparam desempenhos entre amostras diferentes. DNSI: \emph{Daily News Sentiment Index}.}
+\par\smallskip
+{\footnotesize Fonte: elaboração própria com base em \cite{santos2023finbert,sinha2022sentfin,shapiro2022fed,frbsfNewsSentiment}. As dimensões sintetizam a finalidade e os procedimentos de cada antecedente; não comparam desempenhos entre corpora distintos. DNSI: \emph{Daily News Sentiment Index}.}
+\endgroup
 \end{table}
 
-Selecionar um trecho que menciona a empresa não equivale a dispor de um classificador treinado para o par notícia--entidade. Da mesma forma, adotar decaimento exponencial não demonstra que a informação jornalística ou a reação do mercado sigam essa dinâmica. A implementação realizada torna as operações inspecionáveis; a contribuição científica pretendida depende de avaliar suas consequências e suas limitações.
+Duas diferenças precisam permanecer explícitas. Primeiro, a seleção de trechos próximos às menções à Sabesp não substitui um modelo treinado para o par texto--entidade. Segundo, a memória exponencial é uma regra de agregação escolhida pelo pesquisador, não uma hipótese demonstrada sobre a duração do efeito econômico das notícias. A avaliação do ITI examina o funcionamento e as limitações dessas decisões; sua utilidade fora do estudo de caso permanece em aberto.
 
-Caso a comparação não identifique diferença conclusiva entre as associações, ainda será possível documentar quais notícias são omitidas pelo Soft pontual, quais classes concentram desacordos e quais escolhas precisam ser controladas no experimento seguinte. Esse conhecimento delimita a utilidade e as condições de avaliação da proposta, sem transformar ausência de significância em prova de equivalência.
+Mesmo sem diferença estatisticamente conclusiva nas correlações, o procedimento permite verificar situações em que o sinal pontual ignora notícias da mesma semana e identificar quais controles são necessários para comparar ponderações temporais. Esses resultados delimitam a próxima etapa experimental, que precisará separar efeitos de janela, pesos e qualidade da classificação.

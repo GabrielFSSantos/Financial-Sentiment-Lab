@@ -24,153 +24,172 @@ A categoria ``não avaliável'' não foi coletada sistematicamente como classe s
 
 \section{Categorias de foco e casos difíceis}
 
-O tipo de matéria é registrado independentemente do sentimento:
-\begin{itemize}
-    \item \textbf{Focal:} a Sabesp é o assunto principal ou recebe desenvolvimento substantivo;
-    \item \textbf{Agenda ou multiempresa:} a Sabesp aparece junto de outras empresas ou temas gerais de mercado;
-    \item \textbf{Tangencial:} a menção não contém informação suficiente para uma avaliação confiável da empresa.
-\end{itemize}
+O foco da matéria é registrado separadamente de sua polaridade. Uma notícia é \textbf{focal} quando a Sabesp constitui o assunto principal ou recebe tratamento substantivo; é de \textbf{agenda ou multiempresa} quando aparece entre diferentes organizações ou temas de mercado; e é \textbf{tangencial} quando a menção oferece informação insuficiente para avaliar a empresa. A categoria de foco não determina, por si só, se o conteúdo é positivo, negativo ou neutro.
 
-Em matérias multiempresa, a polaridade deve se referir apenas à Sabesp. A categoria de foco não determina o sentimento. Quando uma notícia apresenta efeitos mistos ou indiretos, o anotador deverá registrar a evidência e, se necessário, a dificuldade de julgamento, em lugar de atribuir uma classe apenas pela presença de uma palavra positiva ou negativa.
+Em notícias com várias empresas ou efeitos econômicos mistos, o anotador deve considerar somente a evidência relativa à Sabesp. Quando o texto não permite um julgamento confiável, essa dificuldade deve ser registrada explicitamente, sem converter automaticamente falta de informação em neutralidade.
 
 \section{Campos de registro e consolidação da referência}
 
-\begin{table}[htbp]
+A nova avaliação preservará os julgamentos individuais antes de qualquer consolidação. Eventuais desacordos poderão ser resolvidos por adjudicação documentada, sem apagar os rótulos originais. A Tabela~\ref{tab:campos-anotacao} apresenta os campos previstos; o número de participantes, os itens compartilhados e as regras de consolidação serão informados conforme a realização efetiva da etapa.
+
+\begin{table}[H]
 \centering
 \caption{Campos de registro para a anotação orientada à Sabesp.}
 \label{tab:campos-anotacao}
-\begin{tabularx}{\textwidth}{@{}P{0.32\textwidth}L@{}}
+\begingroup
+\renewcommand{\dissertacaotabelaparams}{%
+  \setlength{\tabcolsep}{3pt}%
+  \setlength{\extrarowheight}{0pt}%
+  \renewcommand{\arraystretch}{1.06}%
+}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}P{0.31\textwidth}L@{}}
 \toprule
 Campo & Finalidade \\
 \midrule
-Identificador da notícia & Relacionar julgamento e versão do corpus \\
-Identificação do anotador & Preservar a autoria dos julgamentos independentes \\
-Versão do protocolo & Registrar quais regras foram utilizadas \\
+ID da notícia & Vincular julgamento ao registro e à versão do texto \\
+Identificação do anotador & Preservar autoria de cada decisão \\
+Versão do protocolo & Informar as regras aplicadas \\
 Classe de polaridade & Positiva, negativa, neutra ou não avaliável (etapa futura) \\
 Tipo de matéria & Focal, agenda/multiempresa ou tangencial \\
-Evidência textual & Registrar o trecho que sustenta o julgamento \\
-Observação de ambiguidade & Explicitar casos de efeitos mistos ou insuficiência informacional \\
+Evidência textual & Apontar a passagem que fundamenta o julgamento \\
+Registro de ambiguidade & Documentar efeitos mistos e insuficiência de informação \\
 \bottomrule
 \end{tabularx}
-\vspace{0.4em}
-{\footnotesize Fonte: elaboração própria.}
+\par\smallskip
+{\footnotesize Fonte: elaboração própria. Campos da etapa independente planejada; a categoria não avaliável não foi registrada sistematicamente na amostra atual.}
+\endgroup
 \end{table}
-
-As anotações individuais serão preservadas antes de qualquer referência consolidada. A concordância será calculada somente sobre itens efetivamente avaliados por participantes comparáveis. Havendo divergências, sua resolução será documentada por procedimento de adjudicação, isto é, uma decisão posterior registrada sem apagar os julgamentos independentes. O número de participantes, os itens compartilhados e as regras de consolidação deverão constar da descrição da nova avaliação.
 
 \chapter[Ficha técnica da execução temporal (outubro de 2026)]{Ficha técnica da execução temporal\\(outubro de 2026)}
 \label{ap:rastreabilidade}
 
 \section{Síntese do estudo de caso}
 
-Este apêndice registra os principais números do inventário de notícias e as condições da campanha temporal exploratória apresentada no Capítulo~\ref{cap:resultados}. A Tabela~\ref{tab:corpus-p02} descreve a consolidação das notícias do inventário P02, e a Tabela~\ref{tab:rastreabilidade} reúne o universo analisado, os parâmetros e as medidas reportadas. As contagens são provenientes dos registros existentes na campanha, e não de nova execução realizada para esta reescrita.
+Este apêndice sintetiza os principais números do conjunto de notícias e as condições da campanha temporal exploratória discutida no Capítulo~\ref{cap:resultados}. A Tabela~\ref{tab:corpus-p02} apresenta a consolidação das notícias, e a Tabela~\ref{tab:rastreabilidade} reúne os parâmetros e resultados reportados. Os valores pertencem à campanha de outubro de 2026 e não correspondem a uma nova rodada de inferência realizada para esta apresentação.
 
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering
-\caption{Composição do inventário P02 utilizado na campanha temporal.}
+\caption{Composição do conjunto de notícias utilizado na campanha temporal.}
 \label{tab:corpus-p02}
-\begin{tabularx}{\textwidth}{@{}LrL@{}}
+\begin{tabularx}{\textwidth}{@{}P{0.43\textwidth}rL@{}}
 \toprule
-Registro & Quantidade & Evidência de execução \\
+Registro & Quantidade & Base de conferência \\
 \midrule
-Linhas brutas no inventário & 1.254 & \texttt{selection\_\allowbreak{}report.json} \\
-Notícias canônicas únicas & 1.253 & \texttt{selection\_\allowbreak{}report.json} \\
-Duplicatas mapeadas & 1 & \texttt{selection\_\allowbreak{}report.json} \\
-Exclusões explícitas & 0 & \texttt{selection\_\allowbreak{}report.json} \\
-Notícias com probabilidades válidas, entrada contextual & 1.253 & \texttt{result\_\allowbreak{}registry.json} \\
-Veículos distintos & 5 & \texttt{coverage\_\allowbreak{}daily.csv} \\
+Notícias inicialmente reunidas & 1.254 & Consolidação da seleção \\
+Notícias canônicas únicas & 1.253 & Deduplicação registrada \\
+Duplicatas identificadas & 1 & Comparação dos registros \\
+Exclusões adicionais registradas & 0 & Consolidação da seleção \\
+Notícias com probabilidades válidas na entrada contextual & 1.253 & Resultados da inferência \\
+Veículos jornalísticos & 5 & Composição do conjunto \\
 \bottomrule
 \end{tabularx}
-\vspace{0.4em}
-{\footnotesize Fonte: inventário P02 e registros da campanha de outubro de 2026. Distribuição das notícias únicas por veículo: Money Times, 360; InfoMoney, 328; Valor Econômico, 251; G1 Economia, 203; Exame, 111.}
+\par\smallskip
+{\footnotesize Fonte: documentação da campanha exploratória de outubro de 2026. Distribuição das notícias únicas por veículo: Money Times, 360; InfoMoney, 328; Valor Econômico, 251; G1 Economia, 203; Exame, 111.}
 \end{table}
 
-As quantidades da Tabela~\ref{tab:corpus-p02} descrevem o inventário preservado para a execução, não a cobertura completa de todas as notícias publicadas sobre a Sabesp no período. A ausência de um artigo no inventário não prova que nenhum veículo publicou conteúdo relevante naquele dia.
+As quantidades da Tabela~\ref{tab:corpus-p02} descrevem o conjunto temporal preservado para a execução, não a cobertura completa de todas as notícias publicadas sobre a Sabesp no período. A ausência de um artigo no conjunto inventariado não prova que nenhum veículo publicou conteúdo relevante naquele dia.
 
-\begin{table}[htbp]
+\begin{table}[!htbp]
 \centering
-\caption{Parâmetros e resultados registrados na campanha exploratória ITI (Sabesp/SBSP3).}
+\caption{Parâmetros e resultados da campanha exploratória do ITI (Sabesp/SBSP3).}
 \label{tab:rastreabilidade}
-\begin{tabularx}{\textwidth}{@{}P{0.34\textwidth}L@{}}
+\begin{tabularx}{\textwidth}{@{}P{0.35\textwidth}L@{}}
 \toprule
 Item & Registro \\
 \midrule
-Empresa e ativo & Sabesp; SBSP3 \\
-Período informacional & Maio de 2022 a abril de 2024 (P02) \\
-Entrada do classificador para o ITI & Recorte de sentenças sobre a Sabesp, com uma vizinha de cada lado; limite 512 tokens \\
+Empresa e ativo & Sabesp; ação SBSP3 \\
+Período informacional & Maio de 2022 a abril de 2024 \\
+Entrada do classificador para o ITI & Trechos sobre a Sabesp, com até uma sentença vizinha de cada lado; limite de 512 tokens \\
 Meia-vida principal & $H=7$ dias civis; sensibilidades $H=2$ e $H=14$ \\
-Aquecimento & 70 dias civis, equivalentes a dez semanas iniciais excluídas do contraste \\
-Painel semanal alinhado & 104 semanas, chave W-FRI \\
+Aquecimento & 70 dias civis, correspondentes a dez semanas iniciais excluídas do contraste \\
+Painel semanal alinhado & 104 observações semanais, agrupadas por semanas encerradas às sextas-feiras \\
 Comparação principal & 94 semanas; $\Delta\rho=+0{,}040$; IC $[-0{,}127;\,0{,}241]$; $p=0{,}512$ \\
-ITI-H7 menos média semanal & 94 semanas; $\Delta\rho=-0{,}062$; IC $[-0{,}165;\,0{,}060]$; $p=0{,}340$; exploratório fora de Holm \\
-Correlação marginal ITI-H7 em painel completo & 104 semanas; $\rho\simeq-0{,}145$; inclui aquecimento \\
-Bootstrap & 10.000 reamostragens, blocos de quatro semanas; valores $p$ exploratórios \\
-Reserva de notícias & Regra \texttt{calendar\_\allowbreak{}last\_\allowbreak{}12\_\allowbreak{}weeks}; 199 matérias; corte em 06/02/2024 \\
-Subpainel da reserva & 11 semanas alinhadas, exploração temporal já inspecionada \\
+ITI-H7 menos média semanal & 94 semanas; $\Delta\rho=-0{,}062$; IC $[-0{,}165;\,0{,}060]$; $p=0{,}340$; comparação exploratória fora da família de Holm \\
+Correlação marginal do ITI-H7 no painel completo & 104 semanas; $\rho\simeq-0{,}145$, incluindo aquecimento \\
+Bootstrap & 10.000 reamostragens; blocos de quatro semanas; valores $p$ exploratórios \\
+Reserva de notícias & Aproximadamente doze semanas finais do período informacional; 199 matérias; corte em 06/02/2024 \\
+Subpainel da reserva & 11 semanas alinhadas, já examinadas de modo exploratório \\
 Contraste na reserva & $\Delta\rho=+0{,}186$; IC $[-0{,}057;\,0{,}670]$; $p\simeq0{,}111$; não confirmatório \\
-Avaliação humana independente & Pendente; anotação do autor: 100 notícias \\
+Avaliação humana independente & Pendente; amostra atual: cem notícias anotadas pelo autor \\
 \bottomrule
 \end{tabularx}
-\vspace{0.4em}
-{\footnotesize Fonte: registros da campanha de outubro de 2026. Intervalos apresentados são bootstrap nominais; não inferir confirmação por seus limites isolados.}
+\par\smallskip
+{\footnotesize Fonte: documentação da campanha de outubro de 2026. Os intervalos são bootstrap nominais; não devem ser interpretados como evidência confirmatória isolada.}
 \end{table}
 
 A correlação marginal calculada sobre 104 semanas não deve ser confundida com o contraste principal de 94 semanas, que exclui o aquecimento. Da mesma forma, a reserva de aproximadamente doze semanas de calendário de notícias gerou onze observações semanais alinhadas; o subpainel já foi examinado e não constitui período confirmatório independente.
 
-Para que outra pessoa possa reproduzir exatamente os cálculos, cada execução precisa identificar a versão do corpus, os filtros e a deduplicação, o checkpoint do modelo, o mapeamento de classes, a representação textual, o parâmetro de meia-vida, os preços ajustados efetivamente carregados, as regras temporais e o ambiente de software. A disponibilidade apenas do código e das tabelas finais não substitui os dados e os manifestos associados à execução.
+Para que outra pessoa possa reproduzir exatamente os cálculos, cada execução precisa identificar a versão do conjunto temporal, os filtros e a deduplicação, o checkpoint do modelo, o mapeamento de classes, a representação textual, o parâmetro de meia-vida, os preços ajustados efetivamente carregados, as regras temporais e o ambiente de software. A documentação disponível da campanha, por si só, não substitui os dados e os registros associados à execução.
 
 
 \section{Ficha do corpus e disponibilidade dos artefatos}
 
-A ficha abaixo distingue informações descritas nos registros da dissertação daquelas verificáveis nos arquivos públicos consultados. Essa separação segue a preocupação com documentação da motivação, composição, obtenção e limitações de conjuntos de dados \cite{gebru2021datasheets}. Não se atribui cobertura completa a uma coleção somente porque seus arquivos podem ser processados.
+A documentação do corpus distingue as características registradas na campanha daquelas que podem ser verificadas a partir dos materiais preservados. A Tabela~\ref{tab:ficha-corpus} resume sua composição e os limites de cobertura, seguindo a recomendação de descrever a obtenção, a finalidade e as limitações de conjuntos de dados \cite{gebru2021datasheets}. A ausência de notícia observada não comprova que nenhuma publicação ocorreu naquele dia.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
-\caption{Ficha sintética do corpus temporal P02.}
+\caption{Ficha sintética do conjunto temporal de notícias.}
 \label{tab:ficha-corpus}
+\begingroup
+\renewcommand{\dissertacaotabelaparams}{%
+  \setlength{\tabcolsep}{3pt}%
+  \setlength{\extrarowheight}{0pt}%
+  \renewcommand{\arraystretch}{1.04}%
+}
+\footnotesize
 \begin{tabularx}{\textwidth}{@{}P{0.25\textwidth}L@{}}
 \toprule
-Campo & Informação e limite de documentação \\
+Campo & Informação documentada e limite de verificação \\
 \midrule
-Finalidade e unidade & Estudo de caso da Sabesp; unidade textual: notícia canônica em português \\
-Período & Aproximadamente maio de 2022 a abril de 2024; limites diários exatos não documentados nos artefatos da campanha disponíveis nesta revisão \\
-Fontes e contagens & Money Times: 360; InfoMoney: 328; Valor Econômico: 251; G1 Economia: 203; Exame: 111; total reportado: 1.253 \\
-Obtenção & O projeto contém rotinas de coleta web; sua existência não comprova quais execuções produziram cada registro P02 \\
-Inclusão & Vínculo com a Sabesp, conteúdo aproveitável e referência temporal; lista de elegibilidade e filtros efetivamente aplicados depende do inventário da execução \\
-Deduplicação & 1.254 linhas brutas e uma duplicata mapeada, segundo os registros reportados; par de identificadores e justificativa não disponíveis para nova conferência \\
-Datas & Data de publicação orienta o cálculo; data de coleta não deve substituí-la. Horários completos, data de captura e alterações posteriores não estão documentados para todo o P02 \\
-Cobertura & Intervalo inventariado, sem comprovação de coleta bem-sucedida em cada dia; ausência observada não equivale a silêncio informacional \\
+Finalidade & Análise temporal de notícias sobre a Sabesp; unidade: notícia canônica em português \\
+Período & Aproximadamente maio de 2022 a abril de 2024; limites diários exatos não reconstituídos nesta documentação \\
+Fontes & Money Times: 360; InfoMoney: 328; Valor Econômico: 251; G1 Economia: 203; Exame: 111; total: 1.253 \\
+Obtenção & Coleta de notícias na internet; os registros disponíveis não permitem reconstruir integralmente a execução de captura de cada matéria \\
+Inclusão & Vínculo com a empresa, conteúdo textual aproveitável e referência temporal; revisão de todos os critérios depende da seleção original preservada \\
+Duplicatas & 1.254 registros brutos e uma duplicata identificada na consolidação reportada \\
+Datas & A data de publicação orienta o índice; horários e eventuais alterações posteriores não estão documentados para todo o conjunto \\
+Cobertura & Intervalo inventariado, sem comprovação individual de coleta bem-sucedida em todos os dias civis \\
 \bottomrule
 \end{tabularx}
 \par\smallskip
-{\footnotesize Fonte: descrição da campanha, configurações e código consultados. Contagens por fonte reproduzidas dos registros reportados, cuja soma foi conferida; não se afirma uma nova auditoria linha a linha do P02.}
+{\footnotesize Fonte: registros da campanha temporal exploratória. As contagens das cinco fontes somam 1.253 notícias canônicas; não se afirma uma nova auditoria integral da coleção.}
+\endgroup
 \end{table}
 
-\begin{table}[htbp]
+A reprodução integral depende da preservação conjunta dos textos utilizados, dos critérios de seleção e deduplicação, das probabilidades obtidas, dos parâmetros do classificador e da série financeira efetivamente carregada. A Tabela~\ref{tab:artefatos-reproducao} sintetiza o que a documentação permite conferir e o que ainda exige organização adicional. Essa distinção descreve limites da evidência experimental, sem confundir ausência no material analisado com inexistência dos registros no ambiente de trabalho do pesquisador.
+
+\begin{table}[H]
 \centering
-\caption{Rastreabilidade dos materiais necessários à reprodução.}
+\caption{Materiais e condições necessários à reprodução da campanha.}
 \label{tab:artefatos-reproducao}
-\begin{tabularx}{\textwidth}{@{}P{0.29\textwidth}L L@{}}
+\begingroup
+\renewcommand{\dissertacaotabelaparams}{%
+  \setlength{\tabcolsep}{3pt}%
+  \setlength{\extrarowheight}{0pt}%
+  \renewcommand{\arraystretch}{1.04}%
+}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}P{0.28\textwidth}L@{}}
 \toprule
-Artefato & Disponibilidade na revisão & Consequência \\
+Material & Situação documentada e consequência \\
 \midrule
-CSV das 100 notícias & Disponível com texto, IDs e dois rótulos & Permite recalcular a matriz e as métricas; não contém probabilidades \\
-Inventário canônico P02 & Não localizado como pacote completo da campanha & Outros CSVs públicos não provam identidade com o P02 \\
-\texttt{selection\_\allowbreak{}report.json} & Citado, não localizado no Git consultado & Deduplicação e seleção não reauditadas linha a linha \\
-\texttt{result\_\allowbreak{}registry.json} & Citado, não localizado no Git consultado & Probabilidades e status da campanha não recontados \\
-\texttt{coverage\_\allowbreak{}daily.csv} & Citado, não localizado no Git consultado & Cobertura diária não revalidada \\
-Checkpoint & Repositório e hashes esperados em configuração; pesos não incluídos & Necessário conferir os arquivos efetivamente usados \\
-Série de preços carregada & Configuração disponível; arquivo exato não localizado & Novo download não comprova reprodução dos preços originais \\
-Parâmetros e código & Configurações ITI-v2 e rotinas disponíveis & Permitem verificar fórmulas, janelas e pareamento \\
-Tabelas e figuras & Saídas selecionadas versionadas & Permitem conferir valores reportados, não reexecutar a campanha \\
-Logs e ambiente completo & Não localizados como pacote da execução & Reconstituição integral permanece pendente \\
+Amostra textual de cem notícias & Títulos, conteúdos disponíveis e pares de rótulos preservados; probabilidades individuais da inferência documental não recuperadas nesta avaliação \\
+Conjunto temporal canônico & Quantidades e composição por veículo reportadas; reprodução exige reunir os textos e metadados exatos utilizados \\
+Seleção e deduplicação & Consolidação reportada com uma duplicata; a reconstituição integral requer os registros de seleção correspondentes \\
+Inferências contextuais & 1.253 notícias com probabilidades válidas reportadas; a conferência completa requer preservar as saídas individualizadas \\
+Cobertura diária & Lacunas de coleta não verificadas individualmente para todos os dias do intervalo \\
+Modelo e preços & Identificação e parâmetros gerais conhecidos; reprodução numérica depende das versões exatas dos pesos, do tokenizador e da série financeira \\
+Método e resultados & Fórmulas e saídas selecionadas documentadas; não constituem, isoladamente, reexecução independente \\
+Ambiente de execução & A reprodução integral requer reunir versões de programas, configurações e registros técnicos associados à campanha \\
 \bottomrule
 \end{tabularx}
 \par\smallskip
-{\footnotesize Fonte: inspeção do repositório público na revisão de novembro de 2026. Unidade: artefato ou grupo de artefatos; ``não localizado'' não significa inexistente no ambiente local do pesquisador.}
+{\footnotesize Fonte: descrição metodológica e documentação da campanha de outubro de 2026. Os estados acima indicam limites de rastreabilidade, não falhas comprovadas do procedimento.}
+\endgroup
 \end{table}
 
-A configuração nominal de modelo usa \texttt{lucas-leme/FinBERT-PT-BR}, revisão \texttt{main}, e contém hashes esperados. A configuração estatística prevê 10.000 reamostragens, blocos de quatro semanas e semente 20261022; a função de contraste deriva dessa semente o gerador de reamostragem. São especificações verificáveis no código, não prova de que todos os arquivos e logs da execução original estejam disponíveis.
+A especificação estatística da campanha contempla 10.000 reamostragens, blocos de quatro semanas e uma semente fixa para o procedimento aleatório. Esses parâmetros permitem descrever a análise realizada, mas a reexecução exata ainda depende da identidade dos dados e dos demais elementos experimentais preservados.
 
 \chapter{Especificação matemática complementar do ITI}
 \label{ap:iti-math}
@@ -197,7 +216,7 @@ A expressão descreve a persistência matemática do indicador, sem afirmar que 
     \item \textbf{Dia fora da cobertura delimitada:} não se cria sinal para avaliação temporal; ausência não é imputada como silêncio informacional.
 \end{itemize}
 
-Dentro da janela P02, a elegibilidade é definida pelo intervalo inventariado, não por comprovação individual de coleta bem-sucedida em todos os dias. A documentação dessa cobertura é uma pendência metodológica, e a interpretação dos zeros precisa reconhecer essa limitação.
+No período da campanha temporal, a elegibilidade diária foi delimitada pelo intervalo inventariado, sem comprovação individual de coleta bem-sucedida em todos os dias civis. Por isso, a interpretação de uma entrada diária igual a zero deve distinguir a ausência de notícia observada da ausência comprovada de publicação, condição que ainda requer documentação adicional da cobertura.
 
 \section{Esperança matemática do escore}
 
@@ -223,42 +242,44 @@ A suíte de testes do projeto contempla casos controlados de meia-vida e decaime
 \chapter{Divergências documentadas na amostra textual}
 \label{ap:divergencias}
 
-Os doze casos abaixo foram selecionados de forma intencional entre as cinquenta divergências do CSV de cem notícias. Não constituem amostra aleatória nem permitem estimar a frequência das hipóteses de erro. Os identificadores permitem recuperar título, corpo, fonte e URL no arquivo preservado; os trechos entre aspas são excertos curtos dos títulos. A ordem ``autor/modelo'' informa as classes preservadas, sem adjudicar qual delas é correta. As hipóteses são interpretações desta inspeção e não categorias anteriormente anotadas.
+Este apêndice apresenta doze divergências selecionadas intencionalmente entre os cinquenta desacordos da avaliação de cem notícias. Para cada caso, foram preservados o identificador da observação, a fonte jornalística e as classes atribuídas pelo autor e pelo classificador, indicadas nessa ordem. A seleção não é aleatória e não permite estimar a frequência de cada dificuldade no conjunto completo.
 
-\paragraph{Caso 1: multiempresa.}
-\texttt{infomoney\_\allowbreak{}45c918c63e4e}. Autor/modelo: positiva/neutra. Trecho: ``Sabesp é uma delas. {discussion}
+A inspeção utilizou o conteúdo disponível nas notícias preservadas. Nos casos 3, 6 e 8, o material recuperado corresponde apenas ao título; nos demais exemplos, a discussão considera também informações do corpo armazenado. Não se presume que a representação recuperada seja idêntica à sequência tokenizada recebida pelo classificador na execução original. As interpretações apresentadas são hipóteses para orientar a avaliação futura, não causas de erro comprovadas.
 
-\paragraph{Caso 2: ambiguidade econômica.}
-\texttt{infomoney\_\allowbreak{}192bc16d0d56}. Autor/modelo: positiva/neutra. Trecho: ``investimentos de R\$ 70 bilhões. {discussion}
+\paragraph{Caso 1: recomendação de investimento entre várias empresas.}
+\texttt{infomoney\_\allowbreak{}45c918c63e4e}. Classes autor/modelo: positiva/neutra. A matéria apresenta perspectivas da gestora Kinea para diferentes segmentos e inclui a Sabesp em um conjunto de apostas ligado a concessões públicas. A presença da companhia entre os ativos escolhidos fornece um indício favorável segundo a perspectiva de investimento, mas o texto aborda vários setores. A divergência sugere distinguir a orientação específica para a Sabesp daquela atribuída à reportagem completa.
 
-\paragraph{Caso 3: ambiguidade econômica.}
-\texttt{exame\_\allowbreak{}087999564454}. Autor/modelo: positiva/neutra. Trecho: ``Tarifa de água será mais barata. {discussion}
+\paragraph{Caso 2: investimentos e condições da desestatização.}
+\texttt{infomoney\_\allowbreak{}192bc16d0d56}. Classes autor/modelo: positiva/neutra. O texto registra a previsão de R\$ 70 bilhões em investimentos e declarações sobre a ampliação da cobertura de água e esgoto, junto de discussões regulatórias e questionamentos políticos sobre a privatização. A interpretação favorável depende do tratamento dado a compromissos ainda previstos e a seus custos; o desacordo recomenda registrar evidências positivas e ressalvas antes de fixar a classe.
 
-\paragraph{Caso 4: neutralidade.}
-\texttt{g1\_\allowbreak{}economia\_\allowbreak{}91801d1ceba8}. Autor/modelo: positiva/neutra. Trecho: ``é aprovado por comissão. {discussion}
+\paragraph{Caso 3: proposta de redução tarifária, com registro restrito ao título.}
+\texttt{exame\_\allowbreak{}087999564454}. Classes autor/modelo: positiva/neutra. O campo de notícia preservado contém apenas o título sobre tarifas potencialmente mais baratas e com teto após a privatização. Esse enunciado descreve possível benefício para consumidores, mas não informa, sozinho, o efeito líquido para a Sabesp. Sem corpo disponível nesse registro, a hipótese de ambiguidade econômica não pode ser esclarecida neste diagnóstico.
 
-\paragraph{Caso 5: ambiguidade econômica.}
-\texttt{infomoney\_\allowbreak{}fc861d984b2c}. Autor/modelo: positiva/neutra. Trecho: ``vai reajustar as tarifas em 6,45\%. {discussion}
+\paragraph{Caso 4: aprovação de relatório na Câmara Municipal.}
+\texttt{g1\_\allowbreak{}economia\_\allowbreak{}91801d1ceba8}. Classes autor/modelo: positiva/neutra. A reportagem registra que uma comissão aprovou relatório sobre a privatização e informa que outras etapas legislativas ainda seriam necessárias. O acontecimento representa avanço de tramitação, sem equivaler à conclusão da operação ou a um retorno financeiro realizado. O caso ajuda a discutir como o protocolo deve tratar aprovações intermediárias e seus efeitos ainda condicionados.
 
-\paragraph{Caso 6: neutralidade.}
-\texttt{exame\_\allowbreak{}549fd653e723}. Autor/modelo: neutra/negativa. Trecho: ``até 100\% de desconto em juros. {discussion}
+\paragraph{Caso 5: reajuste autorizado e reação de mercado.}
+\texttt{infomoney\_\allowbreak{}fc861d984b2c}. Classes autor/modelo: positiva/neutra. O registro informa autorização regulatória para reajuste tarifário de aproximadamente 6,45\% e menciona a reação das ações. Um reajuste pode alterar receitas e custos suportados pelos usuários, mas o texto não demonstra isoladamente seu efeito econômico líquido. A notícia também mistura o fato regulatório e a reação do preço; essas dimensões devem ser distinguidas na anotação.
 
-\paragraph{Caso 7: neutralidade.}
-\texttt{g1\_\allowbreak{}economia\_\allowbreak{}d860246981f5}. Autor/modelo: neutra/negativa. Trecho: ``falta de saneamento básico. {discussion}
+\paragraph{Caso 6: campanha de regularização, com registro restrito ao título.}
+\texttt{exame\_\allowbreak{}549fd653e723}. Classes autor/modelo: neutra/negativa. O campo preservado contém apenas o título sobre condições de pagamento de contas vencidas e desconto de até 100\% em juros. O enunciado não permite decidir se o benefício da recuperação de créditos supera eventual renúncia aos encargos. A ausência do corpo impede examinar regras, valores e resultados da campanha; trata-se de indeterminação documental, não de erro comprovado do modelo.
 
-\paragraph{Caso 8: multiempresa.}
-\texttt{exame\_\allowbreak{}32cc2fcae6e9}. Autor/modelo: neutra/negativa. Trecho: ``Europa evita recessão, debêntures da Sabesp. {discussion}
+\paragraph{Caso 7: falta de saneamento em áreas atribuídas à Sabesp.}
+\texttt{g1\_\allowbreak{}economia\_\allowbreak{}d860246981f5}. Classes autor/modelo: neutra/negativa. A reportagem aborda dificuldades de acesso a saneamento em bairros de Mogi das Cruzes. No corpo preservado, a administração municipal atribui à Sabesp a responsabilidade pelo serviço em Jardim Piatã e outros loteamentos mencionados, enquanto também são relatadas obras paralisadas e demandas locais. Portanto, não se trata apenas de notícia genérica sobre saneamento: há vínculo textual explícito com a empresa em parte das localidades. O desacordo recomenda reavaliar o rótulo neutro diante dessas informações, sem presumir que toda a região descrita tenha a mesma responsabilidade operacional.
 
-\paragraph{Caso 9: multiempresa.}
-\texttt{valor\_\allowbreak{}ae7eb6499f1a}. Autor/modelo: neutra/negativa. Trecho: ``desagrada deputados. {discussion}
+\paragraph{Caso 8: boletim multitemático, com registro restrito ao título.}
+\texttt{exame\_\allowbreak{}32cc2fcae6e9}. Classes autor/modelo: neutra/negativa. O campo de notícia repete apenas o título, que reúne economia europeia e debêntures de Sabesp, Energisa e Cogna. Não há, nesse registro, corpo preservado que permita verificar o conteúdo específico das debêntures ou a importância relativa de cada assunto. A hipótese é que uma classe para o documento inteiro não represente uma empresa individual; sua verificação permanece pendente.
 
-\paragraph{Caso 10: multiempresa.}
-\texttt{money\_\allowbreak{}times\_\allowbreak{}01b4d0ecf1de}. Autor/modelo: neutra/negativa. Trecho: ``Ibovespa (IBOV) abre em alta. {discussion}
+\paragraph{Caso 9: menção em conteúdo de navegação da página.}
+\texttt{valor\_\allowbreak{}ae7eb6499f1a}. Classes autor/modelo: neutra/negativa. O assunto principal do texto armazenado trata de emendas parlamentares relacionadas ao PAC. A Sabesp aparece em uma chamada para outra reportagem sobre a privatização, e não como parte central da análise do mecanismo de emendas. Isso sugere uma possível inclusão tangencial decorrente de conteúdo de navegação capturado junto à notícia. A inspeção do corpo permite documentar essa condição, mas não comprova que o classificador tenha usado especificamente a chamada para atribuir a classe negativa.
 
-\paragraph{Caso 11: ambiguidade econômica.}
-\texttt{money\_\allowbreak{}times\_\allowbreak{}16f81a194434}. Autor/modelo: positiva/negativa. Trecho: ``pode destravar valorização de até 200\%. {discussion}
+\paragraph{Caso 10: boletim de mercado com informação específica da Sabesp.}
+\texttt{money\_\allowbreak{}times\_\allowbreak{}01b4d0ecf1de}. Classes autor/modelo: neutra/negativa. Embora o texto reúna notícias e movimentos de vários ativos, o corpo preservado informa também a aprovação de uma modelagem para alienação parcial de participação estatal na Sabesp. Assim, a empresa não é apenas citada sem conteúdo: existe uma informação societária individualizada em meio a outras notícias. O caso exige separar a relevância do trecho sobre a Sabesp do sentimento geral do boletim.
 
-\paragraph{Caso 12: multiempresa.}
-\texttt{money\_\allowbreak{}times\_\allowbreak{}c4ecf7910961}. Autor/modelo: neutra/negativa. Trecho: ``Ibovespa (IBOV), relatório Focus e mais. {discussion}
+\paragraph{Caso 11: potencial de valorização e queda da ação no mesmo relato.}
+\texttt{money\_\allowbreak{}times\_\allowbreak{}16f81a194434}. Classes autor/modelo: positiva/negativa. A matéria reúne avaliações de analistas sobre potencial de valorização após a desestatização e registra queda da ação durante a negociação descrita. A coexistência de expectativa favorável para o futuro e movimento negativo no presente torna a perspectiva temporal uma hipótese concreta de ambiguidade da notícia. Sem a entrada tokenizada e as probabilidades originais, não é possível determinar quais trechos mais influenciaram a previsão.
 
-A disponibilidade desses textos permite discutir hipóteses e rever julgamentos, mas não demonstra por que o modelo produziu cada classe. Sem as probabilidades, a versão exata do checkpoint e a entrada após tokenização, não é possível atribuir as divergências a confiança, truncamento ou mecanismos internos específicos. O próximo diagnóstico deverá preservar esses elementos e comparar a entrada contextual com a documental nos mesmos itens.
+\paragraph{Caso 12: agenda financeira com detalhe da operação societária.}
+\texttt{money\_\allowbreak{}times\_\allowbreak{}c4ecf7910961}. Classes autor/modelo: neutra/negativa. O boletim reúne acontecimentos gerais do mercado e menciona, no corpo, os bancos apontados para coordenar a potencial operação de privatização da Sabesp. Essa informação é específica da companhia, embora apareça no interior de uma agenda multitemática. O exemplo exige verificar se o recorte contextual preserva essa passagem e não confundir a orientação do boletim completo com a orientação para a empresa.
+
+Os exemplos ilustram dificuldades com matérias multiempresa, efeitos econômicos condicionais, perspectivas temporais distintas e menções tangenciais capturadas na coleta. Três casos do apêndice apresentam somente o título. Essas observações orientam a revisão do protocolo e da seleção de notícias, mas não explicam o funcionamento interno do classificador. Para investigar suas causas, será necessário obter julgamentos independentes e preservar as entradas e probabilidades efetivamente processadas.

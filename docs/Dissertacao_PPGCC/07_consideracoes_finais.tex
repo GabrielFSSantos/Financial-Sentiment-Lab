@@ -3,19 +3,19 @@
 
 \section{Síntese dos resultados da qualificação}
 
-Esta pesquisa desenvolveu e examinou um procedimento para transformar notícias em português sobre a Sabesp em uma série temporal de escores de sentimento. O ITI combina médias diárias das saídas de um classificador financeiro com um estado anterior, por meio de memória exponencial parametrizada por meia-vida. A contribuição pretendida reúne a especificação reprodutível do procedimento, o protocolo de avaliação do sinal textual e a análise comparativa de agregações temporais. Não se reivindica uma nova arquitetura de classificação nem uma nova forma de suavização exponencial.
+Esta pesquisa desenvolveu um procedimento para representar notícias em português sobre a Sabesp por uma série temporal de sentimento. O Índice Temporal Informacional combina escores derivados de um classificador financeiro, médias diárias e uma atualização com memória exponencial. Seu propósito nesta etapa foi permitir uma avaliação organizada da entrada textual e de diferentes formas de conservar informações no tempo, sem reivindicar uma nova arquitetura de classificação ou de suavização.
 
-Na avaliação documental, os cem pares de rótulos preservados produziram acurácia de 50\%, F1 macro de 0,448 e kappa de 0,197. A matriz de confusão mostrou que 35 das 67 notícias neutras na referência do autor foram previstas como positivas ou negativas. Esses desacordos, acompanhados de exemplos auditáveis, mostram a necessidade de examinar o alvo e a ambiguidade da tarefa. A anotação individual permanece provisória, e a divisão por foco disponível é heurística.
+Na frente textual, o diagnóstico com cem notícias anotadas pelo autor apresentou acurácia de 50\%, F1 macro de 0,448 e kappa de 0,197. A análise por classe mostrou divergências relevantes, especialmente nas notícias anotadas como neutras. Como o diagnóstico utilizou título e corpo e o ITI foi construído a partir de recortes contextuais, esses resultados não validam diretamente as probabilidades utilizadas pelo índice. A referência atual também não corresponde a uma avaliação independente entre especialistas.
 
-Essa avaliação utilizou título e corpo, enquanto o ITI empregou recortes próximos às menções à Sabesp. Portanto, ela não mede diretamente a qualidade das probabilidades que alimentam o índice. A validação humana independente da representação contextual é uma etapa necessária antes de atribuir significado econômico mais forte à série.
+Na frente temporal, o contraste principal entre ITI-H7 e Soft pontual, em 94 semanas, apresentou diferença assinada de correlações de Spearman de $+0{,}040$, intervalo bootstrap nominal de 95\% $[-0{,}127;\,0{,}241]$ e valor $p$ exploratório de $0{,}512$. Em uma análise complementar com a média semanal, a diferença foi $-0{,}062$, com intervalo $[-0{,}165;\,0{,}060]$ e $p=0{,}340$. Os dois resultados permaneceram inconclusivos; não demonstram superioridade ou equivalência entre indicadores.
 
-No contraste principal de 94 semanas, a diferença assinada entre as correlações de Spearman do ITI-H7 e do Soft com o retorno futuro de uma semana foi $+0{,}040$, com intervalo nominal de 95\% $[-0{,}127;\,0{,}241]$ e $p=0{,}512$. A comparação complementar com a média semanal apresentou diferença de $-0{,}062$, intervalo $[-0{,}165;\,0{,}060]$ e $p=0{,}340$. Os resultados não oferecem evidência suficiente de associações distintas e não demonstram superioridade, equivalência, capacidade preditiva ou causalidade.
+Além das correlações, a comparação revelou uma questão metodológica importante: o Soft pontual pode ser zero mesmo após notícias registradas em outros dias da semana. Assim, o contraste principal reúne mudanças na extensão do histórico e na ponderação temporal, e não permite atribuir uma eventual diferença exclusivamente à memória exponencial.
 
-Mesmo sem uma diferença conclusiva, o estudo evidencia limites relevantes do desenho: o Soft pontual pode ser zero quando houve notícias anteriores na semana, o ITI e a média semanal consideram históricos diferentes e a validade do sinal depende de uma tarefa textual bem definida. O conhecimento produzido nesta etapa está na explicitação dessas condições e no diagnóstico verificável do procedimento. Sua continuidade deve priorizar a validação textual e a rastreabilidade dos dados antes de ampliar os experimentos.
+A principal contribuição desta fase é a especificação verificável do procedimento, acompanhada de um diagnóstico sobre o alcance dos testes realizados. A continuidade deve primeiro validar o sinal contextual utilizado na construção do ITI e, em seguida, controlar as janelas de informação na comparação entre agregações. Somente uma avaliação posterior, com protocolo definido antes da observação dos dados, poderá sustentar conclusões mais fortes sobre a utilidade do indicador.
 
 \section{Plano de continuidade}
 
-A Tabela~\ref{tab:plano-continuidade} estabelece um cronograma indicativo de cinco meses após a qualificação, sujeito ao calendário do programa e à disponibilidade dos participantes. ``Mês 1'' corresponde ao primeiro mês posterior ao exame, sem pressupor uma data de defesa já definida. Cada etapa possui prazo, produto e critério de conclusão; as dependências metodológicas devem ser respeitadas mesmo que alguma atividade precise ser reprogramada.
+O trabalho será desenvolvido em cinco etapas indicativas após a qualificação, conforme a Tabela~\ref{tab:plano-continuidade}. Os prazos dependem do calendário do programa e da disponibilidade de dados e participantes. A sequência prioriza a qualidade do sinal textual antes de conclusões financeiras adicionais.
 
 \begin{table}[htbp]
 \centering
@@ -25,24 +25,27 @@ A Tabela~\ref{tab:plano-continuidade} estabelece um cronograma indicativo de cin
 \toprule
 Etapa & Prazo & Produto esperado & Critério de conclusão \\
 \midrule
-Consolidação do corpus e das versões & Mês 1 & Inventário, hashes e ficha de fontes, datas, cobertura e exclusões & Registros utilizáveis e lacunas identificados; versões vinculadas à execução \\
-Validação humana e diagnóstico contextual & Mês 2 & Rótulos independentes, concordância, matriz e métricas para as duas entradas & Mesmos itens e protocolo documentados; divergências e entradas preservadas \\
-Revisão dos baselines e do protocolo & Mês 3 & Especificação de janelas, pesos, parâmetros e análises & Comparações e critérios fixados antes de examinar o novo período \\
-Avaliação temporal em período não examinado & Mês 4 & Painel, tabelas e relatório com incerteza & Protocolo aplicado; desvios registrados; sem seleção pelo resultado favorável \\
-Discussão e redação da dissertação & Mês 5 & Capítulos e conclusões revisados & Objetivos, métodos, evidências e limitações coerentes \\
-Redação de artigo científico & Mês 5 & Manuscrito com os principais resultados & Texto completo revisado com o orientador, incluindo resultados inconclusivos e limites \\
+Corpus e versões & Mês 1 & Conjunto temporal de notícias, fontes, datas, hashes e cobertura documentados & Artefatos identificados e lacunas explicitadas \\
+\addlinespace
+Validação textual & Mês 2 & Rótulos independentes e diagnóstico das duas entradas nos mesmos itens & Protocolo, anotadores, textos, probabilidades e divergências registrados \\
+\addlinespace
+Baselines controlados & Mês 3 & Definição de janelas iguais e comparação de pesos uniformes e exponenciais & Código e protocolo fixados antes do período final; análise de sensibilidade documentada \\
+\addlinespace
+Avaliação temporal & Mês 4 & Painel novo, métricas e relatório de incerteza & Período não inspecionado e regras de avaliação previamente estabelecidos \\
+\addlinespace
+Redação e síntese & Mês 5 & Dissertação revista e manuscrito de artigo & Evidências, objetivos, resultados e limitações coerentes; revisão com o orientador \\
 \bottomrule
 \end{tabularx}
 \par\smallskip
-{\footnotesize Fonte: planejamento da pesquisa. Unidade temporal: mês após a qualificação; horizonte: cinco meses. Os prazos são indicativos e não condicionam a conclusão à obtenção de significância estatística.}
+{\footnotesize\raggedright Fonte: planejamento da pesquisa. Prazos indicativos em meses contados após a qualificação; as etapas não dependem da obtenção de significância estatística.\par}
 \end{table}
 
-A avaliação do segundo mês deverá confrontar título e corpo e recorte contextual nos mesmos itens, preservando julgamentos independentes antes de qualquer adjudicação \cite{artstein2008agreement}. O número de participantes, o tamanho da amostra e os critérios de avaliação serão justificados e documentados antes da coleta dos novos julgamentos. A entrada apresentada ao modelo e eventuais truncamentos deverão ser preservados para permitir a interpretação das divergências.
+A validação textual deverá comparar, nas mesmas notícias, a entrada formada por título e corpo e o recorte contextual utilizado no ITI. Os anotadores deverão julgar a orientação para a Sabesp sem consultar previsões do modelo ou retornos futuros, e seus rótulos individuais serão preservados antes de eventual adjudicação \cite{artstein2008agreement}. O procedimento também registrará casos não avaliáveis, menções tangenciais, truncamento e probabilidades das classes.
 
-No terceiro mês, serão definidos os baselines, as janelas de informação e o protocolo temporal. Se o objetivo for isolar a ponderação, as alternativas deverão utilizar a mesma janela histórica, variando somente os pesos. Eventual escolha de meia-vida ou modelo será feita em dados de desenvolvimento e não no período reservado à avaliação final \cite{varma2006bias}. A separação temporal deverá considerar a dependência entre observações \cite{roberts2017cross}.
+A revisão dos baselines deverá separar duas perguntas. A primeira, já abordada de forma exploratória, é se conservar histórico modifica a associação em comparação com observar apenas o dia de corte. A segunda, ainda pendente, é se a \emph{forma dos pesos} altera a associação quando a quantidade de informação é a mesma. Para responder à segunda, serão escolhidos previamente uma janela de dias civis e um instante de corte comuns. Em cada semana, duas agregações receberão os mesmos escores diários e as mesmas regras para dias sem notícias; uma usará pesos iguais e a outra, pesos exponenciais normalizados para essa janela. Apenas os pesos serão modificados. Essa comparação é distinta da recorrência ITI-H7 original, que pode manter histórico anterior à semana, e será identificada como um novo experimento controlado.
 
-A reserva de onze semanas alinhadas já foi inspecionada e não será reapresentada como teste confirmatório independente. O novo período será delimitado antes de observar seus resultados. A etapa do quarto mês pressupõe a disponibilidade de dados adequados ainda não examinados; se essa condição não for satisfeita, a limitação e a reprogramação serão registradas, sem reutilizar a reserva anterior como evidência nova.
+A definição da janela, das meias-vidas candidatas, das métricas e dos procedimentos de inferência ocorrerá em dados de desenvolvimento. O período reservado ao teste final não será utilizado para escolher parâmetros com base no resultado mais favorável \cite{varma2006bias}. A análise deverá respeitar a dependência temporal das observações e explicitar possíveis lacunas ou alterações na cobertura \cite{roberts2017cross}.
 
-O artigo científico reunirá o problema, o procedimento, a avaliação textual, as comparações temporais e os principais resultados da pesquisa. Sua redação deverá explicitar limitações e resultados inconclusivos, sem depender de uma associação estatisticamente significativa. A escolha do veículo e a eventual submissão serão discutidas com o orientador; o produto previsto no cronograma é o manuscrito completo revisado.
+A reserva anterior de onze semanas alinhadas já foi inspecionada e, por esse motivo, não será tratada como evidência confirmatória independente. Um novo período de avaliação será delimitado antes de examinar os respectivos resultados. Se não houver dados adequados ainda não observados, essa limitação será registrada, sem apresentar novamente resultados conhecidos como validação inédita.
 
-Treinar novos modelos ou ampliar o estudo para outras empresas não é condição obrigatória para cumprir esse plano. Essas extensões poderão ser consideradas após a avaliação do recorte contextual e a consolidação do protocolo. O ITI permanece uma proposta em avaliação, cuja contribuição depende da clareza da tarefa, da qualidade dos dados e da interpretação proporcional às evidências.
+A redação final reunirá a definição do problema, a implementação, os diagnósticos textual e temporal e os resultados obtidos, inclusive quando inconclusivos. O manuscrito de artigo será preparado com revisão do orientador e não dependerá de um resultado estatisticamente significativo. Treinamento adicional de modelos e expansão para outras empresas poderão ser considerados após a consolidação dessas etapas, mas não são condições obrigatórias para cumprir o plano.
