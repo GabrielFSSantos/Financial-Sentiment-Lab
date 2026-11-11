@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Exporta roteiro de fala único (Markdown) a partir do manifesto."""
+"""Exporta roteiro de fala único (Markdown) a partir do manifesto v4."""
 
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "dados" / "manifesto_slides.json"
@@ -20,23 +22,29 @@ def _fmt_duration(seconds: int) -> str:
     return f"{m:02d}:{s:02d}"
 
 
+def _count_words(voice: str, transition: str) -> int:
+    return len(re.findall(r"\S+", f"{voice.strip()} {transition.strip()}".strip()))
+
+
 def _slide_section(s: dict, *, backup: bool = False) -> list[str]:
     lines: list[str] = []
+    sid = s.get("id", "")
     if backup:
-        lines.append(f"## {s.get('id')} — {s.get('title', '')}")
+        lines.append(f"## {sid} — {s.get('title', '')}")
     else:
         n = int(s.get("n", 0))
         lines.append(f"## {n:02d} — {s.get('title', '')}")
     lines.append("")
-    if not backup:
+    source = (s.get("source") or "").strip()
+    if backup:
+        lines.append(f"*Fonte: {source}*")
+    else:
         seconds = int(s.get("seconds", 0))
-        words = s.get("words")
-        source = s.get("source", "")
-        words_part = f" · {words} palavras" if words is not None else ""
+        words = _count_words(s.get("voice", ""), s.get("transition", ""))
         lines.append(
-            f"*Alvo: {_fmt_duration(seconds)} ({seconds} s){words_part} · Fonte: {source}*"
+            f"*Alvo: {_fmt_duration(seconds)} ({seconds} s) · ~{words} palavras (voz+transição) · Fonte: {source}*"
         )
-        lines.append("")
+    lines.append("")
     obj = (s.get("objective") or "").strip()
     if obj:
         lines.append(f"**Objetivo:** {obj}")
@@ -46,15 +54,24 @@ def _slide_section(s: dict, *, backup: bool = False) -> list[str]:
     lines.append("")
     lines.append(voice)
     lines.append("")
+    pointing = (s.get("pointing") or "").strip()
+    if pointing:
+        lines.append("**O que apontar:**")
+        lines.append("")
+        lines.append(pointing)
+        lines.append("")
     on_screen = s.get("on_screen") or []
     if on_screen:
         lines.append("**Na tela:**")
         for item in on_screen:
-            lines.append(f"- {item}")
+            for sub in str(item).split("\n"):
+                lines.append(f"- {sub}")
         lines.append("")
     trans = (s.get("transition") or "").strip()
     if trans:
-        lines.append(f"**Transição:** {trans}")
+        lines.append("**Transição:**")
+        lines.append("")
+        lines.append(trans)
         lines.append("")
     return lines
 
@@ -73,8 +90,8 @@ def main() -> int:
         sid = s.get("id", "?")
         if not (s.get("voice") or "").strip():
             errors.append(f"voice ausente ou vazio em {sid}")
-        if not (s.get("objective") or "").strip():
-            errors.append(f"objective ausente em {sid}")
+        if not (s.get("pointing") or "").strip():
+            errors.append(f"pointing ausente em {sid}")
 
     if errors:
         for e in errors:
@@ -82,8 +99,8 @@ def main() -> int:
         return 1
 
     total_seconds = sum(s.get("seconds", 0) for s in slides)
-    total_words = sum(s.get("words", 0) for s in slides if isinstance(s.get("words"), int))
-    now = datetime.now(timezone.utc).astimezone().strftime("%Y-%m-%d %H:%M %z")
+    total_words = sum(_count_words(s.get("voice", ""), s.get("transition", "")) for s in slides)
+    now = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d %H:%M %z")
 
     out_lines: list[str] = [
         f"# {data.get('title', 'Apresentação PPGCC')}",
@@ -92,7 +109,7 @@ def main() -> int:
         "",
         f"- Slides principais: {len(slides)}",
         f"- Tempo-alvo somado: {_fmt_duration(total_seconds)} ({total_seconds} s)",
-        f"- Palavras (campo `words` nos principais): {total_words}",
+        f"- Palavras (voz + transição, principais): ~{total_words}",
         "",
         "## Slides principais (defesa ~30 min)",
         "",

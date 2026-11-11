@@ -1,6 +1,6 @@
 {
-  "versao": "2026-11-10",
-  "fonte": "dissertacao PDF dissertacao_ppgcc.pdf e manifesto_slides.json",
+  "versao": "2026-11-11",
+  "fonte": "dissertacao_ppgcc e manifesto v4",
   "ancoras": {
     "corpus_registros_brutos": 1254,
     "corpus_duplicatas": 1,
@@ -36,7 +36,30 @@
     "bootstrap_bloco_semanas": 4,
     "semanas_soft_igual_zero": 36,
     "dessas_com_noticias_anteriores": 33,
-    "familia_secundaria_contrastes": 8
+    "familia_secundaria_contrastes": 8,
+    "matriz_ordem": ["Negativa", "Neutra", "Positiva"],
+    "matriz_linhas": "autor",
+    "matriz_colunas": "modelo",
+    "matriz_confusao": [[13, 1, 0], [21, 32, 14], [4, 10, 5]],
+    "suportes_autor": [14, 67, 19],
+    "contagens_modelo": [38, 43, 19],
+    "f1_classes": [0.5, 0.582, 0.263],
+    "precisao_classes": [0.342, 0.744, 0.263],
+    "revocacao_classes": [0.929, 0.478, 0.263],
+    "formula_lambda": "\\lambda_H=2^{-1/H}",
+    "formula_iti": "ITI_d=\\lambda_H ITI_{d-1}+(1-\\lambda_H)X_d",
+    "modelo_operacional": "lucas-leme/FinBERT-PT-BR",
+    "limite_tokens": 512,
+    "familia_sensibilidades": [
+      {"comparacao": "H=2 − Soft", "delta": 0.067, "ic_inf": -0.081, "ic_sup": 0.236, "p_holm": 1.0},
+      {"comparacao": "H=14 − Soft", "delta": 0.035, "ic_inf": -0.135, "ic_sup": 0.245, "p_holm": 1.0},
+      {"comparacao": "ITI-H7 − Soft · Pearson", "delta": 0.038, "ic_inf": -0.127, "ic_sup": 0.224, "p_holm": 1.0},
+      {"comparacao": "ITI-H7 − Soft · 2 semanas", "delta": -0.103, "ic_inf": -0.296, "ic_sup": 0.15, "p_holm": 1.0},
+      {"comparacao": "ITI-H7 − Soft · 4 semanas", "delta": -0.177, "ic_inf": -0.368, "ic_sup": 0.084, "p_holm": 1.0},
+      {"comparacao": "ITI-H7 − escore discreto", "delta": -0.078, "ic_inf": -0.337, "ic_sup": 0.275, "p_holm": 1.0},
+      {"comparacao": "Recorte contextual − integral", "delta": -0.061, "ic_inf": -0.195, "ic_sup": -0.013, "p_holm": 0.2},
+      {"comparacao": "ITI-H7 − suavização alternativa", "delta": -0.031, "ic_inf": -0.078, "ic_sup": 0.079, "p_holm": 1.0}
+    ]
   },
   "frases_proibidas": [
     "o ITI provou",
@@ -45,9 +68,11 @@
     "validação independente realizada"
   ],
   "placeholders_proibidos": [
+    "Passar para:",
+    "Comentar sensibilidade",
+    "Usar se a banca pedir",
     "Título finalidade da apresentação",
     "Título tema da apresentação",
-    "Matéria",
     "Prof. Dr. …",
     "Lorem ipsum",
     "TBD",
