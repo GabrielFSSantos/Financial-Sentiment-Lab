@@ -125,6 +125,12 @@ def validate_slide(slide: dict, *, backup: bool, errors: list[str]) -> None:
             err(errors, f"{sid}/{eid}: type desconhecido {et}")
         if et != "arrow" and "rect" in el:
             rect_valid(el["rect"], sid, eid, errors)
+            if not backup and sid != "qual30_01" and et in ("chart", "table", "raster_chart", "image"):
+                _x, _y, _w, _h = el["rect"]
+                if _y < 21.0:
+                    err(errors, f"{sid}/{eid}: elemento principal acima da faixa de conteúdo (y={_y})")
+                if _y + _h > 90.5 and slide.get("layout") not in ("FECHAMENTO_TRES",):
+                    err(errors, f"{sid}/{eid}: elemento ultrapassa faixa de conteúdo (y+h={_y+_h})")
         if et == "chart" and el.get("kind") not in CHART_KINDS:
             err(errors, f"{sid}/{eid}: chart kind inválido")
         if et in ("image", "raster_chart"):
@@ -214,7 +220,16 @@ def run_self_test() -> int:
     check("layout_registro", "FORMULA_MEMORIA" in LAYOUTS)
     esc = re.sub(r"[&%#_{}]", "", "a\\b")
     check("escape_backslash", "textbackslash" in esc or True)  # smoke
-    check("soma_1800", True)
+    if FATOS.is_file():
+        anc = json.loads(FATOS.read_text(encoding="utf-8")).get("ancoras", {})
+        check("fatos_corpus", anc.get("corpus_canonicas") == 1253)
+        check("fatos_matriz", anc.get("matriz_confusao") == [[13, 1, 0], [21, 32, 14], [4, 10, 5]])
+    try:
+        from test_render_geometry import run_all as geom_tests
+
+        check("geometria_charts", geom_tests() == 0)
+    except Exception as exc:  # noqa: BLE001
+        failures.append(f"geometria_charts: {exc}")
     if failures:
         for f in failures:
             print(f"FALHA self-test: {f}", file=sys.stderr)

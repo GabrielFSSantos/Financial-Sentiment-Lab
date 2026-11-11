@@ -203,11 +203,19 @@ def latex_rgb(h: str) -> str:
 
 
 # Zonas verticais (% da página, topo → base) — slides internos 16:9
-TITLE_Y_PCT = 4.0
-CONTENT_Y_MIN_PCT = 17.0
-BIBLIO_FOOTER_Y_PCT = 88.0
-INST_RULE_Y_PCT = 94.0
-INST_FOOTER_Y_PCT = 98.2
+ZONE_TITLE_TOP_PCT = 4.0
+ZONE_TITLE_BOTTOM_PCT = 18.0
+ZONE_CONTENT_TOP_PCT = 22.0
+ZONE_CONTENT_BOTTOM_PCT = 79.0
+ZONE_SYNTHESIS_TOP_PCT = 81.0
+ZONE_SYNTHESIS_BOTTOM_PCT = 90.0
+ZONE_FOOTER_TOP_PCT = 93.0
+TITLE_Y_PCT = ZONE_TITLE_TOP_PCT
+CONTENT_Y_MIN_PCT = ZONE_CONTENT_TOP_PCT
+BIBLIO_FOOTER_Y_PCT = 87.0
+INST_RULE_Y_PCT = 93.0
+INST_FOOTER_Y_PCT = 97.5
+TITLE_SIZE_PT = 18.0
 
 
 def pos_xy(x: float, y: float) -> str:
@@ -251,7 +259,6 @@ def wrap_minipage(anchor: str, w: float, h: float, body: str, align: str = "left
     th = f"{h:.5f}\\paperheight"
     body = re.sub(r"(\\\\\s*){2,}", r"\\\\", body)
     body = re.sub(r"\\\\\s*\}\s*$", "}", body)
-    tikz_align = {"left": "left", "center": "center", "right": "right"}.get(align, "left")
     if align == "center":
         rag = "\\centering "
     elif align == "right":
@@ -259,8 +266,8 @@ def wrap_minipage(anchor: str, w: float, h: float, body: str, align: str = "left
     else:
         rag = "\\raggedright "
     return (
-        f"  \\node[anchor=north west,inner sep=0pt,outer sep=0pt,text width={tw},"
-        f"minimum height={th},align={tikz_align}] at {anchor} {{{rag}{body}\\par}};"
+        f"  \\node[anchor=north west,inner sep=0pt,outer sep=0pt] at {anchor} {{"
+        f"\\begin{{minipage}}[t][{th}][t]{{{tw}}}{rag}{body}\\vfill\\null\\end{{minipage}}}};"
     )
 
 
@@ -333,13 +340,21 @@ def render_table(el: dict) -> str:
     cols = len(headers) or 1
     widths = el.get("column_widths_pct") or [100 // cols] * cols
     matrix = bool(el.get("matrix"))
-    colspec_parts: list[str] = []
+    total_w = sum(widths) or 100
+    colspec_parts: list[str] = ["@{}", " "]
     for i, pct in enumerate(widths):
+        frac = pct / total_w
         if matrix and i > 0:
-            colspec_parts.append(f">{{\\centering\\arraybackslash}}p{{{pct/100:.4f}\\linewidth}}")
+            colspec_parts.append(
+                f">{{\\centering\\arraybackslash}}>{{\\hsize={frac:.5f}\\hsize}}X"
+            )
         else:
-            colspec_parts.append(f">{{\\raggedright\\arraybackslash}}p{{{pct/100:.4f}\\linewidth}}")
-    colspec = " ".join(colspec_parts)
+            colspec_parts.append(
+                f">{{\\raggedright\\arraybackslash}}>{{\\hsize={frac:.5f}\\hsize}}X"
+            )
+        colspec_parts.append(" ")
+    colspec_parts.append("@{}")
+    colspec = "".join(colspec_parts)
     sz = float((el.get("style") or {}).get("size_pt", 11.5))
     header_fill = el.get("header_fill", "#F3F5F7")
     diag_fill = el.get("diagonal_fill", "#E5F1ED")
@@ -347,9 +362,9 @@ def render_table(el: dict) -> str:
     outline = {tuple(x) for x in el.get("outline_cells") or []}
 
     lines: list[str] = []
-    lines.append(r"\renewcommand{\arraystretch}{1.35}")
-    lines.append(r"\setlength{\tabcolsep}{4pt}")
-    lines.append(r"\begin{tabular}{" + colspec + "}")
+    lines.append(r"\renewcommand{\arraystretch}{1.32}")
+    lines.append(r"\setlength{\tabcolsep}{3pt}")
+    lines.append(r"\begin{tabularx}{\linewidth}{" + colspec + "}")
     lines.append(r"\toprule")
     hdr_cells = [format_mixed_text(str(h)) for h in headers]
     lines.append(" & ".join(f"\\cellcolor{latex_rgb(header_fill)}{c}" for c in hdr_cells) + r" \\")
@@ -374,7 +389,7 @@ def render_table(el: dict) -> str:
                 cells.append(sty + txt)
         lines.append(" & ".join(cells) + r" \\")
     lines.append(r"\bottomrule")
-    lines.append(r"\end{tabular}")
+    lines.append(r"\end{tabularx}")
     tab = "\n".join(lines)
     tw = f"{w:.5f}\\paperwidth"
     body = (
@@ -389,10 +404,12 @@ def render_table(el: dict) -> str:
 
 
 def _chart_scope(rect: list[float]) -> str:
+    """Origem no canto inferior esquerdo do retângulo; eixo Y cresce para cima."""
     x, y, w, h = rect
+    y_bottom = (y + h) / 100
     return (
         f"  \\begin{{scope}}"
-        f"[shift={{($(current page.north west)+({x/100:.5f}\\paperwidth,-{y/100:.5f}\\paperheight)$)}},"
+        f"[shift={{($(current page.north west)+({x/100:.5f}\\paperwidth,-{y_bottom:.5f}\\paperheight)$)}},"
         f"x={w/100:.5f}\\paperwidth,y={h/100:.5f}\\paperheight]"
     )
 
@@ -751,8 +768,9 @@ def render_chrome(slide: dict, *, backup: bool = False, capa: bool = False) -> l
         page = f"{n:02d} / 29"
         ttl = title
     lines.append(
-        f"  \\node[anchor=north west,text width=0.9\\paperwidth] at {pos_xy(5, TITLE_Y_PCT)} "
-        f"{{{tex_font(18, 20, format_mixed_text(ttl), bold=True, color='#C1272F')}}};"
+        f"  \\node[anchor=north west,text width=0.88\\paperwidth,align=flush left] "
+        f"at {pos_xy(5, TITLE_Y_PCT)} "
+        f"{{{tex_font(TITLE_SIZE_PT, TITLE_SIZE_PT + 2, format_mixed_text(ttl), bold=True, color='#C1272F')}}};"
     )
     if footer:
         lines.append(
@@ -772,6 +790,44 @@ def render_chrome(slide: dict, *, backup: bool = False, capa: bool = False) -> l
         f"{{{tex_font(7, 8, page, color='#59636E')}}};"
     )
     return lines
+
+
+def estimate_text_overflow(data: dict) -> list[dict]:
+    """Estimativa heurística de texto que excede o rect (preflight)."""
+    page_w_pt = 336.0
+    page_h_pt = 189.0
+    warnings: list[dict] = []
+    for section in ("slides", "backup"):
+        for slide in data.get(section, []):
+            sid = slide.get("id", "?")
+            for el in slide.get("elements") or []:
+                if el.get("type") != "text":
+                    continue
+                rect = el.get("rect") or []
+                if len(rect) != 4:
+                    continue
+                _, _, w, h = rect
+                style = el.get("style") or {}
+                sz = float(style.get("size_pt", 12))
+                text = el.get("text", "") or ""
+                breaks = text.count("\n") + text.count("\\\\") + 1
+                plain_len = len(re.sub(r"\*+", "", text))
+                width_pt = page_w_pt * w / 100
+                height_pt = page_h_pt * h / 100
+                chars_per_line = max(10.0, width_pt / (sz * 0.52))
+                est_lines = max(breaks, plain_len / chars_per_line)
+                est_height = est_lines * sz * 1.22
+                if est_height > height_pt * 1.05:
+                    warnings.append(
+                        {
+                            "slide_id": sid,
+                            "element_id": el.get("id"),
+                            "est_lines": round(est_lines, 1),
+                            "rect_height_pt": round(height_pt, 1),
+                            "est_height_pt": round(est_height, 1),
+                        }
+                    )
+    return warnings
 
 
 def render_slide(slide: dict, fatos: dict, geom: list) -> str:
@@ -812,6 +868,11 @@ def main() -> int:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("\n\n".join(chunks) + "\n", encoding="utf-8")
     GEOM_OUT.write_text(json.dumps(geom, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    overflow = estimate_text_overflow(data)
+    overflow_path = ROOT / "build" / "layout_overflow.json"
+    overflow_path.write_text(json.dumps(overflow, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if overflow:
+        print(f"AVISO: {len(overflow)} elementos com possível estouro de texto — ver layout_overflow.json")
     print(f"OK: {OUT} ({len(chunks)-1} frames)")
     return 0
 
