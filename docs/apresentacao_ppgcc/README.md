@@ -26,9 +26,17 @@ Pipeline: `validar_manifesto.py` → `render_beamer.py` (composição só via `e
 python3 -m venv .venv-qa
 .venv-qa/bin/pip install pymupdf pillow
 make qa
+make qa-strict
 ```
 
-Gera `build/qa/alertas.csv` e imagens de contato por slide. Requer PDF já compilado (`make pdf`).
+Gera `build/qa/alertas.csv`, `relatorio.md` e imagens de contato por slide. `qa-strict` falha se houver alertas críticos (figura ausente, placeholder, texto fora da página). Requer PDF já compilado (`make pdf`).
+
+Integridade do roteiro (campos `voice`, `transition`, `pointing`, `objective`, `seconds`):
+
+```bash
+python3 scripts/hash_campos_protegidos.py --write   # antes de editar layout
+python3 scripts/hash_campos_protegidos.py --verify  # após o refinamento
+```
 
 ## Contrato v4
 

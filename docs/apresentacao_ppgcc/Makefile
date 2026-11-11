@@ -34,7 +34,11 @@ check_log:
 
 qa: pdf
 	@test -x .venv-qa/bin/python || (echo "Crie .venv-qa com pymupdf e pillow; veja README." && exit 1)
-	.venv-qa/bin/python scripts/qa_slides_ppgcc.py $(PDF) --out build/qa --dpi 160
+	.venv-qa/bin/python scripts/qa_slides_ppgcc.py $(PDF) --out build/qa --dpi 180
+
+qa-strict: pdf
+	@test -x .venv-qa/bin/python || (echo "Crie .venv-qa com pymupdf e pillow; veja README." && exit 1)
+	.venv-qa/bin/python scripts/qa_slides_ppgcc.py $(PDF) --out build/qa --dpi 200 --strict
 
 clean:
 	rm -rf $(BUILD) $(OUTPUT)
