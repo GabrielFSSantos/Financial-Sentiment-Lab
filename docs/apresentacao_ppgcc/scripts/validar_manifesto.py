@@ -68,6 +68,23 @@ CHART_KINDS = {
 FORBIDDEN_VOICE = ["Passar para:", "Comentar sensibilidade", "Usar se a banca pedir", "Lorem ipsum", "TBD"]
 
 
+def _rects_overlap(a: list, b: list) -> bool:
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
+
+
+def manifest_element_overlaps(data: dict, errors: list[str]) -> None:
+    for section in ("slides", "backup"):
+        for slide in data.get(section, []):
+            sid = slide.get("id", "?")
+            els = [e for e in slide.get("elements", []) if e.get("type") != "arrow" and e.get("rect")]
+            for i, a in enumerate(els):
+                for b in els[i + 1 :]:
+                    if _rects_overlap(a["rect"], b["rect"]):
+                        err(errors, f"{sid}: retângulos intersectam {a.get('id')} e {b.get('id')}")
+
+
 def err(errors: list[str], msg: str) -> None:
     errors.append(msg)
 
@@ -196,6 +213,7 @@ def validate_manifest(data: dict, fatos: dict) -> list[str]:
         validate_slide(s, backup=False, errors=errors)
     for s in backup:
         validate_slide(s, backup=True, errors=errors)
+    manifest_element_overlaps(data, errors)
     ancoras = fatos.get("ancoras", {})
     matrix_checks(ancoras, errors)
     formula_checks(data, errors)

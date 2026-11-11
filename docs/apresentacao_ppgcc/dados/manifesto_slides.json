@@ -260,10 +260,10 @@
           "id": "caso",
           "type": "text",
           "rect": [
-            28,
-            38,
-            44,
-            14
+            12,
+            24,
+            76,
+            9
           ],
           "text": "Exemplo hipotético: reajuste da tarifa de água",
           "style": {
@@ -283,9 +283,9 @@
           "type": "text",
           "rect": [
             5,
-            26,
+            36,
             42,
-            38
+            8
           ],
           "text": "CONSUMIDOR",
           "style": {
@@ -305,9 +305,9 @@
           "type": "text",
           "rect": [
             5,
-            55,
-            41,
-            15
+            46,
+            42,
+            22
           ],
           "text": "Possível aumento\nda despesa",
           "style": {
@@ -327,9 +327,9 @@
           "type": "text",
           "rect": [
             53,
-            26,
+            36,
             42,
-            38
+            8
           ],
           "text": "SABESP",
           "style": {
@@ -348,10 +348,10 @@
           "id": "efeito2",
           "type": "text",
           "rect": [
-            54,
-            55,
-            41,
-            15
+            53,
+            46,
+            42,
+            22
           ],
           "text": "Possibilidade de\naumento de receita",
           "style": {
@@ -371,9 +371,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "A classificação precisa declarar o alvo: Sabesp.",
           "style": {
@@ -545,9 +545,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Precisamos definir uma regra para cada dia elegível.",
           "style": {
@@ -819,9 +819,9 @@
           "type": "text",
           "rect": [
             5,
-            23,
+            25,
             90,
-            18
+            16
           ],
           "text": "Como a representação textual e a agregação temporal afetam o indicador e sua associação com retornos posteriores da SBSP3?",
           "style": {
@@ -841,9 +841,9 @@
           "type": "formula",
           "rect": [
             5,
-            46,
+            44,
             90,
-            12
+            11
           ],
           "text": "Δρ = correlação do ITI-H7 − correlação do Soft",
           "style": {
@@ -864,9 +864,9 @@
           "type": "text",
           "rect": [
             5,
-            61,
+            57,
             90,
-            9
+            8
           ],
           "text": "Spearman: associação entre ordenações · R¹: retorno da semana seguinte",
           "style": {
@@ -886,9 +886,9 @@
           "type": "formula",
           "rect": [
             5,
-            73,
-            29,
-            10
+            68,
+            32,
+            8
           ],
           "text": "Hipótese bilateral: Δρ diferente de zero",
           "style": {
@@ -909,9 +909,9 @@
           "type": "text",
           "rect": [
             38,
-            73,
+            68,
             57,
-            13
+            8
           ],
           "text": "Objetivo: desenvolver e avaliar um procedimento reprodutível no caso Sabesp.",
           "style": {
@@ -962,15 +962,15 @@
           "type": "table",
           "rect": [
             5,
-            22,
+            22.0,
             90,
-            42
+            50.5
           ],
           "text": "",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 10.5,
-            "leading_pt": 12.39,
+            "size_pt": 9.5,
+            "leading_pt": 11.2,
             "weight": "regular",
             "color": "#292D32",
             "background": "#FFFFFF",
@@ -1008,16 +1008,16 @@
           "header_fill": "#F3F5F7",
           "rule_color": "#D5DAE0",
           "rule_width_pt": 0.4,
-          "row_padding_pt": 3
+          "row_padding_pt": 2
         },
         {
           "id": "message",
           "type": "text",
           "rect": [
             5,
-            66,
+            76.5,
             90,
-            6
+            4.0
           ],
           "text": "Contribuição: integração documentada e avaliação crítica no caso Sabesp.",
           "style": {
@@ -1076,9 +1076,9 @@
           "type": "text",
           "rect": [
             5,
-            22,
+            25.0,
             58,
-            9
+            6.0
           ],
           "text": "1.254 registros brutos − 1 duplicata = 1.253 notícias canônicas",
           "style": {
@@ -1209,9 +1209,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "O corpus inventariado não equivale à totalidade das publicações.",
           "style": {
@@ -1264,9 +1264,9 @@
           "type": "text",
           "rect": [
             5,
-            23,
+            25.0,
             90,
-            7
+            5.0
           ],
           "text": "Notícias relacionadas à Sabesp",
           "style": {
@@ -1406,9 +1406,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Rótulos humanos não treinaram nem corrigiram automaticamente o ITI.",
           "style": {
@@ -1467,9 +1467,9 @@
           "type": "text",
           "rect": [
             5,
-            22,
+            25.0,
             90,
-            6
+            3.0
           ],
           "text": "ESQUEMA ILUSTRATIVO · posições de sentenças, não uma notícia real",
           "style": {
@@ -1588,9 +1588,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Preparação da entrada não equivale a treinamento por entidade.",
           "style": {
@@ -1653,9 +1653,9 @@
           "type": "text",
           "rect": [
             5,
-            22,
+            25.0,
             90,
-            7
+            4.0
           ],
           "text": "FinBERT-PT-BR · classificador financeiro em português",
           "style": {
@@ -1781,9 +1781,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Exemplo ilustrativo · probabilidades de classes, não de valorização.",
           "style": {
@@ -1948,9 +1948,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Exemplo ilustrativo · escore zero não identifica sozinho a classe neutra.",
           "style": {
@@ -2001,9 +2001,9 @@
           "type": "formula",
           "rect": [
             5,
-            23,
+            25.0,
             52,
-            14
+            12.0
           ],
           "text": "X_d = soma dos escores do dia dividida por n_d, quando n_d > 0",
           "style": {
@@ -2091,9 +2091,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Exemplo ilustrativo · pesos iguais; zero não comprova neutralidade.",
           "style": {
@@ -2146,9 +2146,9 @@
           "type": "text",
           "rect": [
             5,
-            24,
+            25.0,
             40,
-            8
+            7.0
           ],
           "text": "SOFT · SEM MEMÓRIA",
           "style": {
@@ -2190,9 +2190,9 @@
           "type": "text",
           "rect": [
             55,
-            24,
+            25.0,
             40,
-            8
+            7.0
           ],
           "text": "ITI · COM MEMÓRIA",
           "style": {
@@ -2272,9 +2272,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Memória do indicador não é memória comprovada dos investidores.",
           "style": {
@@ -2325,9 +2325,9 @@
           "type": "formula",
           "rect": [
             5,
-            23,
+            25.0,
             90,
-            10
+            8.0
           ],
           "text": "λ_H = 2^(−1/H); H = 7 → λ₇ ≈ 0,9057",
           "style": {
@@ -2415,9 +2415,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Sem novas entradas: metade do estado remanescente após 7 dias.",
           "style": {
@@ -2470,9 +2470,9 @@
           "type": "text",
           "rect": [
             5,
-            23,
+            25.0,
             90,
-            9
+            7.0
           ],
           "text": "SIMULAÇÃO DIDÁTICA · estado anterior 0,20 · entrada atual 0,50",
           "style": {
@@ -2584,7 +2584,7 @@
             5,
             70,
             90,
-            14
+            9.0
           ],
           "text": "Novo ITI ≈ 0,1811 + 0,0472 = 0,2283",
           "style": {
@@ -2636,9 +2636,9 @@
           "type": "table",
           "rect": [
             5,
-            22,
+            25.0,
             90,
-            49
+            46.0
           ],
           "text": "",
           "style": {
@@ -2689,9 +2689,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Mesmas probabilidades de origem; janelas de informação não idênticas.",
           "style": {
@@ -2746,9 +2746,9 @@
           "type": "text",
           "rect": [
             5,
-            23,
+            25.0,
             90,
-            8
+            6.0
           ],
           "text": "Corte: fim do dia civil anterior ao último pregão da semana",
           "style": {
@@ -2891,7 +2891,7 @@
             58,
             64,
             37,
-            16
+            15.0
           ],
           "text": "Sexta feriado?\nÚltimo pregão na quinta;\ncorte na quarta à noite.",
           "style": {
@@ -2913,7 +2913,7 @@
             5,
             82,
             90,
-            5
+            1.0
           ],
           "text": "Exemplo de calendário · w: semana · R: retorno logarítmico futuro",
           "style": {
@@ -3066,9 +3066,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "As métricas descrevem esta amostra; não estimam todo o corpus temporal.",
           "style": {
@@ -3125,9 +3125,9 @@
           "type": "text",
           "rect": [
             5,
-            22,
+            25.0,
             90,
-            6
+            3.0
           ],
           "text": "Linhas: autor · Colunas: modelo · Unidade: notícia",
           "style": {
@@ -3275,9 +3275,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Desacordo com a referência individual não é prova isolada de erro do modelo.",
           "style": {
@@ -3336,9 +3336,9 @@
           "type": "chart",
           "rect": [
             5,
-            22,
+            25.0,
             46,
-            35
+            32.0
           ],
           "text": "",
           "style": {
@@ -3392,9 +3392,9 @@
           "type": "table",
           "rect": [
             54,
-            22,
+            25.0,
             41,
-            38
+            35.0
           ],
           "text": "",
           "style": {
@@ -3467,9 +3467,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Sempre prever neutro acerta 67 casos, mas não reconhece as outras classes.",
           "style": {
@@ -3608,9 +3608,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Próxima avaliação: mesmas notícias, duas entradas e referência independente.",
           "style": {
@@ -3659,9 +3659,9 @@
           "type": "text",
           "rect": [
             8,
-            22,
+            25.0,
             84,
-            6
+            3.0
           ],
           "text": "Soft diário: azul · ITI-H7 diário: laranja",
           "style": {
@@ -3698,7 +3698,7 @@
             5,
             85,
             90,
-            5
+            1.0
           ],
           "text": "Séries observadas · suavidade não demonstra capacidade preditiva.",
           "style": {
@@ -3751,9 +3751,9 @@
           "type": "text",
           "rect": [
             5,
-            22,
+            25.0,
             90,
-            7
+            4.0
           ],
           "text": "104 semanas alinhadas − 10 de aquecimento = 94 semanas",
           "style": {
@@ -3856,7 +3856,7 @@
             5,
             74,
             90,
-            6
+            5.0
           ],
           "text": "Mais próximo de zero = menor magnitude absoluta.",
           "style": {
@@ -3909,9 +3909,9 @@
           "type": "text",
           "rect": [
             5,
-            22,
+            25.0,
             90,
-            7
+            4.0
           ],
           "text": "Bootstrap em blocos: 4 semanas · 10.000 reamostragens pareadas",
           "style": {
@@ -3988,7 +3988,7 @@
             5,
             74,
             90,
-            6
+            5.0
           ],
           "text": "p exploratório = 0,512 · sem distribuição nula explicitamente construída",
           "style": {
@@ -4008,9 +4008,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Resultado inconclusivo: não demonstra superioridade nem equivalência.",
           "style": {
@@ -4065,9 +4065,9 @@
           "type": "text",
           "rect": [
             5,
-            22,
+            25.0,
             48,
-            22
+            19.0
           ],
           "text": "36 de 94 semanas\ncom Soft = 0 no corte",
           "style": {
@@ -4109,9 +4109,9 @@
           "type": "text",
           "rect": [
             55,
-            22,
+            25.0,
             40,
-            10
+            7.0
           ],
           "text": "ITI-H7 − média semanal",
           "style": {
@@ -4205,9 +4205,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Comparação complementar ainda muda janela e pesos ao mesmo tempo.",
           "style": {
@@ -4254,9 +4254,9 @@
           "type": "text",
           "rect": [
             5,
-            22,
+            25.0,
             90,
-            6
+            3.0
           ],
           "text": "H=2: azul contínuo · H=7: laranja tracejado · H=14: verde pontilhado",
           "style": {
@@ -4339,9 +4339,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "H=7 é a configuração principal; não foi demonstrado como ótimo.",
           "style": {
@@ -4394,9 +4394,9 @@
           "type": "table",
           "rect": [
             5,
-            22,
+            25.0,
             90,
-            51
+            48.0
           ],
           "text": "",
           "style": {
@@ -4452,9 +4452,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Associação exploratória não demonstra previsão, causalidade ou generalização.",
           "style": {
@@ -4753,9 +4753,9 @@
           "type": "text",
           "rect": [
             5,
-            81,
+            81.0,
             90,
-            7
+            5.5
           ],
           "text": "Prazos indicativos após a qualificação; conclusão não depende de significância.",
           "style": {
@@ -4999,7 +4999,7 @@
             5,
             82,
             90,
-            7
+            1.0
           ],
           "text": "Obrigado. Perguntas e contribuições da banca são bem-vindas.",
           "style": {
@@ -5059,7 +5059,7 @@
             5,
             24,
             90,
-            56
+            55.0
           ],
           "text": "",
           "style": {
@@ -5225,7 +5225,7 @@
             5,
             73,
             90,
-            13
+            6.0
           ],
           "text": "Precisão: acertos entre as previsões da classe.\nRevocação: exemplos da classe recuperados. Suporte: quantidade na referência.",
           "style": {
@@ -5285,9 +5285,9 @@
           "type": "table",
           "rect": [
             5,
-            23,
+            25.0,
             90,
-            56
+            54.0
           ],
           "text": "",
           "style": {
@@ -5388,7 +5388,7 @@
             5,
             82,
             90,
-            7
+            1.0
           ],
           "text": "Holm ajusta os valores p da família; os intervalos continuam nominais.",
           "style": {
@@ -5503,7 +5503,7 @@
             5,
             73,
             90,
-            12
+            6.0
           ],
           "text": "Grupo agenda: 24 neutras, 2 positivas e nenhuma negativa na referência.\nA diferença é descritiva; não isola o efeito do tipo de notícia.",
           "style": {
@@ -5721,9 +5721,9 @@
           "type": "image",
           "rect": [
             8,
-            24,
+            28,
             84,
-            50
+            42
           ],
           "path": "assets/figura_3_meias_vidas.png",
           "x_label": "Data",
@@ -5739,9 +5739,9 @@
           "type": "text",
           "rect": [
             5,
-            21,
+            22,
             90,
-            6
+            5
           ],
           "text": "H2: azul contínuo · H7: laranja tracejado · H14: verde pontilhado",
           "style": {
@@ -5762,8 +5762,8 @@
           "rect": [
             5,
             72,
-            52,
-            10
+            55,
+            9
           ],
           "text": "Peso inicial após 70 dias = 2^(−70/H)",
           "style": {
@@ -5783,10 +5783,10 @@
           "id": "numeros",
           "type": "text",
           "rect": [
-            61,
+            62,
             72,
-            34,
-            13
+            33,
+            10
           ],
           "text": "H7: ≈ 0,001\nH14: 0,03125",
           "style": {
@@ -5836,9 +5836,9 @@
           "type": "text",
           "rect": [
             5,
-            24,
+            25.0,
             90,
-            8
+            7.0
           ],
           "text": "Fixar antes do teste: janela, dias elegíveis, escores e corte.",
           "style": {
@@ -5928,7 +5928,7 @@
             5,
             85,
             90,
-            5
+            1.0
           ],
           "text": "Planejado: E_w tem janela finita; não é a recorrência histórica do ITI.",
           "style": {
@@ -5986,9 +5986,9 @@
           "type": "text",
           "rect": [
             5,
-            24,
+            25.0,
             43,
-            13
+            12.0
           ],
           "text": "Santos, Bianchi e Costa (2023)\nFinBERT-PT-BR\n10.5753/bwaif.2023.231151",
           "style": {
@@ -6054,7 +6054,7 @@
             5,
             69,
             43,
-            13
+            10.0
           ],
           "text": "Tang et al. (2023)\nFinEntity\n10.18653/v1/2023.emnlp-main.956",
           "style": {
@@ -6074,9 +6074,9 @@
           "type": "text",
           "rect": [
             52,
-            24,
+            25.0,
             43,
-            13
+            12.0
           ],
           "text": "Shapiro, Sudhof e Wilson (2022)\nMeasuring News Sentiment\n10.1016/j.jeconom.2020.07.053",
           "style": {
@@ -6142,7 +6142,7 @@
             52,
             69,
             43,
-            13
+            10.0
           ],
           "text": "Holm (1979)\nComparações múltiplas\nScand. J. Stat. 6(2), 65–70",
           "style": {
@@ -6164,7 +6164,7 @@
             5,
             86,
             90,
-            4
+            1.0
           ],
           "text": "Fundamentos dos componentes; não prova de H=7 ou superioridade.",
           "style": {

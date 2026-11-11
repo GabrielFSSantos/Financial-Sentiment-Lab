@@ -143,10 +143,32 @@ def escape_plain(text: str) -> str:
 
 
 def format_mixed_text(text: str) -> str:
-    """Texto com tokens matemáticos explícitos."""
+    """Texto com tokens matemáticos explícitos e negrito **...**."""
     if not text:
         return ""
     text = normalize_text(text)
+    out_parts: list[str] = []
+    pos = 0
+    while pos < len(text):
+        bold = text.find("**", pos)
+        if bold < 0:
+            out_parts.append(_format_mixed_text_plain(text[pos:]))
+            break
+        if bold > pos:
+            out_parts.append(_format_mixed_text_plain(text[pos:bold]))
+        end = text.find("**", bold + 2)
+        if end < 0:
+            out_parts.append(_format_mixed_text_plain(text[pos:]))
+            break
+        inner = _format_mixed_text_plain(text[bold + 2 : end])
+        out_parts.append(f"\\textbf{{{inner}}}")
+        pos = end + 2
+    return "".join(out_parts)
+
+
+def _format_mixed_text_plain(text: str) -> str:
+    if not text:
+        return ""
     parts: list[str] = []
     i = 0
     while i < len(text):
@@ -176,6 +198,7 @@ def format_mixed_text(text: str) -> str:
         parts.append(escape_plain(text[i:j]))
         i = j
     return "".join(parts)
+
 
 
 def hex_rgb(h: str) -> tuple[float, float, float]:
@@ -212,10 +235,13 @@ ZONE_SYNTHESIS_BOTTOM_PCT = 90.0
 ZONE_FOOTER_TOP_PCT = 93.0
 TITLE_Y_PCT = ZONE_TITLE_TOP_PCT
 CONTENT_Y_MIN_PCT = ZONE_CONTENT_TOP_PCT
-BIBLIO_FOOTER_Y_PCT = 87.0
-INST_RULE_Y_PCT = 93.0
-INST_FOOTER_Y_PCT = 97.5
+SYNTHESIS_TOP_PCT = 76.0
+BIBLIO_FOOTER_BOTTOM_PCT = 90.0
+INST_RULE_Y_PCT = 92.5
+INST_FOOTER_Y_PCT = 98.0
 TITLE_SIZE_PT = 18.0
+FOOTER_SIZE_PT = 7.5
+FOOTER_LEAD_PT = 9.0
 
 
 def pos_xy(x: float, y: float) -> str:
@@ -342,15 +368,16 @@ def render_table(el: dict) -> str:
     matrix = bool(el.get("matrix"))
     total_w = sum(widths) or 100
     colspec_parts: list[str] = ["@{}", " "]
+    n = len(widths) or 1
     for i, pct in enumerate(widths):
-        frac = pct / total_w
+        factor = (pct / total_w) * n
         if matrix and i > 0:
             colspec_parts.append(
-                f">{{\\centering\\arraybackslash}}>{{\\hsize={frac:.5f}\\hsize}}X"
+                f">{{\\centering\\arraybackslash}}>{{\\hsize={factor:.4f}\\hsize}}X"
             )
         else:
             colspec_parts.append(
-                f">{{\\raggedright\\arraybackslash}}>{{\\hsize={frac:.5f}\\hsize}}X"
+                f">{{\\raggedright\\arraybackslash}}>{{\\hsize={factor:.4f}\\hsize}}X"
             )
         colspec_parts.append(" ")
     colspec_parts.append("@{}")
@@ -362,7 +389,7 @@ def render_table(el: dict) -> str:
     outline = {tuple(x) for x in el.get("outline_cells") or []}
 
     lines: list[str] = []
-    lines.append(r"\renewcommand{\arraystretch}{1.32}")
+    lines.append(r"\renewcommand{\arraystretch}{1.18}")
     lines.append(r"\setlength{\tabcolsep}{3pt}")
     lines.append(r"\begin{tabularx}{\linewidth}{" + colspec + "}")
     lines.append(r"\toprule")
@@ -391,16 +418,8 @@ def render_table(el: dict) -> str:
     lines.append(r"\bottomrule")
     lines.append(r"\end{tabularx}")
     tab = "\n".join(lines)
-    tw = f"{w:.5f}\\paperwidth"
-    body = (
-        f"\\begin{{minipage}}{{\\linewidth}}"
-        f"\\fontsize{{{sz:.2f}}}{{{sz*1.28:.2f}}}\\selectfont {tab}"
-        "\\end{minipage}"
-    )
-    return (
-        f"  \\node[anchor=north west,inner sep=0pt,text width={tw}] at {anchor} "
-        f"{{{body}}};"
-    )
+    body = f"\\fontsize{{{sz:.2f}}}{{{sz*1.28:.2f}}}\\selectfont {tab}"
+    return wrap_minipage(anchor, w, h, body)
 
 
 def _chart_scope(rect: list[float]) -> str:
@@ -773,9 +792,12 @@ def render_chrome(slide: dict, *, backup: bool = False, capa: bool = False) -> l
         f"{{{tex_font(TITLE_SIZE_PT, TITLE_SIZE_PT + 2, format_mixed_text(ttl), bold=True, color='#C1272F')}}};"
     )
     if footer:
+        ft = format_mixed_text(footer)
         lines.append(
-            f"  \\node[anchor=north west,text width=0.9\\paperwidth] at {pos_xy(5, BIBLIO_FOOTER_Y_PCT)} "
-            f"{{{tex_font(8, 9.2, format_mixed_text(footer), color='#59636E')}}};"
+            f"  \\node[anchor=south west,text width=0.88\\paperwidth,align=flush left] "
+            f"at {pos_xy(5, BIBLIO_FOOTER_BOTTOM_PCT)} "
+            f"{{{{\\fontsize{{{FOOTER_SIZE_PT:.1f}}}{{{FOOTER_LEAD_PT:.1f}}}\\selectfont "
+            f"\\color[rgb]{{0.349,0.388,0.431}}\\raggedright {ft}\\par}}}};"
         )
     lines.append(
         f"  \\draw[ufsjred,line width=0.5pt] {pos_xy(5, INST_RULE_Y_PCT)} -- {pos_xy(95, INST_RULE_Y_PCT)};"
