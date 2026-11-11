@@ -1,6 +1,6 @@
 # Qualificação — Índice Temporal Informacional — UFSJ
 
-Roteiro gerado por `make pdf` em 2026-11-11 15:57 -0300. **Não editar à mão** — altere `dados/manifesto_slides.json`.
+Roteiro gerado por `make pdf` em 2026-11-11 16:13 -0300. **Não editar à mão** — altere `dados/manifesto_slides.json`.
 
 - Slides principais: 29
 - Tempo-alvo somado: 30:00 (1800 s)
