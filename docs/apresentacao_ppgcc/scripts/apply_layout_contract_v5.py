@@ -3,11 +3,11 @@
 
 from __future__ import annotations
 
-import apply_layout_contract_v6 as v6
+import apply_layout_contract_v7 as v7
 
 
 def main() -> int:
-    return v6.main()
+    return v7.main()
 
 
 if __name__ == "__main__":

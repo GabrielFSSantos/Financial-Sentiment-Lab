@@ -225,22 +225,33 @@ def latex_rgb(h: str) -> str:
     return f"[rgb]{{{r:.3f},{g:.3f},{b:.3f}}}"
 
 
-# Zonas verticais (% da página, topo → base) — slides internos 16:9
-ZONE_TITLE_TOP_PCT = 4.0
-ZONE_TITLE_BOTTOM_PCT = 18.0
-ZONE_CONTENT_TOP_PCT = 22.0
-ZONE_CONTENT_BOTTOM_PCT = 79.0
-ZONE_SYNTHESIS_TOP_PCT = 81.0
-ZONE_SYNTHESIS_BOTTOM_PCT = 90.0
+def _ds_zones() -> dict:
+    try:
+        from design_system import beamer_typography, zones
+
+        z = zones()
+        t = beamer_typography()
+        return {**z, "_title_pt": t.get("title_slide", 18), "_footer_pt": t.get("footer_biblio", 7.5)}
+    except Exception:
+        return {}
+
+
+_z = _ds_zones()
+ZONE_TITLE_TOP_PCT = float(_z.get("title_top", 4.0))
+ZONE_TITLE_BOTTOM_PCT = float(_z.get("title_bottom", 18.0))
+ZONE_CONTENT_TOP_PCT = float(_z.get("content_top", 22.0))
+ZONE_CONTENT_BOTTOM_PCT = float(_z.get("content_bottom", 79.0))
+ZONE_SYNTHESIS_TOP_PCT = float(_z.get("synthesis_top", 81.0))
+ZONE_SYNTHESIS_BOTTOM_PCT = float(_z.get("synthesis_bottom", 90.0))
 ZONE_FOOTER_TOP_PCT = 93.0
 TITLE_Y_PCT = ZONE_TITLE_TOP_PCT
 CONTENT_Y_MIN_PCT = ZONE_CONTENT_TOP_PCT
-SYNTHESIS_TOP_PCT = 76.0
-BIBLIO_FOOTER_BOTTOM_PCT = 90.0
-INST_RULE_Y_PCT = 92.5
-INST_FOOTER_Y_PCT = 98.0
-TITLE_SIZE_PT = 18.0
-FOOTER_SIZE_PT = 7.5
+SYNTHESIS_TOP_PCT = float(_z.get("synthesis_top", 76.0))
+BIBLIO_FOOTER_BOTTOM_PCT = float(_z.get("biblio_bottom", 90.0))
+INST_RULE_Y_PCT = float(_z.get("rule_y", 92.5))
+INST_FOOTER_Y_PCT = float(_z.get("institutional_y", 98.0))
+TITLE_SIZE_PT = float(_z.get("_title_pt", 18.0))
+FOOTER_SIZE_PT = float(_z.get("_footer_pt", 7.5))
 FOOTER_LEAD_PT = 9.0
 
 

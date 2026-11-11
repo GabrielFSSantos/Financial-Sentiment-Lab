@@ -14,6 +14,7 @@ PYTHON := .venv-render/bin/python
 endif
 
 validate:
+	python3 scripts/apply_layout_contract_v7.py
 	python3 scripts/validar_manifesto.py
 
 render: validate

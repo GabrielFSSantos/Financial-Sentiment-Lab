@@ -43,10 +43,10 @@
           "id": "dcomp",
           "type": "image",
           "rect": [
-            65,
-            6,
-            27,
-            13
+            63,
+            5.5,
+            32,
+            14
           ],
           "path": "assets/logo_dcomp.png",
           "fit": "contain",
@@ -59,9 +59,9 @@
           "type": "image",
           "rect": [
             5,
-            6,
-            30,
-            13
+            5.5,
+            32,
+            14
           ],
           "path": "assets/logo_ufsj_ppgcc.png",
           "fit": "contain",
@@ -73,9 +73,9 @@
           "id": "tipo",
           "type": "text",
           "rect": [
-            10,
-            22,
-            80,
+            8,
+            21,
+            84,
             5
           ],
           "text": "EXAME DE QUALIFICAÇÃO · PPGCC",
@@ -95,16 +95,16 @@
           "id": "titulo_capa",
           "type": "text",
           "rect": [
-            10,
-            30,
-            80,
-            20
+            8,
+            28,
+            84,
+            18
           ],
           "text": "Índice temporal informacional\na partir de notícias corporativas",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 22,
-            "leading_pt": 26,
+            "size_pt": 24,
+            "leading_pt": 28,
             "weight": "bold",
             "color": "#292D32",
             "background": "#FFFFFF",
@@ -118,15 +118,15 @@
           "type": "text",
           "rect": [
             10,
-            52,
+            48,
             80,
-            7
+            8
           ],
           "text": "Uma proposta para empresas brasileiras de saneamento",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 12,
-            "leading_pt": 14.16,
+            "size_pt": 12.5,
+            "leading_pt": 14.5,
             "weight": "regular",
             "color": "#59636E",
             "background": "#FFFFFF",
@@ -140,7 +140,7 @@
           "type": "text",
           "rect": [
             10,
-            61,
+            57,
             80,
             5
           ],
@@ -162,7 +162,7 @@
           "type": "text",
           "rect": [
             10,
-            72,
+            70,
             80,
             5
           ],
@@ -184,9 +184,9 @@
           "type": "text",
           "rect": [
             10,
-            78,
+            76,
             80,
-            5
+            6
           ],
           "text": "Orientador: Prof. Dr. Michel Carlo Rodrigues Leles",
           "style": {
@@ -206,9 +206,9 @@
           "type": "text",
           "rect": [
             10,
-            85,
+            84,
             80,
-            4
+            5
           ],
           "text": "2026",
           "style": {
@@ -1083,8 +1083,8 @@
           "text": "1.254 registros brutos − 1 duplicata = 1.253 notícias canônicas",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 13,
-            "leading_pt": 15.34,
+            "size_pt": 12.5,
+            "leading_pt": 14.5,
             "weight": "bold",
             "color": "#292D32",
             "background": "#FFFFFF",
@@ -1142,9 +1142,9 @@
           "type": "chart",
           "rect": [
             5,
-            34,
+            33,
             58,
-            36
+            38
           ],
           "text": "",
           "style": {
@@ -2347,9 +2347,9 @@
           "type": "formula",
           "rect": [
             5,
-            25.0,
+            24,
             90,
-            8.0
+            9
           ],
           "text": "λ_H = 2^(−1/H); H = 7 → λ₇ ≈ 0,9057",
           "style": {
@@ -2370,9 +2370,9 @@
           "type": "formula",
           "rect": [
             5,
-            39,
+            35,
             90,
-            13
+            12
           ],
           "text": "ITI_d = λ_H ITI_(d−1) + (1−λ_H) X_d",
           "style": {
@@ -2393,9 +2393,9 @@
           "type": "text",
           "rect": [
             5,
-            57,
-            50,
-            20
+            52,
+            48,
+            18
           ],
           "text": "H: meia-vida em dias civis\nλ_H: fração diária retida\nITI_(d−1): estado anterior · X_d: entrada atual",
           "style": {
@@ -2414,10 +2414,10 @@
           "id": "pesos",
           "type": "text",
           "rect": [
-            61,
-            57,
-            34,
-            20
+            56,
+            52,
+            39,
+            18
           ],
           "text": "90,57% do estado anterior\n9,43% da entrada atual",
           "style": {
@@ -2437,7 +2437,7 @@
           "type": "text",
           "rect": [
             5,
-            81.0,
+            73.5,
             90,
             5.5
           ],
@@ -3169,9 +3169,9 @@
           "type": "table",
           "rect": [
             5,
-            30,
-            58,
-            42
+            29,
+            60,
+            44
           ],
           "text": "",
           "style": {
@@ -3252,9 +3252,9 @@
           "id": "diag",
           "type": "text",
           "rect": [
-            66,
+            68,
             32,
-            29,
+            27,
             14
           ],
           "text": "50 / 100\nna diagonal",
@@ -3274,10 +3274,10 @@
           "id": "neutras",
           "type": "text",
           "rect": [
-            66,
+            68,
             48,
-            29,
-            22
+            27,
+            20
           ],
           "text": "35 das 67 notícias neutras da referência receberam previsão com polaridade (21+14)",
           "style": {
@@ -3931,9 +3931,9 @@
           "type": "text",
           "rect": [
             5,
-            25.0,
+            24,
             90,
-            4.0
+            6
           ],
           "text": "Bootstrap em blocos: 4 semanas · 10.000 reamostragens pareadas",
           "style": {
@@ -3952,10 +3952,10 @@
           "id": "ic",
           "type": "chart",
           "rect": [
-            8,
+            5,
             32,
-            84,
-            28
+            90,
+            34
           ],
           "text": "",
           "style": {
@@ -4008,9 +4008,9 @@
           "type": "text",
           "rect": [
             5,
-            74,
+            68,
             90,
-            5.0
+            5
           ],
           "text": "p exploratório = 0,512 · sem distribuição nula explicitamente construída",
           "style": {
@@ -4030,7 +4030,7 @@
           "type": "text",
           "rect": [
             5,
-            81.0,
+            73.5,
             90,
             5.5
           ],
@@ -4539,9 +4539,9 @@
           "type": "text",
           "rect": [
             5,
+            24,
             28,
-            16,
-            9
+            7
           ],
           "text": "MÊS 1",
           "style": {
@@ -4560,10 +4560,10 @@
           "id": "m2",
           "type": "text",
           "rect": [
+            36,
             24,
             28,
-            16,
-            9
+            7
           ],
           "text": "MÊS 2",
           "style": {
@@ -4582,10 +4582,10 @@
           "id": "m3",
           "type": "text",
           "rect": [
-            43,
+            67,
+            24,
             28,
-            16,
-            9
+            7
           ],
           "text": "MÊS 3",
           "style": {
@@ -4604,10 +4604,10 @@
           "id": "m4",
           "type": "text",
           "rect": [
-            62,
-            28,
-            16,
-            9
+            14,
+            50,
+            34,
+            7
           ],
           "text": "MÊS 4",
           "style": {
@@ -4626,10 +4626,10 @@
           "id": "m5",
           "type": "text",
           "rect": [
-            81,
-            28,
-            14,
-            9
+            52,
+            50,
+            34,
+            7
           ],
           "text": "MÊS 5",
           "style": {
@@ -4648,12 +4648,12 @@
           "id": "linha",
           "type": "arrow",
           "from": [
-            5,
-            41
+            8,
+            47
           ],
           "to": [
-            95,
-            41
+            92,
+            47
           ],
           "color": "#59636E",
           "width_pt": 0.8,
@@ -4665,15 +4665,15 @@
           "type": "text",
           "rect": [
             5,
-            48,
-            16,
-            24
+            33,
+            28,
+            12
           ],
           "text": "Corpus\nVersões e\ncobertura",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 11,
-            "leading_pt": 12.98,
+            "size_pt": 10.5,
+            "leading_pt": 12.2,
             "weight": "regular",
             "color": "#292D32",
             "background": "#FFFFFF",
@@ -4686,16 +4686,16 @@
           "id": "p2",
           "type": "text",
           "rect": [
-            24,
-            48,
-            16,
-            24
+            36,
+            33,
+            28,
+            12
           ],
           "text": "Validação\nDuas entradas;\nrótulos\nindependentes",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 11,
-            "leading_pt": 12.98,
+            "size_pt": 10.5,
+            "leading_pt": 12.2,
             "weight": "regular",
             "color": "#292D32",
             "background": "#FFFFFF",
@@ -4708,16 +4708,16 @@
           "id": "p3",
           "type": "text",
           "rect": [
-            43,
-            48,
-            16,
-            24
+            67,
+            33,
+            28,
+            12
           ],
           "text": "Controle\nMesma janela;\npesos distintos",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 11,
-            "leading_pt": 12.98,
+            "size_pt": 10.5,
+            "leading_pt": 12.2,
             "weight": "regular",
             "color": "#292D32",
             "background": "#FFFFFF",
@@ -4730,16 +4730,16 @@
           "id": "p4",
           "type": "text",
           "rect": [
-            62,
-            48,
-            16,
-            24
+            14,
+            59,
+            34,
+            11
           ],
           "text": "Teste\nPeríodo novo;\nprotocolo fixo",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 11,
-            "leading_pt": 12.98,
+            "size_pt": 10.5,
+            "leading_pt": 12.2,
             "weight": "regular",
             "color": "#292D32",
             "background": "#FFFFFF",
@@ -4752,16 +4752,16 @@
           "id": "p5",
           "type": "text",
           "rect": [
-            81,
-            48,
-            14,
-            24
+            52,
+            59,
+            34,
+            11
           ],
           "text": "Síntese\nDissertação\ne artigo",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 11,
-            "leading_pt": 12.98,
+            "size_pt": 10.5,
+            "leading_pt": 12.2,
             "weight": "regular",
             "color": "#292D32",
             "background": "#FFFFFF",

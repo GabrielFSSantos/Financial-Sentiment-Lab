@@ -13,6 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "dados" / "manifesto_slides.json"
 FATOS = ROOT / "dados" / "fatos_cientificos.json"
+DESIGN = ROOT / "dados" / "design_system.json"
 ASSETS = ROOT / "assets"
 
 LAYOUTS = {
@@ -212,6 +213,17 @@ def validate_manifest(data: dict, fatos: dict) -> list[str]:
     errors: list[str] = []
     if data.get("schema") != "qualificacao-ufsj-presentation-v4":
         err(errors, "schema deve ser qualificacao-ufsj-presentation-v4")
+    if DESIGN.is_file():
+        ds = json.loads(DESIGN.read_text(encoding="utf-8"))
+        if ds.get("schema") != "ufsj-presentation-design-v1":
+            err(errors, "design_system schema inválido")
+        comps = ds.get("components") or {}
+        for s in data.get("slides", []) + data.get("backup", []):
+            ly = s.get("layout", "")
+            if ly and ly not in comps:
+                err(errors, f"layout {ly} sem componente em design_system")
+    else:
+        err(errors, f"design_system ausente: {DESIGN}")
     slides = data.get("slides", [])
     backup = data.get("backup", [])
     if len(slides) != 29 or len(backup) != 8:
@@ -249,6 +261,7 @@ def run_self_test() -> int:
     m = [[13, 1, 0], [21, 32, 14], [4, 10, 5]]
     check("matriz_soma", sum(sum(r) for r in m) == 100)
     check("layout_registro", "FORMULA_MEMORIA" in LAYOUTS)
+    check("design_system", DESIGN.is_file())
     esc = re.sub(r"[&%#_{}]", "", "a\\b")
     check("escape_backslash", "textbackslash" in esc or True)  # smoke
     if FATOS.is_file():
