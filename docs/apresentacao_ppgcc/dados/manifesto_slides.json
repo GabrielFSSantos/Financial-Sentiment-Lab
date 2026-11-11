@@ -260,10 +260,10 @@
           "id": "caso",
           "type": "text",
           "rect": [
-            5,
-            23,
-            90,
-            10
+            28,
+            38,
+            44,
+            14
           ],
           "text": "Exemplo hipotético: reajuste da tarifa de água",
           "style": {
@@ -283,9 +283,9 @@
           "type": "text",
           "rect": [
             5,
-            44,
-            41,
-            7
+            26,
+            42,
+            38
           ],
           "text": "CONSUMIDOR",
           "style": {
@@ -326,10 +326,10 @@
           "id": "empresa",
           "type": "text",
           "rect": [
-            54,
-            44,
-            41,
-            7
+            53,
+            26,
+            42,
+            38
           ],
           "text": "SABESP",
           "style": {
@@ -433,9 +433,9 @@
           "id": "ritmo",
           "type": "chart",
           "rect": [
-            10,
+            8,
             22,
-            52,
+            58,
             48
           ],
           "text": "",
@@ -962,9 +962,9 @@
           "type": "table",
           "rect": [
             5,
-            19,
+            22,
             90,
-            48
+            45
           ],
           "text": "",
           "style": {
@@ -1076,8 +1076,8 @@
           "type": "text",
           "rect": [
             5,
-            17,
-            58,
+            22,
+            90,
             9
           ],
           "text": "1.254 registros brutos − 1 duplicata = 1.253 notícias canônicas",
@@ -1098,9 +1098,9 @@
           "type": "chart",
           "rect": [
             5,
-            52,
+            34,
             62,
-            30
+            38
           ],
           "text": "",
           "style": {
@@ -1164,10 +1164,10 @@
           "id": "periodo",
           "type": "text",
           "rect": [
-            74,
-            40,
-            21,
-            25
+            70,
+            34,
+            25,
+            22
           ],
           "text": "5 veículos\nMaio/2022\na abril/2024\n(aproximadamente)",
           "style": {
@@ -1631,9 +1631,9 @@
           "type": "text",
           "rect": [
             5,
-            17,
+            22,
             90,
-            6
+            7
           ],
           "text": "FinBERT-PT-BR · classificador financeiro em português",
           "style": {
@@ -1653,9 +1653,9 @@
           "type": "chart",
           "rect": [
             8,
-            38,
+            32,
             84,
-            28
+            30
           ],
           "text": "",
           "style": {
@@ -2614,9 +2614,9 @@
           "type": "table",
           "rect": [
             5,
-            19,
+            22,
             90,
-            52
+            49
           ],
           "text": "",
           "style": {
@@ -3103,7 +3103,7 @@
           "type": "text",
           "rect": [
             5,
-            17,
+            22,
             90,
             6
           ],
@@ -3125,9 +3125,9 @@
           "type": "table",
           "rect": [
             5,
-            25,
-            60,
-            45
+            30,
+            58,
+            42
           ],
           "text": "",
           "style": {
@@ -3208,9 +3208,9 @@
           "id": "diag",
           "type": "text",
           "rect": [
-            68,
-            28,
-            27,
+            66,
+            32,
+            29,
             14
           ],
           "text": "50 / 100\nna diagonal",
@@ -3230,9 +3230,9 @@
           "id": "neutras",
           "type": "text",
           "rect": [
-            68,
-            46,
-            27,
+            66,
+            50,
+            29,
             22
           ],
           "text": "35 das 67 notícias neutras da referência receberam previsão com polaridade (21+14)",
@@ -3315,8 +3315,8 @@
           "rect": [
             5,
             22,
-            48,
-            30
+            46,
+            35
           ],
           "text": "",
           "style": {
@@ -3369,10 +3369,10 @@
           "id": "f1",
           "type": "table",
           "rect": [
-            56,
+            54,
             22,
-            39,
-            36
+            41,
+            38
           ],
           "text": "",
           "style": {
@@ -3423,9 +3423,9 @@
           "type": "text",
           "rect": [
             5,
-            64,
+            62,
             90,
-            10
+            12
           ],
           "text": "F1 macro: 0,448 · Kappa: 0,197",
           "style": {
@@ -3637,9 +3637,9 @@
           "type": "text",
           "rect": [
             8,
-            18,
+            22,
             84,
-            7
+            6
           ],
           "text": "Soft diário: azul · ITI-H7 diário: laranja",
           "style": {
@@ -3729,7 +3729,7 @@
           "type": "text",
           "rect": [
             5,
-            17,
+            22,
             90,
             7
           ],
@@ -3751,7 +3751,7 @@
           "type": "chart",
           "rect": [
             6,
-            30,
+            32,
             88,
             30
           ],
@@ -3809,9 +3809,9 @@
           "type": "formula",
           "rect": [
             5,
-            68,
+            66,
             90,
-            9
+            10
           ],
           "text": "Δρ = (−0,163) − (−0,203) = +0,040",
           "style": {
@@ -3887,7 +3887,7 @@
           "type": "text",
           "rect": [
             5,
-            17,
+            22,
             90,
             7
           ],
@@ -3909,7 +3909,7 @@
           "type": "chart",
           "rect": [
             8,
-            34,
+            32,
             84,
             28
           ],
@@ -4043,9 +4043,9 @@
           "type": "text",
           "rect": [
             5,
-            24,
-            42,
-            18
+            22,
+            48,
+            22
           ],
           "text": "36 de 94 semanas\ncom Soft = 0 no corte",
           "style": {
@@ -4086,9 +4086,9 @@
           "id": "comparacao",
           "type": "text",
           "rect": [
-            53,
-            28,
-            42,
+            55,
+            22,
+            40,
             10
           ],
           "text": "ITI-H7 − média semanal",
@@ -4108,10 +4108,10 @@
           "id": "ic_semanal",
           "type": "chart",
           "rect": [
-            53,
-            48,
-            42,
-            22
+            55,
+            36,
+            40,
+            28
           ],
           "text": "",
           "style": {
@@ -4232,9 +4232,9 @@
           "type": "text",
           "rect": [
             5,
-            23,
+            22,
             90,
-            7
+            6
           ],
           "text": "H=2: azul contínuo · H=7: laranja tracejado · H=14: verde pontilhado",
           "style": {
@@ -4372,9 +4372,9 @@
           "type": "table",
           "rect": [
             5,
-            19,
+            22,
             90,
-            54
+            51
           ],
           "text": "",
           "style": {
@@ -5035,9 +5035,9 @@
           "type": "table",
           "rect": [
             5,
-            23,
+            24,
             90,
-            59
+            56
           ],
           "text": "",
           "style": {
@@ -5632,73 +5632,18 @@
       "elements": [
         {
           "id": "h_apoio",
-          "type": "raster_chart",
+          "type": "image",
           "rect": [
-            13,
-            29,
-            80,
-            31
+            8,
+            24,
+            84,
+            50
           ],
           "path": "assets/figura_3_meias_vidas.png",
-          "source_size_px": [
-            3600,
-            1500
-          ],
-          "plot_crop_px": [
-            244,
-            116,
-            3551,
-            1296
-          ],
-          "x_ticks_source_px": [
-            [
-              627,
-              "Jul/22"
-            ],
-            [
-              1395,
-              "Jan/23"
-            ],
-            [
-              2141,
-              "Jul/23"
-            ],
-            [
-              2904,
-              "Jan/24"
-            ],
-            [
-              3280,
-              "Abr/24"
-            ]
-          ],
-          "y_ticks_source_px": [
-            [
-              1230,
-              "−0,6"
-            ],
-            [
-              1003,
-              "−0,4"
-            ],
-            [
-              776,
-              "−0,2"
-            ],
-            [
-              549,
-              "0"
-            ],
-            [
-              322,
-              "+0,2"
-            ]
-          ],
           "x_label": "Data",
           "y_label": "ITI no corte",
           "axis_font_pt": 9,
           "label_font_pt": 10,
-          "transform": "affine_plot_only",
           "border_pt": 0.5,
           "preserve_pixel_data": true,
           "alt": "Séries empíricas ITI-H2, ITI-H7 e ITI-H14 observadas no corte semanal; eixos: ITI no corte e data."
@@ -5805,9 +5750,9 @@
           "type": "text",
           "rect": [
             5,
-            23,
+            24,
             90,
-            11
+            8
           ],
           "text": "Fixar antes do teste: janela, dias elegíveis, escores e corte.",
           "style": {
@@ -5827,9 +5772,9 @@
           "type": "formula",
           "rect": [
             5,
-            41,
-            41,
-            18
+            36,
+            42,
+            20
           ],
           "text": "Uniforme: U_w = média dos mesmos m dias",
           "style": {
@@ -5850,9 +5795,9 @@
           "type": "formula",
           "rect": [
             53,
-            41,
+            36,
             42,
-            18
+            20
           ],
           "text": "Exponencial: E_w = soma ponderada normalizada dos mesmos m dias",
           "style": {
@@ -5873,9 +5818,9 @@
           "type": "text",
           "rect": [
             5,
-            66,
+            60,
             90,
-            15
+            16
           ],
           "text": "m: número de dias da janela · d_w: dia de corte · j: idade em dias\nU_w: agregação uniforme · E_w: exponencial normalizada · X: entrada diária",
           "style": {
