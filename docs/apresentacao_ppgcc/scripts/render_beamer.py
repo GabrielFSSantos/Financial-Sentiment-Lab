@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Gera build/slides_content.tex a partir do manifesto (layouts UFSJ)."""
+"""Gera build/slides_content.tex a partir do manifesto v4 (elements tipados)."""
 
 from __future__ import annotations
 
@@ -11,15 +11,84 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "dados" / "manifesto_slides.json"
 FATOS_PATH = ROOT / "dados" / "fatos_cientificos.json"
 OUT = ROOT / "build" / "slides_content.tex"
+GEOM_OUT = ROOT / "build" / "layout_geometry.json"
+RASTER_DIR = ROOT / "build" / "raster_cache"
 ASSETS = ROOT / "assets"
 
-_BULLET_PLACEHOLDER = "\ue000"
+LAYOUTS = {
+    "CAPA_INSTITUCIONAL",
+    "COMPARACAO_ALVO",
+    "BARRAS_DIDATICAS",
+    "FLUXO_TRES_CAMADAS",
+    "PERGUNTA_CONTRASTE",
+    "TABELA_LITERATURA",
+    "CORPUS_BARRAS_SEPARADAS",
+    "BIFURCACAO_AVALIACOES",
+    "RECORTE_ANOTADO",
+    "PROBABILIDADES_BARRA",
+    "FORMULA_ESCORE",
+    "FORMULA_MEDIA",
+    "MEMORIA_DIAGRAMA",
+    "FORMULA_MEMORIA",
+    "CONTA_DUAS_PARCELAS",
+    "TABELA_JANELAS",
+    "LINHA_TEMPO_MERCADO",
+    "AMOSTRA_CONTEXTO",
+    "MATRIZ_REAL",
+    "METRICAS_COMPARADAS",
+    "COMPARACAO_ENTRADAS",
+    "SERIES_DOIS_PAINEIS",
+    "CORRELACOES_PONTOS",
+    "INTERVALO_HORIZONTAL",
+    "BASELINE_CONTAGEM_INTERVALO",
+    "SERIE_SENSIBILIDADE",
+    "TABELA_AMEACAS",
+    "CRONOGRAMA_CINCO",
+    "FECHAMENTO_TRES",
+    "APOIO_FICHA",
+    "APOIO_METRICAS",
+    "APOIO_SENSIBILIDADES",
+    "APOIO_GRUPOS",
+    "APOIO_BOOTSTRAP",
+    "APOIO_MEIA_VIDA",
+    "APOIO_CONTROLE",
+    "APOIO_REFERENCIAS",
+}
 
-FIGURE_NAMES = (
-    "figura_2_soft_iti_noticias.png",
-    "figura_3_meias_vidas.png",
-    "figura_4_contrastes_bootstrap.png",
-)
+MATH_TOKENS: list[tuple[str, str]] = [
+    ("ITI_(d−1)", r"ITI_{d-1}"),
+    ("ITI_d", r"ITI_d"),
+    ("X_d", r"X_d"),
+    ("N_d", r"\mathcal N_d"),
+    ("n_d", r"n_d"),
+    ("λ_H", r"\lambda_H"),
+    ("λ₇", r"\lambda_7"),
+    ("pᵢ⁺", r"p_i^+"),
+    ("pᵢ⁻", r"p_i^-"),
+    ("pᵢ⁰", r"p_i^0"),
+    ("p⁺", r"p^+"),
+    ("p⁻", r"p^-"),
+    ("p⁰", r"p^0"),
+    ("sᵢ", r"s_i"),
+    ("P_(w+1)", r"P_{w+1}"),
+    ("P_w", r"P_w"),
+    ("R¹", r"R^{(1)}"),
+    ("U_w", r"U_w"),
+    ("E_w", r"E_w"),
+    ("d_w", r"d_w"),
+    ("Δρ", r"\Delta\rho"),
+    ("ρ", r"\rho"),
+    ("κ", r"\kappa"),
+    ("λ", r"\lambda"),
+    ("→", r"\rightarrow"),
+    ("×", r"\times"),
+    ("≈", r"\approx"),
+    ("≠", r"\neq"),
+    ("−", "-"),
+    ("·", r"\cdot"),
+]
+
+_ESCAPE_ORDER = "\\&%#_{}~^"
 
 
 def load_fatos() -> dict:
@@ -28,406 +97,721 @@ def load_fatos() -> dict:
     return {}
 
 
-def normalize_unicode(text: str) -> str:
-    subs = {
-        "≠": r"$\neq$",
-        "Δ": r"$\Delta$",
-        "ρ": r"$\rho$",
-        "λ": r"$\lambda$",
-        "κ": r"$\kappa$",
-        "≈": r"$\approx$",
-        "≤": r"$\leq$",
-        "≥": r"$\geq$",
-        "−": "-",
-        "→": r"$\rightarrow$",
-        "•": _BULLET_PLACEHOLDER,
-        "⁺": r"$^+$",
-        "⁻": r"$^-$",
-        "⁰": r"$^0$",
-        "₁": r"$_1$",
-        "₂": r"$_2$",
-        "₃": r"$_3$",
-        "₄": r"$_4$",
-        "₅": r"$_5$",
-        "₆": r"$_6$",
-        "₇": r"$_7$",
-        "ᵢ": r"$_i$",
-        "ₛ": r"$_s$",
-        "ᵈ": r"$_d$",
-        "ʷ": r"$_w$",
-        "⁽": r"$^{(}$",
-        "⁾": r"$^{)}$",
-        "¹": r"$^1$",
-    }
-    for u, tex in subs.items():
-        text = text.replace(u, tex)
+def normalize_text(text: str) -> str:
+    text = (
+        text.replace("\u2212", "-")
+        .replace("−", "-")
+        .replace("\u00a0", " ")
+    )
+    text = re.sub(r"\\{3,}", r"\\\\", text)
     return text
 
 
-def _latex_escape_plain(text: str) -> str:
-    text = text.replace("\\", "\\textbackslash{}")
-    for a, b in (
-        ("&", r"\&"),
-        ("%", r"\%"),
-        ("#", r"\#"),
-        ("_", r"\_"),
-        ("{", r"\{"),
-        ("}", r"\}"),
-        ("~", r"\textasciitilde{}"),
-        ("^", r"\textasciicircum{}"),
-    ):
-        text = text.replace(a, b)
-    return text.replace("−", "-")
-
-
-def latex_escape(text: str) -> str:
-    text = normalize_unicode(text)
-    parts = re.split(r"(\$[^$]+\$)", text)
+def escape_plain(text: str) -> str:
+    """Escape LaTeX specials em passagem única."""
+    if not text:
+        return ""
+    text = normalize_text(text)
     out: list[str] = []
-    for part in parts:
-        if part.startswith("$") and part.endswith("$"):
-            out.append(part)
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if ch == "\\":
+            out.append(r"\textbackslash{}")
+            i += 1
+            continue
+        if ch == "&":
+            out.append(r"\&")
+        elif ch == "%":
+            out.append(r"\%")
+        elif ch == "#":
+            out.append(r"\#")
+        elif ch == "_":
+            out.append(r"\_")
+        elif ch == "{":
+            out.append(r"\{")
+        elif ch == "}":
+            out.append(r"\}")
+        elif ch == "~":
+            out.append(r"\textasciitilde{}")
+        elif ch == "^":
+            out.append(r"\textasciicircum{}")
         else:
-            out.append(_latex_escape_plain(part))
-    out_text = "".join(out)
-    return out_text.replace(_BULLET_PLACEHOLDER, r"\textbullet{}")
+            out.append(ch)
+        i += 1
+    return "".join(out)
 
 
-def figure_path(visual: str) -> str | None:
-    for name in FIGURE_NAMES:
-        if name in (visual or "") and (ASSETS / name).is_file():
-            return name
-    return None
-
-
-def bullets_block(lines: list[str], max_items: int = 5) -> str:
-    if not lines:
+def format_mixed_text(text: str) -> str:
+    """Texto com tokens matemáticos explícitos."""
+    if not text:
         return ""
-    rows = ["  \\begin{itemize}"]
-    for line in lines[:max_items]:
-        rows.append(f"    \\item {latex_escape(line)}")
-    rows.append("  \\end{itemize}")
-    return "\n".join(rows)
+    text = normalize_text(text)
+    parts: list[str] = []
+    i = 0
+    while i < len(text):
+        matched = None
+        for tok, latex in MATH_TOKENS:
+            if text.startswith(tok, i):
+                matched = (tok, latex)
+                break
+        if matched:
+            tok, latex = matched
+            parts.append(f"\\({latex}\\)")
+            i += len(tok)
+            continue
+        if text[i] == "\n":
+            parts.append(r"\\")
+            i += 1
+            while i < len(text) and text[i] == "\n":
+                i += 1
+            continue
+        j = i + 1
+        while j < len(text):
+            if text[j] == "\n":
+                break
+            if any(text.startswith(tok, j) for tok, _ in MATH_TOKENS):
+                break
+            j += 1
+        parts.append(escape_plain(text[i:j]))
+        i = j
+    return "".join(parts)
 
 
-def footer_block(footer: str | None) -> str:
-    if not footer:
-        return ""
-    return f"  \\vfill\\footnotesize{{\\color{{ufsjgray}}{latex_escape(footer)}}}"
+def hex_rgb(h: str) -> tuple[float, float, float]:
+    h = h.lstrip("#")
+    return int(h[0:2], 16) / 255, int(h[2:4], 16) / 255, int(h[4:6], 16) / 255
 
 
-def frame_begin(title: str | None, capa: bool = False) -> str:
-    if capa:
-        return "\\begin{frame}[plain,noframenumbering]"
-    if title:
-        return f"\\begin{{frame}}\n  \\frametitle{{{latex_escape(title)}}}"
-    return "\\begin{frame}"
+def color_model(h: str) -> str:
+    """Modelo xcolor rgb,255 (uso em chaves color=/fill=)."""
+    r, g, b = hex_rgb(h)
+    return f"rgb,255:red,{int(r*255)};green,{int(g*255)};blue,{int(b*255)}"
 
 
-def frame_end() -> str:
-    return "\\end{frame}"
+def tikz_fill(h: str) -> str:
+    return f"fill={{{color_model(h)}}}"
 
 
-def render_capa(s: dict) -> str:
-    lines = s.get("screen", [])
-    parts = [
-        frame_begin(None, capa=True),
-        "  \\begin{columns}[T]",
-        "    \\begin{column}{\\paperwidth}",
-        "      \\vspace{-0.15cm}",
-        "      \\begin{center}",
-        "        \\includegraphics[height=1.1cm]{logo_dcomp.png}\\hfill",
-        "        \\includegraphics[height=1.1cm]{logo_ufsj_ppgcc.png}",
-        "      \\end{center}\\vspace{0.4cm}",
-        "      {\\color{ufsjred}\\rule{\\linewidth}{1.2pt}}\\\\[0.5cm]",
-        f"      {{\\large\\color{{ufsjgray}}{latex_escape(lines[0] if lines else 'Exame de Qualificação')}}}\\\\[0.35cm]",
-        f"      {{\\Large\\bfseries\\color{{ufsjdark}}{latex_escape(lines[1] if len(lines) > 1 else s.get('title', ''))}}}\\\\[0.2cm]",
-        f"      {{\\large {latex_escape(lines[2] if len(lines) > 2 else '')}}}\\\\[0.6cm]",
-        f"      {{\\normalsize {latex_escape(lines[3] if len(lines) > 3 else '')}}}\\\\[0.2cm]",
-        f"      {{\\normalsize\\color{{ufsjgray}}{latex_escape(lines[4] if len(lines) > 4 else 'UFSJ \\textbullet{} 2026')}}}\\\\",
-        "    \\end{column}",
-        "  \\end{columns}",
-        frame_end(),
-    ]
-    return "\n".join(parts)
+def tikz_draw_color(h: str) -> str:
+    return f"color={{{color_model(h)}}}"
 
 
-def _column_chunks(lines: list[str], ncols: int) -> list[list[str]]:
-    if not lines:
-        return [[] for _ in range(ncols)]
-    n = len(lines)
-    base, extra = divmod(n, ncols)
-    sizes = [base + (1 if i < extra else 0) for i in range(ncols)]
-    chunks: list[list[str]] = []
-    idx = 0
-    for sz in sizes:
-        chunks.append(lines[idx : idx + sz])
-        idx += sz
-    return chunks
+def latex_rgb(h: str) -> str:
+    r, g, b = hex_rgb(h)
+    return f"[rgb]{{{r:.3f},{g:.3f},{b:.3f}}}"
 
 
-def render_columns_cards(s: dict, ncols: int) -> str:
-    lines = list(s.get("screen", []))
-    layout = s.get("layout", "")
-    tail: list[str] = []
-    if layout in ("TRES_ETAPAS", "TRES_PILARES") and len(lines) > ncols:
-        tail = lines[ncols:]
-        lines = lines[:ncols]
-    elif layout == "QUATRO_LIMITES" and len(lines) > ncols:
-        tail = lines[ncols:]
-        lines = lines[:ncols]
-    chunks = _column_chunks(lines, ncols)
-    col_w = f"{0.98 / ncols:.2f}\\textwidth"
-    parts = [frame_begin(s.get("title", ""))]
-    parts.append("  \\begin{columns}[T,onlytextwidth]")
-    for chunk in chunks[:ncols]:
-        parts.append(f"    \\begin{{column}}{{{col_w}}}")
-        for item in chunk:
-            parts.append("      \\begin{ufsjcard}")
-            parts.append(f"        {latex_escape(item)}")
-            parts.append("      \\end{ufsjcard}\\vspace{4pt}")
-        parts.append("    \\end{column}")
-    parts.append("  \\end{columns}")
-    if tail:
-        parts.append("  \\vspace{6pt}")
-        parts.append(bullets_block(tail, 3))
-    parts.append(footer_block(s.get("footer")))
-    parts.append(frame_end())
-    return "\n".join(parts)
+# Zonas verticais (% da página, topo → base) — slides internos 16:9
+TITLE_Y_PCT = 4.0
+CONTENT_Y_MIN_PCT = 17.0
+BIBLIO_FOOTER_Y_PCT = 88.0
+INST_RULE_Y_PCT = 94.0
+INST_FOOTER_Y_PCT = 98.2
 
 
-def render_pergunta_hipotese(s: dict) -> str:
-    lines = s.get("screen", [])
-    q = lines[0] if lines else ""
-    rest = lines[1:] if len(lines) > 1 else []
-    parts = [
-        frame_begin(s.get("title", "")),
-        "  \\begin{ufsjcard}",
-        f"    \\textbf{{Pergunta}}\\\\[4pt]{latex_escape(q)}",
-        "  \\end{ufsjcard}\\vspace{6pt}",
-        "  \\begin{ufsjformula}",
-        "    \\centering",
-        "    $\\Delta\\rho = \\rho_s(\\text{ITI-H7}, R^{1w}) - \\rho_s(\\text{Soft}, R^{1w})$",
-        "  \\end{ufsjformula}\\vspace{4pt}",
-        bullets_block(rest, 4),
-        footer_block(s.get("footer")),
-        frame_end(),
-    ]
-    return "\n".join(parts)
+def pos_xy(x: float, y: float) -> str:
+    return (
+        f"([xshift={x/100:.5f}\\paperwidth,yshift=-{y/100:.5f}\\paperheight]"
+        "current page.north west)"
+    )
 
 
-def render_corpus_bars(s: dict, fatos: dict) -> str:
-    fontes = fatos.get("fontes", {})
-    items = list(fontes.items())[:5]
-    max_v = max((v for _, v in items), default=1)
-    parts = [
-        frame_begin(s.get("title", "")),
-        "  \\begin{columns}[T]",
-        "    \\begin{column}{0.28\\textwidth}",
-        f"    \\ufsjkpi{{{fatos.get('corpus_canonicas', 1253)}}}{{notícias canônicas}}",
-        "    \\vspace{6pt}",
-        f"    \\footnotesize {latex_escape(s.get('screen', [''])[0] if s.get('screen') else '')}",
-        "    \\end{column}",
-        "    \\begin{column}{0.68\\textwidth}",
-        "    \\begin{tikzpicture}[x=1cm,y=0.42cm]",
-    ]
-    for i, (nome, val) in enumerate(items):
-        w = 4.5 * val / max_v
-        parts.append(f"      \\fill[ufsjred] (0,{-i}) rectangle ({w:.2f},{-i+0.35});")
-        parts.append(f"      \\node[anchor=west,font=\\scriptsize] at (0,{-i+0.17}) {{{latex_escape(nome)}}};")
-        parts.append(f"      \\node[anchor=west,font=\\scriptsize] at ({w+0.1:.2f},{-i+0.17}) {{{val}}};")
-    parts.append("    \\end{tikzpicture}")
-    parts.append("    \\end{column}")
-    parts.append("  \\end{columns}")
-    for line in (s.get("screen") or [])[3:]:
-        parts.append(f"  \\footnotesize{{\\color{{ufsjgray}}{latex_escape(line)}}}")
-    parts.append(footer_block(s.get("footer")))
-    parts.append(frame_end())
-    return "\n".join(parts)
+def rect_xywh(rect: list[float]) -> tuple[str, float, float]:
+    x, y, w, h = rect
+    anchor = pos_xy(x, y)
+    return anchor, w / 100, h / 100
 
 
-def render_fluxo(s: dict) -> str:
-    lines = s.get("screen", [])
-    top = lines[0] if lines else ""
-    bottom = lines[1] if len(lines) > 1 else ""
-    parts = [
-        frame_begin(s.get("title", "")),
-        "  \\begin{block}{Frente temporal}",
-        f"    {latex_escape(top)}",
-        "  \\end{block}",
-        "  \\begin{block}{Frente textual}",
-        f"    {latex_escape(bottom)}",
-        "  \\end{block}",
-        bullets_block(lines[2:], 3),
-        footer_block(s.get("footer")),
-        frame_end(),
-    ]
-    return "\n".join(parts)
+def tex_font(size: float, leading: float, content: str, *, bold: bool = False, color: str | None = None) -> str:
+    inner = content
+    if color:
+        r, g, b = hex_rgb(color)
+        inner = f"\\color[rgb]{{{r:.3f},{g:.3f},{b:.3f}}}{inner}"
+    bf = "\\bfseries " if bold else ""
+    return f"{{\\fontsize{{{size:.2f}}}{{{leading:.2f}}}\\selectfont {bf}{inner}}}"
 
 
-def render_formula_rich(s: dict, eq: str, symbols: list[str]) -> str:
-    parts = [
-        frame_begin(s.get("title", "")),
-        "  \\begin{columns}[T]",
-        "    \\begin{column}{0.52\\textwidth}",
-        "      \\begin{ufsjformula}",
-        f"        \\centering {eq}",
-        "      \\end{ufsjformula}",
-        "      \\footnotesize",
-        bullets_block(symbols, 4),
-        "    \\end{column}",
-        "    \\begin{column}{0.45\\textwidth}",
-        bullets_block(s.get("screen", []), 5),
-        "    \\end{column}",
-        "  \\end{columns}",
-        footer_block(s.get("footer")),
-        frame_end(),
-    ]
-    return "\n".join(parts)
+def style_prefix(style: dict | None) -> str:
+    if not style:
+        return r"{\fontsize{12}{14.16}\selectfont "
+    sz = float(style.get("size_pt", 12))
+    lead = float(style.get("leading_pt", sz * 1.18))
+    color = style.get("color", "#292D32")
+    r, g, b = hex_rgb(color)
+    weight = "\\bfseries " if style.get("weight") == "bold" else ""
+    return (
+        f"{{\\color[rgb]{{{r:.3f},{g:.3f},{b:.3f}}}\\fontsize{{{sz:.2f}}}{{{lead:.2f}}}\\selectfont "
+        f"{weight}"
+    )
 
 
-def render_figure_slide(s: dict, visual: str, fig_h: str = "0.58") -> str:
-    fig = figure_path(visual)
-    parts = [frame_begin(s.get("title", ""))]
-    if fig:
-        parts.extend(
-            [
-                "  \\begin{center}",
-                f"    \\includegraphics[width=\\linewidth,height=" + fig_h + "\\textheight,keepaspectratio]{" + fig + "}",
-                "  \\end{center}",
-            ]
-        )
-        parts.append(bullets_block((s.get("screen") or [])[:3], 3))
+def wrap_minipage(anchor: str, w: float, h: float, body: str, align: str = "left") -> str:
+    tw = f"{w:.5f}\\paperwidth"
+    th = f"{h:.5f}\\paperheight"
+    body = re.sub(r"(\\\\\s*){2,}", r"\\\\", body)
+    body = re.sub(r"\\\\\s*\}\s*$", "}", body)
+    tikz_align = {"left": "left", "center": "center", "right": "right"}.get(align, "left")
+    if align == "center":
+        rag = "\\centering "
+    elif align == "right":
+        rag = "\\raggedleft "
     else:
-        parts.append(bullets_block(s.get("screen", []), 5))
-    parts.append(footer_block(s.get("footer")))
-    parts.append(frame_end())
-    return "\n".join(parts)
+        rag = "\\raggedright "
+    return (
+        f"  \\node[anchor=north west,inner sep=0pt,outer sep=0pt,text width={tw},"
+        f"minimum height={th},align={tikz_align}] at {anchor} {{{rag}{body}\\par}};"
+    )
 
 
-def render_kpis(s: dict, fatos: dict) -> str:
-    lines = s.get("screen", [])
-    parts = [frame_begin(s.get("title", ""))]
-    if "acurácia" in s.get("title", "").lower() or "métricas" in s.get("title", "").lower():
-        parts.append("  \\begin{columns}[T]")
-        parts.append("    \\begin{column}{0.32\\textwidth}\\ufsjkpi{50\\%}{acurácia}\\end{column}")
-        parts.append("    \\begin{column}{0.32\\textwidth}\\ufsjkpi{0,448}{F1 macro}\\end{column}")
-        parts.append("    \\begin{column}{0.32\\textwidth}\\ufsjkpi{0,197}{$\\kappa$}\\end{column}")
-        parts.append("  \\end{columns}\\vspace{8pt}")
-    elif "correlação" in s.get("title", "").lower():
-        parts.append("  \\begin{columns}[T]")
-        parts.append("    \\begin{column}{0.32\\textwidth}\\ufsjkpi{$-$0,163}{$\\rho_s$ ITI-H7}\\end{column}")
-        parts.append("    \\begin{column}{0.32\\textwidth}\\ufsjkpi{$-$0,203}{$\\rho_s$ Soft}\\end{column}")
-        parts.append("    \\begin{column}{0.32\\textwidth}\\ufsjkpi{+0,040}{$\\Delta\\rho$}\\end{column}")
-        parts.append("  \\end{columns}\\vspace{8pt}")
-    parts.append(bullets_block(lines, 5))
-    parts.append(footer_block(s.get("footer")))
-    parts.append(frame_end())
-    return "\n".join(parts)
+def asset_relpath(path: str) -> str:
+    p = path.replace("\\", "/")
+    if p.startswith("assets/"):
+        return p.split("/", 1)[1]
+    if p.startswith("build/"):
+        return p
+    return p
 
 
-def render_conclusao(s: dict) -> str:
-    parts = [
-        frame_begin(s.get("title", "")),
-        "  \\begin{enumerate}",
+def render_text(el: dict) -> str:
+    anchor, w, h = rect_xywh(el["rect"])
+    body = format_mixed_text(el.get("text", ""))
+    align = (el.get("style") or {}).get("align", "left")
+    return wrap_minipage(anchor, w, h, style_prefix(el.get("style")) + body + "}", align)
+
+
+def render_formula(el: dict) -> str:
+    anchor, w, h = rect_xywh(el["rect"])
+    latex = normalize_text(el.get("latex", "").strip())
+    sz = float((el.get("style") or {}).get("size_pt", 17))
+    body = f"\\displaystyle {latex}"
+    tw = f"{w:.5f}\\paperwidth"
+    return (
+        f"  \\node[anchor=north west,inner sep=0pt,text width={tw}] at {anchor} "
+        f"{{\\fontsize{{{sz:.1f}}}{{{sz*1.18:.1f}}}\\selectfont ${body}$}};"
+    )
+
+
+def render_image(el: dict) -> str:
+    anchor, w, h = rect_xywh(el["rect"])
+    path = asset_relpath(el["path"])
+    tw = f"{w:.5f}\\paperwidth"
+    th = f"{h:.5f}\\paperheight"
+    bg = el.get("background", "#FFFFFF")
+    r, g, b = hex_rgb(bg)
+    return (
+        f"  \\node[anchor=north west,inner sep=0pt,{tikz_fill(bg)}] at {anchor} {{"
+        f"\\includegraphics[width={tw},height={th},keepaspectratio]{{{path}}}}};"
+    )
+
+
+def render_arrow(el: dict) -> str:
+    x1, y1 = el["from"]
+    x2, y2 = el["to"]
+    col = tikz_draw_color(el.get("color", "#59636E"))
+    wpt = float(el.get("width_pt", 0.8))
+    return (
+        f"  \\draw[{col},line width={wpt}pt,-{{Stealth[scale=0.5]}}] "
+        f"{pos_xy(x1, y1)} -- {pos_xy(x2, y2)};"
+    )
+
+
+def render_marker(el: dict) -> str:
+    cx, cy = el["center"]
+    rad = float(el.get("radius_pt", 4)) / 72.27 * 2.54  # approx cm from pt
+    col = color_model(el.get("color", "#C1272F"))
+    shape = el.get("shape", "circle")
+    if shape == "circle":
+        return f"  \\fill[color={{{col}}}] {pos_xy(cx, cy)} circle (0.08cm);"
+    return f"  \\fill[color={{{col}}}] {pos_xy(cx, cy)} rectangle +(0.12cm,0.12cm);"
+
+
+def render_table(el: dict) -> str:
+    anchor, w, h = rect_xywh(el["rect"])
+    headers = el.get("headers") or []
+    rows = el.get("rows") or []
+    cols = len(headers) or 1
+    widths = el.get("column_widths_pct") or [100 // cols] * cols
+    matrix = bool(el.get("matrix"))
+    colspec_parts: list[str] = []
+    for i, pct in enumerate(widths):
+        if matrix and i > 0:
+            colspec_parts.append(f">{{\\centering\\arraybackslash}}p{{{pct/100:.4f}\\linewidth}}")
+        else:
+            colspec_parts.append(f">{{\\raggedright\\arraybackslash}}p{{{pct/100:.4f}\\linewidth}}")
+    colspec = " ".join(colspec_parts)
+    sz = float((el.get("style") or {}).get("size_pt", 11.5))
+    header_fill = el.get("header_fill", "#F3F5F7")
+    diag_fill = el.get("diagonal_fill", "#E5F1ED")
+    diagonal = {tuple(x) for x in el.get("diagonal_cells") or []}
+    outline = {tuple(x) for x in el.get("outline_cells") or []}
+
+    lines: list[str] = []
+    lines.append(r"\renewcommand{\arraystretch}{1.35}")
+    lines.append(r"\setlength{\tabcolsep}{4pt}")
+    lines.append(r"\begin{tabular}{" + colspec + "}")
+    lines.append(r"\toprule")
+    hdr_cells = [format_mixed_text(str(h)) for h in headers]
+    lines.append(" & ".join(f"\\cellcolor{latex_rgb(header_fill)}{c}" for c in hdr_cells) + r" \\")
+    lines.append(r"\midrule")
+    for ri, row in enumerate(rows):
+        cells = []
+        for ci, cell in enumerate(row):
+            raw = str(cell)
+            if raw.replace(".", "", 1).replace("-", "", 1).isdigit() or raw.isdigit():
+                txt = escape_plain(raw)
+            else:
+                txt = format_mixed_text(raw)
+            sty = ""
+            key = (ri, ci + 1)
+            if key in diagonal:
+                sty += f"\\cellcolor{latex_rgb(diag_fill)}"
+            if key in outline:
+                cells.append(
+                    sty + r"\fboxrule=0.8pt\fboxsep=2pt\fbox{" + txt + "}"
+                )
+            else:
+                cells.append(sty + txt)
+        lines.append(" & ".join(cells) + r" \\")
+    lines.append(r"\bottomrule")
+    lines.append(r"\end{tabular}")
+    tab = "\n".join(lines)
+    tw = f"{w:.5f}\\paperwidth"
+    body = (
+        f"\\begin{{minipage}}{{\\linewidth}}"
+        f"\\fontsize{{{sz:.2f}}}{{{sz*1.28:.2f}}}\\selectfont {tab}"
+        "\\end{minipage}"
+    )
+    return (
+        f"  \\node[anchor=north west,inner sep=0pt,text width={tw}] at {anchor} "
+        f"{{{body}}};"
+    )
+
+
+def _chart_scope(rect: list[float]) -> str:
+    x, y, w, h = rect
+    return (
+        f"  \\begin{{scope}}"
+        f"[shift={{($(current page.north west)+({x/100:.5f}\\paperwidth,-{y/100:.5f}\\paperheight)$)}},"
+        f"x={w/100:.5f}\\paperwidth,y={h/100:.5f}\\paperheight]"
+    )
+
+
+def render_chart_bar_vertical(el: dict) -> str:
+    rect = el["rect"]
+    data = el.get("data") or []
+    y0, y1 = el.get("y_domain", [0, 5])
+    ymax = max(float(y1), 1.0)
+    y_ticks = el.get("y_ticks", list(range(int(y0), int(y1) + 1)))
+    bar_color = color_model(el.get("bar_color", "#C1272F"))
+    n = len(data) or 1
+    plot_b, plot_t, axis_y = 0.18, 0.88, 0.12
+    lines = [_chart_scope(rect)]
+    lines.append(r"    \clip (0,0) rectangle (1,1);")
+    lines.append(f"    \\draw[gray!50,line width=0.3pt] (0,{plot_b:.3f}) -- (1,{plot_b:.3f});")
+    for i, row in enumerate(data):
+        val = float(row.get(el.get("y_key", "noticias"), 0))
+        xc = (i + 0.5) / n
+        bw = min(0.55 / n, 0.14)
+        x0 = xc - bw / 2
+        bh = (val / ymax) * (plot_t - plot_b)
+        if val == 0 and el.get("zero_marker") == "circle_open":
+            lines.append(
+                f"    \\draw[color={{{bar_color}}},line width=0.8pt] "
+                f"({x0:.4f},{plot_b:.4f}) rectangle ({x0+bw:.4f},{plot_b+0.02:.4f});"
+            )
+            lines.append(f"    \\draw[color={{{bar_color}}},line width=0.6pt] ({xc:.4f},{plot_b+0.03:.4f}) circle (0.012);")
+        else:
+            lines.append(
+                f"    \\fill[color={{{bar_color}}}] "
+                f"({x0:.4f},{plot_b:.4f}) rectangle ({x0+bw:.4f},{plot_b+bh:.4f});"
+            )
+        label = str(row.get(el.get("x_key", "dia"), ""))
+        lines.append(
+            f"    \\node[anchor=north] at ({xc:.4f},{axis_y:.3f}) {{{tex_font(10.5, 12.4, escape_plain(label))}}};"
+        )
+        if val > 0:
+            lines.append(
+                f"    \\node[anchor=south] at ({xc:.4f},{plot_b+bh:.3f}) "
+                f"{{{tex_font(10.5, 12.4, str(int(val)))}}};"
+            )
+    for yt in y_ticks:
+        yf = plot_b + (float(yt) / ymax) * (plot_t - plot_b)
+        lines.append(f"    \\node[anchor=east] at (-0.04,{yf:.3f}) {{{tex_font(10, 11.8, str(yt))}}};")
+    yl = el.get("y_label", "")
+    if yl:
+        lines.append(f"    \\node[anchor=north] at (0.5,{axis_y-0.08:.3f}) {{{tex_font(10.5, 12.4, escape_plain(yl))}}};")
+    lines.append(r"  \end{scope}")
+    return "\n".join(lines)
+
+
+def render_chart_bar_horizontal(el: dict) -> str:
+    rect = el["rect"]
+    data = el.get("data") or []
+    label_zone = float(el.get("label_zone_pct", 22)) / 100
+    value_zone = float(el.get("value_zone_pct", 12)) / 100
+    plot_w = 1 - label_zone - value_zone
+    max_v = max((float(r.get(el.get("x_key", "valor"), r.get("noticias", 0))) for r in data), default=1)
+    n = len(data) or 1
+    bar_h = 0.5 / n
+    bar_color = color_model(el.get("bar_color", "#C1272F"))
+    lines = [_chart_scope(rect)]
+    lines.append(r"    \clip (0,0) rectangle (1,1);")
+    for i, row in enumerate(data):
+        val = float(row.get(el.get("x_key", "valor"), row.get("noticias", 0)))
+        name = str(row.get(el.get("y_key", "fonte"), row.get("fonte", "")))
+        yc = 1 - (i + 0.5) / n
+        x0 = label_zone
+        x1 = label_zone + plot_w * (val / max_v if max_v else 0)
+        lines.append(f"    \\node[anchor=east] at ({label_zone-0.02:.3f},{yc:.3f}) {{{tex_font(10, 11.8, escape_plain(name))}}};")
+        lines.append(f"    \\fill[color={{{bar_color}}}] ({x0:.3f},{yc-bar_h/2:.3f}) rectangle ({x1:.3f},{yc+bar_h/2:.3f});")
+        lines.append(
+            f"    \\node[anchor=west] at ({x1+0.01:.3f},{yc:.3f}) {{{tex_font(10, 11.8, str(int(val) if val==int(val) else val))}}};"
+        )
+    lines.append(r"  \end{scope}")
+    return "\n".join(lines)
+
+
+def render_chart_stacked_probability(el: dict) -> str:
+    rect = el["rect"]
+    data = el.get("data") or []
+    lines = [_chart_scope(rect)]
+    lines.append(r"    \clip (0,0) rectangle (1,1);")
+    bar_b, bar_t = 0.48, 0.72
+    x = 0.05
+    span = 0.9
+    for row in data:
+        v = float(row.get("valor", 0))
+        col = color_model(row.get("cor", "#68737D"))
+        w = v * span
+        x1 = x + w
+        lines.append(f"    \\fill[color={{{col}}}] ({x:.3f},{bar_b:.3f}) rectangle ({x1:.3f},{bar_t:.3f});")
+        if v >= 0.12:
+            cx = (x + x1) / 2
+            lines.append(
+                f"    \\node[anchor=center] at ({cx:.3f},{(bar_b+bar_t)/2:.3f}) "
+                f"{{{tex_font(10.5, 12.4, f'{v:.2f}'.replace('.',','))}}};"
+            )
+        x = x1
+    for tick in el.get("x_ticks", [0, 0.5, 1]):
+        lbl = f"{tick:.1f}".replace(".", ",")
+        tx = 0.05 + tick * span
+        lines.append(f"    \\node[anchor=north] at ({tx:.3f},{bar_b-0.04:.3f}) {{{tex_font(10.5, 12.4, lbl)}}};")
+    leg = el.get("legend") or []
+    for i, item in enumerate(leg[:3]):
+        lx = 0.05 + (i + 0.5) * span / 3
+        lines.append(f"    \\node[anchor=north] at ({lx:.3f},{bar_b-0.18:.3f}) {{{tex_font(10.5, 12.4, escape_plain(item))}}};")
+    xl = el.get("x_label", "")
+    if xl:
+        lines.append(f"    \\node[anchor=north] at (0.5,0.08) {{{tex_font(10.5, 12.4, escape_plain(xl))}}};")
+    if el.get("illustrative"):
+        lines.append(
+            r"    \node[anchor=south east] at (0.98,0.96) "
+            r"{{\fontsize{9}{10.6}\selectfont DADOS ILUSTRATIVOS}};"
+        )
+    lines.append(r"  \end{scope}")
+    return "\n".join(lines)
+
+
+def render_chart_numberline(el: dict) -> str:
+    rect = el["rect"]
+    x0, x1 = el.get("x_domain", [-1, 1])
+    marker = float(el.get("marker_value", el.get("data", [{}])[0].get("valor", 0.5)))
+    lines = [
+        _chart_scope(rect),
+        f"    \\draw[line width=0.6pt] (0,0.5) -- (1,0.5);",
     ]
-    for line in (s.get("screen") or [])[:4]:
-        parts.append(f"    \\item {latex_escape(line)}")
-    parts.append("  \\end{enumerate}")
-    if len((s.get("screen") or [])) > 4:
-        parts.append(
-            "  \\vspace{6pt}\\centering\\textbf{"
-            + latex_escape(s["screen"][-1])
-            + "}"
+    for t in el.get("x_ticks", [x0, 0, x1]):
+        frac = (t - x0) / (x1 - x0) if x1 != x0 else 0.5
+        lbl = f"{t:+g}".replace(".", ",")
+        lines.append(f"    \\node[anchor=north] at ({frac:.3f},0.42) {{{tex_font(10, 11.8, escape_plain(lbl))}}};")
+    frac_m = (marker - x0) / (x1 - x0)
+    lines.append(f"    \\fill[red] ({frac_m:.3f},0.5) circle (0.02);")
+    lines.append(r"  \end{scope}")
+    return "\n".join(lines)
+
+
+def render_chart_dot_horizontal(el: dict) -> str:
+    rect = el["rect"]
+    data = el.get("data") or []
+    x0, x1 = el.get("x_domain", [-0.3, 0.1])
+    label_zone = float(el.get("label_zone_pct", 16)) / 100
+    plot_b, plot_t = 0.28, 0.82
+    lines = [_chart_scope(rect)]
+    lines.append(r"    \clip (0,0) rectangle (1,1);")
+    for t in el.get("x_ticks", []):
+        frac = (float(t) - x0) / (x1 - x0)
+        lines.append(
+            f"    \\node[anchor=north] at ({label_zone + (1-label_zone)*frac:.3f},{plot_b-0.1:.3f}) "
+            f"{{{tex_font(10, 11.8, escape_plain(str(t).replace('.',',')))}}};"
         )
-    parts.append(footer_block(s.get("footer")))
-    parts.append(frame_end())
-    return "\n".join(parts)
-
-
-def render_slide(s: dict, fatos: dict) -> str:
-    layout = s.get("layout", "")
-    visual = s.get("visual", "")
-    title = s.get("title", "")
-
-    if layout == "CAPA":
-        return render_capa(s)
-    if layout in ("DUPLA_COMPARACAO", "DUAS_REPRESENTACOES", "LIMITACAO_BASELINE"):
-        return render_columns_cards(s, 2)
-    if layout in ("TRES_ETAPAS", "TRES_PILARES", "QUATRO_LIMITES"):
-        n = 3 if "TRES" in layout else 4
-        return render_columns_cards(s, n)
-    if layout == "PERGUNTA_HIPOTESE":
-        return render_pergunta_hipotese(s)
-    if layout == "CORPUS_BARRAS":
-        return render_corpus_bars(s, fatos)
-    if layout == "FLUXO_DUAS_LINHAS":
-        return render_fluxo(s)
-    if layout == "GRAFICO_DIDATICO":
-        parts = [
-            frame_begin(title),
-            "  \\begin{tikzpicture}[x=0.9cm,y=0.5cm]",
-            "    \\foreach \\y/\\v in {0/4,1/0,2/1,3/5,4/0}",
-            "      \\fill[ufsjred] (0,\\y) rectangle (\\v,\\y+0.4);",
-            "    \\node[font=\\scriptsize,anchor=north] at (2.5,-1) {DADOS ILUSTRATIVOS};",
-            "  \\end{tikzpicture}\\vspace{6pt}",
-            bullets_block(s.get("screen", []), 4),
-            footer_block(s.get("footer")),
-            frame_end(),
-        ]
-        return "\n".join(parts)
-    if layout in ("PROBABILIDADES", "FORMULA_EXEMPLO", "MEDIA_DIARIA", "FORMULA_DESTAQUE", "CONTA_PASSO_A_PASSO"):
-        eq = {
-            "PROBABILIDADES": r"$p^+, p^-, p^0$",
-            "FORMULA_EXEMPLO": r"$s_i = p_i^+ - p_i^-$",
-            "MEDIA_DIARIA": r"$\bar{s}_d = \frac{1}{n_d}\sum_i s_i$",
-            "FORMULA_DESTAQUE": r"$ITI_t = \lambda ITI_{t-1} + S_t$",
-            "CONTA_PASSO_A_PASSO": r"$ITI \leftarrow 0{,}2283$",
-        }.get(layout, r"$s_i$")
-        return render_formula_rich(s, eq, (s.get("screen") or [])[-2:])
-    if layout == "MEMORIA_COMPARACAO":
-        return render_columns_cards(s, 2)
-    if layout in ("GRAFICO_REAL", "INTERVALO_BOOTSTRAP"):
-        return render_figure_slide(s, visual, "0.62" if layout == "GRAFICO_REAL" else "0.5")
-    if layout in ("METRICAS", "DOIS_VALORES", "AMOSTRA_100") or "correlação" in title.lower():
-        return render_kpis(s, fatos)
-    if layout == "MATRIZ_CONFUSAO":
-        return render_figure_slide(s, visual, "0.45") if figure_path(visual) else render_columns_cards(s, 2)
-    if layout in ("TABELA_COMPARACAO", "CRONOGRAMA", "RECORTE_TEXTO", "LINHA_TEMPO"):
-        return render_columns_cards(s, 2)
-    if layout == "CONCLUSAO":
-        return render_conclusao(s)
-
-    fig = figure_path(visual)
-    parts = [frame_begin(title)]
-    if fig:
-        parts.append("  \\begin{center}")
-        parts.append(
-            f"    \\includegraphics[width=0.88\\linewidth,height=0.55\\textheight,keepaspectratio]{{{fig}}}"
+    if el.get("zero_line"):
+        zf = (0 - x0) / (x1 - x0)
+        zx = label_zone + (1 - label_zone) * zf
+        lines.append(f"    \\draw[line width=0.5pt,gray] ({zx:.3f},{plot_b:.3f}) -- ({zx:.3f},{plot_t:.3f});")
+    n = len(data) or 1
+    for i, row in enumerate(data):
+        rho = float(row.get("rho", 0))
+        frac = (rho - x0) / (x1 - x0)
+        yc = plot_t - (i + 0.5) / n * (plot_t - plot_b)
+        col = color_model(row.get("color", "#292D32"))
+        name = row.get("indicador", "")
+        lines.append(f"    \\node[anchor=east] at ({label_zone-0.02:.3f},{yc:.3f}) {{{tex_font(10.5, 12.4, escape_plain(name))}}};")
+        xp = label_zone + (1 - label_zone) * frac
+        if row.get("marker") == "square":
+            lines.append(f"    \\fill[color={{{col}}}] ({xp:.3f},{yc:.3f}) rectangle +(0.018,-0.018);")
+        else:
+            lines.append(f"    \\fill[color={{{col}}}] ({xp:.3f},{yc:.3f}) circle (0.015);")
+        lines.append(
+            f"    \\node[anchor=west] at ({xp+0.02:.3f},{yc:.3f}) "
+            f"{{{tex_font(10.5, 12.4, escape_plain(f'{rho:+.3f}'.replace('.',',')))}}};"
         )
-        parts.append("  \\end{center}")
-    parts.append(bullets_block(s.get("screen", []), 5))
-    parts.append(footer_block(s.get("footer")))
-    parts.append(frame_end())
+    xl = el.get("x_label", "")
+    if xl:
+        lines.append(
+            f"    \\node[anchor=north,text width={1-label_zone:.2f}\\linewidth,align=center] at (0.5,{plot_b-0.12:.3f}) "
+            f"{{{tex_font(10, 11.8, escape_plain(xl))}}};"
+        )
+    lines.append(r"  \end{scope}")
+    return "\n".join(lines)
+
+
+def render_chart_interval_horizontal(el: dict) -> str:
+    rect = el["rect"]
+    row = (el.get("data") or [{}])[0]
+    est = float(row.get("estimativa", 0))
+    lo = float(row.get("inferior", 0))
+    hi = float(row.get("superior", 0))
+    x0, x1 = el.get("x_domain", [-0.2, 0.1])
+    label_zone = 0.08
+    def fx(v: float) -> float:
+        return label_zone + (1 - label_zone) * (v - x0) / (x1 - x0)
+    yc = 0.58
+    lines = [_chart_scope(rect)]
+    lines.append(r"    \clip (0,0) rectangle (1,1);")
+    if el.get("zero_line"):
+        lines.append(f"    \\draw[line width=0.6pt,ufsjgray] ({fx(0):.3f},0.2) -- ({fx(0):.3f},0.85);")
+        lines.append(f"    \\node[anchor=south] at ({fx(0):.3f},0.18) {{{tex_font(9, 10.6, '0')}}};")
+    icol = color_model(el.get("interval_color", "#59636E"))
+    lines.append(f"    \\draw[color={{{icol}}},line width=1.2pt] ({fx(lo):.3f},{yc:.3f}) -- ({fx(hi):.3f},{yc:.3f});")
+    lines.append(f"    \\draw[color={{{icol}}},line width=1.2pt] ({fx(lo):.3f},{yc-0.07:.3f}) -- ({fx(lo):.3f},{yc+0.07:.3f});")
+    lines.append(f"    \\draw[color={{{icol}}},line width=1.2pt] ({fx(hi):.3f},{yc-0.07:.3f}) -- ({fx(hi):.3f},{yc+0.07:.3f});")
+    pcol = color_model(el.get("point_color", "#292D32"))
+    lines.append(f"    \\fill[color={{{pcol}}}] ({fx(est):.3f},{yc:.3f}) circle (0.022);")
+    if el.get("value_labels"):
+        lines.append(
+            f"    \\node[anchor=south] at ({fx(est):.3f},{yc+0.12:.3f}) "
+            f"{{{tex_font(10, 11.8, escape_plain(f'{est:+.3f}'.replace('.',',')))}}};"
+        )
+        lines.append(
+            f"    \\node[anchor=north] at ({fx(lo):.3f},{yc-0.12:.3f}) "
+            f"{{{tex_font(9.5, 11.2, escape_plain(f'{lo:+.3f}'.replace('.',',')))}}};"
+        )
+        lines.append(
+            f"    \\node[anchor=north] at ({fx(hi):.3f},{yc-0.12:.3f}) "
+            f"{{{tex_font(9.5, 11.2, escape_plain(f'{hi:+.3f}'.replace('.',',')))}}};"
+        )
+    for t in el.get("x_ticks", []):
+        lines.append(
+            f"    \\node[anchor=north] at ({fx(float(t)):.3f},0.32) "
+            f"{{{tex_font(10, 11.8, escape_plain(str(t).replace('.',',')))}}};"
+        )
+    xl = el.get("x_label", "")
+    if xl:
+        lines.append(
+            f"    \\node[anchor=north] at (0.5,0.12) "
+            f"{{{tex_font(10.5, 12.4, format_mixed_text(xl))}}};"
+        )
+    il = el.get("interval_label", "")
+    if il:
+        lines.append(
+            f"    \\node[anchor=south] at (0.5,0.88) "
+            f"{{{tex_font(10, 11.8, format_mixed_text(il))}}};"
+        )
+    lines.append(r"  \end{scope}")
+    return "\n".join(lines)
+
+
+def render_chart(el: dict) -> str:
+    kind = el.get("kind", "")
+    dispatch = {
+        "bar_vertical": render_chart_bar_vertical,
+        "bar_horizontal": render_chart_bar_horizontal,
+        "stacked_probability": render_chart_stacked_probability,
+        "numberline": render_chart_numberline,
+        "dot_horizontal": render_chart_dot_horizontal,
+        "interval_horizontal": render_chart_interval_horizontal,
+    }
+    fn = dispatch.get(kind)
+    if not fn:
+        raise ValueError(f"chart kind desconhecido: {kind}")
+    return fn(el)
+
+
+def render_raster_chart(el: dict, slide_id: str) -> str:
+    rel = el["path"].replace("assets/", "")
+    src = ASSETS / rel if (ASSETS / rel).is_file() else ROOT / el["path"]
+    if not src.is_file():
+        return render_text(
+            {
+                "rect": el["rect"],
+                "text": f"Asset ausente: {el.get('path')}",
+                "style": {"size_pt": 10, "leading_pt": 12, "color": "#A54270", "weight": "bold"},
+            }
+        )
+    try:
+        from PIL import Image
+    except ImportError:
+        return render_image({"rect": el["rect"], "path": el["path"], "background": "#FFFFFF"})
+    crop = el.get("plot_crop_px")
+    if not crop:
+        return render_image({"rect": el["rect"], "path": el["path"], "background": "#FFFFFF"})
+    left, top, right, bottom = crop
+    im = Image.open(src)
+    cropped = im.crop((left, top, right, bottom))
+    RASTER_DIR.mkdir(parents=True, exist_ok=True)
+    out_name = f"{slide_id}_{el['id']}.png"
+    out_path = RASTER_DIR / out_name
+    cropped.save(out_path)
+    anchor, w, h = rect_xywh(el["rect"])
+    tw = f"{w:.5f}\\paperwidth"
+    th = f"{h:.5f}\\paperheight"
+    lines = [
+        f"  \\node[anchor=north west,inner sep=0pt] at {anchor} "
+        f"{{\\includegraphics[width={tw},height={th},keepaspectratio]{{{out_name}}}}};"
+    ]
+    # rótulos externos de eixo
+    crop_w = right - left
+    crop_h = bottom - top
+    for tick_px, label in el.get("y_ticks_source_px", []):
+        frac = (tick_px - top) / crop_h
+        yp = el["rect"][1] + el["rect"][3] * frac
+        xp = el["rect"][0] - 1
+        lines.append(
+            f"  \\node[anchor=east] at {pos_xy(xp, yp)} {{{tex_font(9, 10.6, escape_plain(str(label)))}}};"
+        )
+    yl = el.get("y_label", "")
+    if yl:
+        yp = el["rect"][1] + el["rect"][3] / 2
+        lines.append(
+            f"  \\node[anchor=east] at {pos_xy(el['rect'][0]-3, yp)} {{{tex_font(10, 11.8, escape_plain(yl))}}};"
+        )
+    for tick_px, label in el.get("x_ticks_source_px", []):
+        frac = (tick_px - left) / crop_w
+        xp = el["rect"][0] + el["rect"][2] * frac
+        yp = el["rect"][1] + el["rect"][3] + 2
+        lines.append(
+            f"  \\node[anchor=north] at {pos_xy(xp, yp)} {{{tex_font(9, 10.6, escape_plain(str(label)))}}};"
+        )
+    return "\n".join(lines)
+
+
+def render_element(el: dict, slide_id: str) -> str:
+    t = el.get("type")
+    if t == "text":
+        return render_text(el)
+    if t == "formula":
+        return render_formula(el)
+    if t == "table":
+        return render_table(el)
+    if t == "chart":
+        return render_chart(el)
+    if t == "raster_chart":
+        return render_raster_chart(el, slide_id)
+    if t == "arrow":
+        return render_arrow(el)
+    if t == "marker":
+        return render_marker(el)
+    if t == "image":
+        return render_image(el)
+    raise ValueError(f"tipo de elemento desconhecido: {t}")
+
+
+def render_chrome(slide: dict, *, backup: bool = False, capa: bool = False) -> list[str]:
+    lines: list[str] = []
+    if capa:
+        n = int(slide.get("n", 1))
+        lines.append(
+            f"  \\draw[ufsjred,line width=0.5pt] {pos_xy(5, 17.5)} -- {pos_xy(95, 17.5)};"
+        )
+        lines.append(
+            f"  \\node[anchor=south east] at {pos_xy(95, 98.5)} "
+            f"{{{tex_font(7, 8, f'{n:02d} / 29', color='#59636E')}}};"
+        )
+        return lines
+    title = slide.get("title", "")
+    footer = slide.get("footer", "")
+    if backup:
+        sid = slide.get("id", "A01")
+        num = sid[1:3]
+        page = f"A{num} / 08"
+        ttl = title
+    else:
+        n = int(slide.get("n", 0))
+        page = f"{n:02d} / 29"
+        ttl = title
+    lines.append(
+        f"  \\node[anchor=north west,text width=0.9\\paperwidth] at {pos_xy(5, TITLE_Y_PCT)} "
+        f"{{{tex_font(18, 20, format_mixed_text(ttl), bold=True, color='#C1272F')}}};"
+    )
+    if footer:
+        lines.append(
+            f"  \\node[anchor=north west,text width=0.9\\paperwidth] at {pos_xy(5, BIBLIO_FOOTER_Y_PCT)} "
+            f"{{{tex_font(8, 9.2, format_mixed_text(footer), color='#59636E')}}};"
+        )
+    lines.append(
+        f"  \\draw[ufsjred,line width=0.5pt] {pos_xy(5, INST_RULE_Y_PCT)} -- {pos_xy(95, INST_RULE_Y_PCT)};"
+    )
+    sig = "UFSJ $\\cdot$ PPGCC $\\cdot$ Ciência da Computação"
+    lines.append(
+        f"  \\node[anchor=south west] at {pos_xy(5, INST_FOOTER_Y_PCT)} "
+        f"{{{tex_font(7.5, 8.5, sig, color='#59636E')}}};"
+    )
+    lines.append(
+        f"  \\node[anchor=south east] at {pos_xy(95, INST_FOOTER_Y_PCT)} "
+        f"{{{tex_font(7, 8, page, color='#59636E')}}};"
+    )
+    return lines
+
+
+def render_slide(slide: dict, fatos: dict, geom: list) -> str:
+    layout = slide.get("layout", "")
+    if layout not in LAYOUTS:
+        raise ValueError(f"layout não registrado: {layout} ({slide.get('id')})")
+    capa = layout == "CAPA_INSTITUCIONAL"
+    backup = slide.get("id", "").startswith("A")
+    parts = ["\\begin{frame}[plain]"]
+    parts.append("\\begin{tikzpicture}[remember picture,overlay]")
+    for el in slide.get("elements") or []:
+        parts.append(render_element(el, slide.get("id", "")))
+        geom.append(
+            {
+                "slide_id": slide.get("id"),
+                "element_id": el.get("id"),
+                "type": el.get("type"),
+                "rect": el.get("rect"),
+            }
+        )
+    parts.extend(render_chrome(slide, backup=backup, capa=capa))
+    parts.append("\\end{tikzpicture}")
+    parts.append("\\end{frame}")
     return "\n".join(parts)
-
-
-def render_backup(s: dict, fatos: dict) -> str:
-    title = f"[Apoio] {s.get('title', '')}"
-    s2 = {**s, "title": title}
-    return render_slide(s2, fatos)
 
 
 def main() -> int:
     data = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    if data.get("schema") != "qualificacao-ufsj-presentation-v4":
+        raise SystemExit("Manifesto deve estar em qualificacao-ufsj-presentation-v4")
     fatos = load_fatos()
+    geom: list = []
     chunks: list[str] = ["% Gerado por scripts/render_beamer.py — não editar à mão."]
     for s in data.get("slides", []):
-        chunks.append(render_slide(s, fatos))
+        chunks.append(render_slide(s, fatos, geom))
     for s in data.get("backup", []):
-        chunks.append(render_backup(s, fatos))
+        chunks.append(render_slide(s, fatos, geom))
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text("\n\n".join(chunks) + "\n", encoding="utf-8")
+    GEOM_OUT.write_text(json.dumps(geom, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"OK: {OUT} ({len(chunks)-1} frames)")
     return 0
 

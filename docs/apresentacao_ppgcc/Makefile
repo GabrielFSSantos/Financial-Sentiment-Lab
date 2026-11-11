@@ -1,25 +1,40 @@
-.PHONY: all pdf validate render clean
+.PHONY: all pdf validate render clean check_log qa
 
 MAIN := apresentacao_ppgcc.tex
 BUILD := build
 OUTPUT := output
 PDF := $(OUTPUT)/apresentacao_ppgcc.pdf
+BUILD_PDF := $(BUILD)/apresentacao_ppgcc.pdf
 
 all: pdf
+
+PYTHON ?= python3
+ifneq ($(wildcard .venv-render/bin/python),)
+PYTHON := .venv-render/bin/python
+endif
 
 validate:
 	python3 scripts/validar_manifesto.py
 
 render: validate
-	@mkdir -p $(BUILD) $(OUTPUT)
-	python3 scripts/render_beamer.py
+	@mkdir -p $(BUILD) $(OUTPUT) $(BUILD)/raster_cache
+	$(PYTHON) scripts/render_beamer.py
 	python3 scripts/export_roteiro_fala.py
 
 pdf: render
-	@mkdir -p $(BUILD) $(OUTPUT)
-	latexmk -pdf -interaction=nonstopmode -output-directory=$(BUILD) $(MAIN) || \
-		latexmk -pdf -f -interaction=nonstopmode -output-directory=$(BUILD) $(MAIN)
-	@cp -f $(BUILD)/apresentacao_ppgcc.pdf $(PDF)
+	latexmk -pdf -interaction=nonstopmode -halt-on-error -file-line-error -output-directory=$(BUILD) $(MAIN)
+	@test -s $(BUILD_PDF)
+	@$(MAKE) check_log
+	@grep -Eq 'Output written on .*apresentacao_ppgcc\.pdf \(37 pages' $(BUILD)/apresentacao_ppgcc.log
+	@cp -f $(BUILD_PDF) $(PDF)
+
+check_log:
+	@grep -E '^(! LaTeX Error|! Undefined control sequence|! Package ufsjdeck|! Missing character|! Emergency stop|! Fatal error)' \
+		$(BUILD)/apresentacao_ppgcc.log && exit 1 || true
+
+qa: pdf
+	@test -x .venv-qa/bin/python || (echo "Crie .venv-qa com pymupdf e pillow; veja README." && exit 1)
+	.venv-qa/bin/python scripts/qa_slides_ppgcc.py $(PDF) --out build/qa --dpi 160
 
 clean:
 	rm -rf $(BUILD) $(OUTPUT)

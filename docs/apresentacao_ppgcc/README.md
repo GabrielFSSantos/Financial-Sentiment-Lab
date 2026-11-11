@@ -1,37 +1,56 @@
-# Apresentação de qualificação PPGCC/UFSJ (PDF)
+# Apresentação de qualificação PPGCC/UFSJ (PDF v4)
 
-Pacote de build local: **29 slides principais + 8 de apoio** (30 min), alinhado à dissertação em `docs/dissertacao_ppgcc/`.
+Pacote local: **29 slides principais + 8 de apoio** (30 min), manifesto `qualificacao-ufsj-presentation-v4`.
 
 ## Compilar
 
 ```bash
 cd docs/apresentacao_ppgcc
+python3 -m venv .venv-render && .venv-render/bin/pip install pillow
+python3 scripts/validar_manifesto.py --self-test
 make pdf
 ```
 
+O `make render` usa `.venv-render` quando existir (recorte opcional de figuras com Pillow). Sem Pillow, figuras entram via `graphicx` em tamanho integral.
+
 Saída em `output/`:
 
-- `apresentacao_ppgcc.pdf` — slides
-- `apresentacao_ppgcc_roteiro.md` — fala completa (29 principais + 8 apoio), gerada do manifesto
+- `apresentacao_ppgcc.pdf` — 37 páginas (29 + 8 apoio)
+- `apresentacao_ppgcc_roteiro.md` — fala, apontamento, transição e fonte por slide
 
-Artefatos LaTeX ficam em `build/` (efêmeros; `make clean` remove tudo). **Editar o roteiro** em `dados/manifesto_slides.json` (`objective`, `voice`, `on_screen`, `transition`), não no `.md` gerado.
+Pipeline: `validar_manifesto.py` → `render_beamer.py` (composição só via `elements`) → `export_roteiro_fala.py` → `latexmk` (sem fallback `-f`).
 
-Passos: `validar_manifesto.py` → `render_beamer.py` (campo `layout` no manifesto) + `export_roteiro_fala.py` → `latexmk` com `-output-directory=build`.
+## QA visual (opcional)
 
-Cada slide principal define `layout` (ex.: `CAPA`, `CORPUS_BARRAS`, `FORMULA_DESTAQUE`); o renderer gera o frame Beamer correspondente. O campo `visual` orienta desenho/Slides e **não** entra no PDF.
+```bash
+python3 -m venv .venv-qa
+.venv-qa/bin/pip install pymupdf pillow
+make qa
+```
 
-## Estrutura (espelha `docs/dissertacao_ppgcc`)
+Gera `build/qa/alertas.csv` e imagens de contato por slide. Requer PDF já compilado (`make pdf`).
+
+## Contrato v4
+
+| Campo | Papel |
+|-------|--------|
+| `elements` | Única fonte do desenho no PDF (text, formula, table, chart, raster_chart, …) |
+| `screen` / `on_screen` | Espelho textual completo (acessibilidade e roteiro) |
+| `voice` / `transition` / `pointing` | Roteiro oral |
+| `layout` | Família semântica registrada no renderer |
+| `visual` / `objective` | Metadados — não entram automaticamente no PDF |
+
+Edite **`dados/manifesto_slides.json`**; não altere `output/*.md` ou `build/slides_content.tex` à mão.
+
+Relatório de geometria: `build/layout_geometry.json` (gerado em cada `render`).
+
+## Estrutura
 
 | Pasta / arquivo | Função |
 |-----------------|--------|
-| `dados/` | `manifesto_slides.json` (conteúdo, layout, roteiro), `fatos_cientificos.json` |
-| `assets/` | Figuras dissertação + logos (`logo_dcomp.png`, `logo_ufsj_ppgcc.png`) |
-| `fonts/` | Notas sobre fontes |
-| `scripts/` | Validação e render Beamer |
-| `apresentacao_ppgcc.tex` | Master Beamer 16:9 |
-| `build/` | Gerado (não versionar) |
-| `output/` | PDF + roteiro `.md` (não versionar) |
-
-## Conteúdo editável
-
-Manifesto (`dados/manifesto_slides.json`) é a fonte única de texto de tela e roteiro de fala; regenere com `make pdf`.
+| `dados/` | Manifesto v4 + `fatos_cientificos.json` |
+| `assets/` | Figuras empíricas + logos |
+| `scripts/` | Validação, render tipado, exportação do roteiro |
+| `apresentacao_ppgcc.tex` | Master Beamer 16:9, frames `[plain]` |
+| `build/` | LaTeX, caches raster, roteiro intermediário |
+| `output/` | PDF e roteiro finais |

@@ -1,2 +1,6 @@
 build/
-output/
+output/*
+!output/apresentacao_ppgcc.pdf
+!output/apresentacao_ppgcc_roteiro.md
+.venv-qa/
+.venv-render/

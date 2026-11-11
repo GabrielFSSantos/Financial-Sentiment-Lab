@@ -3,62 +3,31 @@
 \usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
 \usepackage{graphicx}
-\graphicspath{{assets/}}
+\graphicspath{{assets/}{build/raster_cache/}}
 \usepackage{lmodern}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
-\usepackage{multicol}
+\usepackage{colortbl}
+\usepackage{array}
 \usepackage{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta,positioning,calc}
-\usepackage[most]{tcolorbox}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds}
+\usepackage{hyperref}
 
 \definecolor{ufsjred}{RGB}{193,39,47}
-\definecolor{ufsjgray}{RGB}{99,102,106}
-\definecolor{ufsjlightgray}{RGB}{245,245,245}
-\definecolor{ufsjdark}{RGB}{51,51,51}
+\definecolor{ufsjgray}{RGB}{89,99,110}
+\definecolor{ufsjdark}{RGB}{41,45,50}
+
+\hypersetup{colorlinks=true,linkcolor=ufsjred,urlcolor=ufsjred,citecolor=ufsjred}
 
 \setbeamercolor{normal text}{fg=ufsjdark,bg=white}
-\setbeamercolor{structure}{fg=ufsjred}
-\setbeamercolor{frametitle}{fg=ufsjred,bg=ufsjlightgray}
-\setbeamercolor{block title}{fg=white,bg=ufsjred}
-\setbeamercolor{block body}{fg=ufsjdark,bg=ufsjlightgray}
-\setbeamercolor{alerted text}{fg=ufsjred}
-
-\setbeamerfont{frametitle}{series=\bfseries,size=\large}
-\setbeamerfont{title}{series=\bfseries,size=\Large}
 \setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{headline}{
-  \begin{beamercolorbox}[wd=\paperwidth,ht=0.7ex,dp=0pt]{structure.fg}
-    \color{ufsjred}\rule{\paperwidth}{0.7pt}
-  \end{beamercolorbox}
-}
-\setbeamertemplate{frametitle}{
-  \nointerlineskip
-  \begin{beamercolorbox}[wd=\paperwidth,leftskip=0.4cm,rightskip=0.4cm,ht=2.2ex,dp=0.8ex]{frametitle}
-    \usebeamerfont{frametitle}\insertframetitle
-  \end{beamercolorbox}
-}
-\setbeamertemplate{footline}{
-  \begin{tikzpicture}[remember picture,overlay]
-    \fill[ufsjred] (current page.south west) rectangle ([yshift=5pt]current page.south east);
-    \node[anchor=west,text=white,font=\scriptsize] at ([xshift=8pt,yshift=2.5pt]current page.south west)
-      {UFSJ \textbullet{} PPGCC \textbullet{} Ciência da Computação};
-    \node[anchor=east,text=white,font=\scriptsize] at ([xshift=-8pt,yshift=2.5pt]current page.south east)
-      {\insertframenumber{} / \inserttotalframenumber};
-  \end{tikzpicture}
-  \vspace{8pt}
-}
+\setbeamertemplate{headline}{}
+\setbeamertemplate{frametitle}{}
+\setbeamertemplate{footline}{}
 
-\newtcolorbox{ufsjformula}[1][]{colback=ufsjlightgray,colframe=ufsjred,boxrule=0.8pt,arc=2pt,#1}
-\newtcolorbox{ufsjcard}[1][]{colback=white,colframe=ufsjgray!60,boxrule=0.6pt,arc=2pt,left=3pt,right=3pt,top=2pt,bottom=2pt,#1}
-
-\newcommand{\ufsjkpi}[2]{%
-  \begin{ufsjcard}
-    \centering{\color{ufsjred}\Large\bfseries #1}\\[2pt]
-    {\footnotesize #2}
-  \end{ufsjcard}%
-}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
 
 \begin{document}
 \input{build/slides_content.tex}

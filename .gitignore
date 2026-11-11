@@ -45,7 +45,9 @@ data/**
 docs/dissertacao_ppgcc/build/
 docs/dissertacao_ppgcc/output/
 docs/apresentacao_ppgcc/build/
-docs/apresentacao_ppgcc/output/
+docs/apresentacao_ppgcc/output/*
+!docs/apresentacao_ppgcc/output/apresentacao_ppgcc.pdf
+!docs/apresentacao_ppgcc/output/apresentacao_ppgcc_roteiro.md
 # Lixo legado na raiz dos pacotes (pré build/ + output/)
 docs/dissertacao_ppgcc/*.aux
 docs/dissertacao_ppgcc/*.log
