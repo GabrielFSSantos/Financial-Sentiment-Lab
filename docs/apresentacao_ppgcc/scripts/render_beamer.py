@@ -586,8 +586,8 @@ def render_chart_dot_horizontal(el: dict) -> str:
     xl = el.get("x_label", "")
     if xl:
         lines.append(
-            f"    \\node[anchor=north,text width={1-label_zone:.2f}\\linewidth,align=center] at (0.5,{plot_b-0.12:.3f}) "
-            f"{{{tex_font(10, 11.8, escape_plain(xl))}}};"
+            f"    \\node[anchor=north,text width={1-label_zone:.2f}\\linewidth,align=center] at (0.5,0.06) "
+            f"{{{tex_font(9.5, 11.2, escape_plain(xl))}}};"
         )
     lines.append(r"  \end{scope}")
     return "\n".join(lines)

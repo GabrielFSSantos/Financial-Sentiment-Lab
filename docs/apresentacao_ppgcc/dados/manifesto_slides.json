@@ -893,7 +893,7 @@
           "text": "Hipótese bilateral: Δρ diferente de zero",
           "style": {
             "font": "Latin Modern Math",
-            "size_pt": 14,
+            "size_pt": 16,
             "leading_pt": 16.52,
             "weight": "regular",
             "color": "#292D32",
@@ -964,12 +964,12 @@
             5,
             22,
             90,
-            45
+            42
           ],
           "text": "",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 11.5,
+            "size_pt": 10.5,
             "leading_pt": 12.39,
             "weight": "regular",
             "color": "#292D32",
@@ -1015,9 +1015,9 @@
           "type": "text",
           "rect": [
             5,
-            87,
+            66,
             90,
-            5
+            6
           ],
           "text": "Contribuição: integração documentada e avaliação crítica no caso Sabesp.",
           "style": {
@@ -1077,7 +1077,7 @@
           "rect": [
             5,
             22,
-            90,
+            58,
             9
           ],
           "text": "1.254 registros brutos − 1 duplicata = 1.253 notícias canônicas",
@@ -1094,13 +1094,35 @@
           }
         },
         {
+          "id": "destaque_total",
+          "type": "text",
+          "rect": [
+            66,
+            28,
+            28,
+            14
+          ],
+          "text": "1.253\nnotícias canônicas",
+          "style": {
+            "font": "Latin Modern Sans",
+            "size_pt": 24,
+            "leading_pt": 28,
+            "weight": "bold",
+            "color": "#C1272F",
+            "background": "#FFFFFF",
+            "align": "center",
+            "valign": "top",
+            "padding_pt": 0
+          }
+        },
+        {
           "id": "fontes",
           "type": "chart",
           "rect": [
             5,
             34,
-            62,
-            38
+            58,
+            40
           ],
           "text": "",
           "style": {
@@ -1164,10 +1186,10 @@
           "id": "periodo",
           "type": "text",
           "rect": [
-            70,
-            34,
-            25,
-            22
+            66,
+            48,
+            28,
+            20
           ],
           "text": "5 veículos\nMaio/2022\na abril/2024\n(aproximadamente)",
           "style": {
@@ -3751,9 +3773,9 @@
           "type": "chart",
           "rect": [
             6,
-            32,
+            33,
             88,
-            30
+            26
           ],
           "text": "",
           "style": {
@@ -3798,7 +3820,7 @@
             0,
             0.1
           ],
-          "x_label": "Correlação de Spearman com o retorno da semana seguinte",
+          "x_label": "Spearman (rho) · retorno da semana seguinte",
           "y_label": "",
           "zero_line": true,
           "value_labels": true,
@@ -3809,7 +3831,7 @@
           "type": "formula",
           "rect": [
             5,
-            66,
+            62,
             90,
             10
           ],
@@ -3832,9 +3854,9 @@
           "type": "text",
           "rect": [
             5,
-            84,
+            74,
             90,
-            5
+            6
           ],
           "text": "Mais próximo de zero = menor magnitude absoluta.",
           "style": {
@@ -5529,65 +5551,129 @@
       "pointing": "Unidade pareada; tamanho de bloco; 10.000; percentis; nota sobre p.",
       "elements": [
         {
-          "id": "algoritmo",
-          "type": "table",
+          "id": "passo1",
+          "type": "text",
           "rect": [
             5,
-            23,
-            90,
-            49
+            26,
+            42,
+            14
           ],
-          "text": "",
+          "text": "**1 · Unidade**\nSemana com ITI, referência e retorno juntos",
           "style": {
             "font": "Latin Modern Sans",
             "size_pt": 11,
-            "leading_pt": 12.98,
+            "leading_pt": 13,
             "weight": "regular",
             "color": "#292D32",
             "background": "#FFFFFF",
             "align": "left",
             "valign": "top",
             "padding_pt": 0
-          },
-          "headers": [
-            "Passo",
-            "Operação"
+          }
+        },
+        {
+          "id": "passo2",
+          "type": "text",
+          "rect": [
+            53,
+            26,
+            42,
+            14
           ],
-          "rows": [
-            [
-              "1 · Unidade",
-              "Semana com ITI, referência e retorno juntos"
-            ],
-            [
-              "2 · Bloco",
-              "Selecionar 4 semanas contíguas; respeitar lacunas"
-            ],
-            [
-              "3 · Réplica",
-              "Reamostrar blocos e recalcular a diferença"
-            ],
-            [
-              "4 · Repetição",
-              "10.000 réplicas; IC nos percentis 2,5 e 97,5"
-            ]
+          "text": "**2 · Bloco**\n4 semanas contíguas; respeitar lacunas",
+          "style": {
+            "font": "Latin Modern Sans",
+            "size_pt": 11,
+            "leading_pt": 13,
+            "weight": "regular",
+            "color": "#292D32",
+            "background": "#FFFFFF",
+            "align": "left",
+            "valign": "top",
+            "padding_pt": 0
+          }
+        },
+        {
+          "id": "passo3",
+          "type": "text",
+          "rect": [
+            5,
+            46,
+            42,
+            14
           ],
-          "column_widths_pct": [
-            23,
-            77
+          "text": "**3 · Réplica**\nReamostrar blocos; recalcular Δρ",
+          "style": {
+            "font": "Latin Modern Sans",
+            "size_pt": 11,
+            "leading_pt": 13,
+            "weight": "regular",
+            "color": "#292D32",
+            "background": "#FFFFFF",
+            "align": "left",
+            "valign": "top",
+            "padding_pt": 0
+          }
+        },
+        {
+          "id": "passo4",
+          "type": "text",
+          "rect": [
+            53,
+            46,
+            42,
+            14
           ],
-          "header_fill": "#F3F5F7",
-          "rule_color": "#D5DAE0",
-          "rule_width_pt": 0.4,
-          "row_padding_pt": 3
+          "text": "**4 · Repetição**\n10.000 réplicas; IC 2,5–97,5 %",
+          "style": {
+            "font": "Latin Modern Sans",
+            "size_pt": 11,
+            "leading_pt": 13,
+            "weight": "regular",
+            "color": "#292D32",
+            "background": "#FFFFFF",
+            "align": "left",
+            "valign": "top",
+            "padding_pt": 0
+          }
+        },
+        {
+          "id": "arr_12",
+          "type": "arrow",
+          "from": [
+            48,
+            33
+          ],
+          "to": [
+            53,
+            33
+          ],
+          "color": "#59636E",
+          "width_pt": 0.7
+        },
+        {
+          "id": "arr_34",
+          "type": "arrow",
+          "from": [
+            48,
+            53
+          ],
+          "to": [
+            53,
+            53
+          ],
+          "color": "#59636E",
+          "width_pt": 0.7
         },
         {
           "id": "p",
           "type": "text",
           "rect": [
             5,
-            77,
+            66,
             90,
-            11
+            12
           ],
           "text": "p exploratório: duas vezes a proporção no lado oposto ao sinal observado, limitado a 1. Não é uma distribuição nula explícita.",
           "style": {
@@ -5779,7 +5865,7 @@
           "text": "Uniforme: U_w = média dos mesmos m dias",
           "style": {
             "font": "Latin Modern Math",
-            "size_pt": 15,
+            "size_pt": 13,
             "leading_pt": 17.7,
             "weight": "regular",
             "color": "#292D32",
@@ -5802,7 +5888,7 @@
           "text": "Exponencial: E_w = soma ponderada normalizada dos mesmos m dias",
           "style": {
             "font": "Latin Modern Math",
-            "size_pt": 14,
+            "size_pt": 13,
             "leading_pt": 16.52,
             "weight": "regular",
             "color": "#292D32",
@@ -5900,14 +5986,14 @@
           "type": "text",
           "rect": [
             5,
-            23,
+            24,
             43,
-            14
+            13
           ],
           "text": "Santos, Bianchi e Costa (2023)\nFinBERT-PT-BR\n10.5753/bwaif.2023.231151",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9,
+            "size_pt": 9.5,
             "leading_pt": 10.62,
             "weight": "regular",
             "color": "#292D32",
@@ -5924,12 +6010,12 @@
             5,
             39,
             43,
-            14
+            13
           ],
           "text": "Cortis et al. (2017)\nSemEval-2017 Task 5\n10.18653/v1/S17-2089",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9,
+            "size_pt": 9.5,
             "leading_pt": 10.62,
             "weight": "regular",
             "color": "#292D32",
@@ -5944,14 +6030,14 @@
           "type": "text",
           "rect": [
             5,
-            55,
+            54,
             43,
-            14
+            13
           ],
           "text": "Sinha et al. (2022)\nSEntFiN 1.0\n10.1002/asi.24634",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9,
+            "size_pt": 9.5,
             "leading_pt": 10.62,
             "weight": "regular",
             "color": "#292D32",
@@ -5966,14 +6052,14 @@
           "type": "text",
           "rect": [
             5,
-            71,
+            69,
             43,
-            14
+            13
           ],
           "text": "Tang et al. (2023)\nFinEntity\n10.18653/v1/2023.emnlp-main.956",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9,
+            "size_pt": 9.5,
             "leading_pt": 10.62,
             "weight": "regular",
             "color": "#292D32",
@@ -5988,14 +6074,14 @@
           "type": "text",
           "rect": [
             52,
-            23,
+            24,
             43,
-            14
+            13
           ],
           "text": "Shapiro, Sudhof e Wilson (2022)\nMeasuring News Sentiment\n10.1016/j.jeconom.2020.07.053",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9,
+            "size_pt": 9.5,
             "leading_pt": 10.62,
             "weight": "regular",
             "color": "#292D32",
@@ -6012,12 +6098,12 @@
             52,
             39,
             43,
-            14
+            13
           ],
           "text": "Buckman et al. (2020)\nNews Sentiment in the Time of COVID-19\nFRBSF Economic Letter 2020-08",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9,
+            "size_pt": 9.5,
             "leading_pt": 10.62,
             "weight": "regular",
             "color": "#292D32",
@@ -6032,14 +6118,14 @@
           "type": "text",
           "rect": [
             52,
-            55,
+            54,
             43,
-            14
+            13
           ],
           "text": "Künsch (1989)\nBootstrap em séries\n10.1214/aos/1176347265",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9,
+            "size_pt": 9.5,
             "leading_pt": 10.62,
             "weight": "regular",
             "color": "#292D32",
@@ -6054,14 +6140,14 @@
           "type": "text",
           "rect": [
             52,
-            71,
+            69,
             43,
-            14
+            13
           ],
           "text": "Holm (1979)\nComparações múltiplas\nScand. J. Stat. 6(2), 65–70",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9,
+            "size_pt": 9.5,
             "leading_pt": 10.62,
             "weight": "regular",
             "color": "#292D32",

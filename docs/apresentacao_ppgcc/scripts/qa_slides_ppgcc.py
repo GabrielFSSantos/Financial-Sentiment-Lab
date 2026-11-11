@@ -37,6 +37,34 @@ CRITICAL = {
 FIGURE_SLIDES = {22, 26, 35}
 
 
+def load_slide_ids() -> list[str]:
+    if not MANIFEST.is_file():
+        return []
+    data = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    return [s["id"] for s in data.get("slides", [])] + [s["id"] for s in data.get("backup", [])]
+
+
+def manifest_geometry_warnings(page_no: int) -> list[tuple[str, str]]:
+    if not GEOM.is_file():
+        return []
+    ids = load_slide_ids()
+    if page_no < 1 or page_no > len(ids):
+        return []
+    sid = ids[page_no - 1]
+    geom = json.loads(GEOM.read_text(encoding="utf-8"))
+    warns: list[tuple[str, str]] = []
+    for g in geom:
+        if g.get("slide_id") != sid:
+            continue
+        rect = g.get("rect") or []
+        if len(rect) != 4:
+            continue
+        _x, y, _w, h = rect
+        if g.get("type") in ("chart", "table", "image", "raster_chart") and y + h > 88:
+            warns.append(("GEOM_ESTOURO", f"{g.get('element_id')}: y+h={y+h:.1f}%"))
+    return warns
+
+
 def page_frac_y(box: fitz.Rect, page_h: float) -> tuple[float, float]:
     return box.y0 / page_h, box.y1 / page_h
 
@@ -107,6 +135,7 @@ def inspect(page, number: int, *, strict: bool) -> list[tuple[str, str]]:
         warns.append(("SLIDE_DENSO", f"{len(spans)} trechos de texto"))
     if len(spans) < 4 and number not in (1, 29) and not image_areas:
         warns.append(("SLIDE_VAZIO", "pouco conteúdo detectado"))
+    warns.extend(manifest_geometry_warnings(number))
     return warns
 
 
