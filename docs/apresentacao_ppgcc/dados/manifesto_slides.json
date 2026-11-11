@@ -1,0 +1,933 @@
+{
+  "schema": "qualificacao-ufsj-presentation-v3",
+  "title": "Qualificação — Índice Temporal Informacional — UFSJ",
+  "slides_target": "1DP3Q8IzaIsypTy0p0QhBuuU8L6H5dqhoEQxS4DlwlqE",
+  "template_native": true,
+  "time_target_seconds": 1800,
+  "slides_main_count": 29,
+  "slides_backup_count": 8,
+  "live_slide_total_expected": 37,
+  "slides": [
+    {
+      "id": "qual30_01",
+      "n": 1,
+      "title": "Índice temporal informacional a partir de notícias corporativas",
+      "seconds": 25,
+      "source": "PDF pp. 1–3",
+      "layout": "CAPA",
+      "screen": [
+        "Exame de Qualificação — Mestrado em Ciência da Computação",
+        "Índice temporal informacional a partir de notícias corporativas",
+        "Uma proposta para empresas brasileiras de saneamento",
+        "Gabriel Felipe Souza Santos | Orientador: Prof. Dr. Michel Carlo Rodrigues Leles",
+        "Universidade Federal de São João del-Rei • PPGCC • 2026"
+      ],
+      "visual": "Reaproveitar logo UFSJ e cabeçalho do slide original p1; sem fotografia. Faixa superior institucional, título principal em 2 linhas, subtítulo abaixo, autoria discreta. Preservar fontes e cores do modelo.",
+      "voice": "Boa tarde. Vou apresentar a proposta de qualificação intitulada Índice Temporal Informacional a partir de Notícias Corporativas, aplicada ao caso da Sabesp. A pesquisa investiga como notícias em português podem se tornar um sinal numérico acompanhado no tempo e o que é possível concluir ao comparar esse sinal com retornos posteriores da ação da empresa. Esta é uma qualificação: apresentarei tanto o que já foi implementado quanto as limitações identificadas e os experimentos necessários para a dissertação final.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 78,
+      "objective": "Abrir a qualificação: título, instituição e escopo (Sabesp, sinal temporal, comparação com retornos).",
+      "on_screen": [
+        "Exame de Qualificação — Mestrado em Ciência da Computação",
+        "Índice temporal informacional a partir de notícias corporativas",
+        "Uma proposta para empresas brasileiras de saneamento",
+        "Gabriel Felipe Souza Santos | Orientador: Prof. Dr. Michel Carlo Rodrigues Leles"
+      ],
+      "transition": "Passar para: : A mesma notícia pode ser positiva para quem?."
+    },
+    {
+      "id": "qual30_02",
+      "n": 2,
+      "title": "A mesma notícia pode ser positiva para quem?",
+      "seconds": 55,
+      "source": "Cap. 1, pp. 8–9",
+      "layout": "DUPLA_COMPARACAO",
+      "screen": [
+        "Exemplo hipotético: reajuste da tarifa de água",
+        "Para o consumidor → possível aumento da despesa",
+        "Para a empresa → possibilidade de aumento de receita",
+        "A classificação precisa declarar a perspectiva: Sabesp."
+      ],
+      "visual": "Notícia em uma faixa central (x=196,y=97,w=328,h=38); abaixo dois cartões IGUAIS em larguras 285 separados por 18: “Consumidor” e “Sabesp”. Somente ícones vetoriais linha simples, sem fotos. Setas discretas. Etiqueta “EXEMPLO HIPOTÉTICO” no canto. Enfatizar perspectiva.",
+      "voice": "Comecemos com uma situação hipotética, para enxergar a dificuldade sem precisar conhecer inteligência artificial. Imagine a manchete de um reajuste na tarifa de água. Para quem paga a conta, pode ser uma notícia desfavorável porque a despesa aumenta. Para a concessionária, o reajuste pode representar uma possibilidade de receita maior. O mesmo fato, portanto, admite perspectivas distintas. Isso não significa afirmar que a Sabesp necessariamente terá mais lucro, nem que sua ação vai subir. A questão é mais básica: quando classificamos uma notícia como positiva ou negativa, positiva ou negativa para quem? Nesta pesquisa, a referência é sempre a informação relativa à Sabesp. Esse exemplo nos leva ao primeiro requisito do trabalho: identificar corretamente o alvo do sentimento.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 118,
+      "objective": "Motivar perspectiva de alvo: o mesmo fato pode ser positivo ou negativo conforme o referencial (Sabesp).",
+      "on_screen": [
+        "Exemplo hipotético: reajuste da tarifa de água",
+        "Para o consumidor → possível aumento da despesa",
+        "Para a empresa → possibilidade de aumento de receita",
+        "A classificação precisa declarar a perspectiva: Sabesp."
+      ],
+      "transition": "Passar para: : As notícias não chegam todos os dias no mesmo ritmo."
+    },
+    {
+      "id": "qual30_03",
+      "n": 3,
+      "title": "As notícias não chegam todos os dias no mesmo ritmo",
+      "seconds": 50,
+      "source": "Cap. 1 e seção 4.2",
+      "layout": "GRAFICO_DIDATICO",
+      "screen": [
+        "Exemplo ilustrativo: notícias observadas por dia",
+        "Seg 4 | Ter 0 | Qua 1 | Qui 5 | Sex 0",
+        "Zero observado ≠ prova de ausência de publicação",
+        "Como construir uma série diária interpretável?"
+      ],
+      "visual": "Criar gráfico de barras NATIVO editável: seg=4 ter=0 qua=1 qui=5 sex=0, rótulo “DADOS ILUSTRATIVOS”. Gráfico ocupa x=70,y=115,w=580,h=185. Abaixo, uma única frase grande destacando cobertura. Sem imagem externa.",
+      "voice": "Há uma segunda dificuldade. As notícias não aparecem em intervalos regulares: alguns dias concentram várias matérias, outros têm poucas, e em outros o nosso conjunto não registra nenhuma. Os números que estão no gráfico são apenas um exemplo didático, não as contagens do experimento. A pergunta é como transformar uma coleção irregular de textos em uma sequência diária. Precisamos também ser cuidadosos com o significado do zero. Se não encontrei uma notícia em determinado dia, isso não comprova que nenhum jornal publicou sobre o tema. Talvez a coleta não tenha coberto todas as fontes. A metodologia deve ser explícita sobre essa limitação, porque ela afeta o sinal que chega à análise financeira.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 112,
+      "objective": "Explicar irregularidade da cobertura e o cuidado com zeros observados na série diária.",
+      "on_screen": [
+        "Exemplo ilustrativo: notícias observadas por dia",
+        "Seg 4 | Ter 0 | Qua 1 | Qui 5 | Sex 0",
+        "Zero observado ≠ prova de ausência de publicação",
+        "Como construir uma série diária interpretável?"
+      ],
+      "transition": "Passar para: : O problema envolve alvo, classificação e tempo."
+    },
+    {
+      "id": "qual30_04",
+      "n": 4,
+      "title": "O problema envolve alvo, classificação e tempo",
+      "seconds": 55,
+      "source": "Seção 1.1",
+      "layout": "TRES_ETAPAS",
+      "screen": [
+        "1. Alvo: o conteúdo trata efetivamente da Sabesp?",
+        "2. Classificação: o rótulo automático corresponde à tarefa?",
+        "3. Tempo: que notícias e histórico entram no índice?",
+        "Problema central: significado do sinal + regra temporal."
+      ],
+      "visual": "Três cartões HORIZONTAIS de mesma altura, com números 01/02/03 grandes, uma pergunta em cada. Não colocar parágrafos nos cartões. Linha inferior: síntese. Ícones só se necessários; sem imagens de stock.",
+      "voice": "Essas duas situações se juntam a uma terceira: mesmo quando temos as notícias, o classificador pode atribuir a elas uma orientação diferente da interpretação humana. Assim, o problema completo tem três camadas. Primeiro, estabelecer qual trecho realmente se refere à Sabesp. Segundo, conferir se o classificador interpreta adequadamente esse conteúdo. Terceiro, escolher como conservar informações passadas e como alinhar o índice aos dados de mercado. Uma falha na primeira camada pode contaminar as seguintes. Por isso, a pesquisa não começa perguntando se o índice acerta o preço da ação. Ela começa perguntando o que o índice representa, como é construído e quais conclusões a comparação temporal pode sustentar.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 108,
+      "objective": "Estruturar o problema em três camadas: alvo, classificação e tempo.",
+      "on_screen": [
+        "1. Alvo: o conteúdo trata efetivamente da Sabesp?",
+        "2. Classificação: o rótulo automático corresponde à tarefa?",
+        "3. Tempo: que notícias e histórico entram no índice?",
+        "Problema central: significado do sinal + regra temporal."
+      ],
+      "transition": "Passar para: : Pergunta científica e hipótese exploratória."
+    },
+    {
+      "id": "qual30_05",
+      "n": 5,
+      "title": "Pergunta científica e hipótese exploratória",
+      "seconds": 70,
+      "source": "Seções 1.1–1.2",
+      "layout": "PERGUNTA_HIPOTESE",
+      "screen": [
+        "Pergunta: como representação textual e agregação temporal afetam o ITI e sua associação com retornos posteriores?",
+        "Hipótese operacional: Δρ = ρₛ(ITI-H7, R¹) − ρₛ(Soft, R¹) ≠ 0",
+        "Comparação de correlações assinadas; não é hipótese de superioridade.",
+        "Objetivo: desenvolver e avaliar um procedimento reprodutível."
+      ],
+      "visual": "Dividir em 2 faixas: pergunta (superior, x=40,y=103,w=640,h=83) e hipótese (inferior, x=40,y=205,w=640,h=105). Equação em caixa própria 26pt editável; legenda curta de Δρ/ρₛ/R¹ sob a equação. Não renderizar fórmula como bloco de texto corrido.",
+      "voice": "Diante dessas camadas, a pergunta central é: como a representação das notícias sobre a Sabesp e as regras de agregação temporal influenciam a construção do indicador e a interpretação de sua associação com retornos posteriores? Para começar a examiná-la, definimos um contraste exploratório. Calculamos a correlação de Spearman entre o índice com memória de sete dias e o retorno da semana seguinte, e subtraímos a correlação do sinal diário sem memória, chamado Soft, com o mesmo retorno. Chamamos essa diferença de delta rô. A hipótese bilateral investiga se essa diferença é diferente de zero, sem supor antecipadamente que o ITI terá desempenho melhor. Isso é importante: uma diferença entre correlações não demonstra previsão, causalidade nem melhora econômica. O objetivo maior é especificar e avaliar um procedimento que outra pessoa consiga inspecionar e, com os artefatos necessários, reproduzir.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 137,
+      "objective": "Enunciar pergunta de pesquisa e hipótese exploratória sem prometer causalidade.",
+      "on_screen": [
+        "Pergunta: como representação textual e agregação temporal afetam o ITI e sua associação com retornos posteriores?",
+        "Hipótese operacional: Δρ = ρₛ(ITI-H7, R¹) − ρₛ(Soft, R¹) ≠ 0",
+        "Comparação de correlações assinadas; não é hipótese de superioridade.",
+        "Objetivo: desenvolver e avaliar um procedimento reprodutível."
+      ],
+      "transition": "Passar para: : O que a literatura fornece à proposta."
+    },
+    {
+      "id": "qual30_06",
+      "n": 6,
+      "title": "O que a literatura fornece à proposta",
+      "seconds": 60,
+      "source": "Cap. 2–3",
+      "layout": "TRES_PILARES",
+      "screen": [
+        "Sentimento financeiro em português — FinBERT-PT-BR (Santos et al., 2023)",
+        "Sentimento por entidade — SemEval, SEntFiN e FinEntity",
+        "Índices de notícias no tempo — Shapiro et al.; DNSI",
+        "Contribuição: integrar e avaliar essas decisões no caso Sabesp."
+      ],
+      "visual": "Três blocos com cabeçalho curto e referência bibliográfica em 11pt. Linha conectando os blocos ao ITI. Evitar imagens de papers, logos de empresas e claims de originalidade do algoritmo.",
+      "voice": "A proposta combina três linhas já estudadas na literatura. A primeira usa classificadores de linguagem para sentimento em contexto econômico e financeiro; nessa frente, escolhemos um modelo disponível para português. A segunda mostra que o sentimento pode depender da entidade mencionada: uma notícia de várias empresas não precisa ter a mesma orientação para todas elas. A terceira trata da transformação de notícias em séries temporais, inclusive com pesos decrescentes para informações anteriores. Esses trabalhos sustentam as escolhas do procedimento, mas não demonstram que sete dias seja a meia-vida ideal para a Sabesp, nem que o índice resultante preveja preços. A contribuição pretendida está em especificar a combinação dessas etapas, testar seus limites e mostrar quais comparações são realmente interpretáveis.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 119,
+      "objective": "Posicionar a proposta frente à literatura (sentimento, finanças, séries informacionais).",
+      "on_screen": [
+        "Sentimento financeiro em português — FinBERT-PT-BR (Santos et al., 2023)",
+        "Sentimento por entidade — SemEval, SEntFiN e FinEntity",
+        "Índices de notícias no tempo — Shapiro et al.; DNSI",
+        "Contribuição: integrar e avaliar essas decisões no caso Sabesp."
+      ],
+      "transition": "Passar para: : A base temporal utilizada na campanha."
+    },
+    {
+      "id": "qual30_07",
+      "n": 7,
+      "title": "A base temporal utilizada na campanha",
+      "seconds": 55,
+      "source": "Seções 4.2; Apêndice B",
+      "layout": "CORPUS_BARRAS",
+      "screen": [
+        "1.254 registros brutos → 1 duplicata → 1.253 notícias canônicas",
+        "5 veículos | período aproximado: maio/2022 a abril/2024",
+        "Money Times 360 · InfoMoney 328 · Valor 251 · G1 Economia 203 · Exame 111",
+        "Corpus inventariado ≠ todas as notícias publicadas."
+      ],
+      "visual": "Gráfico de barras horizontais NATIVO editável em x=215,y=128,w=460,h=185; rótulos das 5 fontes alinhados à esquerda. No lado superior esquerdo número 1.253 em 36pt. Não usar pizza; mostrar contagens exatas e a nota de cobertura.",
+      "voice": "A campanha temporal partiu de mil duzentos e cinquenta e quatro registros. Uma duplicata foi identificada na consolidação, resultando em mil duzentas e cinquenta e três notícias canônicas, com probabilidades contextuais válidas reportadas para todas elas. A coleção reúne cinco veículos: Money Times, InfoMoney, Valor Econômico, G1 Economia e Exame. O período informacional vai aproximadamente de maio de dois mil e vinte e dois a abril de dois mil e vinte e quatro. É importante não confundir esse conjunto com a totalidade das notícias publicadas no período. O que temos é uma coleção inventariada, com suas fontes e limites de cobertura. Essa distinção voltará a aparecer quando discutirmos os dias sem registros.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 112,
+      "objective": "Apresentar corpus e campanha temporal com números canônicos do experimento.",
+      "on_screen": [
+        "1.254 registros brutos → 1 duplicata → 1.253 notícias canônicas",
+        "5 veículos | período aproximado: maio/2022 a abril/2024",
+        "Money Times 360 · InfoMoney 328 · Valor 251 · G1 Economia 203 · Exame 111",
+        "Corpus inventariado ≠ todas as notícias publicadas."
+      ],
+      "transition": "Passar para: : O procedimento possui duas avaliações diferentes."
+    },
+    {
+      "id": "qual30_08",
+      "n": 8,
+      "title": "O procedimento possui duas avaliações diferentes",
+      "seconds": 55,
+      "source": "Seção 4.1; Fig. 1",
+      "layout": "FLUXO_DUAS_LINHAS",
+      "screen": [
+        "Frente temporal: notícias → recorte Sabesp → FinBERT → escores → ITI/Soft → SBSP3",
+        "Frente textual: 100 notícias documentais → rótulos do autor × previsões",
+        "A anotação humana NÃO foi usada para treinar ou corrigir o ITI.",
+        "Unidade de análise: notícia na frente textual; semana na temporal."
+      ],
+      "visual": "Duas trilhas paralelas (superior vermelha e inferior cinza), 6 caixas estreitas no topo e 3 no rodapé. Evitar setas cruzadas. Legenda em vermelho para mudança de representação textual. Composição obrigatoriamente vetorial/editável.",
+      "voice": "O projeto tem duas frentes complementares, mas elas não devem ser confundidas. Na frente temporal, usamos notícias elegíveis, extraímos trechos sobre a Sabesp, executamos o classificador, produzimos escores e construímos indicadores que podem ser comparados a retornos posteriores da SBSP3. Na frente textual, analisamos uma amostra de cem notícias com rótulos atribuídos pelo autor e verificamos a concordância com as classes automáticas. A unidade de análise é diferente: notícia em uma frente, semana em outra. Também é essencial destacar que os rótulos humanos não alimentaram automaticamente o cálculo do índice nesta campanha. Eles servem para diagnosticar a classificação. Mais adiante veremos por que a representação de texto usada em cada frente também importa.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 113,
+      "objective": "Separar avaliação textual (rótulos) da avaliação temporal (ITI × mercado).",
+      "on_screen": [
+        "Frente temporal: notícias → recorte Sabesp → FinBERT → escores → ITI/Soft → SBSP3",
+        "Frente textual: 100 notícias documentais → rótulos do autor × previsões",
+        "A anotação humana NÃO foi usada para treinar ou corrigir o ITI.",
+        "Unidade de análise: notícia na frente textual; semana na temporal."
+      ],
+      "transition": "Passar para: : Para o ITI, selecionamos trechos próximos à Sabesp."
+    },
+    {
+      "id": "qual30_09",
+      "n": 9,
+      "title": "Para o ITI, selecionamos trechos próximos à Sabesp",
+      "seconds": 55,
+      "source": "Seção 4.4",
+      "layout": "RECORTE_TEXTO",
+      "screen": [
+        "Notícia longa → localizar menções explícitas à Sabesp",
+        "Incluir cada sentença mencionada e até 1 vizinha antes/depois",
+        "Reunir trechos selecionados → entrada contextual do classificador",
+        "Recorte contextual não equivale a modelo treinado por entidade."
+      ],
+      "visual": "Desenhar parágrafo sintético de 5 sentenças como cartões de texto, realçar a 3ª contendo “Sabesp” e as vizinhas (2ª e 4ª) com fundo rosa muito claro; itens fora do recorte acinzentados. Rótulo “EXEMPLO DIDÁTICO — NÃO É NOTÍCIA REAL”.",
+      "voice": "Considere uma matéria que fale de vários assuntos e mencione a Sabesp em apenas parte do texto. Se classificássemos o documento inteiro, outros temas poderiam influenciar a previsão. Por isso, para construir o ITI, a implementação procura sentenças que mencionam explicitamente a Sabesp e acrescenta, quando disponíveis, até uma sentença anterior e uma posterior. Trechos encontrados em diferentes partes podem ser reunidos numa entrada contextual. A vantagem esperada é aproximar o texto do alvo; o risco é deixar de fora contexto importante ou ainda manter informações ambíguas. Essa operação é uma preparação do texto, não um novo treinamento do FinBERT para reconhecer consequências específicas para a Sabesp. Essa qualidade precisa ser medida, não presumida.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 114,
+      "objective": "Mostrar recorte de trechos para o ITI — proximidade lexical à Sabesp.",
+      "on_screen": [
+        "Notícia longa → localizar menções explícitas à Sabesp",
+        "Incluir cada sentença mencionada e até 1 vizinha antes/depois",
+        "Reunir trechos selecionados → entrada contextual do classificador",
+        "Recorte contextual não equivale a modelo treinado por entidade."
+      ],
+      "transition": "Passar para: : O FinBERT produz três probabilidades."
+    },
+    {
+      "id": "qual30_10",
+      "n": 10,
+      "title": "O FinBERT produz três probabilidades",
+      "seconds": 55,
+      "source": "Seções 2.2–2.3 e 4.4",
+      "layout": "PROBABILIDADES",
+      "screen": [
+        "FinBERT-PT-BR: classificador financeiro em português",
+        "Saídas: p⁺ = positiva; p⁻ = negativa; p⁰ = neutra",
+        "Exemplo: 0,60 | 0,10 | 0,30 (soma = 1)",
+        "Limite de entrada: 512 tokens; probabilidades não são retornos."
+      ],
+      "visual": "Criar três barras horizontais proporcionais nativas (60%,10%,30%), rotuladas com número e classe. Caixa pequena à esquerda “Texto contextual”. Não inserir imagem genérica de IA, robô, cérebro etc.",
+      "voice": "Depois de preparar a entrada, aplicamos um classificador financeiro em português, identificado na pesquisa como FinBERT-PT-BR. O modelo recebe texto e devolve três probabilidades: positiva, negativa e neutra. O exemplo mostrado atribui sessenta por cento à classe positiva, dez à negativa e trinta à neutra, somando cem por cento. Esses números descrevem a saída do classificador. Eles não significam sessenta por cento de chance de a ação valorizar, nem comprovam que o acontecimento seja favorável à empresa. O procedimento também precisa respeitar o limite operacional de quinhentos e doze tokens, que são unidades de texto e não palavras inteiras. Textos longos podem ser truncados; esse é outro motivo para examinar cuidadosamente a entrada efetivamente utilizada.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 115,
+      "objective": "Introduzir saídas probabilísticas do FinBERT (p⁺, p⁻, p⁰).",
+      "on_screen": [
+        "FinBERT-PT-BR: classificador financeiro em português",
+        "Saídas: p⁺ = positiva; p⁻ = negativa; p⁰ = neutra",
+        "Exemplo: 0,60 | 0,10 | 0,30 (soma = 1)",
+        "Limite de entrada: 512 tokens; probabilidades não são retornos."
+      ],
+      "transition": "Passar para: : Das probabilidades a um escore por notícia."
+    },
+    {
+      "id": "qual30_11",
+      "n": 11,
+      "title": "Das probabilidades a um escore por notícia",
+      "seconds": 80,
+      "source": "Seção 4.5 Eq. 4.1; Apêndice C",
+      "layout": "FORMULA_EXEMPLO",
+      "screen": [
+        "Escore da notícia: sᵢ = pᵢ⁺ − pᵢ⁻",
+        "Exemplo: 0,60 − 0,10 = +0,50",
+        "Valores possíveis: −1 a +1",
+        "Escore 0 pode representar neutralidade OU equilíbrio de polaridades."
+      ],
+      "visual": "Dividir em coluna esquerda (fórmula editável com sᵢ 28pt e legenda dos símbolos em 16pt) e direita (conta em 3 cartões 0,60, −0,10, =+0,50). Barra inferior com ressalva de score zero. Evitar texto descritivo numa caixa única.",
+      "voice": "A pesquisa não transforma cada notícia apenas numa etiqueta de positivo, negativo ou neutro. Ela utiliza um escore contínuo, calculado pela probabilidade positiva menos a negativa. No exemplo, sessenta centésimos menos dez centésimos resultam em mais zero vírgula cinquenta. O valor sempre fica entre menos um e mais um, porque estamos subtraindo probabilidades. Um resultado positivo mostra que, na saída do modelo, a classe positiva recebeu mais peso que a negativa. Não é uma previsão de retorno e não equivale a uma chance de valorização de cinquenta por cento. Outro detalhe importante é o escore zero. Ele pode ocorrer quando a probabilidade neutra é muito alta, mas também quando positiva e negativa têm pesos semelhantes. Por isso, a implementação preserva as três probabilidades originais, e não apenas o número resumido.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 130,
+      "objective": "Derivar escore por notícia a partir das probabilidades.",
+      "on_screen": [
+        "Escore da notícia: sᵢ = pᵢ⁺ − pᵢ⁻",
+        "Exemplo: 0,60 − 0,10 = +0,50",
+        "Valores possíveis: −1 a +1",
+        "Escore 0 pode representar neutralidade OU equilíbrio de polaridades."
+      ],
+      "transition": "Passar para: : Dos escores à média diária — e ao zero observado."
+    },
+    {
+      "id": "qual30_12",
+      "n": 12,
+      "title": "Dos escores à média diária — e ao zero observado",
+      "seconds": 75,
+      "source": "Seção 4.5 Eq. 4.2; Seção 4.2",
+      "layout": "MEDIA_DIARIA",
+      "screen": [
+        "Xᵈ = média simples dos escores das notícias observadas no dia d",
+        "Exemplo: (+0,50 − 0,20 + 0,10) ÷ 3 = +0,1333",
+        "Sem matéria observada em dia elegível: Xᵈ = 0",
+        "Zero no inventário ≠ notícia neutra ≠ cobertura completa."
+      ],
+      "visual": "Na metade esquerda 3 fichas de notícia com valores; seta para operação central; direita cartão “MÉDIA DO DIA +0,1333”. Na faixa inferior, comparação em 2 linhas “neutra prevista” versus “sem registro”. Equações em nativos. Não fazer gráfico de barras sem necessidade.",
+      "voice": "Uma notícia isolada ainda não forma uma série. Em cada dia civil elegível, reunimos os escores das matérias observadas e calculamos a média simples. Se três notícias receberam mais zero vírgula cinquenta, menos zero vírgula vinte e mais zero vírgula dez, a soma é mais zero vírgula quarenta; dividindo por três, a média diária será aproximadamente mais zero vírgula treze. Cada notícia recebe o mesmo peso, independentemente do veículo ou da relevância econômica, o que torna a regra fácil de inspecionar, mas não capta importância ou audiência. O caso sem notícia observada também precisa de uma regra. Na campanha, dias elegíveis sem matérias recebem entrada zero. Isso não significa que houve uma notícia classificada como neutra e tampouco que a cobertura jornalística foi completa naquele dia.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 126,
+      "objective": "Agregar em média diária Xᵈ e regra para dias sem matéria observada.",
+      "on_screen": [
+        "Xᵈ = média simples dos escores das notícias observadas no dia d",
+        "Exemplo: (+0,50 − 0,20 + 0,10) ÷ 3 = +0,1333",
+        "Sem matéria observada em dia elegível: Xᵈ = 0",
+        "Zero no inventário ≠ notícia neutra ≠ cobertura completa."
+      ],
+      "transition": "Passar para: : O Soft mostra o dia; o ITI guarda parte do passado."
+    },
+    {
+      "id": "qual30_13",
+      "n": 13,
+      "title": "O Soft mostra o dia; o ITI guarda parte do passado",
+      "seconds": 60,
+      "source": "Seções 2.4 e 4.5",
+      "layout": "MEMORIA_COMPARACAO",
+      "screen": [
+        "Soft pontual = Xᵈ do dia de corte",
+        "ITI = parte do estado anterior + parte de Xᵈ",
+        "Sem entrada nova: Soft = 0; ITI pode permanecer diferente de 0",
+        "A memória é uma regra matemática, não memória comprovada dos investidores."
+      ],
+      "visual": "Dois mini-gráficos didáticos (ou linhas vetoriais) com a MESMA entrada semanal: à esquerda só o ponto atual; à direita linha suavizada. No topo, destaque gráfico maior que texto. Usar só dados ilustrativos; rótulo visível “ILUSTRAÇÃO”.",
+      "voice": "A partir da média diária, conseguimos comparar duas maneiras de representar o noticiário. A primeira é o Soft pontual, que mostra apenas a entrada selecionada no dia de corte. Se esse dia não teve notícia observada, o Soft vale zero. A segunda é o Índice Temporal Informacional, ou ITI, que conserva parte do valor acumulado antes e mistura esse estado com o novo sinal. Assim, mesmo em um dia sem nova entrada, pode permanecer uma contribuição de notícias anteriores. Isso cria persistência e suaviza variações rápidas. É importante não interpretar essa memória como a memória real dos investidores ou o tempo de impacto de uma notícia nos preços. É uma escolha de agregação cuja utilidade será examinada empiricamente.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 118,
+      "objective": "Contrastar Soft pontual e ITI com memória exponencial.",
+      "on_screen": [
+        "Soft pontual = Xᵈ do dia de corte",
+        "ITI = parte do estado anterior + parte de Xᵈ",
+        "Sem entrada nova: Soft = 0; ITI pode permanecer diferente de 0",
+        "A memória é uma regra matemática, não memória comprovada dos investidores."
+      ],
+      "transition": "Passar para: : Meia-vida H = 7 define a retenção diária."
+    },
+    {
+      "id": "qual30_14",
+      "n": 14,
+      "title": "Meia-vida H = 7 define a retenção diária",
+      "seconds": 85,
+      "source": "Seção 4.5 Eq. 4.3–4.4",
+      "layout": "FORMULA_DESTAQUE",
+      "screen": [
+        "λ_H = 2^(−1/H)  |  H: meia-vida em dias civis",
+        "H = 7 → λ₇ ≈ 0,9057",
+        "ITIᵈ = λ₇ × ITIᵈ⁻¹ + (1 − λ₇) × Xᵈ",
+        "90,57% do estado anterior + 9,43% do sinal do dia"
+      ],
+      "visual": "Topo um mini-gráfico editável de decaimento percentual após 0/7/14 dias sem entrada: 100%→50%→25%. Centro: fórmula grande 26pt. Rodapé: duas caixas lado a lado 90,57/9,43 com legendas. Evitar explicar seis símbolos simultaneamente, usar pequenos rótulos sobre as parcelas.",
+      "voice": "A forma de definir a persistência é pela meia-vida, representada pela letra H. Meia-vida significa quantos dias civis são necessários para reduzir à metade a contribuição remanescente de um estado, quando não chegam novas entradas. A configuração principal usa sete dias, aproximadamente uma semana civil. Para obter isso, calculamos lambda como dois elevado a menos um dividido por H; com H igual a sete, lambda vale aproximadamente zero vírgula nove zero cinco sete. A fórmula do ITI combina lambda vezes o valor de ontem com um menos lambda vezes a média de hoje. Portanto, aproximadamente noventa vírgula cinquenta e sete por cento do estado anterior é retido e nove vírgula quarenta e três por cento é atribuído ao sinal do dia. É uma regra de atualização, não uma afirmação de que o mercado reage nessa proporção.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 136,
+      "objective": "Destacar papel da meia-vida H=7 na retenção diária (λ₇).",
+      "on_screen": [
+        "λ_H = 2^(−1/H)  |  H: meia-vida em dias civis",
+        "H = 7 → λ₇ ≈ 0,9057",
+        "ITIᵈ = λ₇ × ITIᵈ⁻¹ + (1 − λ₇) × Xᵈ",
+        "90,57% do estado anterior + 9,43% do sinal do dia"
+      ],
+      "transition": "Passar para: : Exemplo numérico: o ITI passa de 0,20 para 0,2283."
+    },
+    {
+      "id": "qual30_15",
+      "n": 15,
+      "title": "Exemplo numérico: o ITI passa de 0,20 para 0,2283",
+      "seconds": 80,
+      "source": "Seção 4.5; Apêndice C",
+      "layout": "CONTA_PASSO_A_PASSO",
+      "screen": [
+        "Ontem: ITI = 0,20 | Hoje: X = 0,50 | λ₇ = 0,9057",
+        "Parcela anterior: 0,9057 × 0,20 ≈ 0,1811",
+        "Parcela nova: 0,0943 × 0,50 ≈ 0,0472",
+        "Novo ITI ≈ 0,1811 + 0,0472 = 0,2283"
+      ],
+      "visual": "Quatro passos em uma linha horizontal numerada 1→2→3→4; resultado +0,2283 maior, com comparativo 0,20→0,2283. Inclua em nota discreta “exemplo didático da dissertação — não é observação da Sabesp”. Não usar imagem; tudo editável.",
+      "voice": "Vamos aplicar esses pesos a uma conta para deixar a fórmula concreta. Suponha que o ITI de ontem seja zero vírgula vinte e que a média das notícias de hoje seja zero vírgula cinquenta. Primeiro multiplicamos o valor anterior por zero vírgula nove zero cinco sete, obtendo aproximadamente zero vírgula dezoito onze. Depois multiplicamos o sinal de hoje por zero vírgula zero nove quatro três, chegando a aproximadamente zero vírgula zero quatro sete dois. Somando as duas parcelas, o novo valor será cerca de zero vírgula dois dois oito três. O índice se move na direção do sinal atual, mas não esquece totalmente o anterior. Se não chegar nenhuma notícia no dia seguinte, a entrada diária será zero, e o estado continuará decaindo. É importante destacar que esses valores são ilustrativos: eles demonstram a operação matemática e não descrevem um dia específico da Sabesp.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 144,
+      "objective": "Ilustrar numericamente um passo de atualização do ITI.",
+      "on_screen": [
+        "Ontem: ITI = 0,20 | Hoje: X = 0,50 | λ₇ = 0,9057",
+        "Parcela anterior: 0,9057 × 0,20 ≈ 0,1811",
+        "Parcela nova: 0,0943 × 0,50 ≈ 0,0472",
+        "Novo ITI ≈ 0,1811 + 0,0472 = 0,2283"
+      ],
+      "transition": "Passar para: : Três referências não usam a mesma janela de informação."
+    },
+    {
+      "id": "qual30_16",
+      "n": 16,
+      "title": "Três referências não usam a mesma janela de informação",
+      "seconds": 70,
+      "source": "Seção 4.5 Tabela 2",
+      "layout": "TABELA_COMPARACAO",
+      "screen": [
+        "Soft pontual | apenas a entrada do dia de corte | sem memória",
+        "Média semanal | dias da janela semanal até o corte | pesos iguais",
+        "ITI-H7 | dias até o corte, inclusive semanas anteriores | memória exponencial",
+        "Mesmas probabilidades, mas históricos e pesos diferentes."
+      ],
+      "visual": "Tabela nativa de 3 linhas × 3 colunas, headers “Indicador / Janela / Regra”. Linha ITI com destaque vermelho suave; inserir barras horizontais finas mostrando a extensão do histórico (hoje/semana/anteriores), não fotos.",
+      "voice": "Para interpretar o experimento, precisamos distinguir os três indicadores comparados. O Soft pontual considera somente a entrada do dia escolhido como corte informacional. A média semanal considera as entradas diárias elegíveis da janela da semana até esse mesmo corte e dá peso igual a cada dia. Já o ITI-H7 mantém uma memória exponencial que pode trazer contribuições de semanas anteriores. Os três partem das mesmas probabilidades contextuais produzidas pelo classificador, mas não empregam exatamente a mesma quantidade de informação nem a mesma ponderação. Isso faz diferença científica. Se encontrarmos uma diferença entre ITI e Soft, não podemos atribuí-la somente ao formato exponencial dos pesos: ela pode decorrer também da extensão do histórico disponível. Por isso, o desenho de um baseline controlado é parte importante da continuidade.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 126,
+      "objective": "Comparar janelas de informação com baselines da literatura.",
+      "on_screen": [
+        "Soft pontual | apenas a entrada do dia de corte | sem memória",
+        "Média semanal | dias da janela semanal até o corte | pesos iguais",
+        "ITI-H7 | dias até o corte, inclusive semanas anteriores | memória exponencial",
+        "Mesmas probabilidades, mas históricos e pesos diferentes."
+      ],
+      "transition": "Passar para: : Alinhamento: o índice não pode usar notícia futura."
+    },
+    {
+      "id": "qual30_17",
+      "n": 17,
+      "title": "Alinhamento: o índice não pode usar notícia futura",
+      "seconds": 65,
+      "source": "Seção 4.6 Eq. 4.6",
+      "layout": "LINHA_TEMPO",
+      "screen": [
+        "Corte textual = fim do dia anterior ao último pregão da semana",
+        "Último pregão atual: preço ajustado Pʷ",
+        "Último pregão futuro: Pʷ⁺¹",
+        "Retorno: Rʷ⁽¹⁾ = ln(Pʷ⁺¹ / Pʷ)"
+      ],
+      "visual": "Linha do tempo grande com marcadores quarta/quinta/sexta, exemplo sem feriado e um pequeno inset de feriado. Setas “NOTÍCIAS ADMITIDAS”, “FECHAMENTO ATUAL”, “FECHAMENTO SEGUINTE”. Fórmula em faixa separada. Sem cotação real ilustrativa para não inventar dados.",
+      "voice": "Depois de calcular o sinal textual, precisamos associá-lo a preços sem incluir informação que só estaria disponível no futuro. A dissertação adota uma regra conservadora: para cada semana, encontra o último pregão e considera notícias publicadas até o fim do dia civil anterior. Se o último pregão for sexta-feira, o corte será quinta-feira à noite. Se a sexta for feriado e o último pregão ocorrer na quinta, o corte passa a ser o fim da quarta. O retorno financeiro vem dos preços ajustados de fechamento da semana atual e da semana seguinte, calculando o logaritmo da razão entre eles. É uma variável observada no mercado, não produzida pelo FinBERT. Essa regra diminui o risco de antecipação, embora horários ausentes de notícias ainda representem uma limitação.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 125,
+      "objective": "Garantir alinhamento temporal: sem lookahead de notícias.",
+      "on_screen": [
+        "Corte textual = fim do dia anterior ao último pregão da semana",
+        "Último pregão atual: preço ajustado Pʷ",
+        "Último pregão futuro: Pʷ⁺¹",
+        "Retorno: Rʷ⁽¹⁾ = ln(Pʷ⁺¹ / Pʷ)"
+      ],
+      "transition": "Passar para: : A avaliação textual utiliza cem notícias anotadas pelo autor."
+    },
+    {
+      "id": "qual30_18",
+      "n": 18,
+      "title": "A avaliação textual utiliza cem notícias anotadas pelo autor",
+      "seconds": 60,
+      "source": "Seção 4.3; Seção 5.1",
+      "layout": "AMOSTRA_100",
+      "screen": [
+        "100 notícias selecionadas para diagnóstico (não aleatórias)",
+        "Referência humana: anotação do autor (07/10/2026)",
+        "Título + conteúdo documental; em 15 registros o conteúdo repete o título",
+        "Não há consenso independente de especialistas nesta campanha."
+      ],
+      "visual": "Número “100” destacado à esquerda; à direita 3 linhas informativas. Mini-barra 85 com corpo distinto vs 15 título repetido (apenas como disponibilidade documental). Evitar selo “validação” e imagens de pessoas.",
+      "voice": "A frente textual foi construída para examinar a qualidade das classes previstas. Utilizamos cem notícias relacionadas à Sabesp, escolhidas de maneira que diferentes classes do modelo aparecessem na amostra. Isso ajuda a investigar divergências, mas não corresponde a uma seleção aleatória de todo o corpus temporal. Os rótulos de referência foram atribuídos pelo próprio autor, segundo o protocolo orientado à Sabesp em outubro de dois mil e vinte e seis. Portanto, é uma referência humana provisória, ainda não um consenso entre especialistas independentes. Há também diferença na quantidade de texto disponível: em quinze dos cem registros, o campo de conteúdo apenas repetia o título. É necessário ler todas as métricas posteriores tendo em mente essas limitações.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 116,
+      "objective": "Descrever amostra de 100 notícias e procedimento de anotação.",
+      "on_screen": [
+        "100 notícias selecionadas para diagnóstico (não aleatórias)",
+        "Referência humana: anotação do autor (07/10/2026)",
+        "Título + conteúdo documental; em 15 registros o conteúdo repete o título",
+        "Não há consenso independente de especialistas nesta campanha."
+      ],
+      "transition": "Passar para: : A matriz de confusão mostra onde estão os desacordos."
+    },
+    {
+      "id": "qual30_19",
+      "n": 19,
+      "title": "A matriz de confusão mostra onde estão os desacordos",
+      "seconds": 75,
+      "source": "Seção 5.1 Tabela 4",
+      "layout": "MATRIZ_CONFUSAO",
+      "screen": [
+        "Linhas = rótulos do autor | colunas = classes previstas pelo modelo",
+        "            Prev. neg. | Prev. neutra | Prev. positiva",
+        "Autor neg.           13 | 1 | 0",
+        "Autor neutra         21 | 32 | 14",
+        "Autor positiva        4 | 10 | 5",
+        "35 neutras do autor receberam previsão com polaridade (21 + 14)."
+      ],
+      "visual": "Matriz 3×3 editável, valores grandes 20pt, linha/coluna de cabeçalhos; usar intensidade do vermelho somente para erros da linha neutra (21 e 14), diagonal com cinza muito claro. Evitar renderizar tabela como texto. Destacar “35” em uma chamada inferior.",
+      "voice": "A matriz de confusão mostra detalhadamente onde concordâncias e discordâncias ocorreram. Cada linha corresponde ao julgamento do autor e cada coluna à classe prevista pelo modelo. Na linha negativa, treze exemplos foram previstos como negativos e um como neutro. Na linha neutra, trinta e dois foram previstos como neutros, mas vinte e um foram classificados como negativos e catorze como positivos. Somando essas duas últimas células, temos trinta e cinco notícias anotadas como neutras que receberam polaridade automática. Essa é uma observação importante, porque escores com polaridade podem alimentar o índice temporal. Ainda assim, um desacordo não é prova de erro do modelo em todos os casos, pois o texto pode ser ambíguo e a própria referência humana ainda precisa ser fortalecida.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 122,
+      "objective": "Ler a matriz de confusão e padrões de erro por classe.",
+      "on_screen": [
+        "Linhas = rótulos do autor | colunas = classes previstas pelo modelo",
+        "Prev. neg. | Prev. neutra | Prev. positiva",
+        "Autor neg.           13 | 1 | 0",
+        "Autor neutra         21 | 32 | 14"
+      ],
+      "transition": "Passar para: : Acurácia de 50% não resume o desempenho por classe."
+    },
+    {
+      "id": "qual30_20",
+      "n": 20,
+      "title": "Acurácia de 50% não resume o desempenho por classe",
+      "seconds": 60,
+      "source": "Seção 5.1 Tabelas 3 e 5",
+      "layout": "METRICAS",
+      "screen": [
+        "Acurácia 50,0% | F1 macro 0,448 | kappa 0,197",
+        "Referência: 14 negativas, 67 neutras e 19 positivas",
+        "F1 negativo 0,500 | neutro 0,582 | positivo 0,263",
+        "Prever sempre “neutro” daria 67% de acurácia nessa amostra."
+      ],
+      "visual": "Três KPIs grandes na faixa superior, tabela mini por classe F1 e suporte no corpo, nota “baseline majoritário 67%” no rodapé. Evitar fazer qualquer gráfico de barras que sugira ganho. A mensagem central é a insuficiência da acurácia isolada.",
+      "voice": "Na amostra de cem notícias, o modelo concordou com a referência em cinquenta casos, resultando em cinquenta por cento de acurácia. O F1 macro foi zero vírgula quatro quatro oito, e o kappa, zero vírgula um nove sete. A acurácia isolada pode enganar porque a referência tem sessenta e sete notícias neutras. Uma regra trivial que previsse neutro para tudo chegaria a sessenta e sete por cento nessa mesma amostra, mas não reconheceria positivos ou negativos. O F1 por classe mostra padrões diferentes: o valor positivo é especialmente baixo, enquanto o classificador encontra quase todos os negativos, porém também marca negativo em muitos textos de outras classes. O diagnóstico indica necessidade de revisão da tarefa, da entrada e da referência humana.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 121,
+      "objective": "Interpretar acurácia, F1 macro e κ além do percentual global.",
+      "on_screen": [
+        "Acurácia 50,0% | F1 macro 0,448 | kappa 0,197",
+        "Referência: 14 negativas, 67 neutras e 19 positivas",
+        "F1 negativo 0,500 | neutro 0,582 | positivo 0,263",
+        "Prever sempre “neutro” daria 67% de acurácia nessa amostra."
+      ],
+      "transition": "Passar para: : A avaliação de 50% ainda não mede o sinal do ITI."
+    },
+    {
+      "id": "qual30_21",
+      "n": 21,
+      "title": "A avaliação de 50% ainda não mede o sinal do ITI",
+      "seconds": 60,
+      "source": "Seções 4.4 e 5.1.2",
+      "layout": "DUAS_REPRESENTACOES",
+      "screen": [
+        "Diagnóstico de 100 notícias → título + conteúdo disponível",
+        "Construção do ITI → sentenças próximas às menções à Sabesp",
+        "Diferentes entradas podem produzir diferentes probabilidades",
+        "Próximo passo: validar ambas as entradas nos mesmos itens."
+      ],
+      "visual": "Dois painéis de igual tamanho, documental vs contextual, com ícones de folha de texto muito discretos. Conectar por um “≠” central; rodapé explica que 50% não pode ser exportado para o ITI contextual. Textos editáveis.",
+      "voice": "Há uma ressalva que considero central para a interpretação da qualificação. Os cinquenta por cento de acurácia se referem ao diagnóstico documental preservado, baseado no título e no conteúdo disponível das cem notícias. O índice temporal, entretanto, foi construído a partir de outra representação: recortes de sentenças próximas às menções à Sabesp. Mesmo quando as notícias de origem são as mesmas, textos de entrada diferentes podem gerar probabilidades diferentes, sobretudo quando existe truncamento. Assim, não podemos dizer que cinquenta por cento seja a acurácia do sinal contextual efetivamente incorporado ao ITI. Precisamos validar as duas representações nos mesmos itens, com referência independente e registro completo das entradas e saídas do classificador. Isso está entre as primeiras tarefas previstas após a qualificação.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 121,
+      "objective": "Mostrar que avaliação textual ≠ validação do sinal ITI no tempo.",
+      "on_screen": [
+        "Diagnóstico de 100 notícias → título + conteúdo disponível",
+        "Construção do ITI → sentenças próximas às menções à Sabesp",
+        "Diferentes entradas podem produzir diferentes probabilidades",
+        "Próximo passo: validar ambas as entradas nos mesmos itens."
+      ],
+      "transition": "Passar para: : As séries observadas mostram a persistência do ITI."
+    },
+    {
+      "id": "qual30_22",
+      "n": 22,
+      "title": "As séries observadas mostram a persistência do ITI",
+      "seconds": 55,
+      "source": "Seção 5.2.3 Figura 2",
+      "layout": "GRAFICO_REAL",
+      "screen": [
+        "Soft: reage ao sinal diário observado",
+        "ITI-H7: conserva memória e varia mais lentamente",
+        "Barras: quantidade de notícias elegíveis por dia",
+        "Suavidade visual ≠ evidência de capacidade preditiva."
+      ],
+      "visual": "UTILIZAR arquivo asset figura_2_soft_iti_noticias.png em região x=58,y=96,w=604,h=260, com FIT, sem recortar eixo nem legenda. Se ficar ilegível, dividir em dois slides só no backup ou recortar a figura em duas partes preservando escala e referência. Não refazer dados arbitrariamente. Frase final em rodapé.",
+      "voice": "Agora passamos às séries efetivamente produzidas na campanha temporal. O gráfico superior mostra o sinal diário sem memória e o ITI com meia-vida de sete dias. O gráfico inferior registra quantas notícias elegíveis foram observadas ao longo do tempo. A curva do Soft apresenta oscilações rápidas, porque acompanha diretamente as entradas diárias. Já o ITI oscila de maneira mais persistente, exatamente como se espera de uma atualização com memória exponencial. Essa diferença visual confirma o comportamento do algoritmo. Mas a aparência mais suave de uma linha não significa que ela contenha mais informação sobre os preços das ações, nem que seja melhor para previsão. Para tratar dessa questão, precisamos comparar as séries com retornos posteriores e estimar a incerteza.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 119,
+      "objective": "Exibir séries Soft × ITI e interpretar persistência informacional.",
+      "on_screen": [
+        "Soft: reage ao sinal diário observado",
+        "ITI-H7: conserva memória e varia mais lentamente",
+        "Barras: quantidade de notícias elegíveis por dia",
+        "Suavidade visual ≠ evidência de capacidade preditiva."
+      ],
+      "transition": "Passar para: : Correlação com o retorno da semana seguinte: ITI × Soft."
+    },
+    {
+      "id": "qual30_23",
+      "n": 23,
+      "title": "Correlação com o retorno da semana seguinte: ITI × Soft",
+      "seconds": 75,
+      "source": "Seção 5.2.1 Tabela 6",
+      "layout": "DOIS_VALORES",
+      "screen": [
+        "94 semanas após o aquecimento",
+        "ρₛ(ITI-H7, retorno 1 semana) = −0,163",
+        "ρₛ(Soft, retorno 1 semana) = −0,203",
+        "Δρ = (−0,163) − (−0,203) = +0,040",
+        "A correlação do ITI tem MENOR magnitude absoluta."
+      ],
+      "visual": "Dois grandes números alinhados em duas colunas sem caixa vazia; régua horizontal centrada no zero como elemento secundário; diferença em um único card inferior. Não usar verde para +0,040 ou chamar de ganho. Destacar a ressalva de magnitude.",
+      "voice": "No painel principal foram consideradas noventa e quatro semanas, depois da exclusão do período de aquecimento do índice. A correlação de Spearman entre ITI-H7 e retorno da semana seguinte foi menos zero vírgula cento e sessenta e três. Para o Soft pontual, observado nas mesmas semanas, foi menos zero vírgula duzentos e três. Ambas são correlações negativas de magnitude relativamente pequena. Ao subtrair a correlação do Soft da correlação do ITI, obtemos delta rô igual a mais zero vírgula zero quarenta. É essencial interpretar esse sinal corretamente. Menos zero vírgula cento e sessenta e três é numericamente maior que menos zero vírgula duzentos e três, mas está mais próximo de zero e tem menor magnitude absoluta. Portanto, o delta positivo não representa automaticamente associação mais forte, e muito menos ganho de previsão.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 132,
+      "objective": "Comparar ρₛ de ITI-H7 e Soft com retorno da semana seguinte.",
+      "on_screen": [
+        "94 semanas após o aquecimento",
+        "ρₛ(ITI-H7, retorno 1 semana) = −0,163",
+        "ρₛ(Soft, retorno 1 semana) = −0,203",
+        "Δρ = (−0,163) − (−0,203) = +0,040"
+      ],
+      "transition": "Passar para: : O intervalo da diferença inclui zero."
+    },
+    {
+      "id": "qual30_24",
+      "n": 24,
+      "title": "O intervalo da diferença inclui zero",
+      "seconds": 90,
+      "source": "Seções 4.5 e 5.2.1",
+      "layout": "INTERVALO_BOOTSTRAP",
+      "screen": [
+        "Estimativa Δρ = +0,040",
+        "IC bootstrap nominal de 95%: [−0,127; +0,241]",
+        "p exploratório = 0,512 | 10.000 reamostragens, blocos de 4 semanas",
+        "Conclusão: a diferença não foi conclusiva nesta campanha."
+      ],
+      "visual": "Gráfico de intervalo horizontal NATIVO (x de −0,20 a +0,30) ocupando x=105,y=125,w=510,h=130; linha vertical zero evidente; ponto +0,040 e extremos rotulados. Faixa inferior com procedimento em 3 etapas “blocos de 4 semanas → reamostrar 10 mil vezes → IC”. Não transformar p em decisão confirmatória.",
+      "voice": "Uma diferença numérica observada pode decorrer da variabilidade da amostra, por isso estimamos sua incerteza. Como semanas próximas podem ser dependentes, utilizamos bootstrap em blocos: reamostramos grupos contíguos de quatro semanas, mantendo emparelhadas as observações de ITI, Soft e retorno. O procedimento foi repetido dez mil vezes. A distribuição das diferenças gerou um intervalo nominal de noventa e cinco por cento de menos zero vírgula cento e vinte e sete até mais zero vírgula duzentos e quarenta e um. Repare que esse intervalo atravessa o zero e inclui valores de sinais opostos. O valor p exploratório foi zero vírgula quinhentos e doze. Isso não fornece evidência suficiente para distinguir as associações pelo método usado. Também não prova que elas sejam equivalentes. Além disso, o valor p é exploratório, pois o procedimento não construiu explicitamente uma distribuição sob a hipótese nula.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 140,
+      "objective": "Reportar Δρ e intervalo bootstrap (exploratório, IC inclui zero).",
+      "on_screen": [
+        "Estimativa Δρ = +0,040",
+        "IC bootstrap nominal de 95%: [−0,127; +0,241]",
+        "p exploratório = 0,512 | 10.000 reamostragens, blocos de 4 semanas",
+        "Conclusão: a diferença não foi conclusiva nesta campanha."
+      ],
+      "transition": "Passar para: : O Soft pode zerar mesmo após notícias na mesma semana."
+    },
+    {
+      "id": "qual30_25",
+      "n": 25,
+      "title": "O Soft pode zerar mesmo após notícias na mesma semana",
+      "seconds": 70,
+      "source": "Seção 5.2.4 Tabela 8",
+      "layout": "LIMITACAO_BASELINE",
+      "screen": [
+        "Soft = 0 em 36 das 94 semanas do contraste principal",
+        "Em 33 dessas 36, havia notícias anteriores na janela semanal",
+        "ITI-H7 − média semanal: Δρ = −0,062",
+        "IC nominal [−0,165; +0,060] | p exploratório = 0,340",
+        "Contraste complementar também inconclusivo; janelas ainda distintas."
+      ],
+      "visual": "Metade esquerda: linha do tempo mini segunda→sexta com notícia seg/ter, corte sem notícia e Soft 0. Metade direita: 2 KPIs 36 e 33 com explicações, abaixo faixa Δρ/IC. Não usar imagens. Diferenciar exemplo ilustrativo da contagem observada: os 36/33 são empíricos.",
+      "voice": "Esses resultados também revelaram um problema de comparabilidade. Em trinta e seis das noventa e quatro semanas, o Soft pontual era zero no dia de corte. Contudo, em trinta e três dessas trinta e seis semanas, havia notícias registradas em dias anteriores da própria janela semanal. Assim, um zero no Soft pode indicar apenas ausência de entrada naquele dia, enquanto o ITI ainda carrega notícias próximas. Para ampliar a interpretação, comparamos o ITI-H7 também à média semanal. A diferença assinada foi menos zero vírgula zero sessenta e dois, com intervalo nominal de menos zero vírgula cento e sessenta e cinco a mais zero vírgula zero sessenta e valor p exploratório de zero vírgula trezentos e quarenta. A comparação também foi inconclusiva e ainda não isola somente o efeito dos pesos.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 130,
+      "objective": "Explicar limitação do Soft que zera após notícias na mesma semana.",
+      "on_screen": [
+        "Soft = 0 em 36 das 94 semanas do contraste principal",
+        "Em 33 dessas 36, havia notícias anteriores na janela semanal",
+        "ITI-H7 − média semanal: Δρ = −0,062",
+        "IC nominal [−0,165; +0,060] | p exploratório = 0,340"
+      ],
+      "transition": "Passar para: : A meia-vida muda a forma da série — não comprova superioridade."
+    },
+    {
+      "id": "qual30_26",
+      "n": 26,
+      "title": "A meia-vida muda a forma da série — não comprova superioridade",
+      "seconds": 50,
+      "source": "Seções 4.5 e 5.2.3 Figura 3",
+      "layout": "GRAFICO_REAL",
+      "screen": [
+        "H = 2: resposta mais rápida",
+        "H = 7: configuração principal",
+        "H = 14: maior persistência",
+        "O valor H = 7 não foi otimizado nem validado como ideal."
+      ],
+      "visual": "UTILIZAR asset figura_3_meias_vidas.png em x=58,y=108,w=604,h=215. Em rodapé fazer legenda textual de 3 entradas coloridas, sem tapar a legenda do gráfico. Evitar imagem adicional.",
+      "voice": "A escolha da meia-vida também foi examinada de forma exploratória. Usamos os mesmos sinais de entrada e calculamos séries com H igual a dois, sete e quatorze dias civis. O comportamento observado é coerente com a fórmula: uma meia-vida menor acompanha mais rapidamente os sinais novos; uma maior conserva o histórico por mais tempo. O valor sete foi adotado como configuração principal para investigar uma escala próxima de uma semana, e não por ser um parâmetro ótimo encontrado nos dados. A imagem mais suavizada de uma série não basta para dizer que ela explica melhor os retornos. Essas análises de sensibilidade ajudam a planejar comparações posteriores, não a selecionar retrospectivamente o resultado mais favorável.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 114,
+      "objective": "Discutir sensibilidade da forma da série à meia-vida (sem claim de superioridade).",
+      "on_screen": [
+        "H = 2: resposta mais rápida",
+        "H = 7: configuração principal",
+        "H = 14: maior persistência",
+        "O valor H = 7 não foi otimizado nem validado como ideal."
+      ],
+      "transition": "Passar para: : Principais ameaças à validade."
+    },
+    {
+      "id": "qual30_27",
+      "n": 27,
+      "title": "Principais ameaças à validade",
+      "seconds": 60,
+      "source": "Seção 5.3 Tabela 9",
+      "layout": "QUATRO_LIMITES",
+      "screen": [
+        "Construto: recorte contextual ainda sem referência independente",
+        "Comparabilidade: baselines mudam histórico e pesos",
+        "Cobertura: ausência observada pode refletir falha de coleta",
+        "Inferência e escopo: 94 semanas, estudo de caso Sabesp"
+      ],
+      "visual": "Quatro linhas com colunas “Risco observado” e “Consequência”. Não usar sinais de alerta coloridos ou fotos; ícones lineares discretos. No rodapé “correlação não é causalidade”.",
+      "voice": "Para sintetizar as ameaças à validade, destacaria quatro pontos. O primeiro é o significado do sinal textual: a avaliação documental mostrou discordâncias, e o recorte contextual ainda precisa de referência humana independente. O segundo é a comparação temporal: Soft, média semanal e ITI usam janelas e pesos distintos, de modo que a diferença observada não pode ser atribuída a um único fator. O terceiro é a cobertura do corpus, porque alguns zeros podem refletir lacunas de coleta. Por fim, a evidência financeira tem apenas noventa e quatro semanas no contraste principal e se refere à Sabesp, em período com mudanças regulatórias e societárias relevantes. Não cabe transformar essa associação marginal em previsão, causalidade ou generalização para todo o setor de saneamento.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 121,
+      "objective": "Listar ameaças à validade (coleta, rótulos, amostra, inferência).",
+      "on_screen": [
+        "Construto: recorte contextual ainda sem referência independente",
+        "Comparabilidade: baselines mudam histórico e pesos",
+        "Cobertura: ausência observada pode refletir falha de coleta",
+        "Inferência e escopo: 94 semanas, estudo de caso Sabesp"
+      ],
+      "transition": "Passar para: : Plano após a qualificação: validar antes de generalizar."
+    },
+    {
+      "id": "qual30_28",
+      "n": 28,
+      "title": "Plano após a qualificação: validar antes de generalizar",
+      "seconds": 55,
+      "source": "Seção 6.2 Tabela 10",
+      "layout": "CRONOGRAMA",
+      "screen": [
+        "Mês 1 — corpus, versões e cobertura documentados",
+        "Mês 2 — anotadores independentes para as duas entradas textuais",
+        "Mês 3 — janelas iguais; variar somente os pesos",
+        "Mês 4 — período temporal novo; Mês 5 — redação e artigo",
+        "Prazos indicativos, sem depender de significância estatística."
+      ],
+      "visual": "Cronograma de 5 passos em uma linha horizontal; cada etapa tem título 2-4 palavras e produto esperado 7-10 palavras. Reusar bordas e cores do padrão UFSJ. Mostrar “planejado” acima, nenhum checkmark de realizado.",
+      "voice": "A continuidade do trabalho segue uma sequência deliberada. Primeiro, organizar e preservar melhor o corpus, suas versões e os limites de cobertura. Segundo, obter anotações independentes que avaliem tanto a entrada documental quanto o recorte contextual usado pelo ITI, nos mesmos exemplos. Terceiro, construir comparações com janela, dias e corte iguais, mudando apenas a ponderação uniforme ou exponencial. Depois, avaliar um período novo, que não tenha sido utilizado para escolher parâmetros. A reserva de semanas anteriormente examinada já não pode ser tratada como teste confirmatório inédito. Por fim, consolidar a redação e preparar um artigo. São prazos indicativos de cinco meses após a qualificação, e o êxito do plano não depende de encontrar significância estatística.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 115,
+      "objective": "Apresentar cronograma pós-qualificação até a dissertação.",
+      "on_screen": [
+        "Mês 1 — corpus, versões e cobertura documentados",
+        "Mês 2 — anotadores independentes para as duas entradas textuais",
+        "Mês 3 — janelas iguais; variar somente os pesos",
+        "Mês 4 — período temporal novo; Mês 5 — redação e artigo"
+      ],
+      "transition": "Passar para: : Síntese: um índice implementado, com validação ainda aberta."
+    },
+    {
+      "id": "qual30_29",
+      "n": 29,
+      "title": "Síntese: um índice implementado, com validação ainda aberta",
+      "seconds": 40,
+      "source": "Seção 6.1",
+      "layout": "CONCLUSAO",
+      "screen": [
+        "Implementado: notícias → probabilidades → escore → ITI → alinhamento",
+        "Diagnóstico: limitações textuais e contrastes temporais inconclusivos",
+        "Próximo passo: validar entradas e controlar janelas/pesos",
+        "Obrigado. Perguntas?"
+      ],
+      "visual": "Slide sem imagens, com três afirmações hierarquizadas e uma linha final “Obrigado. Perguntas?”. Manter cabeçalho institucional e fundo branco; não usar mural de fotos ou grande conclusão causal.",
+      "voice": "Concluindo, a contribuição desta qualificação é um procedimento explícito para converter notícias em uma série temporal e examinar criticamente sua interpretação. A implementação produziu resultados verificáveis e identificou limitações relevantes na classificação textual e nos contrastes temporais. Os testes disponíveis não demonstram superioridade, causalidade ou capacidade preditiva do ITI. A próxima etapa consiste em validar o próprio sinal e comparar estratégias temporais de maneira mais controlada. Essa é a direção proposta para a dissertação final. Obrigado pela atenção; fico à disposição para as perguntas e sugestões da banca.",
+      "footer": "Fonte: dissertação de qualificação, 2026.",
+      "words": 88,
+      "objective": "Fechar com síntese honesta: implementação feita, validação em aberto.",
+      "on_screen": [
+        "Implementado: notícias → probabilidades → escore → ITI → alinhamento",
+        "Diagnóstico: limitações textuais e contrastes temporais inconclusivos",
+        "Próximo passo: validar entradas e controlar janelas/pesos",
+        "Obrigado. Perguntas?"
+      ],
+      "transition": "Encerrar o bloco e abrir para perguntas."
+    }
+  ],
+  "backup": [
+    {
+      "id": "A01",
+      "title": "Definições e parâmetros da campanha",
+      "screen": [
+        "Sabesp/SBSP3; maio/2022 a abril/2024; 1.253 notícias; 5 fontes",
+        "FinBERT-PT-BR; texto contextual; até 512 tokens",
+        "H principal 7 dias; sensibilidades 2 e 14 dias",
+        "70 dias de aquecimento; 104 semanas alinhadas; 94 na comparação principal",
+        "Bootstrap 10.000 reamostragens; blocos de 4 semanas"
+      ],
+      "visual": "Tabela técnica 2 colunas, nativa, sem imagens.",
+      "voice": "A ficha registra as configurações reportadas pela campanha. A reprodução numérica exata requer preservar as versões dos textos, probabilidades e preços ajustados realmente utilizados.",
+      "objective": "Detalhar definições operacionais e parâmetros da campanha.",
+      "on_screen": [
+        "Sabesp/SBSP3; maio/2022 a abril/2024; 1.253 notícias; 5 fontes",
+        "FinBERT-PT-BR; texto contextual; até 512 tokens",
+        "H principal 7 dias; sensibilidades 2 e 14 dias",
+        "70 dias de aquecimento; 104 semanas alinhadas; 94 na comparação principal"
+      ],
+      "transition": "Em seguida: Métricas de classificação por classe."
+    },
+    {
+      "id": "A02",
+      "title": "Métricas de classificação por classe",
+      "screen": [
+        "Negativa: precisão 0,342; revocação 0,929; F1 0,500; suporte 14",
+        "Neutra: precisão 0,744; revocação 0,478; F1 0,582; suporte 67",
+        "Positiva: precisão 0,263; revocação 0,263; F1 0,263; suporte 19",
+        "Macro: precisão 0,450; revocação 0,556; F1 0,448"
+      ],
+      "visual": "Tabela nativa 4×5; coluna “classe” larga para leitura.",
+      "voice": "Esses resultados descrevem o mesmo conjunto documental de cem notícias da dissertação, sem generalização direta ao corpus temporal.",
+      "objective": "Tabela de métricas por classe para apoio em perguntas.",
+      "on_screen": [
+        "Negativa: precisão 0,342; revocação 0,929; F1 0,500; suporte 14",
+        "Neutra: precisão 0,744; revocação 0,478; F1 0,582; suporte 67",
+        "Positiva: precisão 0,263; revocação 0,263; F1 0,263; suporte 19",
+        "Macro: precisão 0,450; revocação 0,556; F1 0,448"
+      ],
+      "transition": "Em seguida: Família de oito sensibilidades."
+    },
+    {
+      "id": "A03",
+      "title": "Família de oito sensibilidades",
+      "screen": [
+        "H2 × Soft +0,067; H14 × Soft +0,035; Pearson +0,038",
+        "Horizontes 2 sem. −0,103; 4 sem. −0,177",
+        "Escore discreto −0,078; recorte vs integral −0,061",
+        "Suavização alternativa −0,031",
+        "p Holm = 0,200 para recorte vs integral; 1,000 para as demais"
+      ],
+      "visual": "Usar tabela do PDF, Tabela 7, com colunas Δρ, IC 95% nominal e p Holm; se tamanho pequeno, separar em A03a/A03b, mantendo na seção de apoio.",
+      "voice": "Valores p ajustados por Holm não equivalem a ajustes dos intervalos nominais. Nenhum contraste secundário sustenta conclusão confirmatória.",
+      "objective": "Resumo das oito sensibilidades do desenho experimental.",
+      "on_screen": [
+        "H2 × Soft +0,067; H14 × Soft +0,035; Pearson +0,038",
+        "Horizontes 2 sem. −0,103; 4 sem. −0,177",
+        "Escore discreto −0,078; recorte vs integral −0,061",
+        "Suavização alternativa −0,031"
+      ],
+      "transition": "Em seguida: Comparação dos grupos por heurística."
+    },
+    {
+      "id": "A04",
+      "title": "Comparação dos grupos por heurística",
+      "screen": [
+        "Amostra completa: N=100; acurácia 50,0%; κ=0,197; F1 macro 0,448",
+        "Focal (heurística): N=74; acurácia 52,7%; κ=0,260; F1 macro 0,498",
+        "Agenda/multiempresa (heurística): N=26; acurácia 42,3%; κ=−0,032; F1 macro 0,204"
+      ],
+      "visual": "Tabela nativa de 3×5 linhas + rótulo de heurística.",
+      "voice": "A diferença não deve ser interpretada como efeito causal do tipo de notícia; tamanhos e composição dos grupos diferem.",
+      "objective": "Contrastar subgrupos heurísticos (focal vs agenda/multiempresa).",
+      "on_screen": [
+        "Amostra completa: N=100; acurácia 50,0%; κ=0,197; F1 macro 0,448",
+        "Focal (heurística): N=74; acurácia 52,7%; κ=0,260; F1 macro 0,498",
+        "Agenda/multiempresa (heurística): N=26; acurácia 42,3%; κ=−0,032; F1 macro 0,204"
+      ],
+      "transition": "Em seguida: Bootstrap em blocos — detalhes do algoritmo."
+    },
+    {
+      "id": "A05",
+      "title": "Bootstrap em blocos — detalhes do algoritmo",
+      "screen": [
+        "Unidades: semanas alinhadas com ITI, Soft e retorno",
+        "Reamostrar blocos contíguos de 4 semanas, mantendo o pareamento",
+        "Repetir 10.000 vezes e calcular Δρ a cada rodada",
+        "IC nominal = percentis 2,5 e 97,5; p exploratório não confirmatório"
+      ],
+      "visual": "Fluxo horizontal de 4 etapas vetoriais; nenhum gráfico adicional.",
+      "voice": "O método procura preservar parte da dependência temporal. O comprimento de quatro semanas é uma decisão experimental e não foi demonstrado como ótimo.",
+      "objective": "Algoritmo do bootstrap em blocos (10 mil réplicas).",
+      "on_screen": [
+        "Unidades: semanas alinhadas com ITI, Soft e retorno",
+        "Reamostrar blocos contíguos de 4 semanas, mantendo o pareamento",
+        "Repetir 10.000 vezes e calcular Δρ a cada rodada",
+        "IC nominal = percentis 2,5 e 97,5; p exploratório não confirmatório"
+      ],
+      "transition": "Em seguida: Sensibilidade temporal observada."
+    },
+    {
+      "id": "A06",
+      "title": "Sensibilidade temporal observada",
+      "screen": [
+        "H = 2, 7 e 14 dias",
+        "As séries partem das mesmas probabilidades",
+        "O gráfico mostra persistência, não superioridade econômica."
+      ],
+      "visual": "Utilizar a figura_3_meias_vidas.png em largura grande e FIT.",
+      "voice": "Usar se a banca pedir maior detalhe sobre o parâmetro H e a escolha exploratória de sete dias.",
+      "objective": "Figura de meias-vidas observadas no experimento.",
+      "on_screen": [
+        "H = 2, 7 e 14 dias",
+        "As séries partem das mesmas probabilidades",
+        "O gráfico mostra persistência, não superioridade econômica.",
+        "Comentar sensibilidade da meia-vida (figura)."
+      ],
+      "transition": "Em seguida: Futuro: pesos iguais versus exponenciais, janelas idênticas."
+    },
+    {
+      "id": "A07",
+      "title": "Futuro: pesos iguais versus exponenciais, janelas idênticas",
+      "screen": [
+        "Mesmo corte, mesmos escores, mesmos dias elegíveis, mesma janela",
+        "Controle: pesos uniformes",
+        "Tratamento: pesos exponenciais normalizados",
+        "Esse experimento ainda não foi executado."
+      ],
+      "visual": "Duas colunas com a MESMA linha temporal; só mudar o tamanho dos pesos desenhados.",
+      "voice": "A comparação com Soft não isolou exclusivamente a regra exponencial. O novo desenho pretende comparar pesos mantendo fixa a informação disponível.",
+      "objective": "Trabalho futuro: pesos, janelas e generalização.",
+      "on_screen": [
+        "Mesmo corte, mesmos escores, mesmos dias elegíveis, mesma janela",
+        "Controle: pesos uniformes",
+        "Tratamento: pesos exponenciais normalizados",
+        "Esse experimento ainda não foi executado."
+      ],
+      "transition": "Em seguida: Referências principais."
+    },
+    {
+      "id": "A08",
+      "title": "Referências principais",
+      "screen": [
+        "Santos, Bianchi e Costa (2023): FinBERT-PT-BR",
+        "Cortis et al. (2017); Sinha et al. (2022); Tang et al. (2023): sentimento por entidade",
+        "Shapiro, Sudhof e Wilson (2022); Buckman et al. (2020): notícias e persistência",
+        "Künsch (1989); Holm (1979): inferência estatística"
+      ],
+      "visual": "Lista bibliográfica compacta mas legível, 4 grupos e URLs/DOIs apenas nas notas.",
+      "voice": "São referências que sustentam componentes distintos, não prova antecipada de H igual a sete ou da superioridade do ITI.",
+      "objective": "Referências principais para aprofundamento na banca.",
+      "on_screen": [
+        "Santos, Bianchi e Costa (2023): FinBERT-PT-BR",
+        "Cortis et al. (2017); Sinha et al. (2022); Tang et al. (2023): sentimento por entidade",
+        "Shapiro, Sudhof e Wilson (2022); Buckman et al. (2020): notícias e persistência",
+        "Künsch (1989); Holm (1979): inferência estatística"
+      ],
+      "transition": "Slide de apoio — usar se a banca solicitar detalhe."
+    }
+  ]
+}

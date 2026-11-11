@@ -1,0 +1,56 @@
+{
+  "versao": "2026-11-10",
+  "fonte": "dissertacao PDF dissertacao_ppgcc.pdf e manifesto_slides.json",
+  "ancoras": {
+    "corpus_registros_brutos": 1254,
+    "corpus_duplicatas": 1,
+    "corpus_canonicas": 1253,
+    "fontes": {
+      "Money Times": 360,
+      "InfoMoney": 328,
+      "Valor Econômico": 251,
+      "G1 Economia": 203,
+      "Exame": 111
+    },
+    "avaliacao_textual_n": 100,
+    "avaliacao_anotador": "autor",
+    "avaliacao_acuracia": 0.5,
+    "avaliacao_f1_macro": 0.448,
+    "avaliacao_kappa": 0.197,
+    "avaliacao_conteudo_repete_titulo": 15,
+    "painel_semanal": 104,
+    "contraste_principal_semanas": 94,
+    "aquecimento_dias": 70,
+    "aquecimento_semanas_excluidas": 10,
+    "meia_vida_principal_dias": 7,
+    "lambda_H7_aprox": 0.9057,
+    "spearman_ITI_H7": -0.163,
+    "spearman_soft": -0.203,
+    "delta_rho_assinado": 0.04,
+    "ic_nominal_principal": [-0.127, 0.241],
+    "p_principal_exploratorio": 0.512,
+    "delta_rho_media_semanal": -0.062,
+    "ic_nominal_media_semanal": [-0.165, 0.06],
+    "p_media_semanal_exploratorio": 0.34,
+    "bootstrap_reamostragens": 10000,
+    "bootstrap_bloco_semanas": 4,
+    "semanas_soft_igual_zero": 36,
+    "dessas_com_noticias_anteriores": 33,
+    "familia_secundaria_contrastes": 8
+  },
+  "frases_proibidas": [
+    "o ITI provou",
+    "previsão confirmada",
+    "significativamente superior",
+    "validação independente realizada"
+  ],
+  "placeholders_proibidos": [
+    "Título finalidade da apresentação",
+    "Título tema da apresentação",
+    "Matéria",
+    "Prof. Dr. …",
+    "Lorem ipsum",
+    "TBD",
+    "XXX"
+  ]
+}
