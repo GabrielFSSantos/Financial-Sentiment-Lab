@@ -9,7 +9,8 @@ Entrada na raiz: [README.md](../README.md).
 | [research_trail/](research_trail/README.md) | Pesquisa — fases F0–F6, decisões, Parte 4 = números oficiais |
 | [documentation/](documentation/README.md) | Código — módulos, ITI, regras, testes |
 | [references/](references/) | BibTeX, PDFs, notas por obra |
-| [Dissertacao_PPGCC/](Dissertacao_PPGCC/) | Manuscrito LaTeX |
+| [dissertacao_ppgcc/](dissertacao_ppgcc/) | Manuscrito LaTeX (`output/dissertacao_ppgcc.pdf`, abnTeX2) |
+| [apresentacao_ppgcc/](apresentacao_ppgcc/) | Slides de qualificação — PDF Beamer (`output/apresentacao_ppgcc.pdf`) |
 
 ## Por onde começar
 

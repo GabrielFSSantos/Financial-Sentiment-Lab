@@ -12,7 +12,7 @@ Antes de alterar comportamento científico: [12_business_rules.md](12_business_r
 
 ## Export LaTeX (dissertação ITI)
 
-O repositório versiona o pipeline e `export-thesis` (JSON). Snippets e figuras em `docs/Dissertacao_PPGCC/generated/` são gerados no ambiente local do pesquisador:
+O repositório versiona o pipeline e `export-thesis` (JSON). Snippets e figuras em `docs/dissertacao_ppgcc/generated/` são gerados no ambiente local do pesquisador:
 
 ```bash
 export FSL_HARNESS_ROOT=/caminho/para/harness   # pasta com scripts/dissertation/iti_v2/

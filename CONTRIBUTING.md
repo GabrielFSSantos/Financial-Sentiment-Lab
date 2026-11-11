@@ -14,7 +14,7 @@ Não traduzir identificadores YAML (`finbert_ptbr`, `water_utilities_corpus`) ne
 
 ### Exceções documentadas
 
-- `docs/Dissertacao_PPGCC/` — manuscrito ABNT (nomes de capítulo `.tex` em português).
+- `docs/dissertacao_ppgcc/` — manuscrito ABNT (nomes de capítulo `.tex` em português).
 - Módulos com sufixo de idioma/domínio: `classifier_eval_pt.py`, `pt_br.py`.
 - Aliases em `configs/evaluation.yaml` e `dataset_aliases` até renomeação completa (ver [06_configuration.md](docs/documentation/06_configuration.md#nomenclatura-e-paths)).
 Autoria do repositório: [AUTHORS.md](AUTHORS.md).

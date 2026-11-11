@@ -19,5 +19,5 @@ Narrativa metodológica (Trilha A, Sabesp). Números oficiais na **Parte 4**; f�
 
 | Público | Rota |
 | --- | --- |
-| Banca / orientador | Partes 0–2, 4 + [Dissertacao](../Dissertacao_PPGCC/) |
+| Banca / orientador | Partes 0–2, 4 + [Dissertacao](../dissertacao_ppgcc/) |
 | Dev / reprodução | Parte 4 + [11_end_to_end_flow](../documentation/11_end_to_end_flow.md) |

@@ -6,7 +6,7 @@
 Mestrado em Ciência da Computação (PPGCC/UFSJ)  
 Autor do código, testes, configurações, documentação em `docs/` (exceto citações bibliográficas) e do protocolo operacional de anotação versionado neste repositório.
 
-Autoria acadêmica do manuscrito: ver `docs/Dissertacao_PPGCC/ufsj-abntex2.tex` (`\autor{...}`).
+Autoria acadêmica do manuscrito: ver `docs/dissertacao_ppgcc/dissertacao_ppgcc.tex` (`\autor{...}`).
 
 ## Colaboração sem autoria de código
 

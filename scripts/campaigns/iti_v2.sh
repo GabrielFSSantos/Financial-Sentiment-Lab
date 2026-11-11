@@ -101,8 +101,8 @@ case "$cmd" in
         "$PY" "${HARNESS_ROOT}/scripts/dissertation/iti_v2/${_ex}.py" "$RUN_ID"
       done
       "$PY" "${HARNESS_ROOT}/scripts/dissertation/iti_v2/verify_run_snippets.py" "$RUN_ID"
-      if command -v latexmk >/dev/null 2>&1; then
-        (cd docs/Dissertacao_PPGCC && latexmk -pdf -interaction=nonstopmode ufsj-abntex2.tex) || true
+      if command -v make >/dev/null 2>&1; then
+        (cd docs/dissertacao_ppgcc && make pdf) || true
       fi
     else
       echo "[INFO] FSL_HARNESS_ROOT ausente — export LaTeX/figuras omitido; PDF ainda compila com generated/ versionado; use export-thesis para JSON." >&2

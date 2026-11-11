@@ -1,3 +1,4 @@
+% Master PPGCC/UFSJ — classe ufsj-abntex2 (abnTeX2), ver README § Stack LaTeX.
 \documentclass[
 	12pt,
 	openright,
@@ -106,29 +107,29 @@
 
 \pretextual
 \imprimircapa
-\imprimirfolhaderosto*{Folha de rosto}
-\input{00_pretextual}
+\imprimirfolhaderosto
+\input{chapters/00_pretextual}
 
 \pdfbookmark[0]{\contentsname}{toc}
 \tableofcontents*
 \cleardoublepage
 
 \textual
-\include{01_introducao}
-\include{02_fundamentacao}
+\include{chapters/01_introducao}
+\include{chapters/02_fundamentacao}
 \ifqualificacaoparcial
 \else
-\include{03_trabalhos_relacionados}
-\include{04_metodologia}
-\include{06_resultados}
-\include{07_consideracoes_finais}
+\include{chapters/03_trabalhos_relacionados}
+\include{chapters/04_metodologia}
+\include{chapters/06_resultados}
+\include{chapters/07_consideracoes_finais}
 \fi
 
 \bookmarksetup{startatroot}
 
 \postextual
 \appendix
-\include{99_apendices}
+\include{chapters/99_apendices}
 \bibliographystyle{abntex2-alf}
 \bibliography{referencias}
 

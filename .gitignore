@@ -41,21 +41,18 @@ data/**
 !data/water_utilities_corpus/articles_strict_sabesp_event_filtered.csv
 !data/water_utilities_corpus/manual_labels_100_eval.csv
 
-# LaTeX (docs/Dissertacao_PPGCC — manter só fontes versionadas)
-docs/Dissertacao_PPGCC/*.aux
-docs/Dissertacao_PPGCC/*.log
-docs/Dissertacao_PPGCC/*.out
-docs/Dissertacao_PPGCC/*.toc
-docs/Dissertacao_PPGCC/*.lof
-docs/Dissertacao_PPGCC/*.lot
-docs/Dissertacao_PPGCC/*.bbl
-docs/Dissertacao_PPGCC/*.blg
-docs/Dissertacao_PPGCC/*.brf
-docs/Dissertacao_PPGCC/*.fls
-docs/Dissertacao_PPGCC/*.fdb_latexmk
-docs/Dissertacao_PPGCC/*.synctex.gz
-docs/Dissertacao_PPGCC/*.ilg
-docs/Dissertacao_PPGCC/*.ind
+# LaTeX — dissertação e apresentação (fontes versionadas; PDF só em output/)
+docs/dissertacao_ppgcc/build/
+docs/dissertacao_ppgcc/output/
+docs/apresentacao_ppgcc/build/
+docs/apresentacao_ppgcc/output/
+# Lixo legado na raiz dos pacotes (pré build/ + output/)
+docs/dissertacao_ppgcc/*.aux
+docs/dissertacao_ppgcc/*.log
+docs/dissertacao_ppgcc/*.pdf
+docs/apresentacao_ppgcc/*.aux
+docs/apresentacao_ppgcc/*.log
+docs/apresentacao_ppgcc/*.pdf
 
 # SO e editores
 .DS_Store

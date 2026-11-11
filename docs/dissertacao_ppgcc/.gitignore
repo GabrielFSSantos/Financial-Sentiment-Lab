@@ -1,0 +1,32 @@
+# Rascunhos locais (usar harness/qualification/reports/)
+REVISAO*.md
+*_provisorio*
+*_PROVISORIO*
+
+# Build e PDF final
+build/
+output/
+
+# Lixo LaTeX legado na raiz do pacote
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.synctex.gz
+*.toc
+*.pdf
+chapters/*.aux
+
+# Classe espúria
+memoir.cls
+memoir.cls.bak
+*.bak

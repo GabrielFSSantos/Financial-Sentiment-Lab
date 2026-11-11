@@ -55,6 +55,7 @@
 \makeatletter
 
 \renewcommand{\folhaderostocontent}{
+\thispagestyle{empty}
 \begin{center}
 {\ABNTEXchapterfont\Large UNIVERSIDADE FEDERAL DE S\~{A}O JO\~{A}O DEL-REI}
     
@@ -96,4 +97,21 @@
 \end{center}
 }
 
+\makeatother
+
+% Folha de rosto sem \phantomsection (evita rótulo visível "Folha de rosto" no PDF)
+\makeatletter
+\newcommand{\ufsj@folhaderosto}{%
+  \clearpage
+  \thispagestyle{empty}%
+  \begingroup
+    \hypersetup{pdfpagelabels=false}%
+    \pdfbookmark[0]{\folhaderostoname}{folhaderosto}%
+  \endgroup
+  \folhaderostocontent
+  \newpage
+}
+\renewcommand{\imprimirfolhaderosto}{%
+  \@ifstar{\ufsj@folhaderosto}{\ufsj@folhaderosto}%
+}
 \makeatother
