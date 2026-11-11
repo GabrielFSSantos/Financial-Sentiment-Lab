@@ -74,6 +74,18 @@ def _rects_overlap(a: list, b: list) -> bool:
     return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
 
 
+def manifest_collapsed_boxes(data: dict, errors: list[str]) -> None:
+    for section in ("slides", "backup"):
+        for slide in data.get(section, []):
+            sid = slide.get("id", "?")
+            for el in slide.get("elements") or []:
+                if el.get("type") not in ("text", "formula"):
+                    continue
+                rect = el.get("rect") or []
+                if len(rect) == 4 and rect[3] < 2.0 and (el.get("text") or el.get("latex")):
+                    err(errors, f"{sid}/{el.get('id')}: altura {rect[3]}% insuficiente")
+
+
 def manifest_element_overlaps(data: dict, errors: list[str]) -> None:
     for section in ("slides", "backup"):
         for slide in data.get(section, []):
@@ -214,6 +226,7 @@ def validate_manifest(data: dict, fatos: dict) -> list[str]:
     for s in backup:
         validate_slide(s, backup=True, errors=errors)
     manifest_element_overlaps(data, errors)
+    manifest_collapsed_boxes(data, errors)
     ancoras = fatos.get("ancoras", {})
     matrix_checks(ancoras, errors)
     formula_checks(data, errors)
@@ -246,6 +259,9 @@ def run_self_test() -> int:
         from test_render_geometry import run_all as geom_tests
 
         check("geometria_charts", geom_tests() == 0)
+        from test_layout_content import main as layout_content_tests
+
+        check("layout_content", layout_content_tests() == 0)
     except Exception as exc:  # noqa: BLE001
         failures.append(f"geometria_charts: {exc}")
     if failures:

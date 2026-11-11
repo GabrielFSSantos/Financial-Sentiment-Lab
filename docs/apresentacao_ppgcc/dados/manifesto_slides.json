@@ -371,7 +371,7 @@
           "type": "text",
           "rect": [
             5,
-            81.0,
+            73.5,
             90,
             5.5
           ],
@@ -766,9 +766,9 @@
           "type": "text",
           "rect": [
             5,
-            66,
+            64,
             90,
-            12
+            8
           ],
           "text": "Lacuna no estudo de caso: validar a entrada contextual e comparar agregações sob informação equivalente.",
           "style": {
@@ -819,9 +819,9 @@
           "type": "text",
           "rect": [
             5,
-            25,
+            24,
             90,
-            16
+            17
           ],
           "text": "Como a representação textual e a agregação temporal afetam o indicador e sua associação com retornos posteriores da SBSP3?",
           "style": {
@@ -841,9 +841,9 @@
           "type": "formula",
           "rect": [
             5,
-            44,
+            43,
             90,
-            11
+            12
           ],
           "text": "Δρ = correlação do ITI-H7 − correlação do Soft",
           "style": {
@@ -886,9 +886,9 @@
           "type": "formula",
           "rect": [
             5,
-            68,
+            66,
             32,
-            8
+            9
           ],
           "text": "Hipótese bilateral: Δρ diferente de zero",
           "style": {
@@ -909,9 +909,9 @@
           "type": "text",
           "rect": [
             38,
-            68,
+            66,
             57,
-            8
+            9
           ],
           "text": "Objetivo: desenvolver e avaliar um procedimento reprodutível no caso Sabesp.",
           "style": {
@@ -962,15 +962,15 @@
           "type": "table",
           "rect": [
             5,
-            22.0,
+            22,
             90,
-            50.5
+            44
           ],
           "text": "",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 9.5,
-            "leading_pt": 11.2,
+            "size_pt": 9.0,
+            "leading_pt": 10.5,
             "weight": "regular",
             "color": "#292D32",
             "background": "#FFFFFF",
@@ -1008,16 +1008,16 @@
           "header_fill": "#F3F5F7",
           "rule_color": "#D5DAE0",
           "rule_width_pt": 0.4,
-          "row_padding_pt": 2
+          "row_padding_pt": 1.0
         },
         {
           "id": "message",
           "type": "text",
           "rect": [
             5,
-            76.5,
+            73.5,
             90,
-            4.0
+            5.5
           ],
           "text": "Contribuição: integração documentada e avaliação crítica no caso Sabesp.",
           "style": {
@@ -1076,9 +1076,9 @@
           "type": "text",
           "rect": [
             5,
-            25.0,
+            23,
             58,
-            6.0
+            8
           ],
           "text": "1.254 registros brutos − 1 duplicata = 1.253 notícias canônicas",
           "style": {
@@ -1094,21 +1094,43 @@
           }
         },
         {
-          "id": "destaque_total",
+          "id": "destaque_num",
           "type": "text",
           "rect": [
             66,
             28,
             28,
-            14
+            8
           ],
-          "text": "1.253\nnotícias canônicas",
+          "text": "1.253",
           "style": {
             "font": "Latin Modern Sans",
-            "size_pt": 24,
-            "leading_pt": 28,
+            "size_pt": 28,
+            "leading_pt": 32,
             "weight": "bold",
             "color": "#C1272F",
+            "background": "#FFFFFF",
+            "align": "center",
+            "valign": "top",
+            "padding_pt": 0
+          }
+        },
+        {
+          "id": "destaque_legenda",
+          "type": "text",
+          "rect": [
+            66,
+            36.5,
+            28,
+            5
+          ],
+          "text": "notícias canônicas",
+          "style": {
+            "font": "Latin Modern Sans",
+            "size_pt": 11,
+            "leading_pt": 12.5,
+            "weight": "regular",
+            "color": "#59636E",
             "background": "#FFFFFF",
             "align": "center",
             "valign": "top",
@@ -1122,7 +1144,7 @@
             5,
             34,
             58,
-            40
+            36
           ],
           "text": "",
           "style": {
@@ -1187,9 +1209,9 @@
           "type": "text",
           "rect": [
             66,
-            48,
+            43,
             28,
-            20
+            27
           ],
           "text": "5 veículos\nMaio/2022\na abril/2024\n(aproximadamente)",
           "style": {
@@ -1209,7 +1231,7 @@
           "type": "text",
           "rect": [
             5,
-            81.0,
+            73.5,
             90,
             5.5
           ],
@@ -2866,9 +2888,9 @@
           "type": "formula",
           "rect": [
             5,
-            65,
+            58,
             48,
-            12
+            11
           ],
           "text": "R_w¹ = ln(P_(w+1) / P_w)",
           "style": {
@@ -2889,9 +2911,9 @@
           "type": "text",
           "rect": [
             58,
-            64,
+            57,
             37,
-            15.0
+            14
           ],
           "text": "Sexta feriado?\nÚltimo pregão na quinta;\ncorte na quarta à noite.",
           "style": {
@@ -2911,9 +2933,9 @@
           "type": "text",
           "rect": [
             5,
-            82,
+            73.0,
             90,
-            1.0
+            6.0
           ],
           "text": "Exemplo de calendário · w: semana · R: retorno logarítmico futuro",
           "style": {
@@ -3125,9 +3147,9 @@
           "type": "text",
           "rect": [
             5,
-            25.0,
+            22,
             90,
-            3.0
+            7
           ],
           "text": "Linhas: autor · Colunas: modelo · Unidade: notícia",
           "style": {
@@ -3253,7 +3275,7 @@
           "type": "text",
           "rect": [
             66,
-            50,
+            48,
             29,
             22
           ],
@@ -3275,7 +3297,7 @@
           "type": "text",
           "rect": [
             5,
-            81.0,
+            73.5,
             90,
             5.5
           ],
@@ -3683,7 +3705,7 @@
             8,
             28,
             84,
-            50
+            44
           ],
           "path": "assets/figura_2_soft_iti_noticias.png",
           "fit": "contain",
@@ -3696,9 +3718,9 @@
           "type": "text",
           "rect": [
             5,
-            85,
+            73.0,
             90,
-            1.0
+            6.0
           ],
           "text": "Séries observadas · suavidade não demonstra capacidade preditiva.",
           "style": {
@@ -4753,7 +4775,7 @@
           "type": "text",
           "rect": [
             5,
-            81.0,
+            73.5,
             90,
             5.5
           ],
@@ -4977,7 +4999,7 @@
             33,
             62,
             62,
-            13
+            9
           ],
           "text": "Validar entradas e comparar pesos sob a mesma janela",
           "style": {
@@ -4997,9 +5019,9 @@
           "type": "text",
           "rect": [
             5,
-            82,
+            73.0,
             90,
-            1.0
+            6.0
           ],
           "text": "Obrigado. Perguntas e contribuições da banca são bem-vindas.",
           "style": {
@@ -5223,9 +5245,9 @@
           "type": "text",
           "rect": [
             5,
-            73,
+            70,
             90,
-            6.0
+            8
           ],
           "text": "Precisão: acertos entre as previsões da classe.\nRevocação: exemplos da classe recuperados. Suporte: quantidade na referência.",
           "style": {
@@ -5285,9 +5307,9 @@
           "type": "table",
           "rect": [
             5,
-            25.0,
+            24,
             90,
-            54.0
+            46
           ],
           "text": "",
           "style": {
@@ -5386,9 +5408,9 @@
           "type": "text",
           "rect": [
             5,
-            82,
+            73.0,
             90,
-            1.0
+            6.0
           ],
           "text": "Holm ajusta os valores p da família; os intervalos continuam nominais.",
           "style": {
@@ -5501,9 +5523,9 @@
           "type": "text",
           "rect": [
             5,
-            73,
+            72,
             90,
-            6.0
+            7
           ],
           "text": "Grupo agenda: 24 neutras, 2 positivas e nenhuma negativa na referência.\nA diferença é descritiva; não isola o efeito do tipo de notícia.",
           "style": {
@@ -5557,7 +5579,7 @@
             5,
             26,
             42,
-            14
+            16
           ],
           "text": "**1 · Unidade**\nSemana com ITI, referência e retorno juntos",
           "style": {
@@ -5579,7 +5601,7 @@
             53,
             26,
             42,
-            14
+            16
           ],
           "text": "**2 · Bloco**\n4 semanas contíguas; respeitar lacunas",
           "style": {
@@ -5601,7 +5623,7 @@
             5,
             46,
             42,
-            14
+            16
           ],
           "text": "**3 · Réplica**\nReamostrar blocos; recalcular Δρ",
           "style": {
@@ -5623,7 +5645,7 @@
             53,
             46,
             42,
-            14
+            16
           ],
           "text": "**4 · Repetição**\n10.000 réplicas; IC 2,5–97,5 %",
           "style": {
@@ -5671,9 +5693,9 @@
           "type": "text",
           "rect": [
             5,
-            66,
+            73.0,
             90,
-            12
+            6.0
           ],
           "text": "p exploratório: duas vezes a proporção no lado oposto ao sinal observado, limitado a 1. Não é uma distribuição nula explícita.",
           "style": {
@@ -5723,7 +5745,7 @@
             8,
             28,
             84,
-            42
+            40
           ],
           "path": "assets/figura_3_meias_vidas.png",
           "x_label": "Data",
@@ -5761,9 +5783,9 @@
           "type": "formula",
           "rect": [
             5,
-            72,
+            70,
             55,
-            9
+            10
           ],
           "text": "Peso inicial após 70 dias = 2^(−70/H)",
           "style": {
@@ -5784,7 +5806,7 @@
           "type": "text",
           "rect": [
             62,
-            72,
+            70,
             33,
             10
           ],
@@ -5904,9 +5926,9 @@
           "type": "text",
           "rect": [
             5,
-            60,
+            58,
             90,
-            16
+            13
           ],
           "text": "m: número de dias da janela · d_w: dia de corte · j: idade em dias\nU_w: agregação uniforme · E_w: exponencial normalizada · X: entrada diária",
           "style": {
@@ -5926,9 +5948,9 @@
           "type": "text",
           "rect": [
             5,
-            85,
+            73.0,
             90,
-            1.0
+            6.0
           ],
           "text": "Planejado: E_w tem janela finita; não é a recorrência histórica do ITI.",
           "style": {
@@ -6052,9 +6074,9 @@
           "type": "text",
           "rect": [
             5,
-            69,
+            67.5,
             43,
-            10.0
+            5.5
           ],
           "text": "Tang et al. (2023)\nFinEntity\n10.18653/v1/2023.emnlp-main.956",
           "style": {
@@ -6140,9 +6162,9 @@
           "type": "text",
           "rect": [
             52,
-            69,
+            67.5,
             43,
-            10.0
+            5.5
           ],
           "text": "Holm (1979)\nComparações múltiplas\nScand. J. Stat. 6(2), 65–70",
           "style": {
@@ -6162,9 +6184,9 @@
           "type": "text",
           "rect": [
             5,
-            86,
+            73.5,
             90,
-            1.0
+            5.0
           ],
           "text": "Fundamentos dos componentes; não prova de H=7 ou superioridade.",
           "style": {

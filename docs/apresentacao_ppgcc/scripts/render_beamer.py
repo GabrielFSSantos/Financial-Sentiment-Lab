@@ -293,7 +293,7 @@ def wrap_minipage(anchor: str, w: float, h: float, body: str, align: str = "left
         rag = "\\raggedright "
     return (
         f"  \\node[anchor=north west,inner sep=0pt,outer sep=0pt] at {anchor} {{"
-        f"\\begin{{minipage}}[t][{th}][t]{{{tw}}}{rag}{body}\\vfill\\null\\end{{minipage}}}};"
+        f"\\begin{{minipage}}[t][{th}][t]{{{tw}}}{rag}\\strut {body}\\end{{minipage}}}};"
     )
 
 
@@ -317,12 +317,9 @@ def render_formula(el: dict) -> str:
     anchor, w, h = rect_xywh(el["rect"])
     latex = normalize_text(el.get("latex", "").strip())
     sz = float((el.get("style") or {}).get("size_pt", 17))
-    body = f"\\displaystyle {latex}"
-    tw = f"{w:.5f}\\paperwidth"
-    return (
-        f"  \\node[anchor=north west,inner sep=0pt,text width={tw}] at {anchor} "
-        f"{{\\fontsize{{{sz:.1f}}}{{{sz*1.18:.1f}}}\\selectfont ${body}$}};"
-    )
+    lead = float((el.get("style") or {}).get("leading_pt", sz * 1.22))
+    body = f"{{\\fontsize{{{sz:.1f}}}{{{lead:.1f}}}\\selectfont $\\displaystyle {latex}$}}"
+    return wrap_minipage(anchor, w, h, body)
 
 
 def render_image(el: dict) -> str:
@@ -815,38 +812,31 @@ def render_chrome(slide: dict, *, backup: bool = False, capa: bool = False) -> l
 
 
 def estimate_text_overflow(data: dict) -> list[dict]:
-    """Estimativa heurística de texto que excede o rect (preflight)."""
-    page_w_pt = 336.0
-    page_h_pt = 189.0
+    """Estimativa de conteúdo que excede o rect (text, formula, table)."""
+    from layout_content_metrics import PAGE_H_PT, required_height_pct
+
     warnings: list[dict] = []
     for section in ("slides", "backup"):
         for slide in data.get(section, []):
             sid = slide.get("id", "?")
             for el in slide.get("elements") or []:
-                if el.get("type") != "text":
-                    continue
                 rect = el.get("rect") or []
                 if len(rect) != 4:
                     continue
-                _, _, w, h = rect
-                style = el.get("style") or {}
-                sz = float(style.get("size_pt", 12))
-                text = el.get("text", "") or ""
-                breaks = text.count("\n") + text.count("\\\\") + 1
-                plain_len = len(re.sub(r"\*+", "", text))
-                width_pt = page_w_pt * w / 100
-                height_pt = page_h_pt * h / 100
-                chars_per_line = max(10.0, width_pt / (sz * 0.52))
-                est_lines = max(breaks, plain_len / chars_per_line)
-                est_height = est_lines * sz * 1.22
-                if est_height > height_pt * 1.05:
+                need_pct = required_height_pct(el)
+                if need_pct is None:
+                    continue
+                h_pct = rect[3]
+                if need_pct > h_pct * 1.22:
                     warnings.append(
                         {
                             "slide_id": sid,
                             "element_id": el.get("id"),
-                            "est_lines": round(est_lines, 1),
-                            "rect_height_pt": round(height_pt, 1),
-                            "est_height_pt": round(est_height, 1),
+                            "type": el.get("type"),
+                            "rect_height_pct": round(h_pct, 2),
+                            "need_height_pct": round(need_pct, 2),
+                            "rect_height_pt": round(PAGE_H_PT * h_pct / 100, 1),
+                            "need_height_pt": round(PAGE_H_PT * need_pct / 100, 1),
                         }
                     )
     return warnings
